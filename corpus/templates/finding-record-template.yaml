@@ -1,0 +1,37 @@
+id: ""
+source_finding: ""
+project: ""
+date: ""
+language_tags: []
+
+bug_family: ""
+bug_class: ""
+subsystem: ""
+architecture_tags: []
+
+confidence_tier: ""
+security_verdict: ""
+validated_as: ""
+recommended_uses: []
+
+missing_property: ""
+violated_invariant: ""
+trust_boundary: ""
+entrypoint_type: ""
+sensitive_sink: ""
+
+attacker_capabilities: []
+exploit_preconditions: []
+blast_radius: ""
+
+impact_types: []
+severity_guess: ""
+severity_rationale: ""
+
+code_shape_summary: ""
+search_motifs: []
+negative_signals: []
+patch_pattern: ""
+
+source_refs: []
+notes: []

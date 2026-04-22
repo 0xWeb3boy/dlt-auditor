@@ -1,0 +1,21 @@
+id: "base-2025-12-29-base-storage-d9350fcc9"
+source_record: "base-2025-12-29-base-storage-d9350fcc9.yaml"
+project: "base"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "missing-precondition-check"
+expected_missing_property: "policy-gating"
+
+expected_impact_band: "trust_or_policy_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The patch proves a missing runtime validation was added before creating dispute games."
+  - "The patch supports classifying the change as security hardening in a sensitive blockchain path."
+  - "The patch does not by itself prove an exploitable vulnerability existed before the change."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

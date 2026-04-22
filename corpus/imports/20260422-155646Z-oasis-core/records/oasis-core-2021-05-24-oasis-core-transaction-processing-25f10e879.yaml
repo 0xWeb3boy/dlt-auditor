@@ -1,0 +1,64 @@
+id: "oasis-core-2021-05-24-oasis-core-transaction-processing-25f10e879"
+source_finding: "2021-05-24-oasis-core-transaction-processing-25f10e879.md"
+project: "oasis-core"
+date: "2021-05-24"
+language_tags:
+  - "go"
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "improper-resource-limit-enforcement"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "validator-based"
+  - "committee-based"
+  - "mempool"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "resource-accounting"
+violated_invariant: "Txpool admission and batching should enforce configured transaction resource limits using the runtime's checked transaction metadata, not just raw byte length."
+trust_boundary: "user->mempool"
+entrypoint_type: "transaction-handler"
+sensitive_sink: "transaction admission and scheduling state"
+
+attacker_capabilities:
+  - "submit crafted transactions to a node that executes the affected admission or execution path"
+  - "shape transaction metadata, size, or ordering to reach the unchecked branch"
+exploit_preconditions:
+  - "the node exposes the relevant transaction admission path for the affected runtime or consensus app"
+  - "no earlier canonical validation step fully enforces the missing property on every route to the sink"
+blast_radius: "node-local"
+
+impact_types:
+  - "resource-exhaustion"
+  - "availability"
+severity_guess: "medium"
+severity_rationale: "The path is security-sensitive and could affect resource-exhaustion, availability, but the available evidence stops short of proving a worst-case exploit, so medium is the right default band."
+
+code_shape_summary: "Txpool admission logic was still tied to an older raw-byte interface and only the visible size-based check, so configured CheckedTransaction metadata such as per-weight limits was not enforced in that admission path."
+search_motifs:
+  - "resource or gas accounting missing on one mutation path"
+  - "downstream queue failure logged but not returned to caller"
+  - "limits depend on metadata that is not preserved across stages"
+  - "checked transaction metadata lost before queueing or scheduling"
+negative_signals:
+  - "Not a match if the same accounting or limit check is rerun immediately before the sink on every path."
+  - "Not a match if downstream queue rejection cannot leave the transaction or request accepted in observable state."
+  - "Not a match if global bounds already make the missing per-item limit unreachable in practice and the patch only improves errors."
+patch_pattern: "The patch changes txpool admission checks to consume CheckedTransaction objects, enforces configured weight limits through tx.Weight(w), updates the add path to validate the checked transaction directly, and adjusts scheduler/test code to batch checked transactions and remove them by hash."
+
+source_refs:
+  - "/testing/oasis-core/validated-findings/kept/2021-05-24-oasis-core-transaction-processing-25f10e879.md"
+  - "git:25f10e8790c89e0728cb399e675339caf37dc470"
+  - "go/runtime/scheduling/simple/txpool/orderedmap/ordered_map.go:208"
+  - "go/runtime/scheduling/simple/txpool/orderedmap/ordered_map.go:53"
+  - "go/runtime/scheduling/simple/simple.go:43"
+  - "go/runtime/scheduling/simple/txpool/tester.go:89"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

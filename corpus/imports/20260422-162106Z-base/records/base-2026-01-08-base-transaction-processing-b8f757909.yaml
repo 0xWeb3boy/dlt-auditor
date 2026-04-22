@@ -1,0 +1,62 @@
+id: "base-2026-01-08-base-transaction-processing-b8f757909"
+source_finding: "2026-01-08-base-transaction-processing-b8f757909.md"
+project: "base"
+date: "2026-01-08"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "deadline-enforcement"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "fault-proof"
+  - "offchain-challenger"
+  - "deadline-check"
+  - "state-sync"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "deadline-enforcement"
+violated_invariant: "The challenger should treat any in-progress dispute game as no longer active for challenge decisions once the live on-chain deadline has passed, regardless of proposal status."
+trust_boundary: "transaction, batch, or proof input->execution or derivation pipeline"
+entrypoint_type: "challenge-orchestration"
+sensitive_sink: "challenge outcome selection or dispute progression state"
+
+attacker_capabilities:
+  - "cause the node to process a disputed game, proof, or fallback path under attacker-influenced state"
+  - "shape the challenged proof, index, or timing so the wrong branch or retry behavior is exercised"
+exploit_preconditions:
+  - "the challenger, verifier, or dispute-handling feature is enabled and following live chain state"
+  - "no later branch fully revalidates the specific challenged root, index, or fallback transition before acting"
+blast_radius: "validator-local"
+
+impact_types:
+  - "challenge-decision-errors"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, policy, or state-selection decision and the finding supports meaningful integrity risk, but most cases still stop short of proving worst-case exploitation, so medium is the right default band."
+
+code_shape_summary: "The challenger's local sync logic tied deadline expiry to proposal status instead of to the dispute deadline itself. As a result, expired but still Unchallenged games could be treated as locally challengeable during cache refresh."
+search_motifs:
+  - "challenge mode handled by a generic validation branch instead of the challenged case"
+  - "decision logic derives the target index or root from the wrong proof element"
+  - "retry or fallback state is dropped before the dispute path reaches a definitive decision"
+negative_signals:
+  - "Supported: the patch hardens deadline enforcement in off-chain challenger state synchronization."
+  - "Supported: before the fix, expired but `Unchallenged` games could be misclassified as locally challengeable."
+  - "Not supported: a confirmed on-chain security vulnerability was exploitable."
+patch_pattern: "Replace a status-gated time check with a direct deadline check at the decision point, then add test-oriented access paths to verify state-sync behavior."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260422-162106Z-base/raw-findings/2026-01-08-base-transaction-processing-b8f757909.md"
+  - "git:b8f7579091908e6ca101745aae342529ccb6ac39"
+  - "fault-proof/src/challenger.rs:245"
+  - "fault-proof/src/challenger.rs:648"
+  - "fault-proof/src/challenger.rs:184"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

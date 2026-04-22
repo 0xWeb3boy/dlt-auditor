@@ -1,0 +1,21 @@
+id: "oasis-core-2022-04-13-oasis-core-consensus-8381b14d1"
+source_record: "oasis-core-2022-04-13-oasis-core-consensus-8381b14d1.yaml"
+project: "oasis-core"
+
+expected_bug_family: "resource_accounting_and_limits"
+expected_bug_class: "insufficient-resource-limits"
+expected_missing_property: "resource-accounting"
+
+expected_impact_band: "availability_or_resource_exhaustion"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Not a match if the same accounting or limit check is rerun immediately before the sink on every path."
+  - "Not a match if downstream queue rejection cannot leave the transaction or request accepted in observable state."
+  - "Not a match if global bounds already make the missing per-item limit unreachable in practice and the patch only improves errors."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: confirmed / security-hardening."

@@ -1,0 +1,66 @@
+id: "oasis-core-2019-05-07-oasis-core-rpc-client-api-e55738ce6"
+source_finding: "2019-05-07-oasis-core-rpc-client-api-e55738ce6.md"
+project: "oasis-core"
+date: "2019-05-07"
+language_tags:
+  - "go"
+  - "rust"
+
+bug_family: "attestation_trust_and_freshness"
+bug_class: "key-scope-isolation"
+subsystem: "rpc-client-api"
+architecture_tags:
+  - "committee-based"
+  - "tee"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "key-scope-isolation"
+violated_invariant: "Key-management responses and stored key material should be scoped to the intended runtime or contract and authenticated through the runtime attestation key when exposed over shared runtime paths. The provided snippets suggest movement toward that model, but they do not establish the full protocol or a concrete violated invariant before the patch."
+trust_boundary: "remote-peer->rpc-verifier"
+entrypoint_type: "rpc-handler"
+sensitive_sink: "attestation acceptance state"
+
+attacker_capabilities:
+  - "present stale, mismatched, or policy-incompatible attestation material to the affected verifier"
+  - "trigger restarts, redeploys, or policy changes so stale trust state can be reused"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production"
+  - "the verifier, key manager, or runtime uses the affected trust or signature path"
+blast_radius: "cross-domain"
+
+impact_types:
+  - "cross-scope-data-access"
+  - "authenticated-response-integrity"
+severity_guess: "high"
+severity_rationale: "The bug can affect cross domain integrity or authorization semantics, so similar cases should be treated as high-severity until proven otherwise."
+
+code_shape_summary: "Not established by the provided evidence. At most, the patch appears to tighten an incompletely integrated keymanager/runtime design by routing signing through a shared interface and reducing handler scope, but the snippets do not prove the original flaw beyond that."
+search_motifs:
+  - "trust root or quote policy cached without refresh on change"
+  - "freshness inferred from success state instead of anchored evidence"
+  - "session or attestation state reused after peer-set or policy change"
+  - "attestation acceptance based on stale or incomplete trust inputs"
+  - "secret or key-share state accepted without runtime or generation binding"
+negative_signals:
+  - "Not a match if trust roots, quote policy, and freshness evidence are atomically refreshed before each decision."
+  - "Not a match if stale or changed session state is already invalidated on restart, reconfiguration, or peer change."
+  - "Not a match if the new code only improves observability and does not change verification inputs or policy state."
+  - "Not a match if the same policy or freshness state is fetched and verified in-line at every use site instead of being cached."
+patch_pattern: "From the supplied evidence, the concrete code-level fix is limited to two visible changes: exposing 'RAK' through the common 'Signer' trait and replacing the shown generic storage path in the keymanager host handler with runtime-scoped local storage access. The broader hardening claims in the commit description should be treated as stated intent rather than fully validated from the snippets alone."
+
+source_refs:
+  - "/testing/oasis-core/validated-findings/kept/2019-05-07-oasis-core-rpc-client-api-e55738ce6.md"
+  - "git:e55738ce601ce7c63624308b37cb4ac3652106eb"
+  - "runtime/src/rak.rs:283"
+  - "runtime/src/rak.rs:271"
+  - "go/keymanager/keymanager.go:106"
+  - "go/keymanager/handler.go:19"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

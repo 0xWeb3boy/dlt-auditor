@@ -1,0 +1,21 @@
+id: "base-2026-03-26-base-storage-78f00388d"
+source_record: "base-2026-03-26-base-storage-78f00388d.yaml"
+project: "base"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "nonce-validation"
+expected_missing_property: "replay-protection"
+
+expected_impact_band: "state_or_consensus_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Supported claim: this commit adds missing stateful nonce validation immediately before updating a nonce slot."
+  - "Supported claim: the change removes a risky blind state update in replay-sensitive logic."
+  - "Not supported: a confirmed exploitable replay or double-spend vulnerability existed in production."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

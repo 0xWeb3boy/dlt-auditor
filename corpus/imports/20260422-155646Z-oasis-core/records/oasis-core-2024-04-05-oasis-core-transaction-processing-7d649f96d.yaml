@@ -1,0 +1,65 @@
+id: "oasis-core-2024-04-05-oasis-core-transaction-processing-7d649f96d"
+source_finding: "2024-04-05-oasis-core-transaction-processing-7d649f96d.md"
+project: "oasis-core"
+date: "2024-04-05"
+language_tags:
+  - "go"
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "missing-gas-accounting"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "validator-based"
+  - "committee-based"
+  - "tee"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "gas-accounting"
+violated_invariant: "These consensus handlers are expected to account for operation-specific gas before deeper processing, and simulation should reflect the same accounting for fee estimation."
+trust_boundary: "user->mempool"
+entrypoint_type: "transaction-handler"
+sensitive_sink: "state-mutating transaction execution without full fee charge"
+
+attacker_capabilities:
+  - "submit crafted transactions to a node that executes the affected admission or execution path"
+  - "shape transaction metadata, size, or ordering to reach the unchecked branch"
+exploit_preconditions:
+  - "the node exposes the relevant transaction admission path for the affected runtime or consensus app"
+  - "no earlier canonical validation step fully enforces the missing property on every route to the sink"
+blast_radius: "node-local"
+
+impact_types:
+  - "resource-exhaustion"
+  - "denial-of-service"
+severity_guess: "medium"
+severity_rationale: "The path is security-sensitive and could affect resource-exhaustion, denial-of-service, but the available evidence stops short of proving a worst-case exploit, so medium is the right default band."
+
+code_shape_summary: "Several key manager transaction handlers appear to have omitted explicit per-operation gas charging at the start of handler execution. The fix standardizes that charging pattern and aligns simulation behavior with live gas accounting."
+search_motifs:
+  - "resource or gas accounting missing on one mutation path"
+  - "downstream queue failure logged but not returned to caller"
+  - "limits depend on metadata that is not preserved across stages"
+  - "state mutation path missing operation-specific gas charging"
+  - "secret or key-share state accepted without runtime or generation binding"
+negative_signals:
+  - "Not a match if the same accounting or limit check is rerun immediately before the sink on every path."
+  - "Not a match if downstream queue rejection cannot leave the transaction or request accepted in observable state."
+  - "Not a match if global bounds already make the missing per-item limit unreachable in practice and the patch only improves errors."
+patch_pattern: "The patch inserts the same sequence into each affected handler: load consensus gas parameters, debit gas with the matching 'GasOp' constant, fail on charging error, then return early for simulation. This makes the handlers consistently enforce their configured gas cost before further processing."
+
+source_refs:
+  - "/testing/oasis-core/validated-findings/kept/2024-04-05-oasis-core-transaction-processing-7d649f96d.md"
+  - "git:7d649f96dea8604403915995d15c1416e46e010e"
+  - "go/consensus/cometbft/apps/keymanager/secrets/txs.go:232"
+  - "go/consensus/cometbft/apps/keymanager/secrets/txs.go:134"
+  - "go/consensus/cometbft/apps/keymanager/secrets/txs.go:22"
+  - "go/consensus/cometbft/apps/keymanager/churp/txs.go:300"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

@@ -1,0 +1,66 @@
+id: "oasis-core-2022-12-08-oasis-core-rpc-client-api-52536d293"
+source_finding: "2022-12-08-oasis-core-rpc-client-api-52536d293.md"
+project: "oasis-core"
+date: "2022-12-08"
+language_tags:
+  - "go"
+  - "rust"
+
+bug_family: "attestation_trust_and_freshness"
+bug_class: "quote-policy-synchronization"
+subsystem: "rpc-client-api"
+architecture_tags:
+  - "committee-based"
+  - "tee"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "attestation-policy-synchronization"
+violated_invariant: "If enclave RPC quote verification depends on the key manager's consensus-published SGX quote policy, the runtime must receive and refresh that policy when it changes so verification does not rely on stale local state."
+trust_boundary: "host->enclave"
+entrypoint_type: "rpc-handler"
+sensitive_sink: "attestation acceptance state"
+
+attacker_capabilities:
+  - "present stale, mismatched, or policy-incompatible attestation material to the affected verifier"
+  - "trigger restarts, redeploys, or policy changes so stale trust state can be reused"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production"
+  - "the verifier, key manager, or runtime uses the affected trust or signature path"
+blast_radius: "validator-local"
+
+impact_types:
+  - "stale-security-policy"
+  - "attestation-verification-weakening"
+severity_guess: "medium"
+severity_rationale: "The path is security-sensitive and could affect stale-security-policy, attestation-verification-weakening, but the available evidence stops short of proving a worst-case exploit, so medium is the right default band."
+
+code_shape_summary: "The pre-fix design appears to have lacked an explicit mechanism to keep key-manager quote-policy state synchronized inside the runtime, especially across epoch/redeploy-driven changes. The evidence supports a state-synchronization gap in attestation policy handling more clearly than a proven verification bypass."
+search_motifs:
+  - "trust root or quote policy cached without refresh on change"
+  - "freshness inferred from success state instead of anchored evidence"
+  - "session or attestation state reused after peer-set or policy change"
+  - "quote or trust policy update path separate from actual verification path"
+  - "attestation acceptance based on stale or incomplete trust inputs"
+negative_signals:
+  - "Not a match if trust roots, quote policy, and freshness evidence are atomically refreshed before each decision."
+  - "Not a match if stale or changed session state is already invalidated on restart, reconfiguration, or peer change."
+  - "Not a match if the new code only improves observability and does not change verification inputs or policy state."
+  - "Not a match if the same policy or freshness state is fetched and verified in-line at every use site instead of being cached."
+patch_pattern: "The fix introduces quote-policy update delivery into the runtime, adds epoch-based refresh logic because quote policy may change on redeploy, and adds a runtime-side handler to receive the new policy state. This makes the quote policy available to the runtime along the same trust path as other key-manager policy updates."
+
+source_refs:
+  - "/testing/oasis-core/validated-findings/kept/2022-12-08-oasis-core-rpc-client-api-52536d293.md"
+  - "git:52536d29300a0c25b0f8865306fd625d8e727143"
+  - "go/runtime/registry/host.go:505"
+  - "go/runtime/registry/host.go:545"
+  - "runtime/src/dispatcher.rs:1017"
+  - "go/runtime/registry/host.go:621"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

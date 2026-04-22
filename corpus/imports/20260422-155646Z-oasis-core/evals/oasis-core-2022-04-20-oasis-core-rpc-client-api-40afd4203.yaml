@@ -1,0 +1,21 @@
+id: "oasis-core-2022-04-20-oasis-core-rpc-client-api-40afd4203"
+source_record: "oasis-core-2022-04-20-oasis-core-rpc-client-api-40afd4203.yaml"
+project: "oasis-core"
+
+expected_bug_family: "attestation_trust_and_freshness"
+expected_bug_class: "trust-root-verification"
+expected_missing_property: "trust-root-verification"
+
+expected_impact_band: "integrity_or_policy_enforcement"
+expected_severity_band: "high_or_medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Not a match if trust roots, quote policy, and freshness evidence are atomically refreshed before each decision."
+  - "Not a match if stale or changed session state is already invalidated on restart, reconfiguration, or peer change."
+  - "Not a match if the new code only improves observability and does not change verification inputs or policy state."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

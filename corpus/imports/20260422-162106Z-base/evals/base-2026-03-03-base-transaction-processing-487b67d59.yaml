@@ -1,0 +1,21 @@
+id: "base-2026-03-03-base-transaction-processing-487b67d59"
+source_record: "base-2026-03-03-base-transaction-processing-487b67d59.yaml"
+project: "base"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "input-validation"
+expected_missing_property: "input-validation"
+
+expected_impact_band: "state_or_consensus_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The diff supports an integrity hardening interpretation in a consensus-sensitive path, not proof of a concrete exploitable vulnerability."
+  - "The patch should not be described as fixing memory safety, authentication, or authorization issues."
+  - "The evidence does not justify claiming attacker-triggerable consensus break; it only shows previously silent surplus blobs are now rejected."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

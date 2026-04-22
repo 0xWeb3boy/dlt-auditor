@@ -1,0 +1,62 @@
+id: "oasis-core-2024-07-04-oasis-core-cryptography-8e2f08bb2"
+source_finding: "2024-07-04-oasis-core-cryptography-8e2f08bb2.md"
+project: "oasis-core"
+date: "2024-07-04"
+language_tags:
+  - "go"
+
+bug_family: "authz_and_role_gates"
+bug_class: "access-control"
+subsystem: "cryptography"
+architecture_tags:
+  - "committee-based"
+  - "tee"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "authorization"
+violated_invariant: "CHURP key-share query handling should apply explicit authorization rules tied to runtime/policy context, and consensus should not admit 'MayQuery' policy state before the protocol version that defines and supports it."
+trust_boundary: "client->query-verifier"
+entrypoint_type: "query-verification-path"
+sensitive_sink: "key-share release or secret-state acceptance"
+
+attacker_capabilities:
+  - "issue crafted queries or request data under the affected trust or authorization context"
+  - "supply stale, mismatched, or cross-scope query inputs that look structurally valid"
+exploit_preconditions:
+  - "the affected query path is enabled for the runtime or component under review"
+  - "the verifier, key manager, or runtime uses the affected trust or signature path"
+blast_radius: "validator-local"
+
+impact_types:
+  - "privilege-misuse"
+severity_guess: "high"
+severity_rationale: "The bug can affect validator local integrity or authorization semantics, so similar cases should be treated as high-severity until proven otherwise."
+
+code_shape_summary: "The shown code indicates an under-specified authorization boundary for key-share queries and missing admission-time validation for a policy field related to query authorization semantics."
+search_motifs:
+  - "valid request path missing a secondary role or policy gate"
+  - "authorization derived from one scope but sink executes in another"
+  - "shared helper returns success before role-specific enforcement"
+  - "historical or privileged query result used without binding to authoritative state"
+negative_signals:
+  - "Not a match if every route to the sink already passes through one canonical authorization helper with the same role and policy checks."
+  - "Not a match if the diff only renames roles or improves logging without changing who can reach the action."
+  - "Not a match if the affected path is test-only or unreachable in production configuration."
+patch_pattern: "The patch tightens worker-side authorization for CHURP key-share queries by consulting runtime descriptor information, and it adds consensus-side validation so 'MayQuery' cannot be set before the feature release that supports it."
+
+source_refs:
+  - "/testing/oasis-core/validated-findings/kept/2024-07-04-oasis-core-cryptography-8e2f08bb2.md"
+  - "git:8e2f08bb287598e945a2b750144082dc3db05859"
+  - "go/worker/keymanager/churp.go:149"
+  - "go/consensus/cometbft/apps/keymanager/churp/txs.go:557"
+  - "go/consensus/cometbft/apps/keymanager/churp/txs.go:132"
+  - "go/consensus/cometbft/apps/keymanager/churp/txs.go:21"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

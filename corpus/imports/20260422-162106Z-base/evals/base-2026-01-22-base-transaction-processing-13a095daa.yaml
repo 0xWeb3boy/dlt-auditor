@@ -1,0 +1,21 @@
+id: "base-2026-01-22-base-transaction-processing-13a095daa"
+source_record: "base-2026-01-22-base-transaction-processing-13a095daa.yaml"
+project: "base"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "incorrect-cache-validation"
+expected_missing_property: "state-coordinate-consistency"
+
+expected_impact_band: "state_or_consensus_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Supported: the patch hardens cached-execution reuse by rejecting reuse on transaction-prefix mismatch."
+  - "Not supported: a confirmed exploitable vulnerability or remote attack path."
+  - "Not supported: guaranteed consensus failure, privilege escalation, or asset loss from this bug alone."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

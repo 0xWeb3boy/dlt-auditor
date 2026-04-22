@@ -1,0 +1,59 @@
+id: "oasis-core-2018-05-26-oasis-core-cryptography-19cd4a286"
+source_finding: "2018-05-26-oasis-core-cryptography-19cd4a286.md"
+project: "oasis-core"
+date: "2018-05-26"
+language_tags:
+  - "rust"
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "signed-message-validation-consistency"
+subsystem: "cryptography"
+architecture_tags:[]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "signed-message-consistency"
+violated_invariant: "Signed requests should be verified once and then routed and executed using that same verified representation, and failures while extracting signed contents should abort processing."
+trust_boundary: "peer->node"
+entrypoint_type: "state-transition"
+sensitive_sink: "security-sensitive consensus or registry state"
+
+attacker_capabilities:
+  - "reach the affected externally influenced path with syntactically valid inputs"
+  - "control the fields or timing assumptions that the missing check was supposed to bind"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production"
+  - "the verifier, key manager, or runtime uses the affected trust or signature path"
+blast_radius: "validator-local"
+
+impact_types:
+  - "request-integrity"
+severity_guess: "medium"
+severity_rationale: "The path is security-sensitive and could affect request-integrity, but the available evidence stops short of proving a worst-case exploit, so medium is the right default band."
+
+code_shape_summary: "The code previously did not consistently carry one verified signed representation through later processing. The patch indicates that signed payload handling relied on extracted or reconstructed values in some paths instead of preserving and reusing the verified wrapper end to end."
+search_motifs:
+  - "signature verification without signer-set or committee binding"
+  - "valid signature reused across runtime, role, or domain scope"
+  - "message accepted after verify but before signer authorization"
+negative_signals:
+  - "Not a match if signer membership, runtime binding, and domain separation are enforced before the sink on every path."
+  - "Not a match if the patch only changes serialization, logging, or tests without changing the accepted signer set."
+  - "Not a match if the same signature context is provably unique and cannot be replayed across roles or runtimes."
+patch_pattern: "The fix restructures signed-message handling so the signed wrapper stores serialized payload bytes, the dispatcher uses the verified call object for both method lookup and execution, and one registry identity check now treats payload extraction as fallible."
+
+source_refs:
+  - "/testing/oasis-core/validated-findings/kept/2018-05-26-oasis-core-cryptography-19cd4a286.md"
+  - "git:19cd4a286faebbbc8ca7d96004f4528339ffe47f"
+  - "contract/trusted/src/dispatcher.rs:150"
+  - "common/src/signature.rs:231"
+  - "contract/trusted/src/dispatcher.rs:235"
+  - "registry/dummy/src/entity.rs:92"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

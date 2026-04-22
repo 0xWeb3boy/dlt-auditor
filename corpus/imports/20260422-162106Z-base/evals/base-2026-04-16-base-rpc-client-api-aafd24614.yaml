@@ -1,0 +1,21 @@
+id: "base-2026-04-16-base-rpc-client-api-aafd24614"
+source_record: "base-2026-04-16-base-rpc-client-api-aafd24614.yaml"
+project: "base"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "audit-log-integrity"
+expected_missing_property: "append-only-history"
+
+expected_impact_band: "trust_or_policy_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "This supports an audit-integrity hardening interpretation, not a confirmed exploitable security vulnerability."
+  - "The patch evidence is about storage semantics and concurrency behavior, not cryptographic breakage or access control."
+  - "Retention in the corpus is justified only as a security-hardening case tied to audit log integrity."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

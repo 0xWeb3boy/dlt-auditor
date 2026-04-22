@@ -1,0 +1,62 @@
+id: "base-2026-04-16-base-rpc-client-api-6d1cabf2b"
+source_finding: "2026-04-16-base-rpc-client-api-6d1cabf2b.md"
+project: "base"
+date: "2026-04-16"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "incorrect-fraud-challenge-validation"
+subsystem: "rpc-client-api"
+architecture_tags:
+  - "challenger"
+  - "dispute-handling"
+  - "fraud-proof"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "input-validation"
+violated_invariant: "When handling a `FraudulentZkChallenge`, the challenger should judge the dispute using the single intermediate root identified by the on-chain challenged index, not by scanning unrelated intermediate roots and reacting to the first invalid one."
+trust_boundary: "external chain or RPC data->node service"
+entrypoint_type: "challenge-orchestration"
+sensitive_sink: "challenge outcome selection or dispute progression state"
+
+attacker_capabilities:
+  - "cause the node to process a disputed game, proof, or fallback path under attacker-influenced state"
+  - "shape the challenged proof, index, or timing so the wrong branch or retry behavior is exercised"
+exploit_preconditions:
+  - "the challenger, verifier, or dispute-handling feature is enabled and following live chain state"
+  - "no later branch fully revalidates the specific challenged root, index, or fallback transition before acting"
+blast_radius: "validator-local"
+
+impact_types:
+  - "integrity"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, policy, or state-selection decision and the finding supports meaningful integrity risk, but most cases still stop short of proving worst-case exploitation, so medium is the right default band."
+
+code_shape_summary: "The challenger used validation scope that was broader than the decision boundary for this path. It considered all intermediate roots and derived the outcome from the first invalid one encountered, even though the dispute state identifies one specific challenged intermediate root index."
+search_motifs:
+  - "challenge mode handled by a generic validation branch instead of the challenged case"
+  - "decision logic derives the target index or root from the wrong proof element"
+  - "retry or fallback state is dropped before the dispute path reaches a definitive decision"
+negative_signals:
+  - "This supports a security-relevant hardening in off-chain challenger dispute handling."
+  - "It does not establish a confirmed exploitable vulnerability from the patch alone."
+  - "It does not prove broader impacts such as chain compromise, fund loss, or remote denial of service."
+patch_pattern: "Replace collection-wide heuristic validation with targeted validation of the exact protocol-selected item."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260422-162106Z-base/raw-findings/2026-04-16-base-rpc-client-api-6d1cabf2b.md"
+  - "git:6d1cabf2b1bdd012ffd518033e2c43feba8ba479"
+  - "crates/proof/challenge/src/driver.rs:412"
+  - "crates/proof/contracts/src/aggregate_verifier.rs:188"
+  - "crates/proof/contracts/src/aggregate_verifier.rs:406"
+  - "crates/proof/contracts/src/aggregate_verifier.rs:57"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

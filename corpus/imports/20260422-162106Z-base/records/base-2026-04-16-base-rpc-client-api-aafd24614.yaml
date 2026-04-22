@@ -1,0 +1,64 @@
+id: "base-2026-04-16-base-rpc-client-api-aafd24614"
+source_finding: "2026-04-16-base-rpc-client-api-aafd24614.md"
+project: "base"
+date: "2026-04-16"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "audit-log-integrity"
+subsystem: "rpc-client-api"
+architecture_tags:
+  - "audit"
+  - "s3"
+  - "write-once"
+  - "idempotency"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "append-only-history"
+violated_invariant: "Audit history storage should preserve each bundle event exactly once and reconstruct complete history without losing prior events when writes are retried or occur concurrently."
+trust_boundary: "audit event producer->append-only object storage"
+entrypoint_type: "audit-event-persistence"
+sensitive_sink: "append-only audit history and operator-visible forensic records"
+
+attacker_capabilities:
+  - "control or influence the external transaction, batch, checkpoint, or state input consumed by the affected path"
+  - "reach the alternate, cached, or reconstructed path before a stronger downstream check rejects the input"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production or operator workflows"
+  - "no downstream control fully revalidates the same canonical state, identity, or policy before the sink"
+blast_radius: "validator-local"
+
+impact_types:
+  - "integrity-loss"
+  - "event-loss"
+severity_guess: "low"
+severity_rationale: "The finding improves a security-sensitive path, but the source mostly supports hardening or correctness rather than a demonstrated attacker-controlled exploit, so low is the safest reusable default."
+
+code_shape_summary: "The evidence suggests the old design used read-modify-write updates against one shared bundle-history object in S3, which the new comments describe as creating read-modify-write contention. The patch addresses that by making each event an immutable record with write-once semantics, but the excerpts do not prove a specific pre-patch failure beyond that contention risk."
+search_motifs:
+  - "mutable object rewrite used as the source of audit history"
+  - "append-only events reconstructed from the latest snapshot instead of immutable entries"
+  - "storage writes lack write-once or conditional-create semantics for audit data"
+negative_signals:
+  - "This supports an audit-integrity hardening interpretation, not a confirmed exploitable security vulnerability."
+  - "The patch evidence is about storage semantics and concurrency behavior, not cryptographic breakage or access control."
+  - "Retention in the corpus is justified only as a security-hardening case tied to audit log integrity."
+patch_pattern: "Replace mutable aggregate-object updates with immutable per-event records, enforce write-once storage for each event key, treat duplicate deliveries as no-ops, and rebuild aggregate history by enumerating stored events."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260422-162106Z-base/raw-findings/2026-04-16-base-rpc-client-api-aafd24614.md"
+  - "git:aafd24614d6a987a3222218bbee41783ba4285ce"
+  - "crates/infra/audit/src/storage.rs:237"
+  - "crates/infra/audit/src/storage.rs:401"
+  - "crates/infra/audit/src/storage.rs:26"
+  - "crates/infra/audit/src/storage.rs:165"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

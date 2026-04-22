@@ -1,0 +1,21 @@
+id: "base-2025-10-14-base-rpc-client-api-f694185fe"
+source_record: "base-2025-10-14-base-rpc-client-api-f694185fe.yaml"
+project: "base"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "insufficient-state-validation"
+expected_missing_property: "state-coordinate-consistency"
+
+expected_impact_band: "state_or_consensus_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Supported claim: cached checkpoint reuse is now guarded by validation against contract state before reuse."
+  - "Supported claim: this is security-relevant hardening for integrity-sensitive blockchain logic."
+  - "Not supported: the old behavior was definitely exploitable by an external attacker."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

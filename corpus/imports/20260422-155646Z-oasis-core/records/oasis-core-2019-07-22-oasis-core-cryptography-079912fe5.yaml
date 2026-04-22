@@ -1,0 +1,60 @@
+id: "oasis-core-2019-07-22-oasis-core-cryptography-079912fe5"
+source_finding: "2019-07-22-oasis-core-cryptography-079912fe5.md"
+project: "oasis-core"
+date: "2019-07-22"
+language_tags:
+  - "go"
+
+bug_family: "authz_and_role_gates"
+bug_class: "missing-signer-authorization-check"
+subsystem: "cryptography"
+architecture_tags:
+  - "committee-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "signer-authorization"
+violated_invariant: "Storage receipt signatures accepted by compute-committee code must come from members of the current storage committee for the active epoch; signatures from non-members must be rejected before batch acceptance or proposal assembly."
+trust_boundary: "peer->node"
+entrypoint_type: "p2p-message-handler"
+sensitive_sink: "security-sensitive consensus or registry state"
+
+attacker_capabilities:
+  - "send signed messages or commitments from the wrong committee member, runtime, or signer scope"
+  - "reuse otherwise valid signatures in a context that is not re-bound at the sink"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production"
+  - "the verifier, key manager, or runtime uses the affected trust or signature path"
+blast_radius: "validator-local"
+
+impact_types:
+  - "unauthorized-signature-acceptance"
+severity_guess: "high"
+severity_rationale: "The bug can affect validator local integrity or authorization semantics, so similar cases should be treated as high-severity until proven otherwise."
+
+code_shape_summary: "Authorization of storage receipt signers was incomplete at the compute/storage boundary: the shown code treated attached signatures as acceptable without the demonstrated enforcement that the signer belonged to the current epoch's authorized storage committee."
+search_motifs:
+  - "valid request path missing a secondary role or policy gate"
+  - "authorization derived from one scope but sink executes in another"
+  - "shared helper returns success before role-specific enforcement"
+negative_signals:
+  - "Not a match if every route to the sink already passes through one canonical authorization helper with the same role and policy checks."
+  - "Not a match if the diff only renames roles or improves logging without changing who can reach the action."
+  - "Not a match if the affected path is test-only or unreachable in production configuration."
+patch_pattern: "The fix introduced a helper on the epoch snapshot that checks whether each signature belongs to a current storage committee member, then wired that helper into the two shown compute-committee receipt paths so they reject non-member signers immediately."
+
+source_refs:
+  - "/testing/oasis-core/validated-findings/kept/2019-07-22-oasis-core-cryptography-079912fe5.md"
+  - "git:079912fe5c53aeddb2ba49d2b5b1c2787eb4664b"
+  - "go/worker/common/committee/group.go:161"
+  - "go/worker/common/committee/group.go:240"
+  - "go/worker/compute/committee/node.go:214"
+  - "go/worker/compute/committee/node.go:623"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

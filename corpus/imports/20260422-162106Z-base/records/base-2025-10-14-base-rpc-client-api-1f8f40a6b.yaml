@@ -1,0 +1,60 @@
+id: "base-2025-10-14-base-rpc-client-api-1f8f40a6b"
+source_finding: "2025-10-14-base-rpc-client-api-1f8f40a6b.md"
+project: "base"
+date: "2025-10-14"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "improper-state-validation"
+subsystem: "rpc-client-api"
+architecture_tags:
+  - "consensus-sensitive"
+  - "cache-validation"
+  - "state-integrity"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "state-coordinate-consistency"
+violated_invariant: "A cached checkpoint from an existing aggregation request should only be reused if it is still consistent with the contract's current historic block-hash mapping for that block number; matching request parameters alone are not sufficient."
+trust_boundary: "external chain or RPC data->node service"
+entrypoint_type: "external-state-ingestion"
+sensitive_sink: "reuse of cached checkpoint or execution data that drives proposer or validator actions"
+
+attacker_capabilities:
+  - "trigger reuse of cached checkpoint, execution, or request state across retries or later observations"
+  - "influence the external state transition that makes a previously cached value stale or mismatched"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production or operator workflows"
+  - "no downstream control fully revalidates the same canonical state, identity, or policy before the sink"
+blast_radius: "validator-local"
+
+impact_types:
+  - "state-integrity"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, policy, or state-selection decision and the finding supports meaningful integrity risk, but most cases still stop short of proving worst-case exploitation, so medium is the right default band."
+
+code_shape_summary: "The proposer flow appears to have treated cached checkpoint data from a prior matching request as reusable authority without first revalidating it against the contract's current canonical historic block-hash mapping."
+search_motifs:
+  - "cache or retry reuse happens without rechecking canonical chain state"
+  - "request identity is treated as sufficient even though the historical state coordinate can change"
+  - "stale checkpoint, execution, or proof data is reused across parent-context changes"
+negative_signals:
+  - "Supported claim: the commit hardens a sensitive flow by revalidating cached checkpoint state against on-chain canonical data before reuse."
+  - "Not supported: that this was a proven exploitable vulnerability or a confirmed consensus-break bug."
+  - "Not supported: specific subsystem labels such as rpc-client-api or database as the core security issue."
+patch_pattern: "Revalidate cached off-chain state against the current on-chain canonical mapping before reusing it in a consensus-sensitive flow."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260422-162106Z-base/raw-findings/2025-10-14-base-rpc-client-api-1f8f40a6b.md"
+  - "git:1f8f40a6b71532c1997238344a2e377fd4e21ae4"
+  - "validity/src/proposer.rs:659"
+  - "utils/host/src/contract.rs:19"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

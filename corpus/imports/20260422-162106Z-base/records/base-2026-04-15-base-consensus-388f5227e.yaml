@@ -1,0 +1,64 @@
+id: "base-2026-04-15-base-consensus-388f5227e"
+source_finding: "2026-04-15-base-consensus-388f5227e.md"
+project: "base"
+date: "2026-04-15"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "validation-coverage-gap"
+subsystem: "consensus"
+architecture_tags:
+  - "challenger"
+  - "validation-coverage"
+  - "state-tracking"
+  - "dual-proof"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "coverage-completeness"
+violated_invariant: "Within the configured lookback window, the challenger should re-evaluate in-progress games when on-chain proof state changes, and it should not silently skip the observed dual-proof TEE+ZK no-challenge state."
+trust_boundary: "on-chain dispute or engine state->off-chain consensus actor"
+entrypoint_type: "challenge-orchestration"
+sensitive_sink: "challenge outcome selection or dispute progression state"
+
+attacker_capabilities:
+  - "cause the node to process a disputed game, proof, or fallback path under attacker-influenced state"
+  - "shape the challenged proof, index, or timing so the wrong branch or retry behavior is exercised"
+exploit_preconditions:
+  - "the challenger, verifier, or dispute-handling feature is enabled and following live chain state"
+  - "no later branch fully revalidates the specific challenged root, index, or fallback transition before acting"
+blast_radius: "validator-local"
+
+impact_types:
+  - "missed-validation"
+  - "integrity-risk"
+severity_guess: "low"
+severity_rationale: "The finding improves a security-sensitive path, but the source mostly supports hardening or correctness rather than a demonstrated attacker-controlled exploit, so low is the safest reusable default."
+
+code_shape_summary: "The scanner treated candidate discovery as mostly one-time state keyed by a scan watermark even though game state can change after first observation, and it encoded a classifier rule that treated a dual-proof no-challenge state as ignorable."
+search_motifs:
+  - "challenge mode handled by a generic validation branch instead of the challenged case"
+  - "decision logic derives the target index or root from the wrong proof element"
+  - "retry or fallback state is dropped before the dispute path reaches a definitive decision"
+negative_signals:
+  - "This supports a security-sensitive detection and coverage hardening change, not a proven exploitable vulnerability."
+  - "The evidence shows missed validation/classification risk in the challenger, not that validator or submitter logic was itself incorrect."
+  - "Impact should be described conservatively as integrity or missed-validation risk within the challenger lookback window."
+patch_pattern: "Replace incremental watermark-based discovery with stateless rescanning when tracked objects can mutate after first observation, and convert previously skipped mixed states into explicit actionable classifications."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260422-162106Z-base/raw-findings/2026-04-15-base-consensus-388f5227e.md"
+  - "git:388f5227e374ddba3319a2e6214da5102cae01fd"
+  - "crates/proof/challenge/src/scanner.rs:299"
+  - "crates/proof/challenge/src/scanner.rs:209"
+  - "crates/proof/challenge/src/scanner.rs:163"
+  - "crates/proof/challenge/src/scanner.rs:202"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

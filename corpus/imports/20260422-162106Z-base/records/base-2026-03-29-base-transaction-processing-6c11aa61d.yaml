@@ -1,0 +1,65 @@
+id: "base-2026-03-29-base-transaction-processing-6c11aa61d"
+source_finding: "2026-03-29-base-transaction-processing-6c11aa61d.md"
+project: "base"
+date: "2026-03-29"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "input-validation"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "account-abstraction"
+  - "validation"
+  - "authentication"
+  - "resource-limits"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "input-validation"
+violated_invariant: "EIP-8130 AA transactions should bind validation-time state lookups to the authenticated sender identity and should satisfy explicit structural and encoded-size limits before deeper processing."
+trust_boundary: "transaction, batch, or proof input->execution or derivation pipeline"
+entrypoint_type: "transaction-or-batch-validation"
+sensitive_sink: "admission of work into shared network, RPC, or challenger resources"
+
+attacker_capabilities:
+  - "control or influence the external transaction, batch, checkpoint, or state input consumed by the affected path"
+  - "reach the alternate, cached, or reconstructed path before a stronger downstream check rejects the input"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production or operator workflows"
+  - "no downstream control fully revalidates the same canonical state, identity, or policy before the sink"
+blast_radius: "chain-wide"
+
+impact_types:
+  - "state-integrity"
+  - "availability"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, policy, or state-selection decision and the finding supports meaningful integrity risk, but most cases still stop short of proving worst-case exploitation, so medium is the right default band."
+
+code_shape_summary: "Validation logic in this AA transaction path relied on an implicit sender-derived lookup in at least one place and did not yet enforce all of the structural and encoded-size limits that the patched code now requires."
+search_motifs:
+  - "runtime or on-chain policy is read but not enforced before a privileged action"
+  - "one execution path applies the environment guard while another path skips it"
+  - "local configuration is treated as authoritative even when live chain policy can differ"
+negative_signals:
+  - "Supported claim: the commit hardens validation and resource limits in a security-sensitive AA transaction path."
+  - "Not supported: a confirmed exploitable auth bypass, account takeover, or state-corruption bug in pre-patch code."
+  - "Not supported: specific WebAuthn verification findings, because the relevant diff is not included."
+patch_pattern: "Tighten validation by replacing implicit identity use with an explicit validated parameter and by adding earlier structural and size guards on untrusted transaction input."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260422-162106Z-base/raw-findings/2026-03-29-base-transaction-processing-6c11aa61d.md"
+  - "git:6c11aa61d6e7b1ee516632fe9a74691cf293c837"
+  - "crates/alloy/consensus/src/transaction/eip8130/validation.rs:391"
+  - "crates/alloy/consensus/src/transaction/eip8130/validation.rs:171"
+  - "crates/alloy/consensus/src/transaction/eip8130/validation.rs:304"
+  - "crates/txpool/src/eip8130_validate.rs:780"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: confirmed / security-hardening."

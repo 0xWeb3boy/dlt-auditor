@@ -1,0 +1,113 @@
+{
+  "worker_id": "worker-05",
+  "worker_index": 5,
+  "effective_workers": 6,
+  "bundle_root": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core",
+  "instruction_prompt": "/testing/dlt-ai-audit-system/03_enrich_corpus_import.md",
+  "assigned_findings": [
+    {
+      "id": "oasis-core-2021-02-15-oasis-core-cryptography-a0ac508da",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "insufficient-signature-domain-separation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_a_confirmed",
+      "raw_finding_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/raw-findings/2021-02-15-oasis-core-cryptography-a0ac508da.md",
+      "record_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/records/oasis-core-2021-02-15-oasis-core-cryptography-a0ac508da.yaml",
+      "root_cause_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/cards/root-cause/oasis-core-2021-02-15-oasis-core-cryptography-a0ac508da.md",
+      "code_shape_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/cards/code-shape/oasis-core-2021-02-15-oasis-core-cryptography-a0ac508da.md",
+      "validation_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/cards/validation/oasis-core-2021-02-15-oasis-core-cryptography-a0ac508da.md",
+      "eval_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/evals/oasis-core-2021-02-15-oasis-core-cryptography-a0ac508da.yaml"
+    },
+    {
+      "id": "oasis-core-2019-06-03-oasis-core-rpc-client-api-3f0716ecd",
+      "bug_family": "attestation_trust_and_freshness",
+      "bug_class": "non-production-credential-acceptance",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "raw_finding_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/raw-findings/2019-06-03-oasis-core-rpc-client-api-3f0716ecd.md",
+      "record_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/records/oasis-core-2019-06-03-oasis-core-rpc-client-api-3f0716ecd.yaml",
+      "root_cause_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/cards/root-cause/oasis-core-2019-06-03-oasis-core-rpc-client-api-3f0716ecd.md",
+      "code_shape_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/cards/code-shape/oasis-core-2019-06-03-oasis-core-rpc-client-api-3f0716ecd.md",
+      "validation_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/cards/validation/oasis-core-2019-06-03-oasis-core-rpc-client-api-3f0716ecd.md",
+      "eval_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/evals/oasis-core-2019-06-03-oasis-core-rpc-client-api-3f0716ecd.yaml"
+    },
+    {
+      "id": "oasis-core-2022-12-08-oasis-core-rpc-client-api-52536d293",
+      "bug_family": "attestation_trust_and_freshness",
+      "bug_class": "quote-policy-synchronization",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "raw_finding_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/raw-findings/2022-12-08-oasis-core-rpc-client-api-52536d293.md",
+      "record_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/records/oasis-core-2022-12-08-oasis-core-rpc-client-api-52536d293.yaml",
+      "root_cause_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/cards/root-cause/oasis-core-2022-12-08-oasis-core-rpc-client-api-52536d293.md",
+      "code_shape_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/cards/code-shape/oasis-core-2022-12-08-oasis-core-rpc-client-api-52536d293.md",
+      "validation_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/cards/validation/oasis-core-2022-12-08-oasis-core-rpc-client-api-52536d293.md",
+      "eval_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/evals/oasis-core-2022-12-08-oasis-core-rpc-client-api-52536d293.yaml"
+    },
+    {
+      "id": "oasis-core-2019-01-10-oasis-core-storage-686bc266d",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "improper-authorization-check",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "raw_finding_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/raw-findings/2019-01-10-oasis-core-storage-686bc266d.md",
+      "record_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/records/oasis-core-2019-01-10-oasis-core-storage-686bc266d.yaml",
+      "root_cause_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/cards/root-cause/oasis-core-2019-01-10-oasis-core-storage-686bc266d.md",
+      "code_shape_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/cards/code-shape/oasis-core-2019-01-10-oasis-core-storage-686bc266d.md",
+      "validation_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/cards/validation/oasis-core-2019-01-10-oasis-core-storage-686bc266d.md",
+      "eval_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/evals/oasis-core-2019-01-10-oasis-core-storage-686bc266d.yaml"
+    },
+    {
+      "id": "oasis-core-2019-08-15-oasis-core-cryptography-4c642baa8",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "insufficient-input-validation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "raw_finding_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/raw-findings/2019-08-15-oasis-core-cryptography-4c642baa8.md",
+      "record_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/records/oasis-core-2019-08-15-oasis-core-cryptography-4c642baa8.yaml",
+      "root_cause_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/cards/root-cause/oasis-core-2019-08-15-oasis-core-cryptography-4c642baa8.md",
+      "code_shape_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/cards/code-shape/oasis-core-2019-08-15-oasis-core-cryptography-4c642baa8.md",
+      "validation_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/cards/validation/oasis-core-2019-08-15-oasis-core-cryptography-4c642baa8.md",
+      "eval_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/evals/oasis-core-2019-08-15-oasis-core-cryptography-4c642baa8.yaml"
+    },
+    {
+      "id": "oasis-core-2019-11-08-oasis-core-transaction-processing-ba88a37cf",
+      "bug_family": "resource_accounting_and_limits",
+      "bug_class": "missing-validator-set-minimum-check",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "raw_finding_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/raw-findings/2019-11-08-oasis-core-transaction-processing-ba88a37cf.md",
+      "record_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/records/oasis-core-2019-11-08-oasis-core-transaction-processing-ba88a37cf.yaml",
+      "root_cause_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/cards/root-cause/oasis-core-2019-11-08-oasis-core-transaction-processing-ba88a37cf.md",
+      "code_shape_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/cards/code-shape/oasis-core-2019-11-08-oasis-core-transaction-processing-ba88a37cf.md",
+      "validation_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/cards/validation/oasis-core-2019-11-08-oasis-core-transaction-processing-ba88a37cf.md",
+      "eval_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/evals/oasis-core-2019-11-08-oasis-core-transaction-processing-ba88a37cf.yaml"
+    },
+    {
+      "id": "oasis-core-2019-11-11-oasis-core-rpc-client-api-7816e47dd",
+      "bug_family": "staking_registry_and_accountability",
+      "bug_class": "validator-selection-policy",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "raw_finding_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/raw-findings/2019-11-11-oasis-core-rpc-client-api-7816e47dd.md",
+      "record_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/records/oasis-core-2019-11-11-oasis-core-rpc-client-api-7816e47dd.yaml",
+      "root_cause_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/cards/root-cause/oasis-core-2019-11-11-oasis-core-rpc-client-api-7816e47dd.md",
+      "code_shape_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/cards/code-shape/oasis-core-2019-11-11-oasis-core-rpc-client-api-7816e47dd.md",
+      "validation_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/cards/validation/oasis-core-2019-11-11-oasis-core-rpc-client-api-7816e47dd.md",
+      "eval_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/evals/oasis-core-2019-11-11-oasis-core-rpc-client-api-7816e47dd.yaml"
+    },
+    {
+      "id": "oasis-core-2020-08-25-oasis-core-cryptography-a7c5872e3",
+      "bug_family": "state_machine_and_lifecycle_consistency",
+      "bug_class": "stale-timeout-state",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "raw_finding_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/raw-findings/2020-08-25-oasis-core-cryptography-a7c5872e3.md",
+      "record_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/records/oasis-core-2020-08-25-oasis-core-cryptography-a7c5872e3.yaml",
+      "root_cause_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/cards/root-cause/oasis-core-2020-08-25-oasis-core-cryptography-a7c5872e3.md",
+      "code_shape_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/cards/code-shape/oasis-core-2020-08-25-oasis-core-cryptography-a7c5872e3.md",
+      "validation_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/cards/validation/oasis-core-2020-08-25-oasis-core-cryptography-a7c5872e3.md",
+      "eval_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/evals/oasis-core-2020-08-25-oasis-core-cryptography-a7c5872e3.yaml"
+    }
+  ]
+}

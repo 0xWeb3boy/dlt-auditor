@@ -1,0 +1,21 @@
+id: "base-2026-04-15-base-consensus-6f64e2506"
+source_record: "base-2026-04-15-base-consensus-6f64e2506.yaml"
+project: "base"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "resource-exhaustion"
+expected_missing_property: "resource-accounting"
+
+expected_impact_band: "availability_or_resource_exhaustion"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Supported: the commit hardens the RPC ingress against overload/flood conditions."
+  - "Supported: the change mitigates resource-exhaustion risk at an externally reachable service boundary."
+  - "Not supported: a confirmed pre-patch remote DoS vulnerability in production."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

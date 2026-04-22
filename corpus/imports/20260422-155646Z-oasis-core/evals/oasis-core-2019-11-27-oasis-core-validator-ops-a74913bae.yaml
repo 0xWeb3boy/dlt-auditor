@@ -1,0 +1,21 @@
+id: "oasis-core-2019-11-27-oasis-core-validator-ops-a74913bae"
+source_record: "oasis-core-2019-11-27-oasis-core-validator-ops-a74913bae.yaml"
+project: "oasis-core"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "unsafe-debug-configuration"
+expected_missing_property: "unsafe-debug-gating"
+
+expected_impact_band: "integrity_or_policy_enforcement"
+expected_severity_band: "low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Not a match if malformed or incomplete inputs are normalized and rejected before they can reach the sensitive sink."
+  - "Not a match if the compared fields are aliases with identical semantics throughout the subsystem."
+  - "Not a match if the change only tightens developer assertions without affecting production acceptance behavior."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

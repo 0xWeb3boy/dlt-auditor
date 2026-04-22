@@ -1,0 +1,62 @@
+id: "oasis-core-2023-06-29-oasis-core-rpc-client-api-95923572b"
+source_finding: "2023-06-29-oasis-core-rpc-client-api-95923572b.md"
+project: "oasis-core"
+date: "2023-06-29"
+language_tags:
+  - "go"
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "state-verification-gap"
+subsystem: "rpc-client-api"
+architecture_tags:
+  - "committee-based"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "state-verification"
+violated_invariant: "Latest-block post-execution state should not be treated as fully verified until the verifier can check block metadata for that same height through the intended consensus proof path."
+trust_boundary: "remote-peer->rpc-verifier"
+entrypoint_type: "rpc-handler"
+sensitive_sink: "security-sensitive consensus or registry state"
+
+attacker_capabilities:
+  - "reach the affected externally influenced path with syntactically valid inputs"
+  - "control the fields or timing assumptions that the missing check was supposed to bind"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production"
+  - "the verifier, key manager, or runtime uses the affected trust or signature path"
+blast_radius: "validator-local"
+
+impact_types:
+  - "verification-freshness"
+  - "integrity-hardening"
+severity_guess: "high"
+severity_rationale: "The bug can affect validator local integrity or authorization semantics, so similar cases should be treated as high-severity until proven otherwise."
+
+code_shape_summary: "The verifier stack lacked an explicit end-to-end way to obtain the block metadata transaction, together with the needed proof-bearing transaction data, for the exact height being checked. That left latest-block verification delayed rather than performed through a same-block metadata path."
+search_motifs:
+  - "signature verification without signer-set or committee binding"
+  - "valid signature reused across runtime, role, or domain scope"
+  - "message accepted after verify but before signer authorization"
+negative_signals:
+  - "Not a match if signer membership, runtime binding, and domain separation are enforced before the sink on every path."
+  - "Not a match if the patch only changes serialization, logging, or tests without changing the accepted signer set."
+  - "Not a match if the same signature context is provably unique and cannot be replayed across roles or runtimes."
+patch_pattern: "The patch threads block-metadata retrieval through the runtime host and consensus client, adds transaction-with-proofs support in the backend, and updates proof generation logic so the verifier can use the block metadata transaction for same-block validation."
+
+source_refs:
+  - "/testing/oasis-core/validated-findings/kept/2023-06-29-oasis-core-rpc-client-api-95923572b.md"
+  - "git:95923572b51b9ab0d3bfac5565f52dd6af4b99ae"
+  - "go/worker/client/committee/node.go:151"
+  - "go/runtime/registry/host.go:383"
+  - "go/consensus/cometbft/full/full.go:207"
+  - "go/consensus/api/grpc.go:778"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: confirmed / security-hardening."

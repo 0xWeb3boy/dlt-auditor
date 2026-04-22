@@ -1,0 +1,64 @@
+id: "base-2026-04-16-base-rpc-client-api-9cd40e7d7"
+source_finding: "2026-04-16-base-rpc-client-api-9cd40e7d7.md"
+project: "base"
+date: "2026-04-16"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "incorrect-challenge-validation"
+subsystem: "rpc-client-api"
+architecture_tags:
+  - "validator"
+  - "dispute-game"
+  - "offchain-challenger"
+  - "challenge-logic"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "input-validation"
+violated_invariant: "When handling a fraudulent ZK challenge, the challenger should decide based on the validity of the specific intermediate root that was challenged on-chain, not on unrelated earlier intermediate roots."
+trust_boundary: "external chain or RPC data->node service"
+entrypoint_type: "challenge-orchestration"
+sensitive_sink: "challenge outcome selection or dispute progression state"
+
+attacker_capabilities:
+  - "cause the node to process a disputed game, proof, or fallback path under attacker-influenced state"
+  - "shape the challenged proof, index, or timing so the wrong branch or retry behavior is exercised"
+exploit_preconditions:
+  - "the challenger, verifier, or dispute-handling feature is enabled and following live chain state"
+  - "no later branch fully revalidates the specific challenged root, index, or fallback transition before acting"
+blast_radius: "validator-local"
+
+impact_types:
+  - "integrity"
+  - "protection-bypass"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, policy, or state-selection decision and the finding supports meaningful integrity risk, but most cases still stop short of proving worst-case exploitation, so medium is the right default band."
+
+code_shape_summary: "The decision logic in the challenger used validation results for all intermediate roots rather than the single root referenced by the on-chain challenge. That incorrect scope allowed unrelated invalid roots to influence the nullification decision."
+search_motifs:
+  - "challenge mode handled by a generic validation branch instead of the challenged case"
+  - "decision logic derives the target index or root from the wrong proof element"
+  - "retry or fallback state is dropped before the dispute path reaches a definitive decision"
+negative_signals:
+  - "Supported claim: the old challenger logic could mis-handle fraudulent ZK challenges by consulting unrelated intermediate roots."
+  - "Supported claim: the fix narrows validation to the challenged root and strengthens dispute-decision correctness."
+  - "Not supported: guaranteed exploitability, theft, consensus failure, or irreversible protocol compromise."
+patch_pattern: "Replace broad heuristic validation over a collection with validation scoped to the exact indexed item that the protocol action references."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260422-162106Z-base/raw-findings/2026-04-16-base-rpc-client-api-9cd40e7d7.md"
+  - "git:9cd40e7d7e881b7c0bec6fe8afb5d9c88f632a4f"
+  - "crates/proof/challenge/src/driver.rs:412"
+  - "crates/proof/contracts/src/aggregate_verifier.rs:188"
+  - "crates/proof/contracts/src/aggregate_verifier.rs:406"
+  - "crates/proof/contracts/src/aggregate_verifier.rs:57"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

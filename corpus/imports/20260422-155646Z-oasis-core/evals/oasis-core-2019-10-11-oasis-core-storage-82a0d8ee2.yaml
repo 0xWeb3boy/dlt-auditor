@@ -1,0 +1,21 @@
+id: "oasis-core-2019-10-11-oasis-core-storage-82a0d8ee2"
+source_record: "oasis-core-2019-10-11-oasis-core-storage-82a0d8ee2.yaml"
+project: "oasis-core"
+
+expected_bug_family: "state_machine_and_lifecycle_consistency"
+expected_bug_class: "state-integrity-hardening"
+expected_missing_property: "state-coordinate-consistency"
+
+expected_impact_band: "integrity_or_policy_enforcement"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Not a match if restart, timeout, overwrite, and update paths all clear or revalidate stale state before reuse."
+  - "Not a match if old and new state coordinates are guaranteed equivalent for every reachable transition."
+  - "Not a match if the change only refactors helper ownership without changing state-transition rules."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

@@ -1,0 +1,21 @@
+id: "oasis-core-2018-06-22-oasis-core-storage-821f88a81"
+source_record: "oasis-core-2018-06-22-oasis-core-storage-821f88a81.yaml"
+project: "oasis-core"
+
+expected_bug_family: "authz_and_role_gates"
+expected_bug_class: "consensus-role-accounting"
+expected_missing_property: "role-accounting"
+
+expected_impact_band: "state_or_consensus_integrity"
+expected_severity_band: "high_or_medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Not a match if every route to the sink already passes through one canonical authorization helper with the same role and policy checks."
+  - "Not a match if the diff only renames roles or improves logging without changing who can reach the action."
+  - "Not a match if the affected path is test-only or unreachable in production configuration."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

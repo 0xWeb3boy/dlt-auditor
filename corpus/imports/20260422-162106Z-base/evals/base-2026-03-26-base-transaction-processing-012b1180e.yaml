@@ -1,0 +1,21 @@
+id: "base-2026-03-26-base-transaction-processing-012b1180e"
+source_record: "base-2026-03-26-base-transaction-processing-012b1180e.yaml"
+project: "base"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "proof-claim-validation"
+expected_missing_property: "claim-validation"
+
+expected_impact_band: "availability_or_resource_exhaustion"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Validated as a security fix only for the proof-client claim-validation change in `crates/proof/client/src/prologue.rs`."
+  - "Do not overclaim confidentiality, code execution, or full consensus compromise from the provided patch alone."
+  - "The evidence supports proof/challenge-path integrity and availability risk, not a broader transaction-processing vulnerability."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-fix."

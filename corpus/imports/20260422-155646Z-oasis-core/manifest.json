@@ -1,0 +1,441 @@
+{
+  "repo": "/testing/oasis-core",
+  "repo_slug": "oasis-core",
+  "kept_dir": "/testing/oasis-core/validated-findings/kept",
+  "created_at_utc": "20260422-155646Z",
+  "finding_count": 48,
+  "findings": [
+    {
+      "id": "oasis-core-2018-05-26-oasis-core-cryptography-19cd4a286",
+      "source": "/testing/oasis-core/validated-findings/kept/2018-05-26-oasis-core-cryptography-19cd4a286.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "signed-message-validation-consistency",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "oasis-core-2018-06-22-oasis-core-storage-821f88a81",
+      "source": "/testing/oasis-core/validated-findings/kept/2018-06-22-oasis-core-storage-821f88a81.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "consensus-role-accounting",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "oasis-core-2019-01-10-oasis-core-storage-686bc266d",
+      "source": "/testing/oasis-core/validated-findings/kept/2019-01-10-oasis-core-storage-686bc266d.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "improper-authorization-check",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "oasis-core-2019-05-06-oasis-core-cryptography-bf949bbb0",
+      "source": "/testing/oasis-core/validated-findings/kept/2019-05-06-oasis-core-cryptography-bf949bbb0.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "insufficient-input-validation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "oasis-core-2019-05-07-oasis-core-rpc-client-api-e55738ce6",
+      "source": "/testing/oasis-core/validated-findings/kept/2019-05-07-oasis-core-rpc-client-api-e55738ce6.md",
+      "bug_family": "attestation_trust_and_freshness",
+      "bug_class": "key-scope-isolation",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "freshness"
+    },
+    {
+      "id": "oasis-core-2019-06-03-oasis-core-rpc-client-api-3f0716ecd",
+      "source": "/testing/oasis-core/validated-findings/kept/2019-06-03-oasis-core-rpc-client-api-3f0716ecd.md",
+      "bug_family": "attestation_trust_and_freshness",
+      "bug_class": "non-production-credential-acceptance",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "policy-gating"
+    },
+    {
+      "id": "oasis-core-2019-06-27-oasis-core-cryptography-ee21c841e",
+      "source": "/testing/oasis-core/validated-findings/kept/2019-06-27-oasis-core-cryptography-ee21c841e.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "predictable-beacon-entropy",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "oasis-core-2019-07-22-oasis-core-cryptography-079912fe5",
+      "source": "/testing/oasis-core/validated-findings/kept/2019-07-22-oasis-core-cryptography-079912fe5.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "missing-signer-authorization-check",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "oasis-core-2019-07-24-oasis-core-cryptography-64cb06901",
+      "source": "/testing/oasis-core/validated-findings/kept/2019-07-24-oasis-core-cryptography-64cb06901.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "missing-signer-authorization",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "oasis-core-2019-08-15-oasis-core-cryptography-4c642baa8",
+      "source": "/testing/oasis-core/validated-findings/kept/2019-08-15-oasis-core-cryptography-4c642baa8.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "insufficient-input-validation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "oasis-core-2019-08-23-oasis-core-rpc-client-api-4333549d8",
+      "source": "/testing/oasis-core/validated-findings/kept/2019-08-23-oasis-core-rpc-client-api-4333549d8.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "missing-authentication",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "authentication"
+    },
+    {
+      "id": "oasis-core-2019-10-11-oasis-core-storage-82a0d8ee2",
+      "source": "/testing/oasis-core/validated-findings/kept/2019-10-11-oasis-core-storage-82a0d8ee2.md",
+      "bug_family": "state_machine_and_lifecycle_consistency",
+      "bug_class": "state-integrity-hardening",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "lifecycle-cleanup"
+    },
+    {
+      "id": "oasis-core-2019-10-28-oasis-core-staking-a34ab1924",
+      "source": "/testing/oasis-core/validated-findings/kept/2019-10-28-oasis-core-staking-a34ab1924.md",
+      "bug_family": "staking_registry_and_accountability",
+      "bug_class": "slashability-bypass",
+      "subsystem": "staking",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "accountability-enforcement"
+    },
+    {
+      "id": "oasis-core-2019-11-08-oasis-core-transaction-processing-ba88a37cf",
+      "source": "/testing/oasis-core/validated-findings/kept/2019-11-08-oasis-core-transaction-processing-ba88a37cf.md",
+      "bug_family": "resource_accounting_and_limits",
+      "bug_class": "missing-validator-set-minimum-check",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "resource-accounting"
+    },
+    {
+      "id": "oasis-core-2019-11-11-oasis-core-rpc-client-api-7816e47dd",
+      "source": "/testing/oasis-core/validated-findings/kept/2019-11-11-oasis-core-rpc-client-api-7816e47dd.md",
+      "bug_family": "staking_registry_and_accountability",
+      "bug_class": "validator-selection-policy",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "accountability-enforcement"
+    },
+    {
+      "id": "oasis-core-2019-11-13-oasis-core-rpc-client-api-75e2e189e",
+      "source": "/testing/oasis-core/validated-findings/kept/2019-11-13-oasis-core-rpc-client-api-75e2e189e.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "panic-on-malformed-input",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "oasis-core-2019-11-21-oasis-core-transaction-processing-e2d134a5a",
+      "source": "/testing/oasis-core/validated-findings/kept/2019-11-21-oasis-core-transaction-processing-e2d134a5a.md",
+      "bug_family": "resource_accounting_and_limits",
+      "bug_class": "missing-gas-accounting",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "resource-accounting"
+    },
+    {
+      "id": "oasis-core-2019-11-25-oasis-core-cryptography-d123ab1b1",
+      "source": "/testing/oasis-core/validated-findings/kept/2019-11-25-oasis-core-cryptography-d123ab1b1.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "insufficient-identity-validation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "oasis-core-2019-11-27-oasis-core-validator-ops-a74913bae",
+      "source": "/testing/oasis-core/validated-findings/kept/2019-11-27-oasis-core-validator-ops-a74913bae.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "unsafe-debug-configuration",
+      "subsystem": "validator-ops",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "oasis-core-2020-01-23-oasis-core-cryptography-d5cc58f88",
+      "source": "/testing/oasis-core/validated-findings/kept/2020-01-23-oasis-core-cryptography-d5cc58f88.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "insufficient-signature-verification",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "oasis-core-2020-01-29-oasis-core-cryptography-f8809788d",
+      "source": "/testing/oasis-core/validated-findings/kept/2020-01-29-oasis-core-cryptography-f8809788d.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "input-validation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "oasis-core-2020-01-31-oasis-core-staking-956168c04",
+      "source": "/testing/oasis-core/validated-findings/kept/2020-01-31-oasis-core-staking-956168c04.md",
+      "bug_family": "checked_arithmetic_and_parameter_bounds",
+      "bug_class": "integer-overflow",
+      "subsystem": "staking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "arithmetic-bounds"
+    },
+    {
+      "id": "oasis-core-2020-02-06-oasis-core-staking-635fcfd29",
+      "source": "/testing/oasis-core/validated-findings/kept/2020-02-06-oasis-core-staking-635fcfd29.md",
+      "bug_family": "staking_registry_and_accountability",
+      "bug_class": "missing-stake-enforcement",
+      "subsystem": "staking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "accountability-enforcement"
+    },
+    {
+      "id": "oasis-core-2020-04-22-oasis-core-staking-d477a90f7",
+      "source": "/testing/oasis-core/validated-findings/kept/2020-04-22-oasis-core-staking-d477a90f7.md",
+      "bug_family": "staking_registry_and_accountability",
+      "bug_class": "incorrect-validator-voting-power",
+      "subsystem": "staking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "accountability-enforcement"
+    },
+    {
+      "id": "oasis-core-2020-06-23-oasis-core-staking-0f89673a0",
+      "source": "/testing/oasis-core/validated-findings/kept/2020-06-23-oasis-core-staking-0f89673a0.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "missing-update-validation",
+      "subsystem": "staking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "oasis-core-2020-08-25-oasis-core-cryptography-a7c5872e3",
+      "source": "/testing/oasis-core/validated-findings/kept/2020-08-25-oasis-core-cryptography-a7c5872e3.md",
+      "bug_family": "state_machine_and_lifecycle_consistency",
+      "bug_class": "stale-timeout-state",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "lifecycle-cleanup"
+    },
+    {
+      "id": "oasis-core-2020-12-01-oasis-core-storage-af0555775",
+      "source": "/testing/oasis-core/validated-findings/kept/2020-12-01-oasis-core-storage-af0555775.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "validation-bypass",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "oasis-core-2021-01-21-oasis-core-staking-253376f8d",
+      "source": "/testing/oasis-core/validated-findings/kept/2021-01-21-oasis-core-staking-253376f8d.md",
+      "bug_family": "staking_registry_and_accountability",
+      "bug_class": "insufficient-validator-slashing-enforcement",
+      "subsystem": "staking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "accountability-enforcement"
+    },
+    {
+      "id": "oasis-core-2021-02-15-oasis-core-cryptography-a0ac508da",
+      "source": "/testing/oasis-core/validated-findings/kept/2021-02-15-oasis-core-cryptography-a0ac508da.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "insufficient-signature-domain-separation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "domain-separation"
+    },
+    {
+      "id": "oasis-core-2021-05-24-oasis-core-transaction-processing-25f10e879",
+      "source": "/testing/oasis-core/validated-findings/kept/2021-05-24-oasis-core-transaction-processing-25f10e879.md",
+      "bug_family": "resource_accounting_and_limits",
+      "bug_class": "improper-resource-limit-enforcement",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "resource-accounting"
+    },
+    {
+      "id": "oasis-core-2022-04-13-oasis-core-consensus-8381b14d1",
+      "source": "/testing/oasis-core/validated-findings/kept/2022-04-13-oasis-core-consensus-8381b14d1.md",
+      "bug_family": "resource_accounting_and_limits",
+      "bug_class": "insufficient-resource-limits",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "resource-accounting"
+    },
+    {
+      "id": "oasis-core-2022-04-20-oasis-core-rpc-client-api-40afd4203",
+      "source": "/testing/oasis-core/validated-findings/kept/2022-04-20-oasis-core-rpc-client-api-40afd4203.md",
+      "bug_family": "attestation_trust_and_freshness",
+      "bug_class": "trust-root-verification",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "freshness"
+    },
+    {
+      "id": "oasis-core-2022-04-20-oasis-core-rpc-client-api-a02e1e95f",
+      "source": "/testing/oasis-core/validated-findings/kept/2022-04-20-oasis-core-rpc-client-api-a02e1e95f.md",
+      "bug_family": "attestation_trust_and_freshness",
+      "bug_class": "improper-trust-verification-gating",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "freshness"
+    },
+    {
+      "id": "oasis-core-2022-05-23-oasis-core-staking-07f5399b5",
+      "source": "/testing/oasis-core/validated-findings/kept/2022-05-23-oasis-core-staking-07f5399b5.md",
+      "bug_family": "staking_registry_and_accountability",
+      "bug_class": "reserved-address-invariant-enforcement",
+      "subsystem": "staking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "accountability-enforcement"
+    },
+    {
+      "id": "oasis-core-2022-06-29-oasis-core-cryptography-57692e8f7",
+      "source": "/testing/oasis-core/validated-findings/kept/2022-06-29-oasis-core-cryptography-57692e8f7.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "missing-query-verification",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "query-verification"
+    },
+    {
+      "id": "oasis-core-2022-09-05-oasis-core-rpc-client-api-fa52dea46",
+      "source": "/testing/oasis-core/validated-findings/kept/2022-09-05-oasis-core-rpc-client-api-fa52dea46.md",
+      "bug_family": "attestation_trust_and_freshness",
+      "bug_class": "freshness-verification",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "freshness"
+    },
+    {
+      "id": "oasis-core-2022-12-08-oasis-core-rpc-client-api-52536d293",
+      "source": "/testing/oasis-core/validated-findings/kept/2022-12-08-oasis-core-rpc-client-api-52536d293.md",
+      "bug_family": "attestation_trust_and_freshness",
+      "bug_class": "quote-policy-synchronization",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "policy-gating"
+    },
+    {
+      "id": "oasis-core-2023-01-26-oasis-core-cryptography-8ffc81e94",
+      "source": "/testing/oasis-core/validated-findings/kept/2023-01-26-oasis-core-cryptography-8ffc81e94.md",
+      "bug_family": "attestation_trust_and_freshness",
+      "bug_class": "insufficient-peer-identity-verification",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "freshness"
+    },
+    {
+      "id": "oasis-core-2023-02-01-oasis-core-rpc-client-api-8eabf0d47",
+      "source": "/testing/oasis-core/validated-findings/kept/2023-02-01-oasis-core-rpc-client-api-8eabf0d47.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "insufficient-validation",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "oasis-core-2023-04-12-oasis-core-cryptography-97f265501",
+      "source": "/testing/oasis-core/validated-findings/kept/2023-04-12-oasis-core-cryptography-97f265501.md",
+      "bug_family": "attestation_trust_and_freshness",
+      "bug_class": "untrusted-secret-validation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "freshness"
+    },
+    {
+      "id": "oasis-core-2023-06-29-oasis-core-rpc-client-api-95923572b",
+      "source": "/testing/oasis-core/validated-findings/kept/2023-06-29-oasis-core-rpc-client-api-95923572b.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "state-verification-gap",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "query-verification"
+    },
+    {
+      "id": "oasis-core-2023-07-31-oasis-core-staking-67711fa42",
+      "source": "/testing/oasis-core/validated-findings/kept/2023-07-31-oasis-core-staking-67711fa42.md",
+      "bug_family": "staking_registry_and_accountability",
+      "bug_class": "proposer-liveness-accounting-gap",
+      "subsystem": "staking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "accountability-enforcement"
+    },
+    {
+      "id": "oasis-core-2023-10-02-oasis-core-consensus-87f19bb1e",
+      "source": "/testing/oasis-core/validated-findings/kept/2023-10-02-oasis-core-consensus-87f19bb1e.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "improper-role-scoped-enforcement",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "oasis-core-2024-03-16-oasis-core-storage-68133d1f3",
+      "source": "/testing/oasis-core/validated-findings/kept/2024-03-16-oasis-core-storage-68133d1f3.md",
+      "bug_family": "state_machine_and_lifecycle_consistency",
+      "bug_class": "protocol-state-confusion",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "state-coordinate-consistency"
+    },
+    {
+      "id": "oasis-core-2024-04-05-oasis-core-transaction-processing-7d649f96d",
+      "source": "/testing/oasis-core/validated-findings/kept/2024-04-05-oasis-core-transaction-processing-7d649f96d.md",
+      "bug_family": "resource_accounting_and_limits",
+      "bug_class": "missing-gas-accounting",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "resource-accounting"
+    },
+    {
+      "id": "oasis-core-2024-05-11-oasis-core-core-logic-ddf51345a",
+      "source": "/testing/oasis-core/validated-findings/kept/2024-05-11-oasis-core-core-logic-ddf51345a.md",
+      "bug_family": "checked_arithmetic_and_parameter_bounds",
+      "bug_class": "integer-overflow",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "arithmetic-bounds"
+    },
+    {
+      "id": "oasis-core-2024-07-04-oasis-core-cryptography-8e2f08bb2",
+      "source": "/testing/oasis-core/validated-findings/kept/2024-07-04-oasis-core-cryptography-8e2f08bb2.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "access-control",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "oasis-core-2024-10-03-oasis-core-cryptography-0d2f546b2",
+      "source": "/testing/oasis-core/validated-findings/kept/2024-10-03-oasis-core-cryptography-0d2f546b2.md",
+      "bug_family": "state_machine_and_lifecycle_consistency",
+      "bug_class": "stale-session-state",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "lifecycle-cleanup"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+id: "oasis-core-2019-11-08-oasis-core-transaction-processing-ba88a37cf"
+source_finding: "2019-11-08-oasis-core-transaction-processing-ba88a37cf.md"
+project: "oasis-core"
+date: "2019-11-08"
+language_tags:
+  - "go"
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "missing-validator-set-minimum-check"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "validator-based"
+  - "committee-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "minimum-set-bounds"
+violated_invariant: "If scheduler configuration specifies a minimum validator count, initialization and validator election should reject validator sets smaller than that floor."
+trust_boundary: "user->mempool"
+entrypoint_type: "transaction-handler"
+sensitive_sink: "validator set composition"
+
+attacker_capabilities:
+  - "submit crafted transactions to a node that executes the affected admission or execution path"
+  - "shape transaction metadata, size, or ordering to reach the unchecked branch"
+exploit_preconditions:
+  - "the node exposes the relevant transaction admission path for the affected runtime or consensus app"
+  - "no earlier canonical validation step fully enforces the missing property on every route to the sink"
+blast_radius: "chain-wide"
+
+impact_types:
+  - "consensus-integrity"
+severity_guess: "high"
+severity_rationale: "The bug can affect chain wide integrity or authorization semantics, so similar cases should be treated as high-severity until proven otherwise."
+
+code_shape_summary: "The shown code enforced only a non-empty validator election result, not a configured lower bound on validator-set size, and it did not validate that lower bound during initialization."
+search_motifs:
+  - "resource or gas accounting missing on one mutation path"
+  - "downstream queue failure logged but not returned to caller"
+  - "limits depend on metadata that is not preserved across stages"
+  - "validator or committee role inferred from incomplete metadata"
+negative_signals:
+  - "Not a match if the same accounting or limit check is rerun immediately before the sink on every path."
+  - "Not a match if downstream queue rejection cannot leave the transaction or request accepted in observable state."
+  - "Not a match if global bounds already make the missing per-item limit unreachable in practice and the patch only improves errors."
+patch_pattern: "The patch propagates 'MinValidators' from scheduler parameters into the validator-election routine, adds an explicit undersized-set rejection in 'electValidators', and rejects non-positive 'MinValidators' during 'InitChain'."
+
+source_refs:
+  - "/testing/oasis-core/validated-findings/kept/2019-11-08-oasis-core-transaction-processing-ba88a37cf.md"
+  - "git:ba88a37cfde8ecb7227d83a9be36343f99505276"
+  - "go/tendermint/apps/scheduler/scheduler.go:634"
+  - "go/tendermint/apps/scheduler/genesis.go:33"
+  - "go/tendermint/apps/scheduler/scheduler.go:207"
+  - "go/tendermint/apps/scheduler/scheduler.go:558"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

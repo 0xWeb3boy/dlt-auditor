@@ -1,0 +1,64 @@
+id: "oasis-core-2023-01-26-oasis-core-cryptography-8ffc81e94"
+source_finding: "2023-01-26-oasis-core-cryptography-8ffc81e94.md"
+project: "oasis-core"
+date: "2023-01-26"
+language_tags:
+  - "go"
+  - "rust"
+
+bug_family: "attestation_trust_and_freshness"
+bug_class: "insufficient-peer-identity-verification"
+subsystem: "cryptography"
+architecture_tags:
+  - "committee-based"
+  - "tee"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "peer-identity-binding"
+violated_invariant: "For explicit key manager member calls over Noise, the enclave must learn which node was selected and bind the authenticated session to that intended member using trusted identity material from consensus."
+trust_boundary: "host->enclave"
+entrypoint_type: "session-setup"
+sensitive_sink: "secure session cache"
+
+attacker_capabilities:
+  - "establish or reuse secure sessions with identities that change across policy or membership updates"
+  - "present peer or enclave identities that are valid in one context but stale in another"
+exploit_preconditions:
+  - "the deployment uses the secure session mechanism across changing peer or policy state"
+  - "the verifier, key manager, or runtime uses the affected trust or signature path"
+blast_radius: "validator-local"
+
+impact_types:
+  - "identity-misbinding"
+severity_guess: "medium"
+severity_rationale: "The path is security-sensitive and could affect identity-misbinding, but the available evidence stops short of proving a worst-case exploit, so medium is the right default band."
+
+code_shape_summary: "Explicit-member routing needed additional identity-binding state across the host/session boundary. The provided evidence shows that this state was previously not exposed in the relevant APIs, so explicit peer selection could not be tied as directly to session identity verification as it is after the patch."
+search_motifs:
+  - "trust root or quote policy cached without refresh on change"
+  - "freshness inferred from success state instead of anchored evidence"
+  - "session or attestation state reused after peer-set or policy change"
+  - "cached secure session reused after identity or policy changes"
+  - "secure session or peer identity not bound to the intended remote member"
+negative_signals:
+  - "Not a match if trust roots, quote policy, and freshness evidence are atomically refreshed before each decision."
+  - "Not a match if stale or changed session state is already invalidated on restart, reconfiguration, or peer change."
+  - "Not a match if the new code only improves observability and does not change verification inputs or policy state."
+patch_pattern: "The patch threads the selected key manager node through the host RPC response, exposes remote-node identity from the session, and adds builder/client state used for remote identity verification. Per the commit message, Noise sessions then verify the selected member against consensus-derived trusted RAK material."
+
+source_refs:
+  - "/testing/oasis-core/validated-findings/kept/2023-01-26-oasis-core-cryptography-8ffc81e94.md"
+  - "git:8ffc81e9472042e0e545079e7ea736ceae2f1e25"
+  - "runtime/src/enclave_rpc/session.rs:276"
+  - "runtime/src/enclave_rpc/client.rs:477"
+  - "runtime/src/enclave_rpc/session.rs:434"
+  - "go/runtime/registry/host.go:186"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

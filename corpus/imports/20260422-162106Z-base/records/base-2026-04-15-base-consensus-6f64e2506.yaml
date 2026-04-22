@@ -1,0 +1,61 @@
+id: "base-2026-04-15-base-consensus-6f64e2506"
+source_finding: "2026-04-15-base-consensus-6f64e2506.md"
+project: "base"
+date: "2026-04-15"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "resource-exhaustion"
+subsystem: "consensus"
+architecture_tags:
+  - "resource-exhaustion"
+  - "availability-hardening"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "resource-accounting"
+violated_invariant: "The RPC ingress should place a bounded limit on concurrent work, reject excess requests when saturated, and ensure request timeouts include time spent waiting for admission so burst traffic cannot create unbounded internal backlog against downstream actor channels."
+trust_boundary: "on-chain dispute or engine state->off-chain consensus actor"
+entrypoint_type: "rpc-or-network-ingress"
+sensitive_sink: "admission of work into shared network, RPC, or challenger resources"
+
+attacker_capabilities:
+  - "open or relay enough inbound requests or connections to keep the expensive path busy"
+  - "sustain workload pressure until missing backpressure or concurrency limits matter"
+exploit_preconditions:
+  - "the affected listener or RPC service is exposed and upstream admission control does not already cap the same work"
+  - "the expensive work begins before a cheaper gate rejects or defers excess load"
+blast_radius: "validator-local"
+
+impact_types:
+  - "availability"
+severity_guess: "low"
+severity_rationale: "The finding improves a security-sensitive path, but the source mostly supports hardening or correctness rather than a demonstrated attacker-controlled exploit, so low is the safest reusable default."
+
+code_shape_summary: "Missing admission control at the RPC ingress. In the provided pre-patch code, requests were subject to a timeout but not to an explicit concurrency bound or immediate overload rejection path, leaving the service more exposed to backlog growth under bursty or flood-like request pressure."
+search_motifs:
+  - "unbounded task spawning on a network-facing listener or RPC ingress"
+  - "no semaphore, queue bound, or backpressure before expensive async work"
+  - "timeouts or retries present without an explicit concurrency cap"
+negative_signals:
+  - "Supported: the commit hardens the RPC ingress against overload/flood conditions."
+  - "Supported: the change mitigates resource-exhaustion risk at an externally reachable service boundary."
+  - "Not supported: a confirmed pre-patch remote DoS vulnerability in production."
+patch_pattern: "Add ingress admission control to a request-handling boundary: enforce a bounded concurrency limit, shed excess load instead of allowing unbounded backlog, and place timeout accounting so it covers time spent waiting for capacity."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260422-162106Z-base/raw-findings/2026-04-15-base-consensus-6f64e2506.md"
+  - "git:6f64e2506cbd98a92f3ea1ca8c56c694ff31839a"
+  - "crates/consensus/service/src/actors/rpc/actor.rs:188"
+  - "crates/consensus/service/src/actors/rpc/actor.rs:204"
+  - "devnet/src/l2/in_process_consensus.rs:161"
+  - "crates/consensus/service/src/actors/rpc/actor.rs:70"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

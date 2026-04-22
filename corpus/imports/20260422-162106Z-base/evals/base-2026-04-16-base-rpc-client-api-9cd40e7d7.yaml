@@ -1,0 +1,21 @@
+id: "base-2026-04-16-base-rpc-client-api-9cd40e7d7"
+source_record: "base-2026-04-16-base-rpc-client-api-9cd40e7d7.yaml"
+project: "base"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "incorrect-challenge-validation"
+expected_missing_property: "input-validation"
+
+expected_impact_band: "integrity_or_policy_enforcement"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Supported claim: the old challenger logic could mis-handle fraudulent ZK challenges by consulting unrelated intermediate roots."
+  - "Supported claim: the fix narrows validation to the challenged root and strengthens dispute-decision correctness."
+  - "Not supported: guaranteed exploitability, theft, consensus failure, or irreversible protocol compromise."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

@@ -1,0 +1,21 @@
+id: "base-2024-06-27-base-cryptography-bfe0dd435"
+source_record: "base-2024-06-27-base-cryptography-bfe0dd435.yaml"
+project: "base"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "verification-hardening"
+expected_missing_property: "canonical-verification"
+
+expected_impact_band: "integrity_or_policy_enforcement"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Supported claim: the patch hardens verification of precompile-backed oracle entries by recomputing and checking expected outputs."
+  - "Supported claim: some surrounding edits are type/canonicalization changes needed for the revised verification flow."
+  - "Not supported: a confirmed exploitable vulnerability existed before this commit."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

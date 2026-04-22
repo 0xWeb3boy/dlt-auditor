@@ -1,0 +1,64 @@
+id: "oasis-core-2021-01-21-oasis-core-staking-253376f8d"
+source_finding: "2021-01-21-oasis-core-staking-253376f8d.md"
+project: "oasis-core"
+date: "2021-01-21"
+language_tags:
+  - "go"
+
+bug_family: "staking_registry_and_accountability"
+bug_class: "insufficient-validator-slashing-enforcement"
+subsystem: "staking"
+architecture_tags:
+  - "validator-based"
+  - "committee-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "slashing-enforcement"
+violated_invariant: "Runtime misbehavior penalties should be representable in the runtime staking parameters and processed without failing on expected edge cases such as stale evidence or zero available funds."
+trust_boundary: "validator->consensus"
+entrypoint_type: "state-transition"
+sensitive_sink: "validator penalty state"
+
+attacker_capabilities:
+  - "cause the validator or committee-facing state transition to process crafted consensus inputs"
+  - "exercise an edge-case epoch, round, liveness, or penalty transition"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production"
+  - "the node is participating in the validator or committee workflow that owns the state transition"
+blast_radius: "chain-wide"
+
+impact_types:
+  - "integrity"
+severity_guess: "medium"
+severity_rationale: "The path is security-sensitive and could affect integrity, but the available evidence stops short of proving a worst-case exploit, so medium is the right default band."
+
+code_shape_summary: "The evidence supports an incomplete or brittle slashing/accounting implementation: policy fields and parsing were missing from the shown registration/API paths, and the slashing/fund-transfer code handled zero-funds cases harshly. The evidence does not prove a stronger root cause such as successful acceptance of incorrect results."
+search_motifs:
+  - "stake, slashing, or liveness rule missing on an edge path"
+  - "validator or committee accounting uses the wrong role coordinate"
+  - "reserved or punishable state treated like ordinary state"
+  - "descriptor admission with incomplete role or identity checks"
+  - "validator or committee role inferred from incomplete metadata"
+negative_signals:
+  - "Not a match if consensus rules or earlier checks make the edge case unreachable for live validators, entities, or runtimes."
+  - "Not a match if the patch only improves reporting or accounting visibility without changing stake, slashing, or selection state."
+  - "Not a match if the affected identifier is not actually used to derive penalties, voting power, or eligibility."
+  - "Not a match if descriptor normalization strips or rejects the problematic fields before signature verification or admission."
+patch_pattern: "The patch wires per-runtime slashing settings into runtime configuration and API validation, then adjusts slashing and transfer helpers so stale-evidence or empty-pool cases do not abort the operation path. The visible changes look like support and robustness work for runtime slashing rather than standalone proof of an exploitable bug."
+
+source_refs:
+  - "/testing/oasis-core/validated-findings/kept/2021-01-21-oasis-core-staking-253376f8d.md"
+  - "git:253376f8d2942a6c85c4174086d8cffd518ad86e"
+  - "go/oasis-node/cmd/registry/runtime/runtime.go:459"
+  - "go/registry/api/runtime.go:267"
+  - "go/consensus/tendermint/apps/roothash/slashing.go:41"
+  - "go/consensus/tendermint/apps/staking/state/state.go:724"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

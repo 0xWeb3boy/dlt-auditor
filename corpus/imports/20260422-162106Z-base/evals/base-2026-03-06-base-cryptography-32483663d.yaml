@@ -1,0 +1,21 @@
+id: "base-2026-03-06-base-cryptography-32483663d"
+source_record: "base-2026-03-06-base-cryptography-32483663d.yaml"
+project: "base"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "input-validation"
+expected_missing_property: "input-validation"
+
+expected_impact_band: "availability_or_resource_exhaustion"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "This supports malformed-input and resource-exhaustion hardening at an untrusted input boundary."
+  - "This does not prove a concrete signature-forgery, replay, or authentication bypass bug was fixed."
+  - "This does not prove aggregate proposal consistency is enforced; the commit text says that remains the consumer's responsibility."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

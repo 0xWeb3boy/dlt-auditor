@@ -1,0 +1,62 @@
+id: "oasis-core-2019-11-11-oasis-core-rpc-client-api-7816e47dd"
+source_finding: "2019-11-11-oasis-core-rpc-client-api-7816e47dd.md"
+project: "oasis-core"
+date: "2019-11-11"
+language_tags:
+  - "go"
+
+bug_family: "staking_registry_and_accountability"
+bug_class: "validator-selection-policy"
+subsystem: "rpc-client-api"
+architecture_tags:
+  - "committee-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "selection-policy-enforcement"
+violated_invariant: "Validator election should apply explicitly defined eligibility limits consistently at genesis and during validator selection; the evidence shows this limit became a separate configured parameter, but does not establish that the prior behavior violated safety or allowed an exploit."
+trust_boundary: "remote-peer->rpc-verifier"
+entrypoint_type: "rpc-handler"
+sensitive_sink: "validator set composition"
+
+attacker_capabilities:
+  - "reach the affected externally influenced path with syntactically valid inputs"
+  - "control the fields or timing assumptions that the missing check was supposed to bind"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production"
+  - "the verifier, key manager, or runtime uses the affected trust or signature path"
+blast_radius: "chain-wide"
+
+impact_types:
+  - "validator-selection-integrity"
+  - "consensus-policy-enforcement"
+severity_guess: "medium"
+severity_rationale: "The path is security-sensitive and could affect validator-selection-integrity, consensus-policy-enforcement, but the available evidence stops short of proving a worst-case exploit, so medium is the right default band."
+
+code_shape_summary: "The visible issue is that the entity-level cutoff used in validator election was not represented as its own explicit, validated consensus parameter. Instead, the election path used 'topN', and the patch separates that policy into 'ValidatorEntityThreshold' and requires it to be configured."
+search_motifs:
+  - "stake, slashing, or liveness rule missing on an edge path"
+  - "validator or committee accounting uses the wrong role coordinate"
+  - "reserved or punishable state treated like ordinary state"
+  - "validator or committee role inferred from incomplete metadata"
+negative_signals:
+  - "Not a match if consensus rules or earlier checks make the edge case unreachable for live validators, entities, or runtimes."
+  - "Not a match if the patch only improves reporting or accounting visibility without changing stake, slashing, or selection state."
+  - "Not a match if the affected identifier is not actually used to derive penalties, voting power, or eligibility."
+patch_pattern: "The patch introduces 'ValidatorEntityThreshold', stores it in consensus parameters, requires it to be configured during chain initialization, and uses it when limiting the set of stake-ranked entities considered for validator election."
+
+source_refs:
+  - "/testing/oasis-core/validated-findings/kept/2019-11-11-oasis-core-rpc-client-api-7816e47dd.md"
+  - "git:7816e47ddf3982530cdc61a3bd9e4a2f3e3e36d0"
+  - "go/tendermint/apps/scheduler/genesis.go:39"
+  - "go/tendermint/apps/scheduler/scheduler.go:580"
+  - "go/scheduler/api/api.go:194"
+  - "go/oasis-node/cmd/genesis/genesis.go:179"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

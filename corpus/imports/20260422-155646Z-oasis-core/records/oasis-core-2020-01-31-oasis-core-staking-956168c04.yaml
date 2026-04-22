@@ -1,0 +1,63 @@
+id: "oasis-core-2020-01-31-oasis-core-staking-956168c04"
+source_finding: "2020-01-31-oasis-core-staking-956168c04.md"
+project: "oasis-core"
+date: "2020-01-31"
+language_tags:
+  - "go"
+
+bug_family: "checked_arithmetic_and_parameter_bounds"
+bug_class: "integer-overflow"
+subsystem: "staking"
+architecture_tags:
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "arithmetic-bounds"
+violated_invariant: "When duplicate-vote evidence is processed, the recorded validator freeze end time should preserve the configured penalty and must not wrap if 'epoch + FreezeInterval' exceeds the representable epoch range."
+trust_boundary: "validator->consensus"
+entrypoint_type: "state-transition"
+sensitive_sink: "validator penalty state"
+
+attacker_capabilities:
+  - "cause the validator or committee-facing state transition to process crafted consensus inputs"
+  - "exercise an edge-case epoch, round, liveness, or penalty transition"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production"
+  - "the node is participating in the validator or committee workflow that owns the state transition"
+blast_radius: "chain-wide"
+
+impact_types:
+  - "integrity"
+severity_guess: "medium"
+severity_rationale: "The path is security-sensitive and could affect integrity, but the available evidence stops short of proving a worst-case exploit, so medium is the right default band."
+
+code_shape_summary: "Unchecked integer addition when deriving 'nodeStatus.FreezeEndTime' from the current epoch and the configured freeze interval."
+search_motifs:
+  - "unchecked arithmetic in consensus or security-sensitive state update"
+  - "overflow near sentinel values or maximum type bounds"
+  - "fail-open math instead of checked or fail-closed behavior"
+  - "validator or committee role inferred from incomplete metadata"
+  - "punishment or freeze state derived with missing edge-case enforcement"
+negative_signals:
+  - "Not a match if earlier invariants prove the operands stay far below the type bound in every reachable state."
+  - "Not a match if the arithmetic is already checked or saturating before the security-sensitive assignment."
+  - "Not a match if the patch only widens a type for convenience without changing any reachable overflow condition."
+  - "Not a match if consensus parameters, epochs, or thresholds are already bounded so the arithmetic cannot approach the type limit."
+patch_pattern: "The fix changed the freeze-end calculation from raw addition to guarded logic. It imports 'registry', checks whether 'epoch + penalty.FreezeInterval' would overflow 'uint64', and records 'registry.FreezeForever' instead of allowing wraparound."
+
+source_refs:
+  - "/testing/oasis-core/validated-findings/kept/2020-01-31-oasis-core-staking-956168c04.md"
+  - "git:956168c0474d2406bd4a7b5e110df7dd13a27403"
+  - "go/consensus/tendermint/apps/staking/slashing.go:73"
+  - "go/consensus/tendermint/apps/staking/staking.go:71"
+  - "go/consensus/tendermint/apps/staking/slashing.go:13"
+  - "go/consensus/tendermint/apps/staking/slashing_test.go:1"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

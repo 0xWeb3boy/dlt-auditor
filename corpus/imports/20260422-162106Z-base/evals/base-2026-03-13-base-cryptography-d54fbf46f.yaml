@@ -1,0 +1,21 @@
+id: "base-2026-03-13-base-cryptography-d54fbf46f"
+source_record: "base-2026-03-13-base-cryptography-d54fbf46f.yaml"
+project: "base"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "configuration-integrity"
+expected_missing_property: "configuration-integrity"
+
+expected_impact_band: "trust_or_policy_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Supported: the patch hardens enclave configuration selection and supported-chain enforcement."
+  - "Supported: the change reduces ambiguity by pinning config hashes to known chains and rejecting unknown ones."
+  - "Not supported: the patch fixes a proven exploitable vulnerability in the prior code."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

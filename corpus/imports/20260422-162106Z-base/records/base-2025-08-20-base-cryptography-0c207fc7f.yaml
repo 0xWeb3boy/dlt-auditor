@@ -1,0 +1,57 @@
+id: "base-2025-08-20-base-cryptography-0c207fc7f"
+source_finding: "2025-08-20-base-cryptography-0c207fc7f.md"
+project: "base"
+date: "2025-08-20"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "improper-verification"
+subsystem: "cryptography"
+architecture_tags:
+  - "proof-verification"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "verification-result-handling"
+violated_invariant: "Blob data must not be accepted into `BlobStore` unless batch KZG verification returns an explicit success result, `Ok(true)`."
+trust_boundary: "proof producer or network peer->verification routine"
+entrypoint_type: "transaction-or-batch-validation"
+sensitive_sink: "acceptance of a proof, signature, or derived state transition"
+
+attacker_capabilities:
+  - "supply malformed, replayed, or partially valid proof or signature data to the affected verifier path"
+  - "reach the code path where a weaker structural or semantic check is relied on before the sink"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production or operator workflows"
+  - "no downstream control fully revalidates the same canonical state, identity, or policy before the sink"
+blast_radius: "chain-wide"
+
+impact_types:
+  - "integrity"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, policy, or state-selection decision and the finding supports meaningful integrity risk, but most cases still stop short of proving worst-case exploitation, so medium is the right default band."
+
+code_shape_summary: "The caller did not fully enforce the verifier's return contract. It treated the absence of an error as sufficient instead of requiring the verifier's explicit success value from a `Result<bool, _>` API."
+search_motifs:
+  - "verification result is partially interpreted instead of requiring explicit success"
+  - "one proof element or branch is trusted without recomputing the canonical expected value"
+  - "validation logic treats malformed or mismatched proof structure as recoverable instead of rejecting it"
+negative_signals:
+  - "The patch supports that invalid-proof results were not explicitly rejected before this change."
+  - "The patch supports a cryptographic verification-handling weakness and a security-relevant hardening fix."
+  - "The patch does not prove remote exploitability or a specific attacker model."
+patch_pattern: "Replace error-only handling of a verifier result with explicit success-state enforcement at the acceptance boundary."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260422-162106Z-base/raw-findings/2025-08-20-base-cryptography-0c207fc7f.md"
+  - "git:0c207fc7f344004140d7c695e91bdffc47e80059"
+  - "utils/client/src/oracle/blob_provider.rs:26"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

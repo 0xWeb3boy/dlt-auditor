@@ -1,0 +1,64 @@
+id: "base-2026-03-26-base-storage-78f00388d"
+source_finding: "2026-03-26-base-storage-78f00388d.md"
+project: "base"
+date: "2026-03-26"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "nonce-validation"
+subsystem: "storage"
+architecture_tags:
+  - "nonce"
+  - "transaction-validation"
+  - "replay-sensitive"
+  - "state-check"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "replay-protection"
+violated_invariant: "If the EIP-8130 handler is the authority that advances a `(sender, nonce_key)` nonce slot, it should only increment that slot when the stored sequence equals the transaction's claimed `nonce_sequence`; otherwise it should reject rather than overwrite state from transaction input alone."
+trust_boundary: "chain state, checkpoint, or persistent storage input->proposer or validator logic"
+entrypoint_type: "checkpoint-or-state-validation"
+sensitive_sink: "persistent nonce or replay-protection state"
+
+attacker_capabilities:
+  - "control or influence the external transaction, batch, checkpoint, or state input consumed by the affected path"
+  - "reach the alternate, cached, or reconstructed path before a stronger downstream check rejects the input"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production or operator workflows"
+  - "no downstream control fully revalidates the same canonical state, identity, or policy before the sink"
+blast_radius: "validator-local"
+
+impact_types:
+  - "replay-or-ordering-bypass"
+  - "state-integrity"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, policy, or state-selection decision and the finding supports meaningful integrity risk, but most cases still stop short of proving worst-case exploitation, so medium is the right default band."
+
+code_shape_summary: "Missing read-compare-write validation in the EIP-8130 nonce update path: the handler trusted transaction-supplied `nonce_sequence` enough to derive and write the next stored value without first checking the authoritative stored sequence for that slot. The gas change is a separate accounting correction, not the root cause of the nonce issue."
+search_motifs:
+  - "externally supplied structured data is accepted after only partial validation"
+  - "one representation is checked while a different reconstructed or cached representation reaches the sink"
+  - "exact consumption, identity binding, or state-coordinate consistency is not rechecked before execution"
+negative_signals:
+  - "Supported claim: this commit adds missing stateful nonce validation immediately before updating a nonce slot."
+  - "Supported claim: the change removes a risky blind state update in replay-sensitive logic."
+  - "Not supported: a confirmed exploitable replay or double-spend vulnerability existed in production."
+patch_pattern: "Replace a blind state update driven by transaction input with a stateful read-compare-write check against the authoritative storage slot immediately before mutation. Keep gas estimation conservative before execution, then reconcile warm/cold costs once execution context is available."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260422-162106Z-base/raw-findings/2026-03-26-base-storage-78f00388d.md"
+  - "git:78f00388da31ad1cf865ff376dce3ceadfd44b9a"
+  - "crates/execution/revm/src/handler.rs:319"
+  - "crates/execution/revm/src/handler.rs:430"
+  - "crates/execution/revm/src/transaction/eip8130.rs:103"
+  - "crates/execution/revm/src/handler.rs:1469"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

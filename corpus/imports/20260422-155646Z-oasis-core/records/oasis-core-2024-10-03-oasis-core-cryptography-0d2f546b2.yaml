@@ -1,0 +1,63 @@
+id: "oasis-core-2024-10-03-oasis-core-cryptography-0d2f546b2"
+source_finding: "2024-10-03-oasis-core-cryptography-0d2f546b2.md"
+project: "oasis-core"
+date: "2024-10-03"
+language_tags:
+  - "rust"
+
+bug_family: "state_machine_and_lifecycle_consistency"
+bug_class: "stale-session-state"
+subsystem: "cryptography"
+architecture_tags:
+  - "committee-based"
+  - "tee"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "session-freshness"
+violated_invariant: "If the allowed remote enclave identity set changes, cached secure RPC sessions should not continue unchanged under the old policy. Request-scoped peer feedback should remain tied to the originating request even when multiple sessions are active."
+trust_boundary: "host->enclave"
+entrypoint_type: "session-setup"
+sensitive_sink: "secure session cache"
+
+attacker_capabilities:
+  - "establish or reuse secure sessions with identities that change across policy or membership updates"
+  - "present peer or enclave identities that are valid in one context but stale in another"
+exploit_preconditions:
+  - "the deployment uses the secure session mechanism across changing peer or policy state"
+  - "the verifier, key manager, or runtime uses the affected trust or signature path"
+blast_radius: "validator-local"
+
+impact_types:
+  - "stale-trust-policy"
+  - "session-state-confusion"
+severity_guess: "medium"
+severity_rationale: "The path is security-sensitive and could affect stale-trust-policy, session-state-confusion, but the available evidence stops short of proving a worst-case exploit, so medium is the right default band."
+
+code_shape_summary: "The visible issue is stale or shared session/request state management in the concurrent enclave RPC path. The evidence supports that session state was not explicitly cleared when remote enclave identity policy changed, and that peer feedback previously went through shared queue-based bookkeeping instead of direct request-bound submission."
+search_motifs:
+  - "stale state reused across round, epoch, or restart boundaries"
+  - "update path bypasses the same validation as fresh admission"
+  - "lifecycle cleanup tied to the wrong transition marker"
+  - "cached secure session reused after identity or policy changes"
+negative_signals:
+  - "Not a match if restart, timeout, overwrite, and update paths all clear or revalidate stale state before reuse."
+  - "Not a match if old and new state coordinates are guaranteed equivalent for every reachable transition."
+  - "Not a match if the change only refactors helper ownership without changing state-transition rules."
+patch_pattern: "The patch makes 'update_enclaves' drain sessions when the remote enclave identity set changes, switches peer-feedback submission to direct transport submission keyed by 'request_id', and tightens a responder-session creation invariant with an 'expect' after cleanup. The accompanying test was updated for concurrent feedback behavior without command-queue flushing."
+
+source_refs:
+  - "/testing/oasis-core/validated-findings/kept/2024-10-03-oasis-core-cryptography-0d2f546b2.md"
+  - "git:0d2f546b23794f299db4a28ea720dc54481d43a6"
+  - "runtime/src/enclave_rpc/client.rs:109"
+  - "runtime/src/enclave_rpc/client.rs:884"
+  - "runtime/src/enclave_rpc/demux.rs:82"
+  - "runtime/src/enclave_rpc/sessions.rs:177"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

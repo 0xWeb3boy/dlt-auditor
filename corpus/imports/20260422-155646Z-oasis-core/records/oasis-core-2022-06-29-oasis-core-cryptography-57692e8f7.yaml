@@ -1,0 +1,63 @@
+id: "oasis-core-2022-06-29-oasis-core-cryptography-57692e8f7"
+source_finding: "2022-06-29-oasis-core-cryptography-57692e8f7.md"
+project: "oasis-core"
+date: "2022-06-29"
+language_tags:
+  - "rust"
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "missing-query-verification"
+subsystem: "cryptography"
+architecture_tags:
+  - "committee-based"
+  - "light-client"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "query-verification"
+violated_invariant: "Historical query state access should only use consensus state derived from a runtime header that has been checked against the expected runtime identity and associated consensus block."
+trust_boundary: "client->query-verifier"
+entrypoint_type: "query-verification-path"
+sensitive_sink: "historical query trust state"
+
+attacker_capabilities:
+  - "issue crafted queries or request data under the affected trust or authorization context"
+  - "supply stale, mismatched, or cross-scope query inputs that look structurally valid"
+exploit_preconditions:
+  - "the affected query path is enabled for the runtime or component under review"
+  - "the verifier, key manager, or runtime uses the affected trust or signature path"
+blast_radius: "validator-local"
+
+impact_types:
+  - "query-integrity"
+severity_guess: "medium"
+severity_rationale: "The path is security-sensitive and could affect query-integrity, but the available evidence stops short of proving a worst-case exploit, so medium is the right default band."
+
+code_shape_summary: "Historical-query handling did not have a clearly enforced verification step in the shown interface/dispatch path, so query consumers could rely on weaker validation than the normal verifier path. The evidence supports missing or insufficient query-time binding checks, not stronger claims such as signature bypass or replay exploitation."
+search_motifs:
+  - "signature verification without signer-set or committee binding"
+  - "valid signature reused across runtime, role, or domain scope"
+  - "message accepted after verify but before signer authorization"
+  - "historical or privileged query result used without binding to authoritative state"
+negative_signals:
+  - "Not a match if signer membership, runtime binding, and domain separation are enforced before the sink on every path."
+  - "Not a match if the patch only changes serialization, logging, or tests without changing the accepted signer set."
+  - "Not a match if the same signature context is provably unique and cannot be replayed across roles or runtimes."
+patch_pattern: "The fix adds 'verify_for_query' to the verifier trait, implements it in the Tendermint verifier, routes query-mode requests through that path, and adds an explicit runtime-ID/namespace check before query-time consensus state is returned or treated as verified."
+
+source_refs:
+  - "/testing/oasis-core/validated-findings/kept/2022-06-29-oasis-core-cryptography-57692e8f7.md"
+  - "git:57692e8f7530ff20eabf458a67bf65df9e9cdf3a"
+  - "runtime/src/consensus/tendermint/verifier.rs:397"
+  - "runtime/src/consensus/verifier.rs:49"
+  - "runtime/src/consensus/tendermint/verifier.rs:724"
+  - "runtime/src/consensus/tendermint/verifier.rs:667"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: confirmed / security-hardening."

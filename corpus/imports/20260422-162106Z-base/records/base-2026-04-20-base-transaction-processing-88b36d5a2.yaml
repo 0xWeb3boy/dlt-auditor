@@ -1,0 +1,63 @@
+id: "base-2026-04-20-base-transaction-processing-88b36d5a2"
+source_finding: "2026-04-20-base-transaction-processing-88b36d5a2.md"
+project: "base"
+date: "2026-04-20"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "missing-runtime-guard"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "evm-config"
+  - "gas-limit"
+  - "runtime-guard"
+  - "consensus-rules"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "runtime-guard-consistency"
+violated_invariant: "When Base V1/Azul rules are active for a timestamp, every EVM environment construction path should apply the same fork-specific transaction gas-limit cap."
+trust_boundary: "transaction, batch, or proof input->execution or derivation pipeline"
+entrypoint_type: "transaction-or-batch-validation"
+sensitive_sink: "policy-gated game creation or environment construction"
+
+attacker_capabilities:
+  - "control or influence the external transaction, batch, checkpoint, or state input consumed by the affected path"
+  - "reach the alternate, cached, or reconstructed path before a stronger downstream check rejects the input"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production or operator workflows"
+  - "no downstream control fully revalidates the same canonical state, identity, or policy before the sink"
+blast_radius: "chain-wide"
+
+impact_types:
+  - "policy-bypass"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, policy, or state-selection decision and the finding supports meaningful integrity risk, but most cases still stop short of proving worst-case exploitation, so medium is the right default band."
+
+code_shape_summary: "Fork-specific gas-limit policy for Base V1/Azul was omitted from the duplicated inline `CfgEnv` construction paths, so some execution environments could be built without the fork-specific cap even when the timestamp-selected rules were active."
+search_motifs:
+  - "runtime or on-chain policy is read but not enforced before a privileged action"
+  - "one execution path applies the environment guard while another path skips it"
+  - "local configuration is treated as authoritative even when live chain policy can differ"
+negative_signals:
+  - "The evidence supports a missing fork-specific gas-limit guard in some EVM environment builders."
+  - "The evidence supports classifying this as security hardening because it tightens a runtime policy in a sensitive execution path."
+  - "The evidence does not support claiming a confirmed exploitable security bug."
+patch_pattern: "Centralize duplicated runtime-environment construction and attach fork-conditional parameters in the shared builder, then add a regression test for the fork-specific invariant."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260422-162106Z-base/raw-findings/2026-04-20-base-transaction-processing-88b36d5a2.md"
+  - "git:88b36d5a2da9d36361794365005442d7c0a8d155"
+  - "crates/execution/evm/src/lib.rs:60"
+  - "crates/execution/evm/src/lib.rs:398"
+  - "crates/execution/evm/src/lib.rs:295"
+  - "crates/execution/evm/src/lib.rs:112"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

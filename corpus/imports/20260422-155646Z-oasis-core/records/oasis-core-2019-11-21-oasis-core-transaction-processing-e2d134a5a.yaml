@@ -1,0 +1,64 @@
+id: "oasis-core-2019-11-21-oasis-core-transaction-processing-e2d134a5a"
+source_finding: "2019-11-21-oasis-core-transaction-processing-e2d134a5a.md"
+project: "oasis-core"
+date: "2019-11-21"
+language_tags:
+  - "go"
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "missing-gas-accounting"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "gas-accounting"
+violated_invariant: "Registry transactions that mutate on-chain state should apply the configured gas charges before continuing, and the node-registration charging path should remain consistent with the stated fee-payer model for entity-signed versus prepaid node-signed registrations."
+trust_boundary: "user->mempool"
+entrypoint_type: "transaction-handler"
+sensitive_sink: "state-mutating transaction execution without full fee charge"
+
+attacker_capabilities:
+  - "submit crafted transactions to a node that executes the affected admission or execution path"
+  - "shape transaction metadata, size, or ordering to reach the unchecked branch"
+exploit_preconditions:
+  - "the node exposes the relevant transaction admission path for the affected runtime or consensus app"
+  - "no earlier canonical validation step fully enforces the missing property on every route to the sink"
+blast_radius: "node-local"
+
+impact_types:
+  - "denial-of-service"
+  - "fee-bypass"
+severity_guess: "medium"
+severity_rationale: "The path is security-sensitive and could affect denial-of-service, fee-bypass, but the available evidence stops short of proving a worst-case exploit, so medium is the right default band."
+
+code_shape_summary: "Some registry transaction handlers did not perform the now-shown explicit per-operation gas charge before continuing with stateful processing. The evidence supports inconsistent or absent handler-level metering, not a signature or replay-validation defect."
+search_motifs:
+  - "resource or gas accounting missing on one mutation path"
+  - "downstream queue failure logged but not returned to caller"
+  - "limits depend on metadata that is not preserved across stages"
+  - "descriptor admission with incomplete role or identity checks"
+  - "state mutation path missing operation-specific gas charging"
+negative_signals:
+  - "Not a match if the same accounting or limit check is rerun immediately before the sink on every path."
+  - "Not a match if downstream queue rejection cannot leave the transaction or request accepted in observable state."
+  - "Not a match if global bounds already make the missing per-item limit unreachable in practice and the patch only improves errors."
+  - "Not a match if descriptor normalization strips or rejects the problematic fields before signature verification or admission."
+patch_pattern: "The fix inserts gas-accounting code into the affected registry handlers. Each added block fetches consensus parameters, returns on error, and invokes ctx.Gas().UseGas with the relevant registry gas operation. In registerNode, the charge is applied only when the registration is entity-signed, matching the comment that node-signed registrations are prepaid."
+
+source_refs:
+  - "/testing/oasis-core/validated-findings/kept/2019-11-21-oasis-core-transaction-processing-e2d134a5a.md"
+  - "git:e2d134a5af0474341549a9d0ac129145eafb28c7"
+  - "go/consensus/tendermint/apps/registry/transactions.go:407"
+  - "go/consensus/tendermint/apps/registry/transactions.go:332"
+  - "go/consensus/tendermint/apps/registry/transactions.go:75"
+  - "go/consensus/tendermint/apps/registry/transactions.go:168"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

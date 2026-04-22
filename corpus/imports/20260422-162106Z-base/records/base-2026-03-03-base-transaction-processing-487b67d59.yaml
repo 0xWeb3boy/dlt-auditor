@@ -1,0 +1,61 @@
+id: "base-2026-03-03-base-transaction-processing-487b67d59"
+source_finding: "2026-03-03-base-transaction-processing-487b67d59.md"
+project: "base"
+date: "2026-03-03"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "input-validation"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "correctness-or-hardening"
+  - "queue"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "input-validation"
+violated_invariant: "When derivation loads blobs for a block, the fetched and validated blob set should match what the batch data actually consumes exactly; leftover validated blobs should be rejected rather than silently ignored."
+trust_boundary: "transaction, batch, or proof input->execution or derivation pipeline"
+entrypoint_type: "transaction-or-batch-validation"
+sensitive_sink: "security-sensitive execution or state transition"
+
+attacker_capabilities:
+  - "control or influence the external transaction, batch, checkpoint, or state input consumed by the affected path"
+  - "reach the alternate, cached, or reconstructed path before a stronger downstream check rejects the input"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production or operator workflows"
+  - "no downstream control fully revalidates the same canonical state, identity, or policy before the sink"
+blast_radius: "chain-wide"
+
+impact_types:
+  - "correctness-or-hardening"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, policy, or state-selection decision and the finding supports meaningful integrity risk, but most cases still stop short of proving worst-case exploitation, so medium is the right default band."
+
+code_shape_summary: "The shown pre-fix code tracked consumed blob count with `blob_index` but lacked a final exact-consumption validation, so a mismatch between consumed blobs and fetched blobs was tolerated instead of being surfaced as an error."
+search_motifs:
+  - "externally supplied structured data is accepted after only partial validation"
+  - "one representation is checked while a different reconstructed or cached representation reaches the sink"
+  - "exact consumption, identity binding, or state-coordinate consistency is not rechecked before execution"
+negative_signals:
+  - "The diff supports an integrity hardening interpretation in a consensus-sensitive path, not proof of a concrete exploitable vulnerability."
+  - "The patch should not be described as fixing memory safety, authentication, or authorization issues."
+  - "The evidence does not justify claiming attacker-triggerable consensus break; it only shows previously silent surplus blobs are now rejected."
+patch_pattern: "Add an explicit post-parse invariant check and propagate the failure through typed error paths."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260422-162106Z-base/raw-findings/2026-03-03-base-transaction-processing-487b67d59.md"
+  - "git:487b67d59c6f21ee0e4f6667fd37d976757867ce"
+  - "crates/consensus/derive/src/sources/blobs.rs:163"
+  - "crates/consensus/derive/src/errors/pipeline.rs:346"
+  - "crates/consensus/derive/src/errors/sources.rs:39"
+  - "crates/consensus/derive/src/sources/blobs.rs:13"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

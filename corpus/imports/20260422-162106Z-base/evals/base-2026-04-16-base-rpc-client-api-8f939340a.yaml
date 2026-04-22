@@ -1,0 +1,21 @@
+id: "base-2026-04-16-base-rpc-client-api-8f939340a"
+source_record: "base-2026-04-16-base-rpc-client-api-8f939340a.yaml"
+project: "base"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "insufficient-confirmation-depth"
+expected_missing_property: "freshness"
+
+expected_impact_band: "state_or_consensus_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "This supports consensus-safety hardening, not a proven vulnerability remediation."
+  - "The evidence does not support the original `rpc-client-api` or serialization-focused framing."
+  - "Do not claim confirmed attacker impact or exploitation from the provided patch alone."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

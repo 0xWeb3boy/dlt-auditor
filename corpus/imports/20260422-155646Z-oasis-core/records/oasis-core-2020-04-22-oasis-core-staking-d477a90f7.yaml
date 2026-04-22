@@ -1,0 +1,63 @@
+id: "oasis-core-2020-04-22-oasis-core-staking-d477a90f7"
+source_finding: "2020-04-22-oasis-core-staking-d477a90f7.md"
+project: "oasis-core"
+date: "2020-04-22"
+language_tags:
+  - "go"
+
+bug_family: "staking_registry_and_accountability"
+bug_class: "incorrect-validator-voting-power"
+subsystem: "staking"
+architecture_tags:
+  - "validator-based"
+  - "committee-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "stake-to-power-consistency"
+violated_invariant: "In stake-based deployments, the validator set constructed by the scheduler should carry voting power derived from escrowed stake through a deterministic conversion. Flat voting power is only consistent with an explicit no-stake mode."
+trust_boundary: "validator->consensus"
+entrypoint_type: "state-transition"
+sensitive_sink: "validator voting power table"
+
+attacker_capabilities:
+  - "cause the validator or committee-facing state transition to process crafted consensus inputs"
+  - "exercise an edge-case epoch, round, liveness, or penalty transition"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production"
+  - "the node is participating in the validator or committee workflow that owns the state transition"
+blast_radius: "chain-wide"
+
+impact_types:
+  - "consensus-integrity"
+severity_guess: "high"
+severity_rationale: "The bug can affect chain wide integrity or authorization semantics, so similar cases should be treated as high-severity until proven otherwise."
+
+code_shape_summary: "The scheduler election path previously did not assign explicit stake-derived voting power in the shown validator-set construction path; the patch adds that missing mapping."
+search_motifs:
+  - "stake, slashing, or liveness rule missing on an edge path"
+  - "validator or committee accounting uses the wrong role coordinate"
+  - "reserved or punishable state treated like ordinary state"
+  - "validator or committee role inferred from incomplete metadata"
+  - "stake-derived voting power computed from the wrong source or conversion"
+negative_signals:
+  - "Not a match if consensus rules or earlier checks make the edge case unreachable for live validators, entities, or runtimes."
+  - "Not a match if the patch only improves reporting or accounting visibility without changing stake, slashing, or selection state."
+  - "Not a match if the affected identifier is not actually used to derive penalties, voting power, or eligibility."
+patch_pattern: "The fix updates validator election to compute and store per-validator voting power instead of only collecting validator identities. It also introduces a shared scheduler API helper for converting escrowed stake into voting power and initializes the default conversion ratio used by that helper."
+
+source_refs:
+  - "/testing/oasis-core/validated-findings/kept/2020-04-22-oasis-core-staking-d477a90f7.md"
+  - "git:d477a90f71d459d3333707473d9e73dbe212d2eb"
+  - "go/consensus/tendermint/apps/scheduler/scheduler.go:615"
+  - "go/scheduler/api/api.go:249"
+  - "go/scheduler/api/api.go:149"
+  - "go/consensus/tendermint/apps/scheduler/scheduler.go:593"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

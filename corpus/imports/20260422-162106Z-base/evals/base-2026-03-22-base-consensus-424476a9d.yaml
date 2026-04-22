@@ -1,0 +1,21 @@
+id: "base-2026-03-22-base-consensus-424476a9d"
+source_record: "base-2026-03-22-base-consensus-424476a9d.yaml"
+project: "base"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "consensus-safety"
+expected_missing_property: "state-coordinate-consistency"
+
+expected_impact_band: "state_or_consensus_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Supported claim: the patch hardens a consensus-sensitive activation path by enforcing engine-state validation before starting the sequencer."
+  - "Supported claim: the patch removes a risky condition where sequencing could begin while the engine unsafe head is still uninitialized."
+  - "Do not claim a confirmed exploitable vulnerability or real-world consensus failure from the supplied evidence alone."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

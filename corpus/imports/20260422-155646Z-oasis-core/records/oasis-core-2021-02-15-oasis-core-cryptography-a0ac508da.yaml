@@ -1,0 +1,61 @@
+id: "oasis-core-2021-02-15-oasis-core-cryptography-a0ac508da"
+source_finding: "2021-02-15-oasis-core-cryptography-a0ac508da.md"
+project: "oasis-core"
+date: "2021-02-15"
+language_tags:
+  - "go"
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "insufficient-signature-domain-separation"
+subsystem: "cryptography"
+architecture_tags:
+  - "committee-based"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "signature-domain-separation"
+violated_invariant: "Executor commitments and proposed-batch scheduler signatures must be bound to the specific runtime they belong to. A signature that verifies in one runtime context must not verify in another runtime context."
+trust_boundary: "committee-member->consensus"
+entrypoint_type: "state-transition"
+sensitive_sink: "security-sensitive consensus or registry state"
+
+attacker_capabilities:
+  - "send signed messages or commitments from the wrong committee member, runtime, or signer scope"
+  - "reuse otherwise valid signatures in a context that is not re-bound at the sink"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production"
+  - "the verifier, key manager, or runtime uses the affected trust or signature path"
+blast_radius: "validator-local"
+
+impact_types:
+  - "integrity"
+severity_guess: "high"
+severity_rationale: "The bug can affect validator local integrity or authorization semantics, so similar cases should be treated as high-severity until proven otherwise."
+
+code_shape_summary: "Runtime ID was not incorporated into the signature context for the shown roothash commitment-verification paths, so the signature domain was not explicitly separated per runtime."
+search_motifs:
+  - "signature verification without signer-set or committee binding"
+  - "valid signature reused across runtime, role, or domain scope"
+  - "message accepted after verify but before signer authorization"
+negative_signals:
+  - "Not a match if signer membership, runtime binding, and domain separation are enforced before the sink on every path."
+  - "Not a match if the patch only changes serialization, logging, or tests without changing the accepted signer set."
+  - "Not a match if the same signature context is provably unique and cannot be replayed across roles or runtimes."
+patch_pattern: "The fix threads 'runtimeID' into the affected verification paths, derives runtime-qualified signature contexts via 'WithSuffix(runtimeID.String())', updates commitment-generation helpers to sign with an explicit runtime, and adds regression coverage for runtime-mismatched evidence."
+
+source_refs:
+  - "/testing/oasis-core/validated-findings/kept/2021-02-15-oasis-core-cryptography-a0ac508da.md"
+  - "git:a0ac508dafff15a93bf9f2a6732884a984a62fab"
+  - "go/consensus/tendermint/apps/roothash/transactions_test.go:476"
+  - "go/oasis-node/cmd/debug/byzantine/byzantine.go:227"
+  - "go/roothash/api/commitment/executor.go:313"
+  - "go/roothash/api/commitment/executor.go:108"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: confirmed / security-hardening."

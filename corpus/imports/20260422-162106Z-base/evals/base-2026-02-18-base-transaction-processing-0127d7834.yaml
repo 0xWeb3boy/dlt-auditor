@@ -1,0 +1,21 @@
+id: "base-2026-02-18-base-transaction-processing-0127d7834"
+source_record: "base-2026-02-18-base-transaction-processing-0127d7834.yaml"
+project: "base"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "input-validation"
+expected_missing_property: "input-validation"
+
+expected_impact_band: "state_or_consensus_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Supported: the commit hardens signer validation for EIP-7702-related bytecode handling in the client metering path."
+  - "Supported: the old logic relied on an indirect proxy and the new logic enforces a stricter invariant using actual sender code."
+  - "Not supported: a confirmed exploitable vulnerability or concrete security incident."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

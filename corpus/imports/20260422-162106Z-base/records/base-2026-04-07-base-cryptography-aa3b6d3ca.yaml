@@ -1,0 +1,64 @@
+id: "base-2026-04-07-base-cryptography-aa3b6d3ca"
+source_finding: "2026-04-07-base-cryptography-aa3b6d3ca.md"
+project: "base"
+date: "2026-04-07"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "resource-exhaustion"
+subsystem: "cryptography"
+architecture_tags:
+  - "network-facing"
+  - "connection-limit"
+  - "admission-control"
+  - "async-runtime"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "resource-accounting"
+violated_invariant: "The network-facing publish listener must bound in-flight connection setup and broadcast work so new unauthenticated connections cannot drive unbounded memory or executor consumption before timeout-based cleanup occurs."
+trust_boundary: "signed or encoded input->verification routine"
+entrypoint_type: "rpc-or-network-ingress"
+sensitive_sink: "admission of work into shared network, RPC, or challenger resources"
+
+attacker_capabilities:
+  - "open or relay enough inbound requests or connections to keep the expensive path busy"
+  - "sustain workload pressure until missing backpressure or concurrency limits matter"
+exploit_preconditions:
+  - "the affected listener or RPC service is exposed and upstream admission control does not already cap the same work"
+  - "the expensive work begins before a cheaper gate rejects or defers excess load"
+blast_radius: "node-local"
+
+impact_types:
+  - "denial-of-service"
+  - "availability"
+severity_guess: "low"
+severity_rationale: "The finding improves a security-sensitive path, but the source mostly supports hardening or correctness rather than a demonstrated attacker-controlled exploit, so low is the safest reusable default."
+
+code_shape_summary: "Missing admission control in the listener accept loop allowed connection pressure to create too many concurrent handshake and broadcast tasks before existing timeout mechanisms reclaimed resources."
+search_motifs:
+  - "unbounded task spawning on a network-facing listener or RPC ingress"
+  - "no semaphore, queue bound, or backpressure before expensive async work"
+  - "timeouts or retries present without an explicit concurrency cap"
+negative_signals:
+  - "Supported claim: the patch hardens a network entry point against resource exhaustion from excessive concurrent connections."
+  - "Supported claim: the security relevance is availability-focused denial-of-service resistance."
+  - "Not supported: cryptography, replay, or other protocol-security classifications from the earlier finding metadata."
+patch_pattern: "Add an early resource-admission check at the network entry point, backed by a bounded-concurrency primitive and explicit rejection telemetry."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260422-162106Z-base/raw-findings/2026-04-07-base-cryptography-aa3b6d3ca.md"
+  - "git:aa3b6d3ca0f6485a06a4f1efd20dae63d978f22d"
+  - "crates/builder/publish/src/listener.rs:80"
+  - "crates/builder/publish/src/listener.rs:49"
+  - "crates/builder/publish/src/listener.rs:418"
+  - "crates/builder/publish/src/listener.rs:200"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

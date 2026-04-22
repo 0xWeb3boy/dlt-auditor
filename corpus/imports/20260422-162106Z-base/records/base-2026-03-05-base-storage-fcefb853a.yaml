@@ -1,0 +1,61 @@
+id: "base-2026-03-05-base-storage-fcefb853a"
+source_finding: "2026-03-05-base-storage-fcefb853a.md"
+project: "base"
+date: "2026-03-05"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "insufficient-input-validation"
+subsystem: "storage"
+architecture_tags:
+  - "validator"
+  - "defense-in-depth"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "input-validation"
+violated_invariant: "If this validator is used to decide whether a dispute game should be challenged, it must validate every expected checkpoint against recomputed L2-derived data, reject structurally invalid parameters such as mismatched checkpoint counts or zero intervals, and avoid trusting RPC header metadata without consistency checks."
+trust_boundary: "chain state, checkpoint, or persistent storage input->proposer or validator logic"
+entrypoint_type: "checkpoint-or-state-validation"
+sensitive_sink: "reuse of cached checkpoint or execution data that drives proposer or validator actions"
+
+attacker_capabilities:
+  - "trigger reuse of cached checkpoint, execution, or request state across retries or later observations"
+  - "influence the external state transition that makes a previously cached value stale or mismatched"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production or operator workflows"
+  - "no downstream control fully revalidates the same canonical state, identity, or policy before the sink"
+blast_radius: "validator-local"
+
+impact_types:
+  - "validation-bypass"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, policy, or state-selection decision and the finding supports meaningful integrity risk, but most cases still stop short of proving worst-case exploitation, so medium is the right default band."
+
+code_shape_summary: "According to the commit body, the initial validator implementation did not enforce all structural and arithmetic preconditions before iterating checkpoints and did not fully cross-check externally supplied header data. That created a risk that malformed inputs could alter or truncate validation instead of causing an immediate failure."
+search_motifs:
+  - "cache or retry reuse happens without rechecking canonical chain state"
+  - "request identity is treated as sufficient even though the historical state coordinate can change"
+  - "stale checkpoint, execution, or proof data is reused across parent-context changes"
+negative_signals:
+  - "Treat this as challenger-side validation hardening, not a confirmed consensus-break or fund-loss bug."
+  - "Do not claim a proven exploitable shipped vulnerability from the supplied snippets alone."
+  - "Do not extend the claim beyond validation integrity risks from malformed on-chain inputs or unreliable RPC data."
+patch_pattern: "Add fail-closed input validation around security-sensitive verification logic: check expected counts before iterating, use checked arithmetic for attacker-influenced counters, reject degenerate parameters early, and verify consistency of externally supplied metadata before trusting it."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260422-162106Z-base/raw-findings/2026-03-05-base-storage-fcefb853a.md"
+  - "git:fcefb853a02fa1d40b0d904987c867eaaa7ac4e5"
+  - "crates/proof/challenge/src/validator.rs:1"
+  - "crates/proof/challenge/src/metrics.rs:16"
+  - "crates/proof/challenge/src/lib.rs:21"
+  - "crates/proof/challenge/src/test_utils.rs:163"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

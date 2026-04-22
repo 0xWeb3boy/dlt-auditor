@@ -1,0 +1,8 @@
+oasis-core-2023-04-12-oasis-core-cryptography-97f265501
+oasis-core-2023-06-29-oasis-core-rpc-client-api-95923572b
+oasis-core-2019-07-22-oasis-core-cryptography-079912fe5
+oasis-core-2024-05-11-oasis-core-core-logic-ddf51345a
+oasis-core-2020-01-29-oasis-core-cryptography-f8809788d
+oasis-core-2021-05-24-oasis-core-transaction-processing-25f10e879
+oasis-core-2020-04-22-oasis-core-staking-d477a90f7
+oasis-core-2019-10-11-oasis-core-storage-82a0d8ee2

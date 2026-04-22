@@ -1,0 +1,63 @@
+id: "base-2025-12-29-base-storage-d9350fcc9"
+source_finding: "2025-12-29-base-storage-d9350fcc9.md"
+project: "base"
+date: "2025-12-29"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "missing-precondition-check"
+subsystem: "storage"
+architecture_tags:
+  - "fault-proof"
+  - "precondition-check"
+  - "runtime-validation"
+  - "configuration-drift"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "policy-gating"
+violated_invariant: "The proposer should only create dispute games when its configured `game_type` matches the live `respectedGameType` returned by `AnchorStateRegistry`. The patch enforces that invariant in proposer-side logic, but the provided evidence does not show what happens on-chain if the proposer fails to do so."
+trust_boundary: "chain state, checkpoint, or persistent storage input->proposer or validator logic"
+entrypoint_type: "checkpoint-or-state-validation"
+sensitive_sink: "acceptance of a proof, signature, or derived state transition"
+
+attacker_capabilities:
+  - "supply malformed, replayed, or partially valid proof or signature data to the affected verifier path"
+  - "reach the code path where a weaker structural or semantic check is relied on before the sink"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production or operator workflows"
+  - "no downstream control fully revalidates the same canonical state, identity, or policy before the sink"
+blast_radius: "validator-local"
+
+impact_types:
+  - "state-integrity"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, policy, or state-selection decision and the finding supports meaningful integrity risk, but most cases still stop short of proving worst-case exploitation, so medium is the right default band."
+
+code_shape_summary: "The proposer relied on local `game_type` configuration without a runtime check against the authoritative on-chain registry state, so it could continue attempting game creation even when local configuration no longer matched the currently respected type."
+search_motifs:
+  - "challenge mode handled by a generic validation branch instead of the challenged case"
+  - "decision logic derives the target index or root from the wrong proof element"
+  - "retry or fallback state is dropped before the dispute path reaches a definitive decision"
+negative_signals:
+  - "The patch proves a missing runtime validation was added before creating dispute games."
+  - "The patch supports classifying the change as security hardening in a sensitive blockchain path."
+  - "The patch does not by itself prove an exploitable vulnerability existed before the change."
+patch_pattern: "Add a runtime precondition check against authoritative on-chain state immediately before a side-effecting operation, and abort when local configuration disagrees with that state."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260422-162106Z-base/raw-findings/2025-12-29-base-storage-d9350fcc9.md"
+  - "git:d9350fcc932ac06f6b1da2846e1261f62cc9a547"
+  - "crates/op-succinct/fault-proof/src/proposer.rs:1669"
+  - "crates/op-succinct/fault-proof/bin/proposer.rs:40"
+  - "crates/op-succinct/fault-proof/src/config.rs:132"
+  - "crates/op-succinct/fault-proof/src/contract.rs:129"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

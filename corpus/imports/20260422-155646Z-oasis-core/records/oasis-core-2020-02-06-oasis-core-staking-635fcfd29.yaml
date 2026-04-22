@@ -1,0 +1,65 @@
+id: "oasis-core-2020-02-06-oasis-core-staking-635fcfd29"
+source_finding: "2020-02-06-oasis-core-staking-635fcfd29.md"
+project: "oasis-core"
+date: "2020-02-06"
+language_tags:
+  - "go"
+
+bug_family: "staking_registry_and_accountability"
+bug_class: "missing-stake-enforcement"
+subsystem: "staking"
+architecture_tags:
+  - "validator-based"
+  - "committee-based"
+  - "tee"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "stake-enforcement"
+violated_invariant: "When runtime deposit enforcement is enabled, runtime registration and continued runtime operation are intended to require the owning entity to satisfy the relevant stake thresholds."
+trust_boundary: "operator->registry"
+entrypoint_type: "registration-path"
+sensitive_sink: "runtime registry admission"
+
+attacker_capabilities:
+  - "submit crafted node, runtime, or entity registration material to the registry path"
+  - "control the keys or descriptors used by the affected registration workflow"
+exploit_preconditions:
+  - "the deployment accepts the affected registration or update path from untrusted or semi-trusted principals"
+  - "the node is participating in the validator or committee workflow that owns the state transition"
+blast_radius: "chain-wide"
+
+impact_types:
+  - "policy-bypass"
+  - "improper-runtime-admission"
+severity_guess: "high"
+severity_rationale: "The bug can affect chain wide integrity or authorization semantics, so similar cases should be treated as high-severity until proven otherwise."
+
+code_shape_summary: "The affected paths previously lacked explicit runtime stake/deposit checks at the shown admission and lifecycle transition points. From the provided evidence alone, it is not proven whether that absence was a vulnerability or simply behavior that this change intentionally tightened."
+search_motifs:
+  - "stake, slashing, or liveness rule missing on an edge path"
+  - "validator or committee accounting uses the wrong role coordinate"
+  - "reserved or punishable state treated like ordinary state"
+  - "descriptor admission with incomplete role or identity checks"
+negative_signals:
+  - "Not a match if consensus rules or earlier checks make the edge case unreachable for live validators, entities, or runtimes."
+  - "Not a match if the patch only improves reporting or accounting visibility without changing stake, slashing, or selection state."
+  - "Not a match if the affected identifier is not actually used to derive penalties, voting power, or eligibility."
+  - "Not a match if descriptor normalization strips or rejects the problematic fields before signature verification or admission."
+patch_pattern: "The patch fetches consensus parameters where needed, gates the behavior on 'DebugBypassStake', invokes 'EnsureSufficientRuntimeStake', and uses the result to reject runtime registration or suspend already-registered runtimes in key manager and roothash flows."
+
+source_refs:
+  - "/testing/oasis-core/validated-findings/kept/2020-02-06-oasis-core-staking-635fcfd29.md"
+  - "git:635fcfd29eedd917235b363f313afe68c347f0dc"
+  - "go/consensus/tendermint/apps/registry/transactions.go:556"
+  - "go/consensus/tendermint/apps/keymanager/keymanager.go:111"
+  - "go/consensus/tendermint/apps/keymanager/keymanager.go:96"
+  - "go/consensus/tendermint/apps/roothash/roothash.go:123"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

@@ -1,0 +1,62 @@
+id: "base-2024-06-27-base-cryptography-bfe0dd435"
+source_finding: "2024-06-27-base-cryptography-bfe0dd435.md"
+project: "base"
+date: "2024-06-27"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "verification-hardening"
+subsystem: "cryptography"
+architecture_tags:
+  - "oracle"
+  - "precompile"
+  - "verification"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "canonical-verification"
+violated_invariant: "If oracle cache entries are security-relevant, verification should operate on canonical `PreimageKey` values and, for precompile-backed entries, ensure the stored output matches the decoded precompile invocation derived from associated hint data."
+trust_boundary: "proof producer or network peer->verification routine"
+entrypoint_type: "proof-or-signature-verification"
+sensitive_sink: "acceptance of a proof, signature, or derived state transition"
+
+attacker_capabilities:
+  - "supply malformed, replayed, or partially valid proof or signature data to the affected verifier path"
+  - "reach the code path where a weaker structural or semantic check is relied on before the sink"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production or operator workflows"
+  - "no downstream control fully revalidates the same canonical state, identity, or policy before the sink"
+blast_radius: "validator-local"
+
+impact_types:
+  - "integrity-hardening"
+severity_guess: "low"
+severity_rationale: "The finding improves a security-sensitive path, but the source mostly supports hardening or correctness rather than a demonstrated attacker-controlled exploit, so low is the safest reusable default."
+
+code_shape_summary: "The visible root issue is incomplete or less explicit verification logic in the oracle validation path, especially for `PreimageKeyType::Precompile`. However, the evidence also shows routine type-conversion adjustments, so the patch does not cleanly isolate a proven security bug as opposed to correctness or implementation completion work."
+search_motifs:
+  - "verification result is partially interpreted instead of requiring explicit success"
+  - "one proof element or branch is trusted without recomputing the canonical expected value"
+  - "validation logic treats malformed or mismatched proof structure as recoverable instead of rejecting it"
+negative_signals:
+  - "Supported claim: the patch hardens verification of precompile-backed oracle entries by recomputing and checking expected outputs."
+  - "Supported claim: some surrounding edits are type/canonicalization changes needed for the revised verification flow."
+  - "Not supported: a confirmed exploitable vulnerability existed before this commit."
+patch_pattern: "Add explicit recomputation and assertion in a verification path, while normalizing key handling to a canonical typed representation."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260422-162106Z-base/raw-findings/2024-06-27-base-cryptography-bfe0dd435.md"
+  - "git:bfe0dd43547da2946f00a1b3c2ebb8b386188cbf"
+  - "zkvm-client/src/oracle/mod.rs:143"
+  - "zkvm-client/src/oracle/mod.rs:90"
+  - "zkvm-client/src/oracle/mod.rs:69"
+  - "zkvm-client/src/oracle/mod.rs:79"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

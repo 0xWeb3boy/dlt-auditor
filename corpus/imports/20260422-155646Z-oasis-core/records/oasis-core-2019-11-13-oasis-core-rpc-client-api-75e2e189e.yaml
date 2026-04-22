@@ -1,0 +1,59 @@
+id: "oasis-core-2019-11-13-oasis-core-rpc-client-api-75e2e189e"
+source_finding: "2019-11-13-oasis-core-rpc-client-api-75e2e189e.md"
+project: "oasis-core"
+date: "2019-11-13"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "panic-on-malformed-input"
+subsystem: "rpc-client-api"
+architecture_tags:[]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "input-validation"
+violated_invariant: "Public keys used as identities must decode to exactly 'PublicKeySize' bytes, and malformed keys must be rejected or handled as invalid values without panicking during later map-key conversion or registry validation."
+trust_boundary: "remote-peer->rpc-verifier"
+entrypoint_type: "rpc-handler"
+sensitive_sink: "security-sensitive consensus or registry state"
+
+attacker_capabilities:
+  - "reach the affected externally influenced path with syntactically valid inputs"
+  - "control the fields or timing assumptions that the missing check was supposed to bind"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production"
+  - "the verifier, key manager, or runtime uses the affected trust or signature path"
+blast_radius: "node-local"
+
+impact_types:
+  - "denial-of-service"
+severity_guess: "medium"
+severity_rationale: "The path is security-sensitive and could affect denial-of-service, but the available evidence stops short of proving a worst-case exploit, so medium is the right default band."
+
+code_shape_summary: "Malformed public keys were handled inconsistently across the code path: deserialization allowed a nil/zero-length key as success, but later identity-conversion logic assumed exact key length and could panic when given that malformed value."
+search_motifs:
+  - "parsed descriptor or request missing cross-field invariant checks"
+  - "wrong state coordinate compared during validation"
+  - "malformed or incomplete input reaches a privileged sink"
+negative_signals:
+  - "Not a match if malformed or incomplete inputs are normalized and rejected before they can reach the sensitive sink."
+  - "Not a match if the compared fields are aliases with identical semantics throughout the subsystem."
+  - "Not a match if the change only tightens developer assertions without affecting production acceptance behavior."
+patch_pattern: "The patch makes 'PublicKey.UnmarshalBinary' fail unless the input length is exactly 'PublicKeySize'. It changes 'ToMapKey' to stop panicking on malformed keys, changes 'MarshalBinary' to serialize malformed keys as an all-zero key documented as blacklisted/invalid, and updates 'VerifyRegisterEntityArgs' to reject malformed node IDs before duplicate detection uses them."
+
+source_refs:
+  - "/testing/oasis-core/validated-findings/kept/2019-11-13-oasis-core-rpc-client-api-75e2e189e.md"
+  - "git:75e2e189ea21bc57db6493b382f6c71b4a551ac1"
+  - "go/common/crypto/signature/signature.go:152"
+  - "go/common/crypto/signature/signature.go:229"
+  - "go/common/crypto/signature/signature.go:136"
+  - "go/registry/api/api.go:273"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

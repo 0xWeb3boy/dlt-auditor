@@ -1,0 +1,63 @@
+id: "oasis-core-2019-06-03-oasis-core-rpc-client-api-3f0716ecd"
+source_finding: "2019-06-03-oasis-core-rpc-client-api-3f0716ecd.md"
+project: "oasis-core"
+date: "2019-06-03"
+language_tags:
+  - "go"
+
+bug_family: "attestation_trust_and_freshness"
+bug_class: "non-production-credential-acceptance"
+subsystem: "rpc-client-api"
+architecture_tags:
+  - "committee-based"
+  - "tee"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "credential-policy-gating"
+violated_invariant: "When test keys are disallowed, public keys explicitly designated as test-only must not pass the shared signature verification path, even if the signature is otherwise valid."
+trust_boundary: "remote-peer->rpc-verifier"
+entrypoint_type: "rpc-handler"
+sensitive_sink: "security-sensitive consensus or registry state"
+
+attacker_capabilities:
+  - "reach the affected externally influenced path with syntactically valid inputs"
+  - "control the fields or timing assumptions that the missing check was supposed to bind"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production"
+  - "the verifier, key manager, or runtime uses the affected trust or signature path"
+blast_radius: "validator-local"
+
+impact_types:
+  - "policy-bypass"
+severity_guess: "medium"
+severity_rationale: "The path is security-sensitive and could affect policy-bypass, but the available evidence stops short of proving a worst-case exploit, so medium is the right default band."
+
+code_shape_summary: "The shared verifier treated structurally valid keys with correct signatures as acceptable without a separate policy check for designated test-only keys. That meant acceptance depended only on cryptographic validity, not on whether a key was meant for non-production use."
+search_motifs:
+  - "trust root or quote policy cached without refresh on change"
+  - "freshness inferred from success state instead of anchored evidence"
+  - "session or attestation state reused after peer-set or policy change"
+  - "descriptor admission with incomplete role or identity checks"
+negative_signals:
+  - "Not a match if trust roots, quote policy, and freshness evidence are atomically refreshed before each decision."
+  - "Not a match if stale or changed session state is already invalidated on restart, reconfiguration, or peer change."
+  - "Not a match if the new code only improves observability and does not change verification inputs or policy state."
+  - "Not a match if descriptor normalization strips or rejects the problematic fields before signature verification or admission."
+patch_pattern: "The fix introduced explicit registration of test public keys, a blacklist derived from that registration when test keys are disallowed, and an early blacklist check inside 'PublicKey.Verify'. A hardcoded keymanager test key is then registered so it is covered by the shared verification policy."
+
+source_refs:
+  - "/testing/oasis-core/validated-findings/kept/2019-06-03-oasis-core-rpc-client-api-3f0716ecd.md"
+  - "git:3f0716ecdacc6e825478b8e05a1d8e98de851a81"
+  - "go/common/crypto/signature/signature.go:522"
+  - "go/common/crypto/signature/signature.go:110"
+  - "go/common/crypto/signature/signature.go:81"
+  - "go/worker/keymanager/keymanager.go:464"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

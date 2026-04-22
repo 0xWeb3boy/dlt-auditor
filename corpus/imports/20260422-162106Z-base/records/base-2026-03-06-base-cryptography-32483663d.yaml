@@ -1,0 +1,62 @@
+id: "base-2026-03-06-base-cryptography-32483663d"
+source_finding: "2026-03-06-base-cryptography-32483663d.md"
+project: "base"
+date: "2026-03-06"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "input-validation"
+subsystem: "cryptography"
+architecture_tags:
+  - "resource-exhaustion"
+  - "untrusted-input"
+  - "signature-format"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "input-validation"
+violated_invariant: "A `ProofClaim` received from the proof transport boundary must be treated as untrusted until structurally validated. The claim should contain at least one proposal, the proposal list should be bounded to prevent resource exhaustion, and each embedded signature blob should match the expected fixed-width wire shape before downstream consumers use the claim."
+trust_boundary: "proof producer or network peer->verification routine"
+entrypoint_type: "proof-or-signature-verification"
+sensitive_sink: "acceptance of a proof, signature, or derived state transition"
+
+attacker_capabilities:
+  - "supply malformed, replayed, or partially valid proof or signature data to the affected verifier path"
+  - "reach the code path where a weaker structural or semantic check is relied on before the sink"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production or operator workflows"
+  - "no downstream control fully revalidates the same canonical state, identity, or policy before the sink"
+blast_radius: "chain-wide"
+
+impact_types:
+  - "denial-of-service"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, policy, or state-selection decision and the finding supports meaningful integrity risk, but most cases still stop short of proving worst-case exploitation, so medium is the right default band."
+
+code_shape_summary: "The refactor changed `ProofClaim` from a small fixed-shape record into a container holding nested proposal objects and a variable-length vector coming from an untrusted boundary. The supported issue is missing structural validation of that new untrusted shape, especially unbounded collection size and malformed signature blobs."
+search_motifs:
+  - "manual proof or signature byte assembly duplicated across producer and verifier paths"
+  - "signature shape or parity is reconstructed after decode instead of validated canonically"
+  - "accepted input depends on signer or signature fields that are not bound consistently end to end"
+negative_signals:
+  - "This supports malformed-input and resource-exhaustion hardening at an untrusted input boundary."
+  - "This does not prove a concrete signature-forgery, replay, or authentication bypass bug was fixed."
+  - "This does not prove aggregate proposal consistency is enforced; the commit text says that remains the consumer's responsibility."
+patch_pattern: "Add explicit boundary validation for deserialized protocol objects: require mandatory collections to be non-empty, cap collection sizes, and enforce fixed-width structural checks on embedded cryptographic byte fields before downstream processing."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260422-162106Z-base/raw-findings/2026-03-06-base-cryptography-32483663d.md"
+  - "git:32483663dc4289f619f542427aab1b9668664d17"
+  - "crates/proof/primitives/src/proof.rs:4"
+  - "crates/proof/transport/src/tests.rs:1"
+  - "crates/proof/transport/src/tests.rs:52"
+  - "crates/proof/transport/src/tests.rs:22"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

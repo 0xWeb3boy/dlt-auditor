@@ -1,0 +1,21 @@
+id: "base-2025-08-20-base-cryptography-0c207fc7f"
+source_record: "base-2025-08-20-base-cryptography-0c207fc7f.yaml"
+project: "base"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "improper-verification"
+expected_missing_property: "verification-result-handling"
+
+expected_impact_band: "integrity_or_policy_enforcement"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The patch supports that invalid-proof results were not explicitly rejected before this change."
+  - "The patch supports a cryptographic verification-handling weakness and a security-relevant hardening fix."
+  - "The patch does not prove remote exploitability or a specific attacker model."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

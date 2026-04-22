@@ -1,0 +1,66 @@
+id: "oasis-core-2022-04-13-oasis-core-consensus-8381b14d1"
+source_finding: "2022-04-13-oasis-core-consensus-8381b14d1.md"
+project: "oasis-core"
+date: "2022-04-13"
+language_tags:
+  - "go"
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "insufficient-resource-limits"
+subsystem: "consensus"
+architecture_tags:
+  - "validator-based"
+  - "committee-based"
+  - "mempool"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "resource-accounting"
+violated_invariant: "Txpool admission should preserve any sender identity returned by CheckTx so sender-aware scheduling or admission rules can be applied consistently, and any downstream queue rejection should be returned to the submitter instead of being left as a log-only condition. The provided evidence does not establish a stronger invariant than local txpool resource control, and the hash-based fallback shows sender-based handling is not uniformly available across runtimes."
+trust_boundary: "user->mempool"
+entrypoint_type: "transaction-handler"
+sensitive_sink: "transaction admission and scheduling state"
+
+attacker_capabilities:
+  - "submit crafted transactions to a node that executes the affected admission or execution path"
+  - "shape transaction metadata, size, or ordering to reach the unchecked branch"
+exploit_preconditions:
+  - "the node exposes the relevant transaction admission path for the affected runtime or consensus app"
+  - "the node is participating in the validator or committee workflow that owns the state transition"
+blast_radius: "node-local"
+
+impact_types:
+  - "denial-of-service"
+  - "resource-exhaustion"
+severity_guess: "medium"
+severity_rationale: "The path is security-sensitive and could affect denial-of-service, resource-exhaustion, but the available evidence stops short of proving a worst-case exploit, so medium is the right default band."
+
+code_shape_summary: "The txpool's checked-transaction state was missing sender metadata that later sender-aware queue logic could use, and the post-CheckTx scheduling stage did not retain enough index information to surface queue-admission failure back to the correct caller. That is a local admission-path consistency gap. The provided evidence does not by itself prove a security vulnerability beyond that."
+search_motifs:
+  - "resource or gas accounting missing on one mutation path"
+  - "downstream queue failure logged but not returned to caller"
+  - "limits depend on metadata that is not preserved across stages"
+  - "checked transaction metadata lost before queueing or scheduling"
+  - "CheckTx success followed by unchecked downstream acceptance"
+negative_signals:
+  - "Not a match if the same accounting or limit check is rerun immediately before the sink on every path."
+  - "Not a match if downstream queue rejection cannot leave the transaction or request accepted in observable state."
+  - "Not a match if global bounds already make the missing per-item limit unreachable in practice and the patch only improves errors."
+patch_pattern: "The patch stores sender identity and sender sequence on checked txpool transactions, adds a unique fallback sender when the runtime provides none, and preserves original batch indices while processing checked transactions. That lets the code associate a later scheduling rejection with the correct transaction result and return a 'txpool' error to the submitter."
+
+source_refs:
+  - "/testing/oasis-core/validated-findings/kept/2022-04-13-oasis-core-consensus-8381b14d1.md"
+  - "git:8381b14d188e7b20bed200e5cf5e17a57f46edc4"
+  - "go/runtime/txpool/txpool.go:548"
+  - "go/runtime/txpool/txpool.go:490"
+  - "go/runtime/txpool/txpool.go:497"
+  - "go/runtime/txpool/transaction.go:92"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: confirmed / security-hardening."

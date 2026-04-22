@@ -1,0 +1,61 @@
+id: "oasis-core-2019-06-27-oasis-core-cryptography-ee21c841e"
+source_finding: "2019-06-27-oasis-core-cryptography-ee21c841e.md"
+project: "oasis-core"
+date: "2019-06-27"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "predictable-beacon-entropy"
+subsystem: "cryptography"
+architecture_tags:
+  - "committee-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "entropy-integrity"
+violated_invariant: "Production beacon generation should use the canonical Tendermint beacon path and should not silently rely on deterministic or debug entropy behavior."
+trust_boundary: "committee-member->consensus"
+entrypoint_type: "state-transition"
+sensitive_sink: "beacon entropy generation state"
+
+attacker_capabilities:
+  - "cause the validator or committee-facing state transition to process crafted consensus inputs"
+  - "exercise an edge-case epoch, round, liveness, or penalty transition"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production"
+  - "the verifier, key manager, or runtime uses the affected trust or signature path"
+blast_radius: "chain-wide"
+
+impact_types:
+  - "predictable-randomness"
+  - "consensus-integrity-risk"
+severity_guess: "high"
+severity_rationale: "The bug can affect chain wide integrity or authorization semantics, so similar cases should be treated as high-severity until proven otherwise."
+
+code_shape_summary: "The code suggests that deterministic/debug beacon behavior and the canonical Tendermint beacon path were not previously separated as explicitly as they are after the patch. The scheduler also had a more flexible beacon-backend injection point. That supports a hardening narrative, but the provided excerpts do not prove that the older design was exploitable in production."
+search_motifs:
+  - "parsed descriptor or request missing cross-field invariant checks"
+  - "wrong state coordinate compared during validation"
+  - "malformed or incomplete input reaches a privileged sink"
+negative_signals:
+  - "Not a match if malformed or incomplete inputs are normalized and rejected before they can reach the sensitive sink."
+  - "Not a match if the compared fields are aliases with identical semantics throughout the subsystem."
+  - "Not a match if the change only tightens developer assertions without affecting production acceptance behavior."
+patch_pattern: "The patch introduces an explicit 'debugDeterministic' flag in the beacon application, warns when that mode is used, adjusts epoch-change logic to distinguish production entropy handling from deterministic behavior, removes the scheduler's injected beacon-backend dependency, and removes a direct ABCI beacon getter in the Tendermint backend."
+
+source_refs:
+  - "/testing/oasis-core/validated-findings/kept/2019-06-27-oasis-core-cryptography-ee21c841e.md"
+  - "git:ee21c841e3332822a281938d0ceeab052de0f438"
+  - "go/beacon/tendermint/tendermint.go:75"
+  - "go/tendermint/apps/beacon/beacon.go:174"
+  - "go/scheduler/tendermint/tendermint.go:163"
+  - "go/tendermint/apps/beacon/beacon.go:113"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

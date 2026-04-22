@@ -1,0 +1,288 @@
+{
+  "repo": "/testing/base",
+  "repo_slug": "base",
+  "kept_dir": "/testing/base/validated-findings/kept",
+  "created_at_utc": "20260422-162106Z",
+  "finding_count": 31,
+  "findings": [
+    {
+      "id": "base-2024-06-27-base-cryptography-bfe0dd435",
+      "source": "/testing/base/validated-findings/kept/2024-06-27-base-cryptography-bfe0dd435.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "verification-hardening",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "base-2024-11-06-base-transaction-processing-9200d03dc",
+      "source": "/testing/base/validated-findings/kept/2024-11-06-base-transaction-processing-9200d03dc.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "replay-protection-state-inconsistency",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "base-2025-08-20-base-cryptography-0c207fc7f",
+      "source": "/testing/base/validated-findings/kept/2025-08-20-base-cryptography-0c207fc7f.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "improper-verification",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "base-2025-08-20-base-cryptography-2c7e77548",
+      "source": "/testing/base/validated-findings/kept/2025-08-20-base-cryptography-2c7e77548.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "improper-verification-check",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "base-2025-10-14-base-rpc-client-api-1f8f40a6b",
+      "source": "/testing/base/validated-findings/kept/2025-10-14-base-rpc-client-api-1f8f40a6b.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "improper-state-validation",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "base-2025-10-14-base-rpc-client-api-f694185fe",
+      "source": "/testing/base/validated-findings/kept/2025-10-14-base-rpc-client-api-f694185fe.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "insufficient-state-validation",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "base-2025-12-29-base-storage-55893ad15",
+      "source": "/testing/base/validated-findings/kept/2025-12-29-base-storage-55893ad15.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-runtime-policy-check",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "base-2025-12-29-base-storage-d9350fcc9",
+      "source": "/testing/base/validated-findings/kept/2025-12-29-base-storage-d9350fcc9.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-precondition-check",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "base-2026-01-08-base-transaction-processing-b8f757909",
+      "source": "/testing/base/validated-findings/kept/2026-01-08-base-transaction-processing-b8f757909.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "deadline-enforcement",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "base-2026-01-22-base-transaction-processing-13a095daa",
+      "source": "/testing/base/validated-findings/kept/2026-01-22-base-transaction-processing-13a095daa.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "incorrect-cache-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "base-2026-02-18-base-transaction-processing-0127d7834",
+      "source": "/testing/base/validated-findings/kept/2026-02-18-base-transaction-processing-0127d7834.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "input-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "base-2026-03-03-base-transaction-processing-487b67d59",
+      "source": "/testing/base/validated-findings/kept/2026-03-03-base-transaction-processing-487b67d59.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "input-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "base-2026-03-05-base-storage-fcefb853a",
+      "source": "/testing/base/validated-findings/kept/2026-03-05-base-storage-fcefb853a.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "insufficient-input-validation",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "base-2026-03-06-base-cryptography-32483663d",
+      "source": "/testing/base/validated-findings/kept/2026-03-06-base-cryptography-32483663d.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "input-validation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "base-2026-03-07-base-transaction-processing-37260a7ab",
+      "source": "/testing/base/validated-findings/kept/2026-03-07-base-transaction-processing-37260a7ab.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "signature-validation-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "base-2026-03-07-base-transaction-processing-3e0b436b4",
+      "source": "/testing/base/validated-findings/kept/2026-03-07-base-transaction-processing-3e0b436b4.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "signature-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "base-2026-03-13-base-cryptography-d54fbf46f",
+      "source": "/testing/base/validated-findings/kept/2026-03-13-base-cryptography-d54fbf46f.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "configuration-integrity",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "base-2026-03-22-base-consensus-424476a9d",
+      "source": "/testing/base/validated-findings/kept/2026-03-22-base-consensus-424476a9d.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-safety",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "base-2026-03-26-base-storage-78f00388d",
+      "source": "/testing/base/validated-findings/kept/2026-03-26-base-storage-78f00388d.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "nonce-validation",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "base-2026-03-26-base-transaction-processing-012b1180e",
+      "source": "/testing/base/validated-findings/kept/2026-03-26-base-transaction-processing-012b1180e.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "proof-claim-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "base-2026-03-29-base-transaction-processing-6c11aa61d",
+      "source": "/testing/base/validated-findings/kept/2026-03-29-base-transaction-processing-6c11aa61d.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "input-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "base-2026-04-07-base-cryptography-aa3b6d3ca",
+      "source": "/testing/base/validated-findings/kept/2026-04-07-base-cryptography-aa3b6d3ca.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "resource-exhaustion",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "base-2026-04-15-base-consensus-388f5227e",
+      "source": "/testing/base/validated-findings/kept/2026-04-15-base-consensus-388f5227e.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "validation-coverage-gap",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "base-2026-04-15-base-consensus-6f64e2506",
+      "source": "/testing/base/validated-findings/kept/2026-04-15-base-consensus-6f64e2506.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "resource-exhaustion",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "base-2026-04-16-base-consensus-6381f6a83",
+      "source": "/testing/base/validated-findings/kept/2026-04-16-base-consensus-6381f6a83.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "challenge-fallback-liveness",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "base-2026-04-16-base-rpc-client-api-6d1cabf2b",
+      "source": "/testing/base/validated-findings/kept/2026-04-16-base-rpc-client-api-6d1cabf2b.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "incorrect-fraud-challenge-validation",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "base-2026-04-16-base-rpc-client-api-8f939340a",
+      "source": "/testing/base/validated-findings/kept/2026-04-16-base-rpc-client-api-8f939340a.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "insufficient-confirmation-depth",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "base-2026-04-16-base-rpc-client-api-9cd40e7d7",
+      "source": "/testing/base/validated-findings/kept/2026-04-16-base-rpc-client-api-9cd40e7d7.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "incorrect-challenge-validation",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "base-2026-04-16-base-rpc-client-api-aafd24614",
+      "source": "/testing/base/validated-findings/kept/2026-04-16-base-rpc-client-api-aafd24614.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "audit-log-integrity",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "base-2026-04-17-base-core-logic-a71fe3c5f",
+      "source": "/testing/base/validated-findings/kept/2026-04-17-base-core-logic-a71fe3c5f.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "policy-enforcement-bypass",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "base-2026-04-20-base-transaction-processing-88b36d5a2",
+      "source": "/testing/base/validated-findings/kept/2026-04-20-base-transaction-processing-88b36d5a2.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-runtime-guard",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    }
+  ]
+}

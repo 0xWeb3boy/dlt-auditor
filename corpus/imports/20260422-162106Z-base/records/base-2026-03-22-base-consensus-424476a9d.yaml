@@ -1,0 +1,62 @@
+id: "base-2026-03-22-base-consensus-424476a9d"
+source_finding: "2026-03-22-base-consensus-424476a9d.md"
+project: "base"
+date: "2026-03-22"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-safety"
+subsystem: "consensus"
+architecture_tags:
+  - "consensus-safety"
+  - "consensus-failure"
+  - "queue"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "state-coordinate-consistency"
+violated_invariant: "A sequencer should only be activated when the execution engine already exposes a real initialized unsafe head, and the requested starting head should match that engine state. Starting from an uninitialized or inconsistent tip weakens consensus-safety assumptions by allowing sequencing to begin from state the engine has not established as current."
+trust_boundary: "on-chain dispute or engine state->off-chain consensus actor"
+entrypoint_type: "challenge-orchestration"
+sensitive_sink: "selection of the external head consumed by derivation or verifier logic"
+
+attacker_capabilities:
+  - "control or influence the external transaction, batch, checkpoint, or state input consumed by the affected path"
+  - "reach the alternate, cached, or reconstructed path before a stronger downstream check rejects the input"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production or operator workflows"
+  - "no downstream control fully revalidates the same canonical state, identity, or policy before the sink"
+blast_radius: "validator-local"
+
+impact_types:
+  - "consensus-integrity-risk"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, policy, or state-selection decision and the finding supports meaningful integrity risk, but most cases still stop short of proving worst-case exploitation, so medium is the right default band."
+
+code_shape_summary: "The start path accepted activation without enforcing that the execution engine had a valid current unsafe head, and the supplied `unsafe_head` was not shown to influence the transition before activation. Separate state-publication timing also meant callers could continue observing a zero unsafe head until later engine activity, making invalid start requests more likely."
+search_motifs:
+  - "latest observed head is forwarded directly despite a configured confirmation-delay policy"
+  - "startup or wake-up logic trusts requested state before confirming the engine or source state is initialized"
+  - "policy values are logged or stored but not enforced consistently on downstream reads"
+negative_signals:
+  - "Supported claim: the patch hardens a consensus-sensitive activation path by enforcing engine-state validation before starting the sequencer."
+  - "Supported claim: the patch removes a risky condition where sequencing could begin while the engine unsafe head is still uninitialized."
+  - "Do not claim a confirmed exploitable vulnerability or real-world consensus failure from the supplied evidence alone."
+patch_pattern: "Validate engine state at the activation boundary, fail closed on uninitialized or inconsistent state, and publish the authoritative state early enough that callers can satisfy the new preconditions."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260422-162106Z-base/raw-findings/2026-03-22-base-consensus-424476a9d.md"
+  - "git:424476a9d3699cbe4904b27c694ca80acf103771"
+  - "crates/consensus/service/src/actors/sequencer/admin_api_impl.rs:150"
+  - "devnet/src/l2/in_process_consensus.rs:240"
+  - "crates/consensus/service/src/actors/engine/engine_request_processor.rs:241"
+  - "crates/consensus/engine/src/task_queue/core.rs:115"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

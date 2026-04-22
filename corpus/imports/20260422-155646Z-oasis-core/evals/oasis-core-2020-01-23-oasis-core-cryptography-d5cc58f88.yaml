@@ -1,0 +1,21 @@
+id: "oasis-core-2020-01-23-oasis-core-cryptography-d5cc58f88"
+source_record: "oasis-core-2020-01-23-oasis-core-cryptography-d5cc58f88.yaml"
+project: "oasis-core"
+
+expected_bug_family: "signature_binding_and_signer_scope"
+expected_bug_class: "insufficient-signature-verification"
+expected_missing_property: "signature-verification"
+
+expected_impact_band: "integrity_or_policy_enforcement"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Not a match if signer membership, runtime binding, and domain separation are enforced before the sink on every path."
+  - "Not a match if the patch only changes serialization, logging, or tests without changing the accepted signer set."
+  - "Not a match if the same signature context is provably unique and cannot be replayed across roles or runtimes."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

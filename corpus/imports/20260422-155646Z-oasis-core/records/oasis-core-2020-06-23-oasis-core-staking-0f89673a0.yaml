@@ -1,0 +1,63 @@
+id: "oasis-core-2020-06-23-oasis-core-staking-0f89673a0"
+source_finding: "2020-06-23-oasis-core-staking-0f89673a0.md"
+project: "oasis-core"
+date: "2020-06-23"
+language_tags:
+  - "go"
+
+bug_family: "authz_and_role_gates"
+bug_class: "missing-update-validation"
+subsystem: "staking"
+architecture_tags:
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "update-validation"
+violated_invariant: "A registration must not overwrite a previously stored node record without passing the registry's node-update verification, even if the stored record is expired."
+trust_boundary: "operator->registry"
+entrypoint_type: "registration-path"
+sensitive_sink: "node registry admission"
+
+attacker_capabilities:
+  - "submit crafted node, runtime, or entity registration material to the registry path"
+  - "control the keys or descriptors used by the affected registration workflow"
+exploit_preconditions:
+  - "the deployment accepts the affected registration or update path from untrusted or semi-trusted principals"
+  - "the node is participating in the validator or committee workflow that owns the state transition"
+blast_radius: "chain-wide"
+
+impact_types:
+  - "unauthorized-state-modification"
+  - "integrity-violation"
+severity_guess: "high"
+severity_rationale: "The bug can affect chain wide integrity or authorization semantics, so similar cases should be treated as high-severity until proven otherwise."
+
+code_shape_summary: "The update-verification check was attached to the wrong control-flow condition. The code keyed verification on the non-new, non-expired branch instead of on the existence of a prior stored node record."
+search_motifs:
+  - "valid request path missing a secondary role or policy gate"
+  - "authorization derived from one scope but sink executes in another"
+  - "shared helper returns success before role-specific enforcement"
+  - "descriptor admission with incomplete role or identity checks"
+negative_signals:
+  - "Not a match if every route to the sink already passes through one canonical authorization helper with the same role and policy checks."
+  - "Not a match if the diff only renames roles or improves logging without changing who can reach the action."
+  - "Not a match if the affected path is test-only or unreachable in production configuration."
+  - "Not a match if descriptor normalization strips or rejects the problematic fields before signature verification or admission."
+patch_pattern: "'registerNode' now calls 'registry.VerifyNodeUpdate(...)' whenever a prior node record exists, including when that record is expired, before accepting the new descriptor and writing it to state. The tests were adjusted to keep prior registrations around for later update-oriented cases."
+
+source_refs:
+  - "/testing/oasis-core/validated-findings/kept/2020-06-23-oasis-core-staking-0f89673a0.md"
+  - "git:0f89673a0f097b5b011abda8f7e57c1c95274a52"
+  - "go/consensus/tendermint/apps/registry/transactions.go:331"
+  - "go/consensus/tendermint/apps/registry/transactions.go:378"
+  - "go/consensus/tendermint/apps/registry/transactions_test.go:51"
+  - "go/consensus/tendermint/apps/registry/transactions_test.go:129"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

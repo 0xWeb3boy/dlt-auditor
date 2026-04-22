@@ -1,0 +1,64 @@
+id: "oasis-core-2024-03-16-oasis-core-storage-68133d1f3"
+source_finding: "2024-03-16-oasis-core-storage-68133d1f3.md"
+project: "oasis-core"
+date: "2024-03-16"
+language_tags:
+  - "go"
+  - "rust"
+
+bug_family: "state_machine_and_lifecycle_consistency"
+bug_class: "protocol-state-confusion"
+subsystem: "storage"
+architecture_tags:
+  - "validator-based"
+  - "committee-based"
+  - "tee"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "state-coordinate-consistency"
+violated_invariant: "CHURP request validation, persisted handoff-specific dealer state, and submission scheduling should all use the same canonical handoff epoch identifier. The diff supports that consistency invariant, but does not by itself establish a concrete security failure from the prior 'round'-based behavior."
+trust_boundary: "peer->node"
+entrypoint_type: "state-transition"
+sensitive_sink: "handoff-scoped key-generation state"
+
+attacker_capabilities:
+  - "reach the affected externally influenced path with syntactically valid inputs"
+  - "control the fields or timing assumptions that the missing check was supposed to bind"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production"
+  - "no earlier canonical validation step fully enforces the missing property on every route to the sink"
+blast_radius: "validator-local"
+
+impact_types:
+  - "integrity"
+severity_guess: "medium"
+severity_rationale: "The path is security-sensitive and could affect integrity, but the available evidence stops short of proving a worst-case exploit, so medium is the right default band."
+
+code_shape_summary: "Inconsistent use of two related state coordinates ('round' versus 'handoff') across the CHURP subsystem. The evidence shows that some paths were bound to 'round' even though surrounding logic and comments indicate the operation is scoped to a handoff epoch."
+search_motifs:
+  - "stale state reused across round, epoch, or restart boundaries"
+  - "update path bypasses the same validation as fresh admission"
+  - "lifecycle cleanup tied to the wrong transition marker"
+  - "round-versus-handoff coordinate mismatch across validation and storage"
+negative_signals:
+  - "Not a match if restart, timeout, overwrite, and update paths all clear or revalidate stale state before reuse."
+  - "Not a match if old and new state coordinates are guaranteed equivalent for every reachable transition."
+  - "Not a match if the change only refactors helper ownership without changing state-transition rules."
+patch_pattern: "The patch updates both Go and Rust CHURP code so that requests are checked against the scheduled handoff epoch, persisted dealer material is loaded by handoff, and worker cleanup logic tracks handoff advancement instead of round advancement."
+
+source_refs:
+  - "/testing/oasis-core/validated-findings/kept/2024-03-16-oasis-core-storage-68133d1f3.md"
+  - "git:68133d1f369677e6417f18e4a4a1610f61af63f9"
+  - "go/consensus/cometbft/apps/keymanager/churp/txs.go:227"
+  - "keymanager/src/churp/handler.rs:216"
+  - "keymanager/src/churp/handler.rs:127"
+  - "go/worker/keymanager/churp.go:251"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

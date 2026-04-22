@@ -1,0 +1,63 @@
+id: "oasis-core-2022-04-20-oasis-core-rpc-client-api-40afd4203"
+source_finding: "2022-04-20-oasis-core-rpc-client-api-40afd4203.md"
+project: "oasis-core"
+date: "2022-04-20"
+language_tags:
+  - "go"
+
+bug_family: "attestation_trust_and_freshness"
+bug_class: "trust-root-verification"
+subsystem: "rpc-client-api"
+architecture_tags:
+  - "committee-based"
+  - "light-client"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "trust-root-verification"
+violated_invariant: "If a runtime is configured with a trust root, the executor should not register as available until trust synchronization has completed."
+trust_boundary: "operator->registry"
+entrypoint_type: "registration-path"
+sensitive_sink: "runtime registry admission"
+
+attacker_capabilities:
+  - "submit crafted node, runtime, or entity registration material to the registry path"
+  - "control the keys or descriptors used by the affected registration workflow"
+exploit_preconditions:
+  - "the deployment accepts the affected registration or update path from untrusted or semi-trusted principals"
+  - "the verifier, key manager, or runtime uses the affected trust or signature path"
+blast_radius: "validator-local"
+
+impact_types:
+  - "integrity"
+severity_guess: "high"
+severity_rationale: "The bug can affect validator local integrity or authorization semantics, so similar cases should be treated as high-severity until proven otherwise."
+
+code_shape_summary: "The availability state machine did not include completion of runtime trust synchronization as a prerequisite for registration or advertised availability."
+search_motifs:
+  - "trust root or quote policy cached without refresh on change"
+  - "freshness inferred from success state instead of anchored evidence"
+  - "session or attestation state reused after peer-set or policy change"
+  - "descriptor admission with incomplete role or identity checks"
+negative_signals:
+  - "Not a match if trust roots, quote policy, and freshness evidence are atomically refreshed before each decision."
+  - "Not a match if stale or changed session state is already invalidated on restart, reconfiguration, or peer change."
+  - "Not a match if the new code only improves observability and does not change verification inputs or policy state."
+  - "Not a match if descriptor normalization strips or rejects the problematic fields before signature verification or admission."
+patch_pattern: "The change introduces 'runtimeTrustSynced' into the availability condition, resets that state on runtime start, initiates trust synchronization, and cancels outstanding sync work on stop or failure. Supporting mock code was updated to accept 'RuntimeConsensusSyncRequest'."
+
+source_refs:
+  - "/testing/oasis-core/validated-findings/kept/2022-04-20-oasis-core-rpc-client-api-40afd4203.md"
+  - "git:40afd420339488f1dfbc8f2ba24c281484a84006"
+  - "go/worker/compute/executor/committee/node.go:1565"
+  - "go/runtime/host/mock/mock.go:146"
+  - "go/worker/compute/executor/committee/node.go:1527"
+  - "go/worker/compute/executor/committee/node.go:1590"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

@@ -1,0 +1,21 @@
+id: "base-2026-04-17-base-core-logic-a71fe3c5f"
+source_record: "base-2026-04-17-base-core-logic-a71fe3c5f.yaml"
+project: "base"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "policy-enforcement-bypass"
+expected_missing_property: "policy-gating"
+
+expected_impact_band: "state_or_consensus_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Supported: a confirmation-depth policy in a consensus-sensitive path was previously ineffective and is now enforced more directly."
+  - "Not supported: a proven exploitable vulnerability, theft risk, finalized-state corruption, or demonstrated consensus split."
+  - "Scope is limited to verifier/client derivation behavior; equivalent impact on builder or sequencer logic is not shown."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

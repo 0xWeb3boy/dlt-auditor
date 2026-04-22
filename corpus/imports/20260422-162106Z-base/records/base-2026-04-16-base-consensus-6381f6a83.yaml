@@ -1,0 +1,63 @@
+id: "base-2026-04-16-base-consensus-6381f6a83"
+source_finding: "2026-04-16-base-consensus-6381f6a83.md"
+project: "base"
+date: "2026-04-16"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "challenge-fallback-liveness"
+subsystem: "consensus"
+architecture_tags:
+  - "challenger"
+  - "dispute-resolution"
+  - "tee"
+  - "zk-fallback"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "lifecycle-continuity"
+violated_invariant: "The challenger should keep progressing a dispute when one proving/submission path fails, but the provided evidence only establishes an internal fallback/liveness expectation for the challenger process, not a demonstrated protocol-level security invariant breach."
+trust_boundary: "on-chain dispute or engine state->off-chain consensus actor"
+entrypoint_type: "challenge-orchestration"
+sensitive_sink: "admission of work into shared network, RPC, or challenger resources"
+
+attacker_capabilities:
+  - "cause the node to process a disputed game, proof, or fallback path under attacker-influenced state"
+  - "shape the challenged proof, index, or timing so the wrong branch or retry behavior is exercised"
+exploit_preconditions:
+  - "the challenger, verifier, or dispute-handling feature is enabled and following live chain state"
+  - "no later branch fully revalidates the specific challenged root, index, or fallback transition before acting"
+blast_radius: "validator-local"
+
+impact_types:
+  - "availability"
+severity_guess: "low"
+severity_rationale: "The finding improves a security-sensitive path, but the source mostly supports hardening or correctness rather than a demonstrated attacker-controlled exploit, so low is the safest reusable default."
+
+code_shape_summary: "The pending-proof and retry logic for TEE proofs did not preserve or use the information needed to transition from a failed TEE submission into the alternate ZK path. This is a state-management and retry-flow defect, not evidence of a cryptographic or consensus flaw."
+search_motifs:
+  - "challenge mode handled by a generic validation branch instead of the challenged case"
+  - "decision logic derives the target index or root from the wrong proof element"
+  - "retry or fallback state is dropped before the dispute path reaches a definitive decision"
+negative_signals:
+  - "Treat this as hardening of challenger/dispute liveness, not as proof of an exploitable protocol vulnerability."
+  - "Do not claim consensus failure, fund loss, or attacker-triggered bypass from the provided patch alone."
+  - "Do not keep the original bug class or impact labels about serialization/state representation or client-view divergence; the evidence supports a fallback/retry-state issue instead."
+patch_pattern: "Preserve alternate-path state at creation time and make retry handling perform an explicit state transition to that fallback path instead of retrying the original path indefinitely or discarding the work item."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260422-162106Z-base/raw-findings/2026-04-16-base-consensus-6381f6a83.md"
+  - "git:6381f6a83d0db654e3427f5f89ca1d35b6db714e"
+  - "crates/proof/challenge/src/driver.rs:508"
+  - "crates/proof/challenge/src/pending.rs:22"
+  - "crates/proof/challenge/src/driver.rs:791"
+  - "crates/proof/challenge/src/driver.rs:836"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

@@ -1,0 +1,63 @@
+id: "oasis-core-2020-01-23-oasis-core-cryptography-d5cc58f88"
+source_finding: "2020-01-23-oasis-core-cryptography-d5cc58f88.md"
+project: "oasis-core"
+date: "2020-01-23"
+language_tags:
+  - "go"
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "insufficient-signature-verification"
+subsystem: "cryptography"
+architecture_tags:
+  - "tee"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "signature-verification"
+violated_invariant: "Node registration must not accept a descriptor unless the authorized registration principal submits it and the descriptor carries signatures from the required keys it embeds. In the provided evidence, that is directly shown for the node identity key and the consensus key, with rejection of unexpected extra signers."
+trust_boundary: "operator->registry"
+entrypoint_type: "registration-path"
+sensitive_sink: "node registry admission"
+
+attacker_capabilities:
+  - "submit crafted node, runtime, or entity registration material to the registry path"
+  - "control the keys or descriptors used by the affected registration workflow"
+exploit_preconditions:
+  - "the deployment accepts the affected registration or update path from untrusted or semi-trusted principals"
+  - "the verifier, key manager, or runtime uses the affected trust or signature path"
+blast_radius: "chain-wide"
+
+impact_types:
+  - "unauthorized-registration"
+severity_guess: "medium"
+severity_rationale: "The path is security-sensitive and could affect unauthorized-registration, but the available evidence stops short of proving a worst-case exploit, so medium is the right default band."
+
+code_shape_summary: "Node registration validation was centered on a single accepted descriptor signer instead of requiring proof that specific security-relevant keys embedded in the descriptor had actually signed it, and the transaction authorization check was tied to the descriptor signer rather than directly to the authorized node/entity principal."
+search_motifs:
+  - "signature verification without signer-set or committee binding"
+  - "valid signature reused across runtime, role, or domain scope"
+  - "message accepted after verify but before signer authorization"
+  - "descriptor admission with incomplete role or identity checks"
+  - "cached secure session reused after identity or policy changes"
+negative_signals:
+  - "Not a match if signer membership, runtime binding, and domain separation are enforced before the sink on every path."
+  - "Not a match if the patch only changes serialization, logging, or tests without changing the accepted signer set."
+  - "Not a match if the same signature context is provably unique and cannot be replayed across roles or runtimes."
+  - "Not a match if descriptor normalization strips or rejects the problematic fields before signature verification or admission."
+patch_pattern: "The fix introduces multisigned descriptor verification in the node registration path. The shown code now requires signatures from the node identity key and consensus key, accumulates the allowed signer set, rejects descriptors with unexpected signers, and authorizes the transaction based on the node or authorized entity instead of the descriptor's generic signer field."
+
+source_refs:
+  - "/testing/oasis-core/validated-findings/kept/2020-01-23-oasis-core-cryptography-d5cc58f88.md"
+  - "git:d5cc58f88b11d1dbabb23a21727f7360ed683f1f"
+  - "go/consensus/tendermint/apps/registry/transactions.go:190"
+  - "go/registry/api/api.go:404"
+  - "go/registry/api/api.go:513"
+  - "go/registry/api/api.go:658"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

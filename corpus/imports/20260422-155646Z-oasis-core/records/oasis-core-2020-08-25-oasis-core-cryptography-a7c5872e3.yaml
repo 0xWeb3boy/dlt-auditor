@@ -1,0 +1,62 @@
+id: "oasis-core-2020-08-25-oasis-core-cryptography-a7c5872e3"
+source_finding: "2020-08-25-oasis-core-cryptography-a7c5872e3.md"
+project: "oasis-core"
+date: "2020-08-25"
+language_tags:
+  - "go"
+
+bug_family: "state_machine_and_lifecycle_consistency"
+bug_class: "stale-timeout-state"
+subsystem: "cryptography"
+architecture_tags:
+  - "committee-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "timeout-state-consistency"
+violated_invariant: "Round-timeout state must stay consistent with the active executor round; when an empty block ends or transitions a round, any previously scheduled timeout for that round should be cleared before commitments are reset and the new state proceeds."
+trust_boundary: "committee-member->consensus"
+entrypoint_type: "state-transition"
+sensitive_sink: "round timeout scheduler state"
+
+attacker_capabilities:
+  - "cause the validator or committee-facing state transition to process crafted consensus inputs"
+  - "exercise an edge-case epoch, round, liveness, or penalty transition"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production"
+  - "the verifier, key manager, or runtime uses the affected trust or signature path"
+blast_radius: "validator-local"
+
+impact_types:
+  - "state-consistency"
+  - "liveness-disruption"
+severity_guess: "medium"
+severity_rationale: "The path is security-sensitive and could affect state-consistency, liveness-disruption, but the available evidence stops short of proving a worst-case exploit, so medium is the right default band."
+
+code_shape_summary: "A round-transition helper ('emitEmptyBlock') did not perform the same timeout-state cleanup that the finalization path already treated as part of normal round lifecycle management. As a result, a previously armed timeout could remain in persistent state when commitments were reset via the empty-block path."
+search_motifs:
+  - "stale state reused across round, epoch, or restart boundaries"
+  - "update path bypasses the same validation as fresh admission"
+  - "lifecycle cleanup tied to the wrong transition marker"
+  - "round transition without clearing previously scheduled timeout state"
+negative_signals:
+  - "Not a match if restart, timeout, overwrite, and update paths all clear or revalidate stale state before reuse."
+  - "Not a match if old and new state coordinates are guaranteed equivalent for every reachable transition."
+  - "Not a match if the change only refactors helper ownership without changing state-transition rules."
+patch_pattern: "The fix adds explicit 'ClearRoundTimeout' handling to 'emitEmptyBlock' when an executor pool has a scheduled timeout, then threads returned errors through callers so transition code aborts if cleanup fails."
+
+source_refs:
+  - "/testing/oasis-core/validated-findings/kept/2020-08-25-oasis-core-cryptography-a7c5872e3.md"
+  - "git:a7c5872e3be394e932c71d27cf6d54fc1f300083"
+  - "go/consensus/tendermint/apps/roothash/roothash.go:241"
+  - "go/consensus/tendermint/apps/roothash/roothash.go:584"
+  - "go/consensus/tendermint/apps/roothash/roothash.go:156"
+  - "go/consensus/tendermint/apps/roothash/roothash.go:492"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

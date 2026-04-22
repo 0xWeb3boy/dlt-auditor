@@ -1,0 +1,21 @@
+id: "base-2024-11-06-base-transaction-processing-9200d03dc"
+source_record: "base-2024-11-06-base-transaction-processing-9200d03dc.yaml"
+project: "base"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "replay-protection-state-inconsistency"
+expected_missing_property: "state-coordinate-consistency"
+
+expected_impact_band: "state_or_consensus_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Supported claim: the patch hardens replay-sensitive transaction representation and decoding invariants."
+  - "Supported claim: the patch improves parser robustness for deposit transaction RLP decoding."
+  - "Not supported: a concrete exploitable security bug was fixed."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

@@ -1,0 +1,63 @@
+id: "base-2026-04-17-base-core-logic-a71fe3c5f"
+source_finding: "2026-04-17-base-core-logic-a71fe3c5f.md"
+project: "base"
+date: "2026-04-17"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "policy-enforcement-bypass"
+subsystem: "core-logic"
+architecture_tags:
+  - "validator"
+  - "confirmation-depth"
+  - "policy-enforcement"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "policy-gating"
+violated_invariant: "When `verifier_l1_confs` is configured, the verifier/client derivation path should not read L1 blocks newer than the configured confirmation-depth cutoff derived from the observed L1 head."
+trust_boundary: "external state input->privileged control path"
+entrypoint_type: "external-state-ingestion"
+sensitive_sink: "policy-gated game creation or environment construction"
+
+attacker_capabilities:
+  - "control or influence the external transaction, batch, checkpoint, or state input consumed by the affected path"
+  - "reach the alternate, cached, or reconstructed path before a stronger downstream check rejects the input"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production or operator workflows"
+  - "no downstream control fully revalidates the same canonical state, identity, or policy before the sink"
+blast_radius: "validator-local"
+
+impact_types:
+  - "state-consistency"
+  - "client-view-divergence"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, policy, or state-selection decision and the finding supports meaningful integrity risk, but most cases still stop short of proving worst-case exploitation, so medium is the right default band."
+
+code_shape_summary: "The confirmation-depth policy was applied at a signaling/scheduling boundary instead of the actual L1 block access boundary. Because the provider API remained uncapped, direct reads could bypass the intended `verifier_l1_confs` limit."
+search_motifs:
+  - "runtime or on-chain policy is read but not enforced before a privileged action"
+  - "one execution path applies the environment guard while another path skips it"
+  - "local configuration is treated as authoritative even when live chain policy can differ"
+negative_signals:
+  - "Supported: a confirmation-depth policy in a consensus-sensitive path was previously ineffective and is now enforced more directly."
+  - "Not supported: a proven exploitable vulnerability, theft risk, finalized-state corruption, or demonstrated consensus split."
+  - "Scope is limited to verifier/client derivation behavior; equivalent impact on builder or sequencer logic is not shown."
+patch_pattern: "Move policy enforcement from an upstream signal to the lowest data-access boundary, using current shared state to compute an allowed range and rejecting out-of-policy reads with a temporary error."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260422-162106Z-base/raw-findings/2026-04-17-base-core-logic-a71fe3c5f.md"
+  - "git:a71fe3c5f9a60ed179d09dad88cc14c3c12d67f1"
+  - "crates/proof/tee/nitro-host/src/registration.rs:146"
+  - "crates/consensus/service/src/actors/l1_watcher/actor.rs:495"
+  - "devnet/src/smoke.rs:178"
+  - "devnet/src/l2/stack.rs:49"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

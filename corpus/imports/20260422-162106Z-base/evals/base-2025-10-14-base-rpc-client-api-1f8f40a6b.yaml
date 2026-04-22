@@ -1,0 +1,21 @@
+id: "base-2025-10-14-base-rpc-client-api-1f8f40a6b"
+source_record: "base-2025-10-14-base-rpc-client-api-1f8f40a6b.yaml"
+project: "base"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "improper-state-validation"
+expected_missing_property: "state-coordinate-consistency"
+
+expected_impact_band: "state_or_consensus_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Supported claim: the commit hardens a sensitive flow by revalidating cached checkpoint state against on-chain canonical data before reuse."
+  - "Not supported: that this was a proven exploitable vulnerability or a confirmed consensus-break bug."
+  - "Not supported: specific subsystem labels such as rpc-client-api or database as the core security issue."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

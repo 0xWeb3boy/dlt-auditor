@@ -1,0 +1,65 @@
+id: "oasis-core-2019-10-28-oasis-core-staking-a34ab1924"
+source_finding: "2019-10-28-oasis-core-staking-a34ab1924.md"
+project: "oasis-core"
+date: "2019-10-28"
+language_tags:
+  - "go"
+
+bug_family: "staking_registry_and_accountability"
+bug_class: "slashability-bypass"
+subsystem: "staking"
+architecture_tags:
+  - "validator-based"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "lifecycle-accountability"
+violated_invariant: "Nodes that remain punishable during the staking debonding interval must remain internally resolvable, and an entity must not be removable while its registered nodes still exist."
+trust_boundary: "client->query-verifier"
+entrypoint_type: "query-verification-path"
+sensitive_sink: "validator penalty state"
+
+attacker_capabilities:
+  - "issue crafted queries or request data under the affected trust or authorization context"
+  - "supply stale, mismatched, or cross-scope query inputs that look structurally valid"
+exploit_preconditions:
+  - "the affected query path is enabled for the runtime or component under review"
+  - "the node is participating in the validator or committee workflow that owns the state transition"
+blast_radius: "chain-wide"
+
+impact_types:
+  - "slashing-bypass"
+  - "accountability-loss"
+severity_guess: "high"
+severity_rationale: "The bug can affect chain wide integrity or authorization semantics, so similar cases should be treated as high-severity until proven otherwise."
+
+code_shape_summary: "Registry cleanup and deregistration rules were too aggressive: node records could be removed on expiration before the staking debonding window ended, and entity removal did not enforce the continued existence of dependent node records."
+search_motifs:
+  - "stake, slashing, or liveness rule missing on an edge path"
+  - "validator or committee accounting uses the wrong role coordinate"
+  - "reserved or punishable state treated like ordinary state"
+  - "descriptor admission with incomplete role or identity checks"
+  - "validator or committee role inferred from incomplete metadata"
+negative_signals:
+  - "Not a match if consensus rules or earlier checks make the edge case unreachable for live validators, entities, or runtimes."
+  - "Not a match if the patch only improves reporting or accounting visibility without changing stake, slashing, or selection state."
+  - "Not a match if the affected identifier is not actually used to derive penalties, voting power, or eligibility."
+  - "Not a match if descriptor normalization strips or rejects the problematic fields before signature verification or admission."
+patch_pattern: "The registry now keeps expired nodes for the staking debonding interval, prevents entity deregistration when the entity still has registered nodes, hides expired retained nodes from query results, and reuses existing node status when such a node is registered again."
+
+source_refs:
+  - "/testing/oasis-core/validated-findings/kept/2019-10-28-oasis-core-staking-a34ab1924.md"
+  - "git:a34ab1924bb8570acd145d1bac041a241b3f8798"
+  - "go/tendermint/apps/registry/registry.go:121"
+  - "go/tendermint/apps/registry/registry.go:248"
+  - "go/tendermint/apps/registry/query.go:59"
+  - "go/tendermint/apps/registry/registry.go:366"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: confirmed / security-fix."

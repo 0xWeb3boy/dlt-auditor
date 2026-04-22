@@ -1,0 +1,21 @@
+id: "oasis-core-2020-08-25-oasis-core-cryptography-a7c5872e3"
+source_record: "oasis-core-2020-08-25-oasis-core-cryptography-a7c5872e3.yaml"
+project: "oasis-core"
+
+expected_bug_family: "state_machine_and_lifecycle_consistency"
+expected_bug_class: "stale-timeout-state"
+expected_missing_property: "timeout-state-consistency"
+
+expected_impact_band: "availability_or_resource_exhaustion"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Not a match if restart, timeout, overwrite, and update paths all clear or revalidate stale state before reuse."
+  - "Not a match if old and new state coordinates are guaranteed equivalent for every reachable transition."
+  - "Not a match if the change only refactors helper ownership without changing state-transition rules."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

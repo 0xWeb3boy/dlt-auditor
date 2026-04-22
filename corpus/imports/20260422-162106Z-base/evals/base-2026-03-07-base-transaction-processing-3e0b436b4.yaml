@@ -1,0 +1,21 @@
+id: "base-2026-03-07-base-transaction-processing-3e0b436b4"
+source_record: "base-2026-03-07-base-transaction-processing-3e0b436b4.yaml"
+project: "base"
+
+expected_bug_family: "signature_binding_and_signer_scope"
+expected_bug_class: "signature-validation"
+expected_missing_property: "canonical-signature-validation"
+
+expected_impact_band: "integrity_or_policy_enforcement"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Supported claim: the commit hardens signature/proof encoding validation by rejecting invalid ECDSA `v` values in shared code."
+  - "Supported claim: the change reduces risk of malformed proof data being constructed or forwarded."
+  - "Not supported: a confirmed replay bug."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

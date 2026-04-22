@@ -1,0 +1,21 @@
+id: "base-2025-08-20-base-cryptography-2c7e77548"
+source_record: "base-2025-08-20-base-cryptography-2c7e77548.yaml"
+project: "base"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "improper-verification-check"
+expected_missing_property: "verification-result-handling"
+
+expected_impact_band: "integrity_or_policy_enforcement"
+expected_severity_band: "high_or_medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The patch supports a cryptographic verification-handling flaw, not a proven `state-corruption` bug."
+  - "The evidence shows invalid proofs could be accepted locally at this call site; it does not prove remote exploitability."
+  - "The safest corpus framing is security-relevant hardening of proof validation rather than a fully demonstrated end-to-end vulnerability."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: confirmed / security-hardening."

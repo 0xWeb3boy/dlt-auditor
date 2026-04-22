@@ -1,0 +1,21 @@
+id: "base-2026-03-05-base-storage-fcefb853a"
+source_record: "base-2026-03-05-base-storage-fcefb853a.yaml"
+project: "base"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "insufficient-input-validation"
+expected_missing_property: "input-validation"
+
+expected_impact_band: "state_or_consensus_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Treat this as challenger-side validation hardening, not a confirmed consensus-break or fund-loss bug."
+  - "Do not claim a proven exploitable shipped vulnerability from the supplied snippets alone."
+  - "Do not extend the claim beyond validation integrity risks from malformed on-chain inputs or unreliable RPC data."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

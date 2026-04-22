@@ -1,0 +1,62 @@
+id: "base-2026-01-22-base-transaction-processing-13a095daa"
+source_finding: "2026-01-22-base-transaction-processing-13a095daa.md"
+project: "base"
+date: "2026-01-22"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "incorrect-cache-validation"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "validator"
+  - "cached-execution"
+  - "state-integrity"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "state-coordinate-consistency"
+violated_invariant: "Cached execution should only be reused when it was derived from the same parent block context and the same ordered prefix of prior transaction hashes; otherwise cached results must be rejected."
+trust_boundary: "transaction, batch, or proof input->execution or derivation pipeline"
+entrypoint_type: "transaction-or-batch-validation"
+sensitive_sink: "reuse of cached checkpoint or execution data that drives proposer or validator actions"
+
+attacker_capabilities:
+  - "trigger reuse of cached checkpoint, execution, or request state across retries or later observations"
+  - "influence the external state transition that makes a previously cached value stale or mismatched"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production or operator workflows"
+  - "no downstream control fully revalidates the same canonical state, identity, or policy before the sink"
+blast_radius: "validator-local"
+
+impact_types:
+  - "state-integrity"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, policy, or state-selection decision and the finding supports meaningful integrity risk, but most cases still stop short of proving worst-case exploitation, so medium is the right default band."
+
+code_shape_summary: "An inverted condition in the cached-execution guard caused the validator to key rejection off a successful transaction-prefix comparison instead of a mismatch. The iterator-signature and cache-hydration changes appear to support the corrected flow rather than show a separate root cause."
+search_motifs:
+  - "cache or retry reuse happens without rechecking canonical chain state"
+  - "request identity is treated as sufficient even though the historical state coordinate can change"
+  - "stale checkpoint, execution, or proof data is reused across parent-context changes"
+negative_signals:
+  - "Supported: the patch hardens cached-execution reuse by rejecting reuse on transaction-prefix mismatch."
+  - "Not supported: a confirmed exploitable vulnerability or remote attack path."
+  - "Not supported: guaranteed consensus failure, privilege escalation, or asset loss from this bug alone."
+patch_pattern: "Correct the cache-validation predicate so the system fails closed on detected mismatch before reusing cached execution results."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260422-162106Z-base/raw-findings/2026-01-22-base-transaction-processing-13a095daa.md"
+  - "git:13a095daa443ba30eef02ca329c0d39d9b13cec2"
+  - "crates/client/engine/src/validator.rs:83"
+  - "crates/client/engine/src/validator.rs:53"
+  - "crates/client/engine-tree/src/tree/cached_execution.rs:74"
+  - "crates/client/engine-tree/src/tree/cached_execution.rs:57"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

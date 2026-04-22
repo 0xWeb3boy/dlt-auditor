@@ -1,0 +1,21 @@
+id: "base-2026-04-07-base-cryptography-aa3b6d3ca"
+source_record: "base-2026-04-07-base-cryptography-aa3b6d3ca.yaml"
+project: "base"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "resource-exhaustion"
+expected_missing_property: "resource-accounting"
+
+expected_impact_band: "availability_or_resource_exhaustion"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Supported claim: the patch hardens a network entry point against resource exhaustion from excessive concurrent connections."
+  - "Supported claim: the security relevance is availability-focused denial-of-service resistance."
+  - "Not supported: cryptography, replay, or other protocol-security classifications from the earlier finding metadata."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

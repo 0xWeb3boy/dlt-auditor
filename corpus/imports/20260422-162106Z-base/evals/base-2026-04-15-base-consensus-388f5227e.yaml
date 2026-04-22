@@ -1,0 +1,21 @@
+id: "base-2026-04-15-base-consensus-388f5227e"
+source_record: "base-2026-04-15-base-consensus-388f5227e.yaml"
+project: "base"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "validation-coverage-gap"
+expected_missing_property: "coverage-completeness"
+
+expected_impact_band: "state_or_consensus_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "This supports a security-sensitive detection and coverage hardening change, not a proven exploitable vulnerability."
+  - "The evidence shows missed validation/classification risk in the challenger, not that validator or submitter logic was itself incorrect."
+  - "Impact should be described conservatively as integrity or missed-validation risk within the challenger lookback window."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

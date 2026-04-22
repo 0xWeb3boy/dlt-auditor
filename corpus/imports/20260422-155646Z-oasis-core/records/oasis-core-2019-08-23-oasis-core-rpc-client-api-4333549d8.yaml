@@ -1,0 +1,64 @@
+id: "oasis-core-2019-08-23-oasis-core-rpc-client-api-4333549d8"
+source_finding: "2019-08-23-oasis-core-rpc-client-api-4333549d8.md"
+project: "oasis-core"
+date: "2019-08-23"
+language_tags:
+  - "go"
+
+bug_family: "authz_and_role_gates"
+bug_class: "missing-authentication"
+subsystem: "rpc-client-api"
+architecture_tags:
+  - "tee"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "authentication"
+violated_invariant: "The IAS VerifyEvidence RPC must not accept a request solely because its SignedEvidence blob parses; it must also enforce the configured attestation policy for the caller and decoded evidence before proceeding."
+trust_boundary: "remote-peer->rpc-verifier"
+entrypoint_type: "rpc-handler"
+sensitive_sink: "attestation acceptance state"
+
+attacker_capabilities:
+  - "present stale, mismatched, or policy-incompatible attestation material to the affected verifier"
+  - "trigger restarts, redeploys, or policy changes so stale trust state can be reused"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production"
+  - "the verifier, key manager, or runtime uses the affected trust or signature path"
+blast_radius: "validator-local"
+
+impact_types:
+  - "unauthorized-request-processing"
+  - "attestation-policy-bypass"
+severity_guess: "high"
+severity_rationale: "The bug can affect validator local integrity or authorization semantics, so similar cases should be treated as high-severity until proven otherwise."
+
+code_shape_summary: "A security-sensitive RPC handler relied on comments describing required authorization and attestation-policy checks instead of enforcing those checks in code after parsing the request."
+search_motifs:
+  - "valid request path missing a secondary role or policy gate"
+  - "authorization derived from one scope but sink executes in another"
+  - "shared helper returns success before role-specific enforcement"
+  - "attestation acceptance based on stale or incomplete trust inputs"
+negative_signals:
+  - "Not a match if every route to the sink already passes through one canonical authorization helper with the same role and policy checks."
+  - "Not a match if the diff only renames roles or improves logging without changing who can reach the action."
+  - "Not a match if the affected path is test-only or unreachable in production configuration."
+  - "Not a match if the same policy or freshness state is fetched and verified in-line at every use site instead of being cached."
+patch_pattern: "The fix adds a mandatory authenticator call in the VerifyEvidence handler using the request signer key and decoded evidence, and aborts the RPC when that validation fails. Related proxy changes centralize endpoint/authenticator creation and make the development skip-auth mode explicit rather than leaving enforcement absent in the normal handler path."
+
+source_refs:
+  - "/testing/oasis-core/validated-findings/kept/2019-08-23-oasis-core-rpc-client-api-4333549d8.md"
+  - "git:4333549d8dc37dfebf850f6980b3d7e0ac6d54c2"
+  - "go/common/sgx/ias/grpc.go:94"
+  - "go/ekiden/cmd/ias/proxy.go:76"
+  - "go/ekiden/cmd/ias/proxy.go:201"
+  - "go/ekiden/cmd/ias/proxy.go:170"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: confirmed / security-fix."

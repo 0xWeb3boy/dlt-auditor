@@ -1,0 +1,61 @@
+id: "oasis-core-2019-01-10-oasis-core-storage-686bc266d"
+source_finding: "2019-01-10-oasis-core-storage-686bc266d.md"
+project: "oasis-core"
+date: "2019-01-10"
+language_tags:
+  - "go"
+
+bug_family: "authz_and_role_gates"
+bug_class: "improper-authorization-check"
+subsystem: "storage"
+architecture_tags:
+  - "validator-based"
+  - "committee-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "authorization"
+violated_invariant: "Committee-related messages and external batches should only be accepted from authorized peers and only when the local worker is in the expected role and state for that path."
+trust_boundary: "peer->node"
+entrypoint_type: "p2p-message-handler"
+sensitive_sink: "security-sensitive consensus or registry state"
+
+attacker_capabilities:
+  - "reach the affected externally influenced path with syntactically valid inputs"
+  - "control the fields or timing assumptions that the missing check was supposed to bind"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production"
+  - "no earlier canonical validation step fully enforces the missing property on every route to the sink"
+blast_radius: "validator-local"
+
+impact_types:
+  - "unauthorized-message-processing"
+severity_guess: "medium"
+severity_rationale: "The path is security-sensitive and could affect unauthorized-message-processing, but the available evidence stops short of proving a worst-case exploit, so medium is the right default band."
+
+code_shape_summary: "The evidence supports only a narrow conclusion: authorization and state validation were not enforced as early or as uniformly as the updated code now enforces them. It does not prove a concrete exploitable root cause beyond that."
+search_motifs:
+  - "valid request path missing a secondary role or policy gate"
+  - "authorization derived from one scope but sink executes in another"
+  - "shared helper returns success before role-specific enforcement"
+negative_signals:
+  - "Not a match if every route to the sink already passes through one canonical authorization helper with the same role and policy checks."
+  - "Not a match if the diff only renames roles or improves logging without changing who can reach the action."
+  - "Not a match if the affected path is test-only or unreachable in production configuration."
+patch_pattern: "The code now rejects unauthorized peers at the P2P boundary, routes committee batch handling through queueExternalBatch with a returned error path, and makes handleExternalBatch fail when the node is not in the expected state. These changes tighten validation and make rejection explicit."
+
+source_refs:
+  - "/testing/oasis-core/validated-findings/kept/2019-01-10-oasis-core-storage-686bc266d.md"
+  - "git:686bc266d8ced581d1d2731ac23444d2f6a0a0d5"
+  - "go/worker/committee/node.go:660"
+  - "go/worker/committee/node.go:215"
+  - "go/worker/p2p/p2p.go:195"
+  - "go/worker/committee/node.go:333"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

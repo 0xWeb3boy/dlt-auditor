@@ -1,0 +1,62 @@
+id: "base-2026-02-18-base-transaction-processing-0127d7834"
+source_finding: "2026-02-18-base-transaction-processing-0127d7834.md"
+project: "base"
+date: "2026-02-18"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "input-validation"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "eip-7702"
+  - "signer-validation"
+  - "security-hardening"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "input-validation"
+violated_invariant: "In the client metering validation path, a sender with bytecode should only be accepted if the validator has the actual sender code available and that code is recognized as EIP-7702 bytecode; transaction type or a non-empty bytecode hash alone is not a sufficient proxy."
+trust_boundary: "transaction, batch, or proof input->execution or derivation pipeline"
+entrypoint_type: "transaction-or-batch-validation"
+sensitive_sink: "security-sensitive execution or state transition"
+
+attacker_capabilities:
+  - "control or influence the external transaction, batch, checkpoint, or state input consumed by the affected path"
+  - "reach the alternate, cached, or reconstructed path before a stronger downstream check rejects the input"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production or operator workflows"
+  - "no downstream control fully revalidates the same canonical state, identity, or policy before the sink"
+blast_radius: "chain-wide"
+
+impact_types:
+  - "correctness-or-hardening"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, policy, or state-selection decision and the finding supports meaningful integrity risk, but most cases still stop short of proving worst-case exploitation, so medium is the right default band."
+
+code_shape_summary: "The validator was using incomplete information and a coarse proxy. It relied on account metadata (`bytecode_hash`) plus transaction type instead of inspecting the sender's actual bytecode, and the metering caller did not previously provide that bytecode to the validator."
+search_motifs:
+  - "externally supplied structured data is accepted after only partial validation"
+  - "one representation is checked while a different reconstructed or cached representation reaches the sink"
+  - "exact consumption, identity binding, or state-coordinate consistency is not rechecked before execution"
+negative_signals:
+  - "Supported: the commit hardens signer validation for EIP-7702-related bytecode handling in the client metering path."
+  - "Supported: the old logic relied on an indirect proxy and the new logic enforces a stricter invariant using actual sender code."
+  - "Not supported: a confirmed exploitable vulnerability or concrete security incident."
+patch_pattern: "Pass concrete execution-relevant state into validation and enforce the narrower invariant directly, instead of inferring it from indirect metadata."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260422-162106Z-base/raw-findings/2026-02-18-base-transaction-processing-0127d7834.md"
+  - "git:0127d7834702c97329214515e7539dd35a7388cb"
+  - "crates/client/metering/src/transaction.rs:61"
+  - "crates/client/metering/src/meter.rs:181"
+  - "crates/client/metering/src/transaction.rs:291"
+  - "crates/client/metering/src/transaction.rs:137"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

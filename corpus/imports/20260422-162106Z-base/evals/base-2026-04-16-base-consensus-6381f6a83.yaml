@@ -1,0 +1,21 @@
+id: "base-2026-04-16-base-consensus-6381f6a83"
+source_record: "base-2026-04-16-base-consensus-6381f6a83.yaml"
+project: "base"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "challenge-fallback-liveness"
+expected_missing_property: "lifecycle-continuity"
+
+expected_impact_band: "availability_or_resource_exhaustion"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Treat this as hardening of challenger/dispute liveness, not as proof of an exploitable protocol vulnerability."
+  - "Do not claim consensus failure, fund loss, or attacker-triggered bypass from the provided patch alone."
+  - "Do not keep the original bug class or impact labels about serialization/state representation or client-view divergence; the evidence supports a fallback/retry-state issue instead."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

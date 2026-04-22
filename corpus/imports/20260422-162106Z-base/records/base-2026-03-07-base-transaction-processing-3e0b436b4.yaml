@@ -1,0 +1,63 @@
+id: "base-2026-03-07-base-transaction-processing-3e0b436b4"
+source_finding: "2026-03-07-base-transaction-processing-3e0b436b4.md"
+project: "base"
+date: "2026-03-07"
+language_tags:
+  - "rust"
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "signature-validation"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "tee"
+  - "proof-encoding"
+  - "signature-validation"
+  - "cryptographic-input-validation"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "canonical-signature-validation"
+violated_invariant: "The proof blob sent toward verifier initialization should use the shared TEE proof format and reject structurally invalid signatures, including unsupported ECDSA recovery-byte (`v`) values, before forwarding."
+trust_boundary: "transaction, batch, or proof input->execution or derivation pipeline"
+entrypoint_type: "transaction-or-batch-validation"
+sensitive_sink: "acceptance of a proof, signature, or derived state transition"
+
+attacker_capabilities:
+  - "supply malformed, replayed, or partially valid proof or signature data to the affected verifier path"
+  - "reach the code path where a weaker structural or semantic check is relied on before the sink"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production or operator workflows"
+  - "no downstream control fully revalidates the same canonical state, identity, or policy before the sink"
+blast_radius: "validator-local"
+
+impact_types:
+  - "malformed-input-acceptance"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, policy, or state-selection decision and the finding supports meaningful integrity risk, but most cases still stop short of proving worst-case exploitation, so medium is the right default band."
+
+code_shape_summary: "The visible issue is inconsistent ownership of proof encoding and validation in a sensitive path: proposer-local code performed ad hoc assembly with length checking, while stricter structural validation was not shown there. The patch centralizes that logic in a shared encoder."
+search_motifs:
+  - "manual proof or signature byte assembly duplicated across producer and verifier paths"
+  - "signature shape or parity is reconstructed after decode instead of validated canonically"
+  - "accepted input depends on signer or signature fields that are not bound consistently end to end"
+negative_signals:
+  - "Supported claim: the commit hardens signature/proof encoding validation by rejecting invalid ECDSA `v` values in shared code."
+  - "Supported claim: the change reduces risk of malformed proof data being constructed or forwarded."
+  - "Not supported: a confirmed replay bug."
+patch_pattern: "Centralize cryptographic payload encoding in a shared component and make malformed signature fields fail through explicit validation errors backed by regression tests."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260422-162106Z-base/raw-findings/2026-03-07-base-transaction-processing-3e0b436b4.md"
+  - "git:3e0b436b48d6dcbd167f0ce2e69458b0a7126ccc"
+  - "crates/proof/proposer/src/output_proposer.rs:59"
+  - "crates/proof/proposer/src/output_proposer.rs:508"
+  - "crates/proof/tee/client/src/client_error.rs:18"
+  - "crates/proof/tee/core/src/error.rs:23"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

@@ -1,0 +1,60 @@
+id: "base-2025-08-20-base-cryptography-2c7e77548"
+source_finding: "2025-08-20-base-cryptography-2c7e77548.md"
+project: "base"
+date: "2025-08-20"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "improper-verification-check"
+subsystem: "cryptography"
+architecture_tags:
+  - "kzg"
+  - "proof-verification"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "verification-result-handling"
+violated_invariant: "Blob data should be accepted only if batch KZG verification succeeds with an explicit `Ok(true)` result. An `Ok(false)` verification result must be treated as failure, not as success."
+trust_boundary: "proof producer or network peer->verification routine"
+entrypoint_type: "transaction-or-batch-validation"
+sensitive_sink: "acceptance of a proof, signature, or derived state transition"
+
+attacker_capabilities:
+  - "supply malformed, replayed, or partially valid proof or signature data to the affected verifier path"
+  - "reach the code path where a weaker structural or semantic check is relied on before the sink"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production or operator workflows"
+  - "no downstream control fully revalidates the same canonical state, identity, or policy before the sink"
+blast_radius: "chain-wide"
+
+impact_types:
+  - "invalid-proof-acceptance"
+  - "integrity-risk"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, policy, or state-selection decision and the finding supports meaningful integrity risk, but most cases still stop short of proving worst-case exploitation, so medium is the right default band."
+
+code_shape_summary: "The root cause is misuse of a verification API that reports semantic failure as `Ok(false)` rather than `Err(...)`. The pre-patch code checked only for API error propagation and ignored the boolean verification outcome."
+search_motifs:
+  - "verification result is partially interpreted instead of requiring explicit success"
+  - "one proof element or branch is trusted without recomputing the canonical expected value"
+  - "validation logic treats malformed or mismatched proof structure as recoverable instead of rejecting it"
+negative_signals:
+  - "The patch supports a cryptographic verification-handling flaw, not a proven `state-corruption` bug."
+  - "The evidence shows invalid proofs could be accepted locally at this call site; it does not prove remote exploitability."
+  - "The safest corpus framing is security-relevant hardening of proof validation rather than a fully demonstrated end-to-end vulnerability."
+patch_pattern: "Replace error-only handling of `Result<bool>` verification routines with explicit acceptance checks that require `Ok(true)` before admitting data."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260422-162106Z-base/raw-findings/2025-08-20-base-cryptography-2c7e77548.md"
+  - "git:2c7e77548c756e9caddcdcd994125dd9ee95e7c2"
+  - "crates/op-succinct/utils/client/src/oracle/blob_provider.rs:26"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: confirmed / security-hardening."

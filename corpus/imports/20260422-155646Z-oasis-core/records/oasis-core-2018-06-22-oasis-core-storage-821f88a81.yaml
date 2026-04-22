@@ -1,0 +1,62 @@
+id: "oasis-core-2018-06-22-oasis-core-storage-821f88a81"
+source_finding: "2018-06-22-oasis-core-storage-821f88a81.md"
+project: "oasis-core"
+date: "2018-06-22"
+language_tags:
+  - "rust"
+
+bug_family: "authz_and_role_gates"
+bug_class: "consensus-role-accounting"
+subsystem: "storage"
+architecture_tags:
+  - "validator-based"
+  - "committee-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "role-accounting"
+violated_invariant: "Aggregation should account for commitments and reveals according to the actual committee member role associated with the signing key, rather than treating all allowed signers through one undifferentiated path."
+trust_boundary: "peer->node"
+entrypoint_type: "state-transition"
+sensitive_sink: "security-sensitive consensus or registry state"
+
+attacker_capabilities:
+  - "reach the affected externally influenced path with syntactically valid inputs"
+  - "control the fields or timing assumptions that the missing check was supposed to bind"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production"
+  - "no earlier canonical validation step fully enforces the missing property on every route to the sink"
+blast_radius: "chain-wide"
+
+impact_types:
+  - "consensus-integrity"
+  - "availability"
+severity_guess: "high"
+severity_rationale: "The bug can affect chain wide integrity or authorization semantics, so similar cases should be treated as high-severity until proven otherwise."
+
+code_shape_summary: "The visible evidence suggests the aggregation logic depended on signer role, but the pre-patch path used a broad membership check and a generic aggregation flow. That likely made role-specific accounting fragile or incorrect under concurrent message handling."
+search_motifs:
+  - "valid request path missing a secondary role or policy gate"
+  - "authorization derived from one scope but sink executes in another"
+  - "shared helper returns success before role-specific enforcement"
+negative_signals:
+  - "Not a match if every route to the sink already passes through one canonical authorization helper with the same role and policy checks."
+  - "Not a match if the diff only renames roles or improves logging without changing who can reach the action."
+  - "Not a match if the affected path is test-only or unreachable in production configuration."
+patch_pattern: "The patch first changes the verification-side code to locate the specific committee entry for the signing key. It then changes the aggregation handlers to branch on sender role and use role-specific queueing and thresholds instead of a single generic queue."
+
+source_refs:
+  - "/testing/oasis-core/validated-findings/kept/2018-06-22-oasis-core-storage-821f88a81.md"
+  - "git:821f88a81f1520961942be67c3e18dd5446e9bf3"
+  - "compute/src/group.rs:433"
+  - "compute/src/group.rs:475"
+  - "compute/src/consensus.rs:634"
+  - "compute/src/consensus.rs:728"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

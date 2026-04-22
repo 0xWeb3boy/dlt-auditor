@@ -1,0 +1,64 @@
+id: "oasis-core-2024-05-11-oasis-core-core-logic-ddf51345a"
+source_finding: "2024-05-11-oasis-core-core-logic-ddf51345a.md"
+project: "oasis-core"
+date: "2024-05-11"
+language_tags:
+  - "rust"
+
+bug_family: "checked_arithmetic_and_parameter_bounds"
+bug_class: "integer-overflow"
+subsystem: "core-logic"
+architecture_tags:
+  - "validator-based"
+  - "tee"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "arithmetic-bounds"
+violated_invariant: "CHURP dealer construction must not silently wrap the derived Y-degree when computing 2 * threshold. If the doubled threshold is not representable in u8, construction should fail so the derived polynomial degree and verification-matrix dimensions stay consistent with the input threshold."
+trust_boundary: "peer->node"
+entrypoint_type: "state-transition"
+sensitive_sink: "key-share release or secret-state acceptance"
+
+attacker_capabilities:
+  - "reach the affected externally influenced path with syntactically valid inputs"
+  - "control the fields or timing assumptions that the missing check was supposed to bind"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production"
+  - "no earlier canonical validation step fully enforces the missing property on every route to the sink"
+blast_radius: "validator-local"
+
+impact_types:
+  - "integrity-risk"
+severity_guess: "medium"
+severity_rationale: "The path is security-sensitive and could affect integrity-risk, but the available evidence stops short of proving a worst-case exploit, so medium is the right default band."
+
+code_shape_summary: "Dealer::new used unchecked u8 arithmetic for a derived protocol parameter ('dy = 2 * threshold'), allowing overflow instead of rejecting an unrepresentable value."
+search_motifs:
+  - "unchecked arithmetic in consensus or security-sensitive state update"
+  - "overflow near sentinel values or maximum type bounds"
+  - "fail-open math instead of checked or fail-closed behavior"
+  - "round-versus-handoff coordinate mismatch across validation and storage"
+  - "secret or key-share state accepted without runtime or generation binding"
+negative_signals:
+  - "Not a match if earlier invariants prove the operands stay far below the type bound in every reachable state."
+  - "Not a match if the arithmetic is already checked or saturating before the security-sensitive assignment."
+  - "Not a match if the patch only widens a type for convenience without changing any reachable overflow condition."
+  - "Not a match if consensus parameters, epochs, or thresholds are already bounded so the arithmetic cannot approach the type limit."
+patch_pattern: "The fix moved overflow handling into 'Dealer::new' by changing the API to return Result and rejecting thresholds whose doubled value does not fit in u8 via 'Error::ThresholdTooLarge'. Related call sites were updated to use the validated constructor contract."
+
+source_refs:
+  - "/testing/oasis-core/validated-findings/kept/2024-05-11-oasis-core-core-logic-ddf51345a.md"
+  - "git:ddf51345a9a468dd6ec72b5292df9c8904cd81c9"
+  - "secret-sharing/src/churp/dealer.rs:35"
+  - "secret-sharing/src/churp/dealer.rs:115"
+  - "secret-sharing/src/churp/dealer.rs:125"
+  - "secret-sharing/src/churp/handoff.rs:384"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

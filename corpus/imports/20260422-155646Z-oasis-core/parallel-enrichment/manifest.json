@@ -1,0 +1,114 @@
+{
+  "source_manifest": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/manifest.json",
+  "repo": "/testing/oasis-core",
+  "bundle_root": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core",
+  "requested_workers": 6,
+  "effective_workers": 6,
+  "chunk_strategy": "balanced_greedy_v1",
+  "total_findings": 48,
+  "instruction_prompt": "/testing/dlt-ai-audit-system/03_enrich_corpus_import.md",
+  "workers": [
+    {
+      "worker_id": "worker-01",
+      "finding_count": 8,
+      "total_weight": 18,
+      "finding_ids": [
+        "oasis-core-2023-04-12-oasis-core-cryptography-97f265501",
+        "oasis-core-2023-06-29-oasis-core-rpc-client-api-95923572b",
+        "oasis-core-2019-07-22-oasis-core-cryptography-079912fe5",
+        "oasis-core-2024-05-11-oasis-core-core-logic-ddf51345a",
+        "oasis-core-2020-01-29-oasis-core-cryptography-f8809788d",
+        "oasis-core-2021-05-24-oasis-core-transaction-processing-25f10e879",
+        "oasis-core-2020-04-22-oasis-core-staking-d477a90f7",
+        "oasis-core-2019-10-11-oasis-core-storage-82a0d8ee2"
+      ],
+      "assignment_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/parallel-enrichment/worker-01-assignment.json",
+      "prompt_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/parallel-enrichment/worker-01.md"
+    },
+    {
+      "worker_id": "worker-02",
+      "finding_count": 8,
+      "total_weight": 18,
+      "finding_ids": [
+        "oasis-core-2019-07-24-oasis-core-cryptography-64cb06901",
+        "oasis-core-2019-10-28-oasis-core-staking-a34ab1924",
+        "oasis-core-2024-07-04-oasis-core-cryptography-8e2f08bb2",
+        "oasis-core-2020-01-31-oasis-core-staking-956168c04",
+        "oasis-core-2019-11-13-oasis-core-rpc-client-api-75e2e189e",
+        "oasis-core-2024-04-05-oasis-core-transaction-processing-7d649f96d",
+        "oasis-core-2021-01-21-oasis-core-staking-253376f8d",
+        "oasis-core-2024-03-16-oasis-core-storage-68133d1f3"
+      ],
+      "assignment_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/parallel-enrichment/worker-02-assignment.json",
+      "prompt_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/parallel-enrichment/worker-02.md"
+    },
+    {
+      "worker_id": "worker-03",
+      "finding_count": 8,
+      "total_weight": 17,
+      "finding_ids": [
+        "oasis-core-2019-08-23-oasis-core-rpc-client-api-4333549d8",
+        "oasis-core-2023-01-26-oasis-core-cryptography-8ffc81e94",
+        "oasis-core-2022-04-20-oasis-core-rpc-client-api-a02e1e95f",
+        "oasis-core-2020-06-23-oasis-core-staking-0f89673a0",
+        "oasis-core-2019-05-06-oasis-core-cryptography-bf949bbb0",
+        "oasis-core-2023-02-01-oasis-core-rpc-client-api-8eabf0d47",
+        "oasis-core-2018-05-26-oasis-core-cryptography-19cd4a286",
+        "oasis-core-2022-05-23-oasis-core-staking-07f5399b5"
+      ],
+      "assignment_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/parallel-enrichment/worker-03-assignment.json",
+      "prompt_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/parallel-enrichment/worker-03.md"
+    },
+    {
+      "worker_id": "worker-04",
+      "finding_count": 8,
+      "total_weight": 17,
+      "finding_ids": [
+        "oasis-core-2022-04-13-oasis-core-consensus-8381b14d1",
+        "oasis-core-2019-05-07-oasis-core-rpc-client-api-e55738ce6",
+        "oasis-core-2022-09-05-oasis-core-rpc-client-api-fa52dea46",
+        "oasis-core-2018-06-22-oasis-core-storage-821f88a81",
+        "oasis-core-2019-06-27-oasis-core-cryptography-ee21c841e",
+        "oasis-core-2019-11-27-oasis-core-validator-ops-a74913bae",
+        "oasis-core-2020-01-23-oasis-core-cryptography-d5cc58f88",
+        "oasis-core-2023-07-31-oasis-core-staking-67711fa42"
+      ],
+      "assignment_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/parallel-enrichment/worker-04-assignment.json",
+      "prompt_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/parallel-enrichment/worker-04.md"
+    },
+    {
+      "worker_id": "worker-05",
+      "finding_count": 8,
+      "total_weight": 17,
+      "finding_ids": [
+        "oasis-core-2021-02-15-oasis-core-cryptography-a0ac508da",
+        "oasis-core-2019-06-03-oasis-core-rpc-client-api-3f0716ecd",
+        "oasis-core-2022-12-08-oasis-core-rpc-client-api-52536d293",
+        "oasis-core-2019-01-10-oasis-core-storage-686bc266d",
+        "oasis-core-2019-08-15-oasis-core-cryptography-4c642baa8",
+        "oasis-core-2019-11-08-oasis-core-transaction-processing-ba88a37cf",
+        "oasis-core-2019-11-11-oasis-core-rpc-client-api-7816e47dd",
+        "oasis-core-2020-08-25-oasis-core-cryptography-a7c5872e3"
+      ],
+      "assignment_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/parallel-enrichment/worker-05-assignment.json",
+      "prompt_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/parallel-enrichment/worker-05.md"
+    },
+    {
+      "worker_id": "worker-06",
+      "finding_count": 8,
+      "total_weight": 17,
+      "finding_ids": [
+        "oasis-core-2022-06-29-oasis-core-cryptography-57692e8f7",
+        "oasis-core-2022-04-20-oasis-core-rpc-client-api-40afd4203",
+        "oasis-core-2023-10-02-oasis-core-consensus-87f19bb1e",
+        "oasis-core-2020-12-01-oasis-core-storage-af0555775",
+        "oasis-core-2019-11-25-oasis-core-cryptography-d123ab1b1",
+        "oasis-core-2019-11-21-oasis-core-transaction-processing-e2d134a5a",
+        "oasis-core-2020-02-06-oasis-core-staking-635fcfd29",
+        "oasis-core-2024-10-03-oasis-core-cryptography-0d2f546b2"
+      ],
+      "assignment_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/parallel-enrichment/worker-06-assignment.json",
+      "prompt_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-155646Z-oasis-core/parallel-enrichment/worker-06.md"
+    }
+  ]
+}

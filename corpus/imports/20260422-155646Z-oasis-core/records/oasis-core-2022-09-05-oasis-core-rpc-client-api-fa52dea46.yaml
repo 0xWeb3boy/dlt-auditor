@@ -1,0 +1,63 @@
+id: "oasis-core-2022-09-05-oasis-core-rpc-client-api-fa52dea46"
+source_finding: "2022-09-05-oasis-core-rpc-client-api-fa52dea46.md"
+project: "oasis-core"
+date: "2022-09-05"
+language_tags:
+  - "go"
+
+bug_family: "attestation_trust_and_freshness"
+bug_class: "freshness-verification"
+subsystem: "rpc-client-api"
+architecture_tags:
+  - "committee-based"
+  - "tee"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "freshness"
+violated_invariant: "If client or TEE freshness is enforced, the decision should rely on recent consensus-anchored evidence rather than a bare transaction-submission success result. The provided excerpts only show plumbing toward that invariant, not the full enforcement point."
+trust_boundary: "remote-peer->rpc-verifier"
+entrypoint_type: "rpc-handler"
+sensitive_sink: "attestation acceptance state"
+
+attacker_capabilities:
+  - "present stale, mismatched, or policy-incompatible attestation material to the affected verifier"
+  - "trigger restarts, redeploys, or policy changes so stale trust state can be reused"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production"
+  - "the verifier, key manager, or runtime uses the affected trust or signature path"
+blast_radius: "validator-local"
+
+impact_types:
+  - "stale-attestation-acceptance"
+severity_guess: "medium"
+severity_rationale: "The path is security-sensitive and could affect stale-attestation-acceptance, but the available evidence stops short of proving a worst-case exploit, so medium is the right default band."
+
+code_shape_summary: "Not established by the provided evidence. The observable change is that the runtime-host path previously lacked an end-to-end way to submit a freshness-related transaction and receive a consensus inclusion proof back through the API layers. The excerpts do not show whether stale TEE evidence was previously accepted, where verification happened, or whether this is a new feature versus a fix for an exploitable bug."
+search_motifs:
+  - "trust root or quote policy cached without refresh on change"
+  - "freshness inferred from success state instead of anchored evidence"
+  - "session or attestation state reused after peer-set or policy change"
+  - "attestation acceptance based on stale or incomplete trust inputs"
+negative_signals:
+  - "Not a match if trust roots, quote policy, and freshness evidence are atomically refreshed before each decision."
+  - "Not a match if stale or changed session state is already invalidated on restart, reconfiguration, or peer change."
+  - "Not a match if the new code only improves observability and does not change verification inputs or policy state."
+  - "Not a match if the same policy or freshness state is fetched and verified in-line at every use site instead of being cached."
+patch_pattern: "The patch introduces a 'ProveFreshness' host handler that submits a dedicated registry transaction and receives a proof of inclusion. Supporting APIs were added so the proof can be produced by the backend and returned over gRPC instead of collapsing the operation to success-or-error only. The supplied excerpts do not show the consuming verifier logic."
+
+source_refs:
+  - "/testing/oasis-core/validated-findings/kept/2022-09-05-oasis-core-rpc-client-api-fa52dea46.md"
+  - "git:fa52dea46bd3a178d0e4c7d86f4a83b32e188afe"
+  - "go/consensus/tendermint/full/full.go:247"
+  - "go/runtime/registry/host.go:335"
+  - "go/consensus/api/submission.go:246"
+  - "go/consensus/api/grpc.go:769"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

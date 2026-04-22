@@ -1,0 +1,63 @@
+id: "base-2025-12-29-base-storage-55893ad15"
+source_finding: "2025-12-29-base-storage-55893ad15.md"
+project: "base"
+date: "2025-12-29"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "missing-runtime-policy-check"
+subsystem: "storage"
+architecture_tags:
+  - "fault-proof"
+  - "policy-enforcement"
+  - "runtime-guard"
+  - "configuration-validation"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "policy-gating"
+violated_invariant: "The proposer should only attempt to create a dispute game when its configured game type matches the live `respectedGameType()` published by `AnchorStateRegistry`. The supplied evidence shows enforcement of that invariant in the proposer, but does not show downstream onchain consequences if it is violated."
+trust_boundary: "chain state, checkpoint, or persistent storage input->proposer or validator logic"
+entrypoint_type: "checkpoint-or-state-validation"
+sensitive_sink: "acceptance of a proof, signature, or derived state transition"
+
+attacker_capabilities:
+  - "supply malformed, replayed, or partially valid proof or signature data to the affected verifier path"
+  - "reach the code path where a weaker structural or semantic check is relied on before the sink"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production or operator workflows"
+  - "no downstream control fully revalidates the same canonical state, identity, or policy before the sink"
+blast_radius: "validator-local"
+
+impact_types:
+  - "protocol-integrity"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, policy, or state-selection decision and the finding supports meaningful integrity risk, but most cases still stop short of proving worst-case exploitation, so medium is the right default band."
+
+code_shape_summary: "The proposer creation path relied on locally configured game type without consulting the live onchain policy source that defines the currently respected type. The surrounding config and ABI plumbing also did not yet expose the registry query needed to enforce that check in this path."
+search_motifs:
+  - "challenge mode handled by a generic validation branch instead of the challenged case"
+  - "decision logic derives the target index or root from the wrong proof element"
+  - "retry or fallback state is dropped before the dispute path reaches a definitive decision"
+negative_signals:
+  - "The evidence supports a missing proposer-side policy validation guard, not `state-corruption` or a storage bug."
+  - "The patch shows hardening against stale or incorrect configuration, not a proven exploitable vulnerability."
+  - "The supplied material does not establish whether contract-level or challenger-level checks already mitigated the same condition."
+patch_pattern: "Add an explicit live-policy validation immediately before a sensitive action, and wire the policy source through config and ABI layers so the component can fail closed when local configuration diverges from current protocol policy."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260422-162106Z-base/raw-findings/2025-12-29-base-storage-55893ad15.md"
+  - "git:55893ad151d82d99d3fe82422bd3bcfb9edc3cd7"
+  - "fault-proof/src/proposer.rs:1669"
+  - "fault-proof/bin/proposer.rs:40"
+  - "fault-proof/src/config.rs:132"
+  - "fault-proof/src/contract.rs:129"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

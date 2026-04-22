@@ -1,0 +1,21 @@
+id: "base-2025-12-29-base-storage-55893ad15"
+source_record: "base-2025-12-29-base-storage-55893ad15.yaml"
+project: "base"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "missing-runtime-policy-check"
+expected_missing_property: "policy-gating"
+
+expected_impact_band: "trust_or_policy_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The evidence supports a missing proposer-side policy validation guard, not `state-corruption` or a storage bug."
+  - "The patch shows hardening against stale or incorrect configuration, not a proven exploitable vulnerability."
+  - "The supplied material does not establish whether contract-level or challenger-level checks already mitigated the same condition."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

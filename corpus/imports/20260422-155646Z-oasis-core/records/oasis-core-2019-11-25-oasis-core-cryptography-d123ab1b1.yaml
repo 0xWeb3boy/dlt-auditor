@@ -1,0 +1,63 @@
+id: "oasis-core-2019-11-25-oasis-core-cryptography-d123ab1b1"
+source_finding: "2019-11-25-oasis-core-cryptography-d123ab1b1.md"
+project: "oasis-core"
+date: "2019-11-25"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "insufficient-identity-validation"
+subsystem: "cryptography"
+architecture_tags:
+  - "committee-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "identity-validation"
+violated_invariant: "Registry descriptors should only advertise addresses that carry valid identities, and optional address fields should only be included for roles that actually require them."
+trust_boundary: "peer->node"
+entrypoint_type: "p2p-message-handler"
+sensitive_sink: "node registry admission"
+
+attacker_capabilities:
+  - "reach the affected externally influenced path with syntactically valid inputs"
+  - "control the fields or timing assumptions that the missing check was supposed to bind"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production"
+  - "the verifier, key manager, or runtime uses the affected trust or signature path"
+blast_radius: "validator-local"
+
+impact_types:
+  - "integrity"
+severity_guess: "medium"
+severity_rationale: "The path is security-sensitive and could affect integrity, but the available evidence stops short of proving a worst-case exploit, so medium is the right default band."
+
+code_shape_summary: "The registration code was assembling node descriptors with weaker coupling between advertised roles and role-specific fields, and it did not explicitly reject validator consensus addresses whose embedded identity was invalid before building the registration payload."
+search_motifs:
+  - "parsed descriptor or request missing cross-field invariant checks"
+  - "wrong state coordinate compared during validation"
+  - "malformed or incomplete input reaches a privileged sink"
+  - "descriptor admission with incomplete role or identity checks"
+  - "validator or committee role inferred from incomplete metadata"
+negative_signals:
+  - "Not a match if malformed or incomplete inputs are normalized and rejected before they can reach the sensitive sink."
+  - "Not a match if the compared fields are aliases with identical semantics throughout the subsystem."
+  - "Not a match if the change only tightens developer assertions without affecting production acceptance behavior."
+  - "Not a match if descriptor normalization strips or rejects the problematic fields before signature verification or admission."
+patch_pattern: "The fix makes role handling explicit in the registration worker, adds roles to the descriptor before applying the corresponding hook, gates committee-address registration on role requirements, and filters validator consensus addresses so entries with invalid IDs are dropped before address verification."
+
+source_refs:
+  - "/testing/oasis-core/validated-findings/kept/2019-11-25-oasis-core-cryptography-d123ab1b1.md"
+  - "git:d123ab1b1e6fb2a4cc76f55be4f36ed11df30e1b"
+  - "go/worker/registration/worker.go:388"
+  - "go/worker/common/p2p/p2p.go:116"
+  - "go/worker/registration/worker.go:558"
+  - "go/worker/registration/worker.go:289"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

@@ -1,0 +1,64 @@
+id: "oasis-core-2023-07-31-oasis-core-staking-67711fa42"
+source_finding: "2023-07-31-oasis-core-staking-67711fa42.md"
+project: "oasis-core"
+date: "2023-07-31"
+language_tags:
+  - "go"
+
+bug_family: "staking_registry_and_accountability"
+bug_class: "proposer-liveness-accounting-gap"
+subsystem: "staking"
+architecture_tags:
+  - "validator-based"
+  - "committee-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "liveness-accounting"
+violated_invariant: "If proposer liveness is evaluated, proposer timeout events must be attributed to the intended committee member so later liveness processing uses consistent per-member statistics."
+trust_boundary: "validator->consensus"
+entrypoint_type: "state-transition"
+sensitive_sink: "validator penalty state"
+
+attacker_capabilities:
+  - "cause the validator or committee-facing state transition to process crafted consensus inputs"
+  - "exercise an edge-case epoch, round, liveness, or penalty transition"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production"
+  - "the node is participating in the validator or committee workflow that owns the state transition"
+blast_radius: "node-local"
+
+impact_types:
+  - "availability"
+  - "penalty-bypass"
+severity_guess: "medium"
+severity_rationale: "The path is security-sensitive and could affect availability, penalty-bypass, but the available evidence stops short of proving a worst-case exploit, so medium is the right default band."
+
+code_shape_summary: "The evidence shows a liveness-accounting gap in the displayed code paths: proposer timeout handling did not record a missed proposal there, and there was no helper for resolving the selected scheduler directly into committee-member index space. However, the evidence does not prove that this caused an exploitable bypass, mis-slashing, or consensus failure before the patch."
+search_motifs:
+  - "stake, slashing, or liveness rule missing on an edge path"
+  - "validator or committee accounting uses the wrong role coordinate"
+  - "reserved or punishable state treated like ordinary state"
+  - "round transition without clearing previously scheduled timeout state"
+  - "validator or committee role inferred from incomplete metadata"
+negative_signals:
+  - "Not a match if consensus rules or earlier checks make the edge case unreachable for live validators, entities, or runtimes."
+  - "Not a match if the patch only improves reporting or accounting visibility without changing stake, slashing, or selection state."
+  - "Not a match if the affected identifier is not actually used to derive penalties, voting power, or eligibility."
+patch_pattern: "The patch records missed proposals when a valid proposer-timeout transaction is processed, and it adds 'TransactionSchedulerIdx' so scheduler identity can be expressed as a committee-member index instead of only as a position within the filtered worker slice. This makes the new proposer-timeout accounting usable by later liveness evaluation code."
+
+source_refs:
+  - "/testing/oasis-core/validated-findings/kept/2023-07-31-oasis-core-staking-67711fa42.md"
+  - "git:67711fa426c4948cca108fb0b04687bf0c5951ab"
+  - "go/consensus/cometbft/apps/roothash/roothash.go:541"
+  - "go/consensus/cometbft/apps/roothash/transactions.go:96"
+  - "go/scheduler/api/api.go:181"
+  - "go/scheduler/api/api.go:150"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

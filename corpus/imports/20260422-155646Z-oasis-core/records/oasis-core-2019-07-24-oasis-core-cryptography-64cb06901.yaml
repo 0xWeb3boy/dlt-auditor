@@ -1,0 +1,61 @@
+id: "oasis-core-2019-07-24-oasis-core-cryptography-64cb06901"
+source_finding: "2019-07-24-oasis-core-cryptography-64cb06901.md"
+project: "oasis-core"
+date: "2019-07-24"
+language_tags:
+  - "go"
+
+bug_family: "authz_and_role_gates"
+bug_class: "missing-signer-authorization"
+subsystem: "cryptography"
+architecture_tags:
+  - "committee-based"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "signer-authorization"
+violated_invariant: "A compute commitment's 'TxnSchedSig' must not only be cryptographically valid for the signed message; it must also be produced by a member of the active transaction scheduler committee for the relevant round/epoch."
+trust_boundary: "committee-member->consensus"
+entrypoint_type: "state-transition"
+sensitive_sink: "security-sensitive consensus or registry state"
+
+attacker_capabilities:
+  - "send signed messages or commitments from the wrong committee member, runtime, or signer scope"
+  - "reuse otherwise valid signatures in a context that is not re-bound at the sink"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production"
+  - "the verifier, key manager, or runtime uses the affected trust or signature path"
+blast_radius: "validator-local"
+
+impact_types:
+  - "unauthorized-consensus-message-acceptance"
+severity_guess: "high"
+severity_rationale: "The bug can affect validator local integrity or authorization semantics, so similar cases should be treated as high-severity until proven otherwise."
+
+code_shape_summary: "Compute-commitment admission validated the transaction-scheduler signature's cryptographic correctness but did not verify that the signer belonged to the active transaction scheduler committee."
+search_motifs:
+  - "valid request path missing a secondary role or policy gate"
+  - "authorization derived from one scope but sink executes in another"
+  - "shared helper returns success before role-specific enforcement"
+negative_signals:
+  - "Not a match if every route to the sink already passes through one canonical authorization helper with the same role and policy checks."
+  - "Not a match if the diff only renames roles or improves logging without changing who can reach the action."
+  - "Not a match if the affected path is test-only or unreachable in production configuration."
+patch_pattern: "The fix replaced the old transaction-scheduler signature check with a call that verifies the signature against the active 'scheduler.KindTransactionScheduler' committee. It also introduced a generalized verifier interface so callers specify which committee kind a signature must belong to, and updated related storage call sites to use that interface."
+
+source_refs:
+  - "/testing/oasis-core/validated-findings/kept/2019-07-24-oasis-core-cryptography-64cb06901.md"
+  - "git:64cb06901b6e8c357553537d6aef905a1750debd"
+  - "go/roothash/api/commitment/pool.go:151"
+  - "go/roothash/api/commitment/pool.go:32"
+  - "go/worker/compute/committee/node.go:236"
+  - "go/worker/compute/committee/node.go:662"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: confirmed / security-hardening."

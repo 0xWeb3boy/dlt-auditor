@@ -1,0 +1,62 @@
+id: "oasis-core-2019-11-27-oasis-core-validator-ops-a74913bae"
+source_finding: "2019-11-27-oasis-core-validator-ops-a74913bae.md"
+project: "oasis-core"
+date: "2019-11-27"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "unsafe-debug-configuration"
+subsystem: "validator-ops"
+architecture_tags:
+  - "validator-based"
+  - "committee-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "unsafe-debug-gating"
+violated_invariant: "The registry CLI should not proceed with entity-signed-node mode unless the operator has explicitly enabled the corresponding unsafe debug acknowledgement."
+trust_boundary: "operator->admin-api"
+entrypoint_type: "state-transition"
+sensitive_sink: "security-sensitive consensus or registry state"
+
+attacker_capabilities:
+  - "reach the affected externally influenced path with syntactically valid inputs"
+  - "control the fields or timing assumptions that the missing check was supposed to bind"
+exploit_preconditions:
+  - "the operator can invoke the affected CLI or administrative workflow"
+  - "no earlier canonical validation step fully enforces the missing property on every route to the sink"
+blast_radius: "node-local"
+
+impact_types:
+  - "security-misconfiguration"
+severity_guess: "low"
+severity_rationale: "The evidence supports hardening in a security-sensitive path, but the likely impact is limited to security-misconfiguration without a demonstrated broad exploit path."
+
+code_shape_summary: "A missing sanity check allowed an unsafe configuration mode to be selected in the entity load/generation path without the explicit debug acknowledgement now required by the patch. The provided evidence does not show whether this was exploitable beyond local operator misconfiguration."
+search_motifs:
+  - "parsed descriptor or request missing cross-field invariant checks"
+  - "wrong state coordinate compared during validation"
+  - "malformed or incomplete input reaches a privileged sink"
+  - "validator or committee role inferred from incomplete metadata"
+negative_signals:
+  - "Not a match if malformed or incomplete inputs are normalized and rejected before they can reach the sensitive sink."
+  - "Not a match if the compared fields are aliases with identical semantics throughout the subsystem."
+  - "Not a match if the change only tightens developer assertions without affecting production acceptance behavior."
+patch_pattern: "The patch inserts an early sanity check in 'loadOrGenerateEntity' that blocks 'AllowEntitySignedNodes' unless the unsafe debug flag is set. The remaining provided hunks rename constants used by registry CLI code."
+
+source_refs:
+  - "/testing/oasis-core/validated-findings/kept/2019-11-27-oasis-core-validator-ops-a74913bae.md"
+  - "git:a74913bae397ae86925c44989c94ab5fee59889c"
+  - "go/oasis-node/cmd/registry/entity/entity.go:355"
+  - "go/oasis-node/cmd/registry/node/node.go:252"
+  - "go/oasis-node/cmd/registry/node/node.go:262"
+  - "go/oasis-node/cmd/registry/runtime/runtime.go:442"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

@@ -1,0 +1,21 @@
+id: "base-2026-01-08-base-transaction-processing-b8f757909"
+source_record: "base-2026-01-08-base-transaction-processing-b8f757909.yaml"
+project: "base"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "deadline-enforcement"
+expected_missing_property: "deadline-enforcement"
+
+expected_impact_band: "integrity_or_policy_enforcement"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Supported: the patch hardens deadline enforcement in off-chain challenger state synchronization."
+  - "Supported: before the fix, expired but `Unchallenged` games could be misclassified as locally challengeable."
+  - "Not supported: a confirmed on-chain security vulnerability was exploitable."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

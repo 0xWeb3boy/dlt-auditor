@@ -1,0 +1,21 @@
+id: "base-2026-04-20-base-transaction-processing-88b36d5a2"
+source_record: "base-2026-04-20-base-transaction-processing-88b36d5a2.yaml"
+project: "base"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "missing-runtime-guard"
+expected_missing_property: "runtime-guard-consistency"
+
+expected_impact_band: "state_or_consensus_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The evidence supports a missing fork-specific gas-limit guard in some EVM environment builders."
+  - "The evidence supports classifying this as security hardening because it tightens a runtime policy in a sensitive execution path."
+  - "The evidence does not support claiming a confirmed exploitable security bug."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

@@ -1,0 +1,21 @@
+id: "oasis-core-2019-01-10-oasis-core-storage-686bc266d"
+source_record: "oasis-core-2019-01-10-oasis-core-storage-686bc266d.yaml"
+project: "oasis-core"
+
+expected_bug_family: "authz_and_role_gates"
+expected_bug_class: "improper-authorization-check"
+expected_missing_property: "authorization"
+
+expected_impact_band: "integrity_or_policy_enforcement"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Not a match if every route to the sink already passes through one canonical authorization helper with the same role and policy checks."
+  - "Not a match if the diff only renames roles or improves logging without changing who can reach the action."
+  - "Not a match if the affected path is test-only or unreachable in production configuration."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

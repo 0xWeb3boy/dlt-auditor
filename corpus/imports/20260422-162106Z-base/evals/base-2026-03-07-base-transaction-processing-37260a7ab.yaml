@@ -1,0 +1,21 @@
+id: "base-2026-03-07-base-transaction-processing-37260a7ab"
+source_record: "base-2026-03-07-base-transaction-processing-37260a7ab.yaml"
+project: "base"
+
+expected_bug_family: "signature_binding_and_signer_scope"
+expected_bug_class: "signature-validation-hardening"
+expected_missing_property: "canonical-signature-validation"
+
+expected_impact_band: "integrity_or_policy_enforcement"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Supported claim: the patch adds stricter signature-shape validation and centralizes proof encoding."
+  - "Supported claim: invalid ECDSA `v` values are now explicitly rejected during proof construction."
+  - "Not supported: this commit fixes a confirmed exploitable vulnerability."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

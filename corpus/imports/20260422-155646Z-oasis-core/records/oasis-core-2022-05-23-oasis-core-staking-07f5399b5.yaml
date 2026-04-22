@@ -1,0 +1,61 @@
+id: "oasis-core-2022-05-23-oasis-core-staking-07f5399b5"
+source_finding: "2022-05-23-oasis-core-staking-07f5399b5.md"
+project: "oasis-core"
+date: "2022-05-23"
+language_tags:
+  - "go"
+
+bug_family: "staking_registry_and_accountability"
+bug_class: "reserved-address-invariant-enforcement"
+subsystem: "staking"
+architecture_tags:
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "reserved-address-enforcement"
+violated_invariant: "'staking.BurnAddress' must be treated as a burn sink, not as a normal transfer recipient, and ledger/genesis validation must reject non-zero balance or nonce for that address."
+trust_boundary: "validator->consensus"
+entrypoint_type: "state-transition"
+sensitive_sink: "reserved-address ledger state"
+
+attacker_capabilities:
+  - "cause the validator or committee-facing state transition to process crafted consensus inputs"
+  - "exercise an edge-case epoch, round, liveness, or penalty transition"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production"
+  - "the node is participating in the validator or committee workflow that owns the state transition"
+blast_radius: "chain-wide"
+
+impact_types:
+  - "state-integrity"
+severity_guess: "medium"
+severity_rationale: "The path is security-sensitive and could affect state-integrity, but the available evidence stops short of proving a worst-case exploit, so medium is the right default band."
+
+code_shape_summary: "'staking.BurnAddress' was not handled consistently as a dedicated burn sink. The transfer path could treat it like a normal destination, and sanity checking did not enforce that the burn address remain unused in ledger/genesis state."
+search_motifs:
+  - "stake, slashing, or liveness rule missing on an edge path"
+  - "validator or committee accounting uses the wrong role coordinate"
+  - "reserved or punishable state treated like ordinary state"
+  - "reserved-address special case treated like an ordinary account"
+negative_signals:
+  - "Not a match if consensus rules or earlier checks make the edge case unreachable for live validators, entities, or runtimes."
+  - "Not a match if the patch only improves reporting or accounting visibility without changing stake, slashing, or selection state."
+  - "Not a match if the affected identifier is not actually used to derive penalties, voting power, or eligibility."
+patch_pattern: "The patch rerouted transfer-to-burn-address operations into shared burn logic via 'burnImpl(...)' and added sanity-check validation that rejects any burn-address ledger entry with non-zero balance or nonce."
+
+source_refs:
+  - "/testing/oasis-core/validated-findings/kept/2022-05-23-oasis-core-staking-07f5399b5.md"
+  - "git:07f5399b5bafb0eb44c380e02eb633dd09ebfc5c"
+  - "go/staking/api/sanity_check.go:342"
+  - "go/consensus/tendermint/apps/staking/transactions.go:46"
+  - "go/consensus/tendermint/apps/staking/transactions.go:184"
+  - "go/consensus/tendermint/apps/staking/transactions.go:41"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

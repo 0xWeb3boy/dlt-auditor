@@ -1,0 +1,61 @@
+id: "base-2026-03-26-base-transaction-processing-012b1180e"
+source_finding: "2026-03-26-base-transaction-processing-012b1180e.md"
+project: "base"
+date: "2026-03-26"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "proof-claim-validation"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "proof-validation"
+  - "denial-of-service"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-fix"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "claim-validation"
+violated_invariant: "A disputed L2 claim must be validated against the safe-head block height, and a zero-step claim at the safe head is only valid when its claimed output root equals the agreed output root."
+trust_boundary: "transaction, batch, or proof input->execution or derivation pipeline"
+entrypoint_type: "transaction-or-batch-validation"
+sensitive_sink: "acceptance of a proof, signature, or derived state transition"
+
+attacker_capabilities:
+  - "supply malformed, replayed, or partially valid proof or signature data to the affected verifier path"
+  - "reach the code path where a weaker structural or semantic check is relied on before the sink"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production or operator workflows"
+  - "no downstream control fully revalidates the same canonical state, identity, or policy before the sink"
+blast_radius: "chain-wide"
+
+impact_types:
+  - "denial-of-service"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, policy, or state-selection decision and the finding supports meaningful integrity risk, but most cases still stop short of proving worst-case exploitation, so medium is the right default band."
+
+code_shape_summary: "The proof client relied on a weaker proxy invariant, output-root equality, instead of validating the claim against the canonical protocol state: the claimed L2 block number relative to the safe head."
+search_motifs:
+  - "verification result is partially interpreted instead of requiring explicit success"
+  - "one proof element or branch is trusted without recomputing the canonical expected value"
+  - "validation logic treats malformed or mismatched proof structure as recoverable instead of rejecting it"
+negative_signals:
+  - "Validated as a security fix only for the proof-client claim-validation change in `crates/proof/client/src/prologue.rs`."
+  - "Do not overclaim confidentiality, code execution, or full consensus compromise from the provided patch alone."
+  - "The evidence supports proof/challenge-path integrity and availability risk, not a broader transaction-processing vulnerability."
+patch_pattern: "Replace indirect equality-based detection with explicit validation against protocol state, and add a dedicated zero-step rule for the safe-head case."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260422-162106Z-base/raw-findings/2026-03-26-base-transaction-processing-012b1180e.md"
+  - "git:012b1180e727e7481f1d131e31d64cf111be61cd"
+  - "crates/consensus/protocol/src/batch/reader.rs:71"
+  - "crates/proof/client/src/prologue.rs:84"
+  - "crates/proof/client/src/prologue.rs:57"
+  - "crates/consensus/protocol/src/batch/reader.rs:189"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-fix."

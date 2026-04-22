@@ -1,0 +1,60 @@
+id: "oasis-core-2020-01-29-oasis-core-cryptography-f8809788d"
+source_finding: "2020-01-29-oasis-core-cryptography-f8809788d.md"
+project: "oasis-core"
+date: "2020-01-29"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "input-validation"
+subsystem: "cryptography"
+architecture_tags:
+  - "committee-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "input-validation"
+violated_invariant: "Registry admission should reject descriptors that are internally malformed or inconsistent with role and runtime-reference constraints before they enter registry or genesis state."
+trust_boundary: "operator->registry"
+entrypoint_type: "registration-path"
+sensitive_sink: "security-sensitive consensus or registry state"
+
+attacker_capabilities:
+  - "submit crafted node, runtime, or entity registration material to the registry path"
+  - "control the keys or descriptors used by the affected registration workflow"
+exploit_preconditions:
+  - "the deployment accepts the affected registration or update path from untrusted or semi-trusted principals"
+  - "the verifier, key manager, or runtime uses the affected trust or signature path"
+blast_radius: "validator-local"
+
+impact_types:
+  - "correctness-or-hardening"
+severity_guess: "medium"
+severity_rationale: "The path is security-sensitive and could affect correctness-or-hardening, but the available evidence stops short of proving a worst-case exploit, so medium is the right default band."
+
+code_shape_summary: "Incomplete registry admission sanity checks: some descriptor constraints were either not enforced in the shown path or were only checked after insufficient context had been assembled."
+search_motifs:
+  - "parsed descriptor or request missing cross-field invariant checks"
+  - "wrong state coordinate compared during validation"
+  - "malformed or incomplete input reaches a privileged sink"
+negative_signals:
+  - "Not a match if malformed or incomplete inputs are normalized and rejected before they can reach the sensitive sink."
+  - "Not a match if the compared fields are aliases with identical semantics throughout the subsystem."
+  - "Not a match if the change only tightens developer assertions without affecting production acceptance behavior."
+patch_pattern: "The patch adds explicit node-role checks for advertised runtime kinds, explicit non-zero group-size checks for compute runtimes, and a second validation phase that uses a built runtime lookup to re-check compute runtime references."
+
+source_refs:
+  - "/testing/oasis-core/validated-findings/kept/2020-01-29-oasis-core-cryptography-f8809788d.md"
+  - "git:f8809788d2f5449c7049ff3202448eaf060b080d"
+  - "go/registry/api/sanity_check.go:88"
+  - "go/registry/api/api.go:1014"
+  - "go/registry/api/api.go:1082"
+  - "go/registry/api/api.go:513"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

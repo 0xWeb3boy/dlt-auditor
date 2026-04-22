@@ -1,0 +1,62 @@
+id: "base-2026-03-13-base-cryptography-d54fbf46f"
+source_finding: "2026-03-13-base-cryptography-d54fbf46f.md"
+project: "base"
+date: "2026-03-13"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "configuration-integrity"
+subsystem: "cryptography"
+architecture_tags:
+  - "tee"
+  - "config-pinning"
+  - "chain-allowlist"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "configuration-integrity"
+violated_invariant: "If this path is security-sensitive, enclave-side proof generation should use deterministic, canonical per-chain parameters for a known chain set and reject unsupported chains rather than relying on loosely supplied configuration."
+trust_boundary: "proof producer or network peer->verification routine"
+entrypoint_type: "proof-or-signature-verification"
+sensitive_sink: "acceptance of a proof, signature, or derived state transition"
+
+attacker_capabilities:
+  - "supply malformed, replayed, or partially valid proof or signature data to the affected verifier path"
+  - "reach the code path where a weaker structural or semantic check is relied on before the sink"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production or operator workflows"
+  - "no downstream control fully revalidates the same canonical state, identity, or policy before the sink"
+blast_radius: "chain-wide"
+
+impact_types:
+  - "integrity"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, policy, or state-selection decision and the finding supports meaningful integrity risk, but most cases still stop short of proving worst-case exploitation, so medium is the right default band."
+
+code_shape_summary: "At most, the evidence suggests the earlier design used a more flexible configuration path instead of clearly deriving and pinning enclave parameters from canonical per-chain data. The provided material does not prove that this flexibility created an actual vulnerability in production or that untrusted parties could control the old configuration source."
+search_motifs:
+  - "verification result is partially interpreted instead of requiring explicit success"
+  - "one proof element or branch is trusted without recomputing the canonical expected value"
+  - "validation logic treats malformed or mismatched proof structure as recoverable instead of rejecting it"
+negative_signals:
+  - "Supported: the patch hardens enclave configuration selection and supported-chain enforcement."
+  - "Supported: the change reduces ambiguity by pinning config hashes to known chains and rejecting unknown ones."
+  - "Not supported: the patch fixes a proven exploitable vulnerability in the prior code."
+patch_pattern: "Replace a flexible configuration path with deterministic derivation of per-chain values from canonical rollup data, pin expected hashes for a fixed supported-chain set, and make unknown chain IDs fail explicitly."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260422-162106Z-base/raw-findings/2026-03-13-base-cryptography-d54fbf46f.md"
+  - "git:d54fbf46fce66f5713131f062a152c7181954431"
+  - "crates/proof/tee/core/src/types/config.rs:117"
+  - "crates/proof/tee/core/src/types/config.rs:484"
+  - "crates/proof/tee/nitro/src/enclave/server.rs:277"
+  - "crates/proof/tee/nitro/src/enclave/server.rs:244"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

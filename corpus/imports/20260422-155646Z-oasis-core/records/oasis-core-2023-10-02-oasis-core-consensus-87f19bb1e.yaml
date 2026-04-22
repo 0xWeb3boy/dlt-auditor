@@ -1,0 +1,64 @@
+id: "oasis-core-2023-10-02-oasis-core-consensus-87f19bb1e"
+source_finding: "2023-10-02-oasis-core-consensus-87f19bb1e.md"
+project: "oasis-core"
+date: "2023-10-02"
+language_tags:
+  - "go"
+
+bug_family: "authz_and_role_gates"
+bug_class: "improper-role-scoped-enforcement"
+subsystem: "consensus"
+architecture_tags:
+  - "validator-based"
+  - "committee-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "role-scoping"
+violated_invariant: "Worker liveness enforcement should be driven only by committee members that have worker-role liveness obligations. Non-worker roles, including backup workers, should not contribute worker liveness credit or have worker liveness penalties applied through mixed per-node accounting."
+trust_boundary: "validator->consensus"
+entrypoint_type: "state-transition"
+sensitive_sink: "validator penalty state"
+
+attacker_capabilities:
+  - "cause the validator or committee-facing state transition to process crafted consensus inputs"
+  - "exercise an edge-case epoch, round, liveness, or penalty transition"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production"
+  - "the node is participating in the validator or committee workflow that owns the state transition"
+blast_radius: "node-local"
+
+impact_types:
+  - "integrity"
+  - "availability"
+severity_guess: "medium"
+severity_rationale: "The path is security-sensitive and could affect integrity, availability, but the available evidence stops short of proving a worst-case exploit, so medium is the right default band."
+
+code_shape_summary: "Liveness accounting and enforcement were scoped too broadly across committee roles for the same node. That mixed worker obligations with backup-worker handling instead of isolating worker liveness evaluation to worker-role entries."
+search_motifs:
+  - "valid request path missing a secondary role or policy gate"
+  - "authorization derived from one scope but sink executes in another"
+  - "shared helper returns success before role-specific enforcement"
+  - "validator or committee role inferred from incomplete metadata"
+  - "punishment or freeze state derived with missing edge-case enforcement"
+negative_signals:
+  - "Not a match if every route to the sink already passes through one canonical authorization helper with the same role and policy checks."
+  - "Not a match if the diff only renames roles or improves logging without changing who can reach the action."
+  - "Not a match if the affected path is test-only or unreachable in production configuration."
+patch_pattern: "The patch removed the old per-node multi-role aggregation approach in 'liveness.go', changed liveness enforcement to a worker-only loop, and updated slashing/status writes to use the current member public key. In 'finalization.go', it deleted the backup-worker live-round credit branch. In 'liveness_test.go', it added coverage that backup-worker status must not change worker fault accounting."
+
+source_refs:
+  - "/testing/oasis-core/validated-findings/kept/2023-10-02-oasis-core-consensus-87f19bb1e.md"
+  - "git:87f19bb1e4296beed05aa0699a724d2babd447ba"
+  - "go/consensus/cometbft/apps/roothash/liveness.go:95"
+  - "go/consensus/cometbft/apps/roothash/liveness.go:43"
+  - "go/consensus/cometbft/apps/roothash/liveness_test.go:132"
+  - "go/consensus/cometbft/apps/roothash/finalization.go:184"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

@@ -1,0 +1,61 @@
+id: "oasis-core-2019-10-11-oasis-core-storage-82a0d8ee2"
+source_finding: "2019-10-11-oasis-core-storage-82a0d8ee2.md"
+project: "oasis-core"
+date: "2019-10-11"
+language_tags:
+  - "rust"
+
+bug_family: "state_machine_and_lifecycle_consistency"
+bug_class: "state-integrity-hardening"
+subsystem: "storage"
+architecture_tags:
+  - "validator-based"
+  - "committee-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "state-coordinate-consistency"
+violated_invariant: "During remote subtree merge and dereference, cache admission must not evict the node currently being dereferenced; if capacity prevents preserving that pointer, the operation should stop or fail rather than continue with inconsistent in-memory tree state."
+trust_boundary: "peer->node"
+entrypoint_type: "state-transition"
+sensitive_sink: "security-sensitive consensus or registry state"
+
+attacker_capabilities:
+  - "reach the affected externally influenced path with syntactically valid inputs"
+  - "control the fields or timing assumptions that the missing check was supposed to bind"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production"
+  - "no earlier canonical validation step fully enforces the missing property on every route to the sink"
+blast_radius: "validator-local"
+
+impact_types:
+  - "integrity"
+severity_guess: "medium"
+severity_rationale: "The path is security-sensitive and could affect integrity, but the available evidence stops short of proving a worst-case exploit, so medium is the right default band."
+
+code_shape_summary: "Eviction and commit logic in the remote merge path did not account for the pointer currently being dereferenced, so cache pressure could remove that active node during merge."
+search_motifs:
+  - "stale state reused across round, epoch, or restart boundaries"
+  - "update path bypasses the same validation as fresh admission"
+  - "lifecycle cleanup tied to the wrong transition marker"
+negative_signals:
+  - "Not a match if restart, timeout, overwrite, and update paths all clear or revalidate stale state before reuse."
+  - "Not a match if old and new state coordinates are guaranteed equivalent for every reachable transition."
+  - "Not a match if the change only refactors helper ownership without changing state-transition rules."
+patch_pattern: "The patch adds a locked-pointer check to the LRU eviction loop, refactors commit into a fallible 'try_commit_node(..., locked_ptr)' path, and passes the dereferenced pointer through remote merge commit. On lock conflict, the merge stops retaining additional nodes. The commit message also states item ordering was adjusted to reduce eviction pressure on the active path and that dereference now errors instead of silently proceeding."
+
+source_refs:
+  - "/testing/oasis-core/validated-findings/kept/2019-10-11-oasis-core-storage-82a0d8ee2.md"
+  - "git:82a0d8ee2fca74d6b478a5f7b6257b16c18b7e34"
+  - "runtime/src/storage/mkvs/urkel/cache/lru_cache.rs:204"
+  - "runtime/src/storage/mkvs/urkel/cache/lru_cache.rs:510"
+  - "runtime/src/storage/mkvs/urkel/cache/lru_cache.rs:408"
+  - "runtime/src/storage/mkvs/urkel/cache/lru_cache.rs:138"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

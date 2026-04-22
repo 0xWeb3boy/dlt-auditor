@@ -1,0 +1,21 @@
+id: "oasis-core-2020-04-22-oasis-core-staking-d477a90f7"
+source_record: "oasis-core-2020-04-22-oasis-core-staking-d477a90f7.yaml"
+project: "oasis-core"
+
+expected_bug_family: "staking_registry_and_accountability"
+expected_bug_class: "incorrect-validator-voting-power"
+expected_missing_property: "stake-to-power-consistency"
+
+expected_impact_band: "state_or_consensus_integrity"
+expected_severity_band: "high_or_medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Not a match if consensus rules or earlier checks make the edge case unreachable for live validators, entities, or runtimes."
+  - "Not a match if the patch only improves reporting or accounting visibility without changing stake, slashing, or selection state."
+  - "Not a match if the affected identifier is not actually used to derive penalties, voting power, or eligibility."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

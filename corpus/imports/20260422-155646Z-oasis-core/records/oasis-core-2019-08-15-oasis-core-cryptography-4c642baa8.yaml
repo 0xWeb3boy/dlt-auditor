@@ -1,0 +1,62 @@
+id: "oasis-core-2019-08-15-oasis-core-cryptography-4c642baa8"
+source_finding: "2019-08-15-oasis-core-cryptography-4c642baa8.md"
+project: "oasis-core"
+date: "2019-08-15"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "insufficient-input-validation"
+subsystem: "cryptography"
+architecture_tags:[]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "input-validation"
+violated_invariant: "Node registration validation should reject role declarations that omit mandatory role-specific metadata. In the provided diff, a node claiming the validator role must include at least one consensus address."
+trust_boundary: "operator->registry"
+entrypoint_type: "registration-path"
+sensitive_sink: "node registry admission"
+
+attacker_capabilities:
+  - "submit crafted node, runtime, or entity registration material to the registry path"
+  - "control the keys or descriptors used by the affected registration workflow"
+exploit_preconditions:
+  - "the deployment accepts the affected registration or update path from untrusted or semi-trusted principals"
+  - "the verifier, key manager, or runtime uses the affected trust or signature path"
+blast_radius: "validator-local"
+
+impact_types:
+  - "invalid-state-acceptance"
+severity_guess: "medium"
+severity_rationale: "The path is security-sensitive and could affect invalid-state-acceptance, but the available evidence stops short of proving a worst-case exploit, so medium is the right default band."
+
+code_shape_summary: "Incomplete role-specific validation in the registry registration path: the validator role could be declared without enforcing the presence of consensus addresses."
+search_motifs:
+  - "parsed descriptor or request missing cross-field invariant checks"
+  - "wrong state coordinate compared during validation"
+  - "malformed or incomplete input reaches a privileged sink"
+  - "descriptor admission with incomplete role or identity checks"
+  - "validator or committee role inferred from incomplete metadata"
+negative_signals:
+  - "Not a match if malformed or incomplete inputs are normalized and rejected before they can reach the sensitive sink."
+  - "Not a match if the compared fields are aliases with identical semantics throughout the subsystem."
+  - "Not a match if the change only tightens developer assertions without affecting production acceptance behavior."
+  - "Not a match if descriptor normalization strips or rejects the problematic fields before signature verification or admission."
+patch_pattern: "The registry validation function was tightened so a node claiming the validator role must provide non-empty consensus addresses; otherwise registration fails with 'ErrInvalidArgument'. The TLS-related code was also refactored to separate certificate creation from saving, but that change is not supported as the root security mechanism by the provided evidence."
+
+source_refs:
+  - "/testing/oasis-core/validated-findings/kept/2019-08-15-oasis-core-cryptography-4c642baa8.md"
+  - "git:4c642baa8d57c2961c795e4fe529ac6937aa870f"
+  - "go/common/identity/identity.go:188"
+  - "go/registry/api/api.go:384"
+  - "go/common/identity/identity.go:108"
+  - "go/common/identity/identity.go:176"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

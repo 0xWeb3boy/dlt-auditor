@@ -1,0 +1,21 @@
+id: "oasis-core-2021-02-15-oasis-core-cryptography-a0ac508da"
+source_record: "oasis-core-2021-02-15-oasis-core-cryptography-a0ac508da.yaml"
+project: "oasis-core"
+
+expected_bug_family: "signature_binding_and_signer_scope"
+expected_bug_class: "insufficient-signature-domain-separation"
+expected_missing_property: "signature-domain-separation"
+
+expected_impact_band: "integrity_or_policy_enforcement"
+expected_severity_band: "high_or_medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Not a match if signer membership, runtime binding, and domain separation are enforced before the sink on every path."
+  - "Not a match if the patch only changes serialization, logging, or tests without changing the accepted signer set."
+  - "Not a match if the same signature context is provably unique and cannot be replayed across roles or runtimes."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: confirmed / security-hardening."

@@ -1,0 +1,63 @@
+id: "base-2026-04-16-base-rpc-client-api-8f939340a"
+source_finding: "2026-04-16-base-rpc-client-api-8f939340a.md"
+project: "base"
+date: "2026-04-16"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "insufficient-confirmation-depth"
+subsystem: "rpc-client-api"
+architecture_tags:
+  - "verifier"
+  - "l1-confirmation-depth"
+  - "reorg-hardening"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "freshness"
+violated_invariant: "If verifier derivation is meant to avoid reorg-prone L1 tip data, it should be able to consume an L1 head that is delayed by a configurable confirmation depth rather than always using the freshest observed head. The provided evidence shows that behavior being added, but does not establish that violating it previously caused a concrete vulnerability."
+trust_boundary: "external chain or RPC data->node service"
+entrypoint_type: "external-state-ingestion"
+sensitive_sink: "selection of the external head consumed by derivation or verifier logic"
+
+attacker_capabilities:
+  - "control or influence the external transaction, batch, checkpoint, or state input consumed by the affected path"
+  - "reach the alternate, cached, or reconstructed path before a stronger downstream check rejects the input"
+exploit_preconditions:
+  - "the affected feature is enabled and reachable in production or operator workflows"
+  - "no downstream control fully revalidates the same canonical state, identity, or policy before the sink"
+blast_radius: "validator-local"
+
+impact_types:
+  - "reorg-exposure"
+  - "consensus-safety"
+severity_guess: "low"
+severity_rationale: "The finding improves a security-sensitive path, but the source mostly supports hardening or correctness rather than a demonstrated attacker-controlled exploit, so low is the safest reusable default."
+
+code_shape_summary: "The pre-change design did not have a separate verifier-specific confirmation-delay path in the shown head-forwarding logic; derivation received the newest observed L1 head directly. The patch introduces an optional delayed-fetch path, but the provided evidence does not prove that the earlier behavior was a vulnerability rather than a missing hardening control."
+search_motifs:
+  - "latest observed head is forwarded directly despite a configured confirmation-delay policy"
+  - "startup or wake-up logic trusts requested state before confirming the engine or source state is initialized"
+  - "policy values are logged or stored but not enforced consistently on downstream reads"
+negative_signals:
+  - "This supports consensus-safety hardening, not a proven vulnerability remediation."
+  - "The evidence does not support the original `rpc-client-api` or serialization-focused framing."
+  - "Do not claim confirmed attacker impact or exploitation from the provided patch alone."
+patch_pattern: "Add a separate confirmation-aware input path for verifier derivation while preserving immediate real-head visibility for other consumers, and instrument the new delayed-fetch behavior with metrics and tests."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260422-162106Z-base/raw-findings/2026-04-16-base-rpc-client-api-8f939340a.md"
+  - "git:8f939340a8dd7e4966b0e05ad9ba7ef265f5a320"
+  - "crates/consensus/service/src/actors/l1_watcher/actor.rs:372"
+  - "crates/consensus/service/src/actors/l1_watcher/actor.rs:196"
+  - "crates/consensus/service/src/metrics/mod.rs:45"
+  - "crates/consensus/service/src/actors/l1_watcher/actor.rs:169"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

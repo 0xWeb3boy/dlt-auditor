@@ -1,0 +1,21 @@
+id: "oasis-core-2024-05-11-oasis-core-core-logic-ddf51345a"
+source_record: "oasis-core-2024-05-11-oasis-core-core-logic-ddf51345a.yaml"
+project: "oasis-core"
+
+expected_bug_family: "checked_arithmetic_and_parameter_bounds"
+expected_bug_class: "integer-overflow"
+expected_missing_property: "arithmetic-bounds"
+
+expected_impact_band: "integrity_or_policy_enforcement"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Not a match if earlier invariants prove the operands stay far below the type bound in every reachable state."
+  - "Not a match if the arithmetic is already checked or saturating before the security-sensitive assignment."
+  - "Not a match if the patch only widens a type for convenience without changing any reachable overflow condition."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."
