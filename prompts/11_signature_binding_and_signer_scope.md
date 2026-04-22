@@ -22,10 +22,16 @@ Focus on:
 - query verification and proof-bearing responses
 - domain-specific or chain-specific signature contexts
 - verified wrappers that may be unpacked and reconstructed incorrectly
+- login, registration, session, or challenge-response flows where a nonce, challenge, token, or request identifier appears in both signed content and transport metadata
+- compatibility or legacy verification branches that reconstruct or hash a message shape different from what older clients actually signed
+- challenge or transcript construction that may omit a hash, commitment, version, mode, or selector that later governs the sensitive decision
 
 Search patterns:
 - Verify* calls followed by separate extraction of method, body, chain ID, domain ID, runtime ID, app ID, bridge ID, or signer role
+- code that verifies a signature over one payload but authorizes or dispatches based on parallel fields from headers, wrapper metadata, or side arguments
+- legacy or backward-compatibility paths that do not call the same canonical serializer or hashing routine as the main path
 - signature contexts that omit chain ID, app ID, runtime ID, domain ID, nonce, epoch, height, fork, or purpose
+- proof or transcript builders that bind part of an artifact while downstream verification or execution depends on additional detached identifiers or commitments
 - proof verification paths that are weaker for historical queries, latest-state queries, or bridge messages than for normal execution
 - verifier APIs returning `Result<bool, _>`, status enums, per-item outcomes, or indexed roots where callers may treat "no error" as success
 - proof or challenge flows where the protocol names one challenged root, index, query height, or hash but the code validates a batch, all roots, or the first invalid item

@@ -24,6 +24,9 @@ Your task:
 6. Search for policies enforced in signal, watcher, helper, or builder code but not in the provider, constructor, execution path, or storage write path that actually consumes the data.
 7. Search for decisions keyed by one protocol coordinate, index, root, nonce, height, or game state while the code validates a broader aggregate, a proxy, or the first mismatch.
 8. Produce at most 5 candidate findings, ranked by likelihood.
+9. Search for the same semantic value carried in two or more representations, where only one representation is validated, canonicalized, or trusted.
+10. Search compatibility, migration, mode-specific, and legacy branches for weaker hashing, version derivation, source selection, or verification behavior than the main path.
+11. Search for sinks that should recompute an identifier, hash, version, capability, or selector from authoritative parsed state, but instead trust a detached field, helper output, cache entry, proof-carried value, or caller-supplied metadata.
 
 For each candidate include:
 - Title

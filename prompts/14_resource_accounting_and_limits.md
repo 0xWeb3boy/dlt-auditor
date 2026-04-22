@@ -29,6 +29,7 @@ Search patterns:
 - admission checks done on raw transaction size instead of checked transaction weight, byte cost, proof cost, or resource units
 - queue insertion that can fail after validation but without mapping failure back to the originating tx
 - minimum or threshold parameters validated in one place but not enforced where the decision is made
+- relay, oracle, or scheduler paths that forward measured or observed values without final caps, floors, or sanity bounds at the submission sink
 - timeouts without semaphore caps, concurrency limits, or load shedding
 - accept loops or handlers that spawn per-connection or per-request work before acquiring admission permits
 - backlog growth controls that protect one ingress path but leave alternate RPC or publisher paths effectively unbounded

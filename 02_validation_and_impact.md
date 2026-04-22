@@ -28,6 +28,9 @@ For the candidate under review:
    - decision-scope alignment
    - enforcement at the actual sink
    - representation or encoding consistency
+   - duplicate-representation binding
+   - trusted artifact or config selection at verification time
+   - robust boundary validation
    - gas/resource/quota accounting
    - lifecycle cleanup
    - state-coordinate consistency

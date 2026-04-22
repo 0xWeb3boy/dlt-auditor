@@ -24,6 +24,7 @@ Focus on:
 
 Search patterns:
 - timeout or session fields that are cleared in finalize paths but not abort, reset, empty-block, retry, or redeploy paths
+- terminal success, verified, finalized, or already-committed states that block only some later updates instead of all downgrades, retries, duplicate submissions, or aggregate-state mutations
 - comments that refer to one coordinate while the code keys data by another
 - role-dependent thresholds routed through generic queues
 - state replacement that does not invalidate derived or cached state

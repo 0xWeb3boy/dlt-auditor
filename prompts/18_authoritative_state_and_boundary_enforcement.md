@@ -27,6 +27,9 @@ Search patterns:
 - local config accepted without checking live on-chain or canonical policy state
 - policy enforced in watcher, scheduler, helper, or builder code but not in the provider, executor, or writer that actually uses the data
 - duplicated constructors where one path applies a fork or policy gate and another builds the same object inline without it
+- raw, original, canonical, or node-authoritative artifacts being replaced by transformed, mirrored, decrypted, cached, helper-produced, or proof-carried equivalents before the sink
+- tooling or verification flows where caller-supplied or proof-supplied artifacts can override the locally trusted verifier, registry, config, or asset set
+- decisions that depend on externally defined values such as fee, pricing, registry, or policy signals, but use local recomputation or helper-derived values instead of the protocol-authoritative source
 - decisions based on proxy values like output-root equality, metadata hashes, request shape, or status flags instead of the authoritative state that defines correctness
 
 Questions to answer:
@@ -35,6 +38,7 @@ Questions to answer:
 3. Could cached or local state remain plausible after authoritative state changed?
 4. Is the rule enforced in every path that constructs or consumes the object?
 5. Is the code comparing the real governing state, or only a proxy for it?
+6. Is the code using the authoritative artifact or source at the actual sink, or only in an earlier watcher, helper, builder, or validation layer?
 
 Severity guidance:
 - Medium by default for stale-policy, stale-checkpoint, sink-coverage, and proxy-state bugs.
