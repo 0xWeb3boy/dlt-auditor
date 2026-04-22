@@ -1,0 +1,135 @@
+{
+  "repo": "/testing/scroll",
+  "repo_slug": "scroll",
+  "kept_dir": "/testing/scroll/validated-findings/kept",
+  "created_at_utc": "20260422-165556Z",
+  "finding_count": 14,
+  "findings": [
+    {
+      "id": "scroll-2023-03-27-scroll-storage-f26ab8b7",
+      "source": "/testing/scroll/validated-findings/kept/2023-03-27-scroll-storage-f26ab8b7.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "insecure-file-permissions",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "scroll-2023-08-05-scroll-transaction-processing-a98a2ff4",
+      "source": "/testing/scroll/validated-findings/kept/2023-08-05-scroll-transaction-processing-a98a2ff4.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "authentication-challenge-replay-protection",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "scroll-2023-08-18-scroll-transaction-processing-767a2cbf",
+      "source": "/testing/scroll/validated-findings/kept/2023-08-18-scroll-transaction-processing-767a2cbf.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "improper-state-transition",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "scroll-2024-04-12-scroll-transaction-processing-71f88b04",
+      "source": "/testing/scroll/validated-findings/kept/2024-04-12-scroll-transaction-processing-71f88b04.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "cryptographic-binding",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "scroll-2024-08-06-scroll-cryptography-72f88bae",
+      "source": "/testing/scroll/validated-findings/kept/2024-08-06-scroll-cryptography-72f88bae.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "signature-preimage-mismatch",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "scroll-2025-02-07-scroll-transaction-processing-794b92c8",
+      "source": "/testing/scroll/validated-findings/kept/2025-02-07-scroll-transaction-processing-794b92c8.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-compatibility-check",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "scroll-2025-07-02-scroll-rpc-client-api-adac0404",
+      "source": "/testing/scroll/validated-findings/kept/2025-07-02-scroll-rpc-client-api-adac0404.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "verifier-artifact-validation",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "scroll-2025-07-07-scroll-core-logic-1869e1c4",
+      "source": "/testing/scroll/validated-findings/kept/2025-07-07-scroll-core-logic-1869e1c4.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "input-validation",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "scroll-2025-07-07-scroll-core-logic-7f081d66",
+      "source": "/testing/scroll/validated-findings/kept/2025-07-07-scroll-core-logic-7f081d66.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "input-validation",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "scroll-2025-09-25-scroll-core-logic-b63e2473",
+      "source": "/testing/scroll/validated-findings/kept/2025-09-25-scroll-core-logic-b63e2473.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "verifier-configuration-mismatch",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "scroll-2025-09-26-scroll-transaction-processing-9c8782fc",
+      "source": "/testing/scroll/validated-findings/kept/2025-09-26-scroll-transaction-processing-9c8782fc.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "integrity-check-missing",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "scroll-2025-09-29-scroll-transaction-processing-09ef1ddb",
+      "source": "/testing/scroll/validated-findings/kept/2025-09-29-scroll-transaction-processing-09ef1ddb.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "canonical-input-selection",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "scroll-2025-11-11-scroll-storage-833a2f50",
+      "source": "/testing/scroll/validated-findings/kept/2025-11-11-scroll-storage-833a2f50.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "key-material-handling",
+      "subsystem": "storage",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "scroll-2025-11-28-scroll-transaction-processing-752e4e11",
+      "source": "/testing/scroll/validated-findings/kept/2025-11-28-scroll-transaction-processing-752e4e11.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "insufficient-fee-bounds",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    }
+  ]
+}

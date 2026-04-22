@@ -1,0 +1,21 @@
+id: "scroll-2024-04-12-scroll-transaction-processing-71f88b04"
+source_record: "scroll-2024-04-12-scroll-transaction-processing-71f88b04.yaml"
+project: "scroll"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "cryptographic-binding"
+expected_missing_property: "cryptographic-binding"
+
+expected_impact_band: "integrity_or_policy_enforcement"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "If the downstream verifier always recomputes and enforces the same canonical hash before accepting the proof, a similar omission may be non-exploitable."
+  - "Auxiliary refactors that only change return signatures are not enough; the real issue is whether the canonical hash reaches the challenge preimage."
+  - "The evidence supports cryptographic hardening, not a proven end-to-end acceptance flaw."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

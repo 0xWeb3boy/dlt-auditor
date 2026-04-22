@@ -1,0 +1,21 @@
+id: "scroll-2023-03-27-scroll-storage-f26ab8b7"
+source_record: "scroll-2023-03-27-scroll-storage-f26ab8b7.yaml"
+project: "scroll"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "insecure-file-permissions"
+expected_missing_property: "file-permission-hardening"
+
+expected_impact_band: "trust_or_policy_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "If the generated file contains only public test data and no privileged material, the case is usually just hygiene rather than security hardening."
+  - "If the file lives in an isolated ephemeral sandbox where no other principal can read it, the practical security impact is much lower."
+  - "Receiver renames or helper refactors in nearby files are not the core issue; the security-relevant part is the permission mode on the file write."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

@@ -1,0 +1,80 @@
+{
+  "source_manifest": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/manifest.json",
+  "repo": "/testing/scroll",
+  "bundle_root": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll",
+  "requested_workers": 6,
+  "effective_workers": 6,
+  "chunk_strategy": "balanced_greedy_v1",
+  "total_findings": 14,
+  "instruction_prompt": "/testing/dlt-ai-audit-system/03_enrich_corpus_import.md",
+  "workers": [
+    {
+      "worker_id": "worker-01",
+      "finding_count": 2,
+      "total_weight": 5,
+      "finding_ids": [
+        "scroll-2025-11-11-scroll-storage-833a2f50",
+        "scroll-2025-09-26-scroll-transaction-processing-9c8782fc"
+      ],
+      "assignment_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/parallel-enrichment/worker-01-assignment.json",
+      "prompt_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/parallel-enrichment/worker-01.md"
+    },
+    {
+      "worker_id": "worker-02",
+      "finding_count": 2,
+      "total_weight": 5,
+      "finding_ids": [
+        "scroll-2025-02-07-scroll-transaction-processing-794b92c8",
+        "scroll-2025-09-29-scroll-transaction-processing-09ef1ddb"
+      ],
+      "assignment_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/parallel-enrichment/worker-02-assignment.json",
+      "prompt_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/parallel-enrichment/worker-02.md"
+    },
+    {
+      "worker_id": "worker-03",
+      "finding_count": 3,
+      "total_weight": 6,
+      "finding_ids": [
+        "scroll-2023-08-05-scroll-transaction-processing-a98a2ff4",
+        "scroll-2025-07-02-scroll-rpc-client-api-adac0404",
+        "scroll-2025-11-28-scroll-transaction-processing-752e4e11"
+      ],
+      "assignment_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/parallel-enrichment/worker-03-assignment.json",
+      "prompt_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/parallel-enrichment/worker-03.md"
+    },
+    {
+      "worker_id": "worker-04",
+      "finding_count": 3,
+      "total_weight": 6,
+      "finding_ids": [
+        "scroll-2025-07-07-scroll-core-logic-1869e1c4",
+        "scroll-2023-03-27-scroll-storage-f26ab8b7",
+        "scroll-2024-08-06-scroll-cryptography-72f88bae"
+      ],
+      "assignment_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/parallel-enrichment/worker-04-assignment.json",
+      "prompt_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/parallel-enrichment/worker-04.md"
+    },
+    {
+      "worker_id": "worker-05",
+      "finding_count": 2,
+      "total_weight": 4,
+      "finding_ids": [
+        "scroll-2025-07-07-scroll-core-logic-7f081d66",
+        "scroll-2023-08-18-scroll-transaction-processing-767a2cbf"
+      ],
+      "assignment_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/parallel-enrichment/worker-05-assignment.json",
+      "prompt_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/parallel-enrichment/worker-05.md"
+    },
+    {
+      "worker_id": "worker-06",
+      "finding_count": 2,
+      "total_weight": 4,
+      "finding_ids": [
+        "scroll-2025-09-25-scroll-core-logic-b63e2473",
+        "scroll-2024-04-12-scroll-transaction-processing-71f88b04"
+      ],
+      "assignment_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/parallel-enrichment/worker-06-assignment.json",
+      "prompt_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/parallel-enrichment/worker-06.md"
+    }
+  ]
+}

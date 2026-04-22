@@ -1,0 +1,21 @@
+id: "scroll-2025-07-07-scroll-core-logic-1869e1c4"
+source_record: "scroll-2025-07-07-scroll-core-logic-1869e1c4.yaml"
+project: "scroll"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "input-validation"
+expected_missing_property: "canonical-input-normalization"
+
+expected_impact_band: "state_or_consensus_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "If only one canonical source of fork identity exists at runtime, a similar string-normalization change may be routine hygiene."
+  - "String cleanup alone is not enough; the security-relevant part is whether mismatches could reach fork-specific proving logic."
+  - "The evidence supports integrity hardening, not a demonstrated verifier bypass."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

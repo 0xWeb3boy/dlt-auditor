@@ -1,0 +1,63 @@
+id: "scroll-2024-08-06-scroll-cryptography-72f88bae"
+source_finding: "2024-08-06-scroll-cryptography-72f88bae.md"
+project: "scroll"
+date: "2024-08-06"
+language_tags:
+  - "go"
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "signature-preimage-mismatch"
+subsystem: "cryptography"
+architecture_tags:
+  - "coordinator"
+  - "auth"
+  - "legacy-compatibility"
+  - "signature-recovery"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+  - "eval_positive"
+
+missing_property: "signature-payload-consistency"
+violated_invariant: "Signer recovery for legacy and current login flows must hash the same canonical payload that the prover actually signed for that compatibility mode."
+trust_boundary: "legacy-prover->coordinator-auth-session"
+entrypoint_type: "session-setup"
+sensitive_sink: "public-key recovery used to authenticate a prover login"
+
+attacker_capabilities:
+  - "submit a legacy-compatible login payload that reaches the Curie recovery branch"
+  - "exploit mismatched hashing between the signed payload and the coordinator recovery logic"
+exploit_preconditions:
+  - "the coordinator reconstructs the wrong preimage for a legacy identity format"
+  - "the compatibility path remains enabled for accepted prover versions or deployments"
+blast_radius: "node-local"
+
+impact_types:
+  - "unauthorized-action"
+severity_guess: "medium"
+severity_rationale: "Signer-recovery mismatches in authentication code threaten trust and policy integrity, but the evidence does not prove forged logins or broad replay impact beyond the compatibility path."
+
+code_shape_summary: "The evidence supports a targeted compatibility fix in coordinator authentication: the legacy Curie public-key recovery path was changed to hash a dedicated legacy identity payload instead of the current Message object. That shows a signer-recovery mismatch, but the provided diff does not establish that this caused acceptance of forged logins, replay, or an authorization bypass."
+search_motifs:
+  - "signature recovery hashes a different struct than the one used for signing"
+  - "legacy compatibility branch rebuilds an identity payload separately from the canonical message type"
+  - "authentication code mixes current and legacy hash functions for the same public-key recovery decision"
+negative_signals:
+  - "If the legacy and current payloads serialize identically or the compatibility path is disabled, the practical risk drops sharply."
+  - "Message-shape cleanup alone is not enough; the important question is whether signer recovery and the prover signer bind to the same bytes."
+  - "The evidence supports a compatibility hardening fix, not a demonstrated forged-login exploit."
+patch_pattern: "Reconstruct the legacy identity payload explicitly in the compatibility branch and recover the signer from that canonical legacy preimage instead of the current message object."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/raw-findings/2024-08-06-scroll-cryptography-72f88bae.md"
+  - "git:72f88bae5e19566276490a783886b2420e037635"
+  - "coordinator/internal/types/auth.go:27"
+  - "coordinator/internal/types/auth.go:98"
+  - "common/version/version.go:6"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

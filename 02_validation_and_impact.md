@@ -24,6 +24,10 @@ For the candidate under review:
    - freshness
    - replay protection
    - policy/version/fork gating
+   - authoritative-state revalidation
+   - decision-scope alignment
+   - enforcement at the actual sink
+   - representation or encoding consistency
    - gas/resource/quota accounting
    - lifecycle cleanup
    - state-coordinate consistency

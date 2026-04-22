@@ -1,0 +1,65 @@
+id: "scroll-2025-07-02-scroll-rpc-client-api-adac0404"
+source_finding: "2025-07-02-scroll-rpc-client-api-adac0404.md"
+project: "scroll"
+date: "2025-07-02"
+language_tags:
+  - "go"
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "verifier-artifact-validation"
+subsystem: "rpc-client-api"
+architecture_tags:
+  - "verification-tooling"
+  - "proof-system"
+  - "artifact-bundles"
+  - "offchain-verifier"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+  - "eval_positive"
+
+missing_property: "verifier-artifact-selection"
+violated_invariant: "Proof verification tooling should pair each proof with the intended verification key and required verifier assets instead of silently accepting mismatched or incomplete local artifacts."
+trust_boundary: "operator-input->verification-tooling"
+entrypoint_type: "query-verification-path"
+sensitive_sink: "local proof verification result and exported verifier asset bundle"
+
+attacker_capabilities:
+  - "supply or select proof inputs and verification artifacts for an offline verification run"
+  - "cause the tool to compare against the wrong verification key or omit required verifier binaries"
+exploit_preconditions:
+  - "the verification tool trusts bundled or user-supplied artifacts without binding them to the selected proof type"
+  - "operators rely on the tool output or exported bundle when making downstream acceptance decisions"
+blast_radius: "client-local"
+
+impact_types:
+  - "stale-trust-state"
+severity_guess: "low"
+severity_rationale: "The visible impact is confined to off-chain verifier tooling correctness and asset packaging; the evidence does not show a production attack surface or on-chain acceptance flaw."
+
+code_shape_summary: "The visible patch fixes verifier-tool behavior around verification-key handling and bundle verifier asset export. It corrects an inverted equality check for chunk and batch proofs, forces the bundle path to use the locally selected verifier key, and copies `verifier.bin` during asset export. That is clearly a correctness or hardening change in proof-verification tooling, but the provided evidence does not establish an exploitable vulnerability, a production attack boundary, or any on-chain security impact."
+search_motifs:
+  - "inverted equality check around verification key bytes"
+  - "verification tool copies or selects verifier assets from the wrong source bundle"
+  - "proof verification path uses one artifact set while export path omits the required verifier binary"
+negative_signals:
+  - "If the tooling is purely local and not used as a policy gate, a similar mismatch may remain a correctness issue rather than security hardening."
+  - "Changing file-copy behavior alone is not enough; the security-relevant part is binding the correct verification key and verifier binary to the proof path."
+  - "The evidence supports tool hardening, not a demonstrated production verifier bypass."
+patch_pattern: "Bind verification runs to the selected verification key, fix inverted artifact-consistency checks, and export the verifier binary required by the chosen proof path."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/raw-findings/2025-07-02-scroll-rpc-client-api-adac0404.md"
+  - "git:adac0404a03362600ca1c630cad5b434c236ad1b"
+  - "coordinator/cmd/tool/verify.go:95"
+  - "crates/prover-bin/src/prover.rs:226"
+  - "coordinator/cmd/tool/verify.go:54"
+  - "coordinator/cmd/tool/verify.go:75"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

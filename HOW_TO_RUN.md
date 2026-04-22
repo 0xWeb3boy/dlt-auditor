@@ -56,6 +56,19 @@ Unless you set `--parallel-workers 1`, it also prepares `parallel-enrichment/` i
 
 After that, use [03_enrich_corpus_import.md](/testing/dlt-ai-audit-system/03_enrich_corpus_import.md) to turn the stubs into higher-quality corpus artifacts.
 
+## Prompt Refinement Workflow
+
+If the source repo already has `validated-findings/kept` and you want to improve the reusable prompt pack rather than just ingest the corpus, use [04_refine_prompt_pack_from_findings.md](/testing/dlt-ai-audit-system/04_refine_prompt_pack_from_findings.md).
+
+That workflow asks the agent to:
+
+- analyze the confirmed findings in repo context,
+- extract reusable hunt recipes,
+- cluster them by failure mechanism,
+- compare those clusters to the current prompt pack,
+- refine existing prompts where possible,
+- and add a new family prompt only when the mechanism is distinct enough to justify it.
+
 ## Multi-Agent Workflow
 
 1. A lead agent fills `repo-context.md`.

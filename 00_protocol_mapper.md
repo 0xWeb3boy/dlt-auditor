@@ -31,6 +31,8 @@ Your task:
 3. List the signed, authenticated, or proof-bearing artifacts and what they are supposed to bind.
 4. List the major lifecycle or state machines.
 5. List places where policy, version, fork, or feature gates are expected.
+6. List the authoritative sources of truth for policy, checkpoints, historical state, fork activation, and head/safe/finalized positions. Distinguish them from caches, local config, watch channels, mirrors, and derived summaries.
+7. For each major security decision, note the observation layer and the enforcement layer. Call out any watcher, helper, builder, provider, executor, or storage-writer split.
 6. Identify the subsystems where a missing authorization, missing signature binding, missing gas or quota charge, stale state cleanup, or unchecked arithmetic bug would be most dangerous.
 
 Output format:

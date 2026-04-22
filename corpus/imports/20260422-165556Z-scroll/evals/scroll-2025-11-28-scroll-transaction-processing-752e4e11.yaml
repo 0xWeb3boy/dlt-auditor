@@ -1,0 +1,21 @@
+id: "scroll-2025-11-28-scroll-transaction-processing-752e4e11"
+source_record: "scroll-2025-11-28-scroll-transaction-processing-752e4e11.yaml"
+project: "scroll"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "insufficient-fee-bounds"
+expected_missing_property: "canonical-fee-sourcing-and-bounds"
+
+expected_impact_band: "integrity_or_policy_enforcement"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "If downstream contracts or nodes always clamp fee inputs to the same canonical bounds, a similar local fix may be mostly robustness work."
+  - "Metric or logging changes around fees are not the core signal; the key issue is canonical fee sourcing plus upper bounds before relay."
+  - "The evidence supports fee-path hardening, not a proven exploitable overflow."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

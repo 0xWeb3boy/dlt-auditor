@@ -21,6 +21,7 @@ Prioritize:
 - simulation or estimation flows
 - bridge or batch processing handlers
 - quota, rate-limit, and spam-protection code
+- RPC, WebSocket, admin, query, publish, and session-setup ingress
 
 Search patterns:
 - handlers that start with state reads, runtime lookups, proof parsing, or validation before UseGas or an equivalent charge
@@ -28,6 +29,9 @@ Search patterns:
 - admission checks done on raw transaction size instead of checked transaction weight, byte cost, proof cost, or resource units
 - queue insertion that can fail after validation but without mapping failure back to the originating tx
 - minimum or threshold parameters validated in one place but not enforced where the decision is made
+- timeouts without semaphore caps, concurrency limits, or load shedding
+- accept loops or handlers that spawn per-connection or per-request work before acquiring admission permits
+- backlog growth controls that protect one ingress path but leave alternate RPC or publisher paths effectively unbounded
 
 Questions to answer:
 1. What resource is the protocol trying to meter: gas, fees, bytes, weight, queue slots, proving budget, bridge capacity, committee size, or sender concurrency?
@@ -35,6 +39,7 @@ Questions to answer:
 3. Is there a path that performs meaningful work before that point?
 4. Does simulation use the same accounting path as live execution?
 5. Are errors propagated back to the correct transaction and caller?
+6. Are front-door services bounded before expensive handshake, parsing, or per-client task creation?
 
 Severity guidance:
 - Medium by default for DoS, fee bypass, and resource exhaustion.

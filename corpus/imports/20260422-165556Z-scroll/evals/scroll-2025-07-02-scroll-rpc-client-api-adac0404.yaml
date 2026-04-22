@@ -1,0 +1,21 @@
+id: "scroll-2025-07-02-scroll-rpc-client-api-adac0404"
+source_record: "scroll-2025-07-02-scroll-rpc-client-api-adac0404.yaml"
+project: "scroll"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "verifier-artifact-validation"
+expected_missing_property: "verifier-artifact-selection"
+
+expected_impact_band: "integrity_or_policy_enforcement"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "If the tooling is purely local and not used as a policy gate, a similar mismatch may remain a correctness issue rather than security hardening."
+  - "Changing file-copy behavior alone is not enough; the security-relevant part is binding the correct verification key and verifier binary to the proof path."
+  - "The evidence supports tool hardening, not a demonstrated production verifier bypass."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

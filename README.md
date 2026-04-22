@@ -63,6 +63,7 @@ The prompt files are organized by recurring issue family instead of one file per
 - `prompts/15_state_machine_and_lifecycle_consistency.md`
 - `prompts/16_staking_registry_and_accountability.md`
 - `prompts/17_checked_arithmetic_and_parameter_bounds.md`
+- `prompts/18_authoritative_state_and_boundary_enforcement.md`
 
 ## Intermediate Artifacts
 
@@ -138,3 +139,45 @@ If you want a different worker count, use:
 ```
 
 That will create a timestamped import bundle under `corpus/imports/` with raw copies, record stubs, retrieval-card stubs, eval stubs, and an import summary. Unless you set `--parallel-workers 1`, it also creates a `parallel-enrichment/` plan inside the bundle with `worker-XX.md` prompts, `worker-XX-assignment.json` ownership files, `worker-XX-findings.txt` lists, and a manifest for multi-agent `03_enrich` runs.
+
+### How To Run `03_enrich`
+
+You will often start from the source repo that contains `validated-findings/kept`, not from a bundle path you already know.
+
+Use an instruction like:
+
+```text
+Run the dlt-ai-audit-system corpus pipeline on /path/to/target-repo.
+
+Prepare the import bundle from validated-findings/kept and then enrich the generated records, cards, and evals.
+
+Use /testing/dlt-ai-audit-system/bin/prepare-corpus-from-repo /path/to/target-repo to create the bundle under /testing/dlt-ai-audit-system/corpus/imports/.
+Then use /testing/dlt-ai-audit-system/03_enrich_corpus_import.md on the newly created import bundle.
+
+Read the bundle's SUMMARY.md, raw-findings/, records/, cards/, and evals/ folders.
+If parallel-enrichment/ exists, follow the worker prompt and assignment files and only edit the files assigned to this worker.
+```
+
+In practice, this produces a timestamped import bundle under `corpus/imports/`, for example:
+
+```text
+/testing/dlt-ai-audit-system/corpus/imports/20260422-162106Z-base
+```
+
+## Prompt Pack Refinement
+
+If you want to improve the reusable runtime prompts using a repo that already has confirmed findings under `validated-findings/kept`, use [04_refine_prompt_pack_from_findings.md](/testing/dlt-ai-audit-system/04_refine_prompt_pack_from_findings.md).
+
+That workflow is intentionally stricter than "one prompt per finding". Its goal is to derive family-level hunt logic from real findings, compare that against the current prompt pack, refine existing prompts where possible, and add new prompt families only when the mechanism is genuinely distinct and portable.
+
+### How To Run `04_refine`
+
+Use an instruction like:
+
+```text
+Use /testing/dlt-ai-audit-system/04_refine_prompt_pack_from_findings.md.
+
+The target repo is /path/to/target-repo.
+Analyze its validated-findings/kept folder in repo context.
+Then compare what you learn against /testing/dlt-ai-audit-system and propose concrete prompt-pack improvements.
+```

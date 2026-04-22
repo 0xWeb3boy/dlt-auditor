@@ -1,0 +1,21 @@
+id: "scroll-2025-07-07-scroll-core-logic-7f081d66"
+source_record: "scroll-2025-07-07-scroll-core-logic-7f081d66.yaml"
+project: "scroll"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "input-validation"
+expected_missing_property: "canonical-input-normalization"
+
+expected_impact_band: "state_or_consensus_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "If the duplicated field is never attacker-controlled or never diverges semantically, a similar cleanup may be lower value."
+  - "The important signal is not string normalization alone, but the added rejection of mismatched fork identity before task construction."
+  - "The evidence supports consistency hardening, not a demonstrated acceptance of malformed proofs."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

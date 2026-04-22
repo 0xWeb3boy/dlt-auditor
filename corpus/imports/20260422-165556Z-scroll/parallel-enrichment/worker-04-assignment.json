@@ -1,0 +1,48 @@
+{
+  "worker_id": "worker-04",
+  "worker_index": 4,
+  "effective_workers": 6,
+  "bundle_root": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll",
+  "instruction_prompt": "/testing/dlt-ai-audit-system/03_enrich_corpus_import.md",
+  "assigned_findings": [
+    {
+      "id": "scroll-2025-07-07-scroll-core-logic-1869e1c4",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "input-validation",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "raw_finding_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/raw-findings/2025-07-07-scroll-core-logic-1869e1c4.md",
+      "record_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/records/scroll-2025-07-07-scroll-core-logic-1869e1c4.yaml",
+      "root_cause_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/cards/root-cause/scroll-2025-07-07-scroll-core-logic-1869e1c4.md",
+      "code_shape_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/cards/code-shape/scroll-2025-07-07-scroll-core-logic-1869e1c4.md",
+      "validation_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/cards/validation/scroll-2025-07-07-scroll-core-logic-1869e1c4.md",
+      "eval_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/evals/scroll-2025-07-07-scroll-core-logic-1869e1c4.yaml"
+    },
+    {
+      "id": "scroll-2023-03-27-scroll-storage-f26ab8b7",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "insecure-file-permissions",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "raw_finding_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/raw-findings/2023-03-27-scroll-storage-f26ab8b7.md",
+      "record_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/records/scroll-2023-03-27-scroll-storage-f26ab8b7.yaml",
+      "root_cause_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/cards/root-cause/scroll-2023-03-27-scroll-storage-f26ab8b7.md",
+      "code_shape_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/cards/code-shape/scroll-2023-03-27-scroll-storage-f26ab8b7.md",
+      "validation_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/cards/validation/scroll-2023-03-27-scroll-storage-f26ab8b7.md",
+      "eval_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/evals/scroll-2023-03-27-scroll-storage-f26ab8b7.yaml"
+    },
+    {
+      "id": "scroll-2024-08-06-scroll-cryptography-72f88bae",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "signature-preimage-mismatch",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "raw_finding_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/raw-findings/2024-08-06-scroll-cryptography-72f88bae.md",
+      "record_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/records/scroll-2024-08-06-scroll-cryptography-72f88bae.yaml",
+      "root_cause_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/cards/root-cause/scroll-2024-08-06-scroll-cryptography-72f88bae.md",
+      "code_shape_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/cards/code-shape/scroll-2024-08-06-scroll-cryptography-72f88bae.md",
+      "validation_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/cards/validation/scroll-2024-08-06-scroll-cryptography-72f88bae.md",
+      "eval_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/evals/scroll-2024-08-06-scroll-cryptography-72f88bae.yaml"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+id: "scroll-2024-08-06-scroll-cryptography-72f88bae"
+source_record: "scroll-2024-08-06-scroll-cryptography-72f88bae.yaml"
+project: "scroll"
+
+expected_bug_family: "signature_binding_and_signer_scope"
+expected_bug_class: "signature-preimage-mismatch"
+expected_missing_property: "signature-payload-consistency"
+
+expected_impact_band: "trust_or_policy_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "If the legacy and current payloads serialize identically or the compatibility path is disabled, the practical risk drops sharply."
+  - "Message-shape cleanup alone is not enough; the important question is whether signer recovery and the prover signer bind to the same bytes."
+  - "The evidence supports a compatibility hardening fix, not a demonstrated forged-login exploit."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

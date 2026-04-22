@@ -1,0 +1,65 @@
+id: "scroll-2025-09-26-scroll-transaction-processing-9c8782fc"
+source_finding: "2025-09-26-scroll-transaction-processing-9c8782fc.md"
+project: "scroll"
+date: "2025-09-26"
+language_tags:
+  - "go"
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "integrity-check-missing"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "validium"
+  - "coordinator"
+  - "prover-task"
+  - "header-integrity"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+  - "eval_positive"
+
+missing_property: "header-hash-consistency"
+violated_invariant: "Validium batch proving tasks should carry a canonical batch header whose recomputed hash matches the stored batch identity before proving proceeds."
+trust_boundary: "coordinator-db-state->prover-task"
+entrypoint_type: "state-transition"
+sensitive_sink: "batch proving task accepted into the validium proving pipeline"
+
+attacker_capabilities:
+  - "cause inconsistent batch-header state to be serialized into a proving task"
+  - "trigger validium batch proving on a task whose stored hash and reconstructed header diverge"
+exploit_preconditions:
+  - "the validium path lacks explicit canonical header construction or recomputed-hash sanity checking"
+  - "the proving pipeline trusts stored header identity before rederiving it from the header content"
+blast_radius: "chain-wide"
+
+impact_types:
+  - "state-integrity"
+severity_guess: "medium"
+severity_rationale: "The fix protects internal proof-pipeline integrity for validium batch tasks; while external attacker control is not proven, accepting inconsistent batch-header state would be security-relevant in a proving system."
+
+code_shape_summary: "The provided evidence supports a validium-task correctness fix, not a proven vulnerability fix. The coordinator now explicitly constructs a validium batch header for batch tasks, and the prover now sanity-checks that the header's recomputed hash matches the stored hash. That is an internal integrity/correctness improvement in the proving pipeline, but the snippets do not establish external attacker control or a concrete security impact."
+search_motifs:
+  - "task builder uses stored batch hash without reconstructing or validating canonical header bytes"
+  - "validium-specific proving path diverges from canonical batch-header construction"
+  - "prover adds recomputed-hash sanity check after task detail grows a new header field"
+negative_signals:
+  - "If downstream verification always recomputes and binds the same header hash, a similar task-building bug may remain a correctness-only issue."
+  - "Header-serialization refactors are not enough; the real signal is whether the stored hash and canonical header can diverge before proving."
+  - "The evidence supports integrity hardening, not a demonstrated forged-batch exploit."
+patch_pattern: "Construct the validium batch header explicitly in the coordinator and reject tasks in the prover when the recomputed header hash differs from the stored batch identity."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/raw-findings/2025-09-26-scroll-transaction-processing-9c8782fc.md"
+  - "git:9c8782fc1283ce95b7406039bbb621606b8a9044"
+  - "coordinator/internal/logic/provertask/batch_prover_task.go:344"
+  - "crates/libzkp/src/tasks/batch.rs:205"
+  - "coordinator/internal/logic/provertask/batch_prover_task.go:317"
+  - "coordinator/internal/logic/provertask/prover_task.go:68"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

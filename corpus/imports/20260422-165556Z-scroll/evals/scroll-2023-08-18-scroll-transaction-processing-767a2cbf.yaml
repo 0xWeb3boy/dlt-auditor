@@ -1,0 +1,21 @@
+id: "scroll-2023-08-18-scroll-transaction-processing-767a2cbf"
+source_record: "scroll-2023-08-18-scroll-transaction-processing-767a2cbf.yaml"
+project: "scroll"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "improper-state-transition"
+expected_missing_property: "terminal-state-enforcement"
+
+expected_impact_band: "state_or_consensus_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "If later status messages are append-only telemetry and cannot alter the canonical task status, a similar pattern may be benign."
+  - "If the state transition is wrapped in a stronger idempotency guard or compare-and-swap on terminal status, the downgrade risk is lower."
+  - "The evidence supports lifecycle integrity hardening, not a demonstrated proof-verification bypass."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

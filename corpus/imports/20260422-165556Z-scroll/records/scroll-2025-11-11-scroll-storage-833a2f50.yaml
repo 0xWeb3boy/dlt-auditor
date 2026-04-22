@@ -1,0 +1,65 @@
+id: "scroll-2025-11-11-scroll-storage-833a2f50"
+source_finding: "2025-11-11-scroll-storage-833a2f50.md"
+project: "scroll"
+date: "2025-11-11"
+language_tags:
+  - "go"
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "key-material-handling"
+subsystem: "storage"
+architecture_tags:
+  - "validium"
+  - "ffi"
+  - "key-material"
+  - "unsafe-boundary"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+  - "eval_positive"
+
+missing_property: "secret-handling-and-checked-length-validation"
+violated_invariant: "Proof metadata that contains decryption material should never be logged in plaintext, and unsafe FFI entrypoints must reject malformed key lengths with ordinary errors rather than panicking."
+trust_boundary: "proof-metadata->ffi-boundary"
+entrypoint_type: "state-transition"
+sensitive_sink: "native proof parsing and logging of validium key material"
+
+attacker_capabilities:
+  - "supply malformed proof metadata or buffers that reach the unsafe FFI entrypoint"
+  - "cause proof-processing code to emit logs containing encryption or decryption key material"
+exploit_preconditions:
+  - "the validium proof path reaches an unsafe extern boundary with attacker-influenced key length data"
+  - "logs are observable by operators or systems that should not receive raw key material"
+blast_radius: "node-local"
+
+impact_types:
+  - "privileged-disclosure"
+  - "denial-of-service"
+severity_guess: "medium"
+severity_rationale: "The finding combines sensitive-key disclosure and panic-on-bad-input at an unsafe boundary. Even without a proven exploit, both behaviors are meaningful security hardening targets in a proof-processing path."
+
+code_shape_summary: "The provided evidence supports a likely security-hardening change in the validium proof path. The patch removes logging of `chunkProof.MetaData.ChunkInfo.EncryptionKey` and replaces an `assert_eq!` on `decryption_key_len` in an `unsafe extern \"C\"` entrypoint with explicit validation and a failure return. The `codec_validium.go` schema change is adjacent protocol work, but the supplied evidence does not establish it as a proven vulnerability fix."
+search_motifs:
+  - "logging raw encryption or decryption keys from proof metadata"
+  - "assert_eq or panic-style length check inside unsafe extern or FFI entrypoint"
+  - "unsafe proof-decoding boundary converts malformed input into process abort instead of explicit error"
+negative_signals:
+  - "If the logged key material is guaranteed synthetic test data and never present in production, a similar log line may be less significant."
+  - "Defensive bounds checks elsewhere do not fully cure the issue when the unsafe entrypoint still panics on malformed lengths."
+  - "The evidence supports strong hardening around secrets and FFI robustness, not a proven catastrophic exploit chain."
+patch_pattern: "Remove plaintext key-material logging and replace panic-based length assertions at the unsafe boundary with explicit validation and error returns."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/raw-findings/2025-11-11-scroll-storage-833a2f50.md"
+  - "git:833a2f50a5e3fa8063b8c02b321bb9e1606f0f57"
+  - "crates/libzkp_c/src/lib.rs:160"
+  - "coordinator/internal/utils/codec_validium.go:19"
+  - "coordinator/internal/logic/submitproof/proof_receiver.go:220"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: confirmed / security-hardening."

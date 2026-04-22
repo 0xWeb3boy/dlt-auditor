@@ -29,6 +29,10 @@ Search patterns:
 - debug flags accepted without an explicit unsafe-mode acknowledgement
 - helper functions that sanitize after state construction instead of rejecting bad input early
 - policy fields accepted before the feature version or fork that defines them
+- metadata or derived-hash proxies used instead of the actual artifact bytes, bytecode, recovered sender, stored sequence, or canonical parsed object
+- duplicate parsers or encoders that reconstruct the same semantics in multiple places instead of one canonical path
+- variable-length lists, blob streams, or nested objects that are consumed without asserting exact count, exact byte use, or no leftovers
+- state updates that derive the next value from request fields without first reading and comparing the current authoritative stored value
 
 Questions to answer:
 1. What structural invariants does the protocol require?
@@ -36,6 +40,8 @@ Questions to answer:
 3. Can malformed data panic a later helper instead of being rejected at decode time?
 4. Does the path validate all advertised versions and members, or only one?
 5. Are proposals, capabilities, secrets, or checkpoints scoped to the correct chain, domain, generation, epoch, or handoff context?
+6. Is the code validating the real artifact, or only a proxy for it?
+7. Does every consumer assert exact consumption and exact structural bounds, or can extra or mismatched data survive validation?
 
 Severity guidance:
 - High if bad validation can corrupt privileged committee, validator, bridge, prover, or secret-management behavior.

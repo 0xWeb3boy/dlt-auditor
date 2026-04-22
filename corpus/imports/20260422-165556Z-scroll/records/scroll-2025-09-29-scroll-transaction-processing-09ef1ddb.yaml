@@ -1,0 +1,64 @@
+id: "scroll-2025-09-29-scroll-transaction-processing-09ef1ddb"
+source_finding: "2025-09-29-scroll-transaction-processing-09ef1ddb.md"
+project: "scroll"
+date: "2025-09-29"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "canonical-input-selection"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "rollup"
+  - "validium"
+  - "watcher"
+  - "cross-domain-messages"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+  - "eval_positive"
+
+missing_property: "canonical-input-selection"
+violated_invariant: "Watcher logic should derive validium message state from the authoritative transaction set attached to the observed block rather than from reconstructed or stale auxiliary sources."
+trust_boundary: "chain-data->watcher-state-derivation"
+entrypoint_type: "state-transition"
+sensitive_sink: "derived cross-domain message state persisted or forwarded by the watcher"
+
+attacker_capabilities:
+  - "trigger watcher processing on validium blocks where canonical transaction sourcing matters for later message handling"
+  - "benefit from divergence between block-attached transactions and an alternate lookup path"
+exploit_preconditions:
+  - "the watcher re-sources transactions from a noncanonical path instead of the authoritative block transaction list"
+  - "later message derivation assumes the sourced transactions are canonical for the observed block"
+blast_radius: "chain-wide"
+
+impact_types:
+  - "state-integrity"
+severity_guess: "medium"
+severity_rationale: "The issue concerns canonical state derivation in a watcher path; the evidence does not prove exploitation, but noncanonical input selection in cross-domain message processing is worth keeping as a safety exemplar."
+
+code_shape_summary: "The evidence supports a validium-specific correctness fix in how the watcher sources L1 message transactions before later processing. It does not, by itself, establish a vulnerability, exploit path, or concrete security impact, so the strongest justified classification is unclear rather than confirmed security."
+search_motifs:
+  - "watcher re-queries transactions instead of consuming the transaction list already attached to the block"
+  - "validium-specific path selects auxiliary data source rather than canonical observed input"
+  - "patch introduces local blockTxs variable or original transaction source comment before later message processing"
+negative_signals:
+  - "If the alternate query path is guaranteed to return the exact same canonical transactions in the same order, a similar refactor may be less meaningful."
+  - "The interesting signal is not variable renaming but the move to the authoritative transaction source for subsequent processing."
+  - "The evidence supports watcher integrity hardening, not a demonstrated bridge exploit."
+patch_pattern: "Thread the authoritative transaction set from the observed block through validium watcher processing instead of reconstructing message inputs from an alternate source."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/raw-findings/2025-09-29-scroll-transaction-processing-09ef1ddb.md"
+  - "git:09ef1ddb5c6b4b7dd76015ec5c8eacb8f8eb638d"
+  - "rollup/internal/controller/watcher/l2_watcher.go:112"
+  - "rollup/internal/controller/watcher/l2_watcher.go:102"
+  - "rollup/internal/controller/watcher/l2_watcher.go:43"
+  - "rollup/cmd/rollup_relayer/app/app.go:112"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

@@ -1,0 +1,65 @@
+id: "scroll-2025-11-28-scroll-transaction-processing-752e4e11"
+source_finding: "2025-11-28-scroll-transaction-processing-752e4e11.md"
+project: "scroll"
+date: "2025-11-28"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "insufficient-fee-bounds"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "rollup"
+  - "fee-oracle"
+  - "sender"
+  - "blob-fees"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+  - "eval_positive"
+
+missing_property: "canonical-fee-sourcing-and-bounds"
+violated_invariant: "Fee relay and oracle update paths should source blob base fee from the canonical L1 node view and cap propagated fee values before relaying them onward."
+trust_boundary: "l1-chain-state->fee-relay-transaction"
+entrypoint_type: "transaction-handler"
+sensitive_sink: "relayed gas-oracle or fee-update transaction sent to L1/L2 components"
+
+attacker_capabilities:
+  - "trigger fee relay or gas-oracle update paths under blob-fee conditions that stress local fee calculations"
+  - "benefit from divergence between local blob fee computation and the canonical node-sourced value or from uncapped propagated fee values"
+exploit_preconditions:
+  - "the relayer or watcher computes blob fee locally instead of trusting the canonical node result"
+  - "fee values flow into transactions or oracle updates without upper-bound checks"
+blast_radius: "chain-wide"
+
+impact_types:
+  - "policy-bypass"
+  - "denial-of-service"
+severity_guess: "medium"
+severity_rationale: "Incorrect or unbounded fee propagation can destabilize sender and oracle behavior in a chain-wide path, but the evidence supports correctness and liveness hardening more strongly than a confirmed overflow exploit."
+
+code_shape_summary: "The patch is security-relevant in theme but not established as a vulnerability fix by the provided evidence. What is directly supported is that the code stopped computing blob base fee locally, switched to querying the L1 node for that value, and added configured caps before relaying fee updates. That is stronger evidence for fee-correctness and liveness hardening than for a confirmed exploitable overflow bug."
+search_motifs:
+  - "local recomputation of canonical chain fee values instead of querying the node"
+  - "same fee calculation duplicated across sender, watcher, and relayer paths"
+  - "patch adds configured caps before packing or relaying fee update calldata"
+negative_signals:
+  - "If downstream contracts or nodes always clamp fee inputs to the same canonical bounds, a similar local fix may be mostly robustness work."
+  - "Metric or logging changes around fees are not the core signal; the key issue is canonical fee sourcing plus upper bounds before relay."
+  - "The evidence supports fee-path hardening, not a proven exploitable overflow."
+patch_pattern: "Stop computing blob fee locally, query the canonical node for the authoritative value, and cap relayed fee parameters before constructing outbound transactions."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/raw-findings/2025-11-28-scroll-transaction-processing-752e4e11.md"
+  - "git:752e4e1117d7040dd290632846f789b42afac9f2"
+  - "rollup/internal/controller/sender/sender.go:844"
+  - "rollup/internal/controller/watcher/l1_watcher.go:85"
+  - "rollup/internal/controller/relayer/l1_relayer.go:174"
+  - "rollup/cmd/gas_oracle/app/app.go:67"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

@@ -1,0 +1,64 @@
+id: "scroll-2025-02-07-scroll-transaction-processing-794b92c8"
+source_finding: "2025-02-07-scroll-transaction-processing-794b92c8.md"
+project: "scroll"
+date: "2025-02-07"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "missing-compatibility-check"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "coordinator"
+  - "prover"
+  - "fork-management"
+  - "task-assignment"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+  - "eval_positive"
+
+missing_property: "capability-gating"
+violated_invariant: "The coordinator should assign proving tasks only to provers that explicitly advertise compatibility with the task's required hard fork."
+trust_boundary: "coordinator-scheduler->prover-task-assignment"
+entrypoint_type: "registration-path"
+sensitive_sink: "dispatch of hard-fork-specific proving work to a selected prover"
+
+attacker_capabilities:
+  - "register or appear as a prover without supporting the hard fork required by a task"
+  - "reach any of the chunk, batch, or bundle assignment paths before compatibility is rechecked downstream"
+exploit_preconditions:
+  - "the assignment path ignores the prover capability map or leaves the compatibility gate commented out"
+  - "mismatched proving work can progress far enough to waste resources or create inconsistent pipeline state"
+blast_radius: "chain-wide"
+
+impact_types:
+  - "state-integrity"
+  - "denial-of-service"
+severity_guess: "medium"
+severity_rationale: "Hard-fork mismatch in prover assignment threatens proof-pipeline integrity and can cause systemic wasted work or invalid task routing, but the evidence supports restored safety gating rather than a confirmed exploit."
+
+code_shape_summary: "The patch re-enables a fork-compatibility check in three prover-task assignment paths. The evidence shows the coordinator previously had this guard commented out and now rejects assignment when the prover does not advertise support for the task's required hard fork. That establishes a real correctness and safety check was restored, but the provided material does not prove a concrete security vulnerability or downstream acceptance of invalid proofs."
+search_motifs:
+  - "compatibility check exists but is commented out in task assignment paths"
+  - "hard fork name available in task context but not enforced against prover capabilities"
+  - "multiple assignment paths duplicate capability gating and one or more silently skip it"
+negative_signals:
+  - "If downstream verifiers or provers reject mismatched tasks before any stateful effect, similar bugs may be operational rather than security-relevant."
+  - "Presence of a capability map alone is not enough; the key issue is whether every assignment path enforces it before dispatch."
+  - "The evidence supports safety gating restoration, not a demonstrated invalid-proof acceptance bug."
+patch_pattern: "Restore fail-closed hard-fork capability checks in every prover-task assignment path before dispatching chunk, batch, or bundle work."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/raw-findings/2025-02-07-scroll-transaction-processing-794b92c8.md"
+  - "git:794b92c800bf867a96dadc118f8e33938f5fbd43"
+  - "coordinator/internal/logic/provertask/chunk_prover_task.go:143"
+  - "coordinator/internal/logic/provertask/bundle_prover_task.go:145"
+  - "coordinator/internal/logic/provertask/batch_prover_task.go:145"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: confirmed / security-hardening."

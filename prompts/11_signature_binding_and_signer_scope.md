@@ -27,6 +27,9 @@ Search patterns:
 - Verify* calls followed by separate extraction of method, body, chain ID, domain ID, runtime ID, app ID, bridge ID, or signer role
 - signature contexts that omit chain ID, app ID, runtime ID, domain ID, nonce, epoch, height, fork, or purpose
 - proof verification paths that are weaker for historical queries, latest-state queries, or bridge messages than for normal execution
+- verifier APIs returning `Result<bool, _>`, status enums, per-item outcomes, or indexed roots where callers may treat "no error" as success
+- proof or challenge flows where the protocol names one challenged root, index, query height, or hash but the code validates a batch, all roots, or the first invalid item
+- enum-based verification branches where one proof type recomputes and compares expected output but another only parses or looks up helper data
 - wrappers that deserialize twice or carry typed values instead of raw authenticated bytes
 - code that checks signer public key equality but not signer membership in the active authorized role set
 - multisig validation that accepts "a signer" instead of "the required signers"
@@ -37,6 +40,8 @@ Questions to answer:
 3. Is cryptographic validity separated from signer authorization?
 4. Could a valid signature or proof from one chain, runtime, committee, bridge domain, or context be replayed in another?
 5. Are historical queries and latest-state queries verified by equally strong paths?
+6. Does the caller require explicit semantic success from the verifier, or only absence of an API error?
+7. Is the code validating the exact challenged or indexed object that governs the decision?
 
 Severity guidance:
 - High for signer-authorization gaps, registration-signature gaps, bridge or validator signature binding failures, or domain-separation failures in consensus-sensitive paths.

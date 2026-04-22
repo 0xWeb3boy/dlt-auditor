@@ -1,0 +1,35 @@
+{
+  "worker_id": "worker-05",
+  "worker_index": 5,
+  "effective_workers": 6,
+  "bundle_root": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll",
+  "instruction_prompt": "/testing/dlt-ai-audit-system/03_enrich_corpus_import.md",
+  "assigned_findings": [
+    {
+      "id": "scroll-2025-07-07-scroll-core-logic-7f081d66",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "input-validation",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "raw_finding_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/raw-findings/2025-07-07-scroll-core-logic-7f081d66.md",
+      "record_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/records/scroll-2025-07-07-scroll-core-logic-7f081d66.yaml",
+      "root_cause_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/cards/root-cause/scroll-2025-07-07-scroll-core-logic-7f081d66.md",
+      "code_shape_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/cards/code-shape/scroll-2025-07-07-scroll-core-logic-7f081d66.md",
+      "validation_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/cards/validation/scroll-2025-07-07-scroll-core-logic-7f081d66.md",
+      "eval_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/evals/scroll-2025-07-07-scroll-core-logic-7f081d66.yaml"
+    },
+    {
+      "id": "scroll-2023-08-18-scroll-transaction-processing-767a2cbf",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "improper-state-transition",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "raw_finding_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/raw-findings/2023-08-18-scroll-transaction-processing-767a2cbf.md",
+      "record_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/records/scroll-2023-08-18-scroll-transaction-processing-767a2cbf.yaml",
+      "root_cause_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/cards/root-cause/scroll-2023-08-18-scroll-transaction-processing-767a2cbf.md",
+      "code_shape_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/cards/code-shape/scroll-2023-08-18-scroll-transaction-processing-767a2cbf.md",
+      "validation_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/cards/validation/scroll-2023-08-18-scroll-transaction-processing-767a2cbf.md",
+      "eval_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/evals/scroll-2023-08-18-scroll-transaction-processing-767a2cbf.yaml"
+    }
+  ]
+}

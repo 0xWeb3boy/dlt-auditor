@@ -29,6 +29,11 @@ Search patterns:
 - state replacement that does not invalidate derived or cached state
 - request IDs, session IDs, or operation IDs stored globally instead of per in-flight object
 - merge or eviction logic that can evict the object currently being traversed
+- cached checkpoint, request, config, or game state reused on retry without revalidation against current authoritative state
+- one-time scan watermarks or "already seen" markers on objects whose classification can legitimately change later
+- policies enforced at wake-up or signaling boundaries but not at the underlying provider or write sink
+- append-only histories stored as mutable read-modify-write objects under concurrent writers instead of immutable write-once records
+- fallback paths that do not preserve enough state to transition cleanly into the alternate recovery mode
 
 Questions to answer:
 1. What are the legal states and transitions?
@@ -36,6 +41,8 @@ Questions to answer:
 3. Are all transition paths symmetric?
 4. Are roles, indices, heights, epochs, rounds, views, checkpoints, and handoffs scoped consistently?
 5. Can stale state cause later enforcement, verification, or feedback to apply to the wrong object?
+6. Is object reuse revalidated against the current authoritative state before it influences a new decision?
+7. Is the policy enforced where the object is actually read, written, or executed?
 
 Severity guidance:
 - Medium for stale-state liveness or integrity issues.

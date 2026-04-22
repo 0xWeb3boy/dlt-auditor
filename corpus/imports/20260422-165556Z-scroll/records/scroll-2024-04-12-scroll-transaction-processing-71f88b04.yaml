@@ -1,0 +1,64 @@
+id: "scroll-2024-04-12-scroll-transaction-processing-71f88b04"
+source_finding: "2024-04-12-scroll-transaction-processing-71f88b04.md"
+project: "scroll"
+date: "2024-04-12"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "cryptographic-binding"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "rollup"
+  - "data-availability"
+  - "eip-4844"
+  - "proof-binding"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+  - "eval_positive"
+
+missing_property: "cryptographic-binding"
+violated_invariant: "A blob-backed proof challenge should bind the canonical versioned blob hash that corresponds to the exact data-availability blob handed to downstream verification."
+trust_boundary: "blob-data-construction->proof-challenge"
+entrypoint_type: "data-availability-encoding"
+sensitive_sink: "challenge preimage and commitment material consumed by proof generation or verification"
+
+attacker_capabilities:
+  - "influence or supply blob-backed batch data that is encoded into a proof challenge"
+  - "reach a path where the challenge preimage and the canonical versioned blob hash can diverge"
+exploit_preconditions:
+  - "blob construction returns or derives multiple related hashes or commitments and the challenge path omits the canonical versioned hash"
+  - "downstream verification does not independently reconstruct and bind the same canonical blob identifier before accepting the proof context"
+blast_radius: "chain-wide"
+
+impact_types:
+  - "state-integrity"
+severity_guess: "medium"
+severity_rationale: "Cryptographic binding failures in DA challenge construction can undermine integrity-sensitive proof context, but the supplied evidence supports hardening more strongly than a confirmed exploit path."
+
+code_shape_summary: "The patch changes blob construction so it computes an EIP-4844 blob versioned hash, appends that hash to the challenge preimage, and returns it to callers. That is a real cryptographic-binding change in the DA encoding path. However, the supplied evidence does not show the downstream `piHash` use, verifier behavior, or any concrete acceptance flaw, so the material supports a security-relevant hardening/fix thesis only weakly and does not establish an actual vulnerability end to end."
+search_motifs:
+  - "constructor returns blob or commitment data but caller drops the canonical versioned hash"
+  - "challenge preimage assembled from chunks without the final canonical blob identifier"
+  - "EIP-4844 blob path computes a versioned hash late and fails to thread it into the proof-binding surface"
+negative_signals:
+  - "If the downstream verifier always recomputes and enforces the same canonical hash before accepting the proof, a similar omission may be non-exploitable."
+  - "Auxiliary refactors that only change return signatures are not enough; the real issue is whether the canonical hash reaches the challenge preimage."
+  - "The evidence supports cryptographic hardening, not a proven end-to-end acceptance flaw."
+patch_pattern: "Return the canonical versioned blob hash from DA blob construction and include it explicitly in the challenge-binding data that downstream components consume."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/raw-findings/2024-04-12-scroll-transaction-processing-71f88b04.md"
+  - "git:71f88b04f5a69196138c8cec63a75cf1f0ba2d99"
+  - "common/types/encoding/codecv1/codecv1.go:335"
+  - "common/types/encoding/codecv1/codecv1.go:228"
+  - "common/types/encoding/codecv1/codecv1.go:303"
+  - "common/types/encoding/codecv1/codecv1.go:275"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

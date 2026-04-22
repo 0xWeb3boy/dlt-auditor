@@ -1,0 +1,65 @@
+id: "scroll-2025-09-25-scroll-core-logic-b63e2473"
+source_finding: "2025-09-25-scroll-core-logic-b63e2473.md"
+project: "scroll"
+date: "2025-09-25"
+language_tags:
+  - "go"
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "verifier-configuration-mismatch"
+subsystem: "core-logic"
+architecture_tags:
+  - "verifier"
+  - "config"
+  - "validium"
+  - "proof-system"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+  - "eval_positive"
+
+missing_property: "configuration-binding"
+violated_invariant: "Verifier initialization should derive versioned configuration from the same fork and mode metadata that governs the proof being checked."
+trust_boundary: "proof-task-metadata->verifier-initialization"
+entrypoint_type: "query-verification-path"
+sensitive_sink: "selected verifier configuration used for PI-hash checks or proof verification"
+
+attacker_capabilities:
+  - "cause fork name, version, or validium mode to be represented inconsistently across verifier configuration layers"
+  - "reach verifier initialization with mismatched or implicit version selection"
+exploit_preconditions:
+  - "version is derived implicitly or differently across Go and Rust verifier plumbing"
+  - "the verifier can proceed with a misselected configuration before a later stage rejects the mismatch"
+blast_radius: "chain-wide"
+
+impact_types:
+  - "state-integrity"
+severity_guess: "medium"
+severity_rationale: "Misbound verifier configuration is integrity-sensitive in the proof pipeline, but the evidence supports configuration hardening more strongly than a concrete exploit or false-accept proof."
+
+code_shape_summary: "The supplied evidence supports a correctness fix in verifier initialization and configuration plumbing: version is now carried explicitly and can be derived from fork name plus validium mode. That is plausibly relevant to PI-hash checking, but the snippets do not establish a concrete vulnerability, exploit path, or even whether the pre-fix behavior caused false accepts rather than only false rejects or misconfiguration."
+search_motifs:
+  - "verifier config struct lacks explicit version and derives it late from loosely coupled metadata"
+  - "fork name and mode determine circuit selection in one layer but version plumbing lives elsewhere"
+  - "configuration object gains explicit version field to keep verifier initialization and proof context aligned"
+negative_signals:
+  - "If the verifier has a single immutable version source or always recomputes its effective config from canonical metadata, similar refactors may be lower risk."
+  - "Version-carriage cleanup alone is not enough; the important signal is whether the verifier previously selected config from inconsistent sources."
+  - "The evidence supports verifier hardening, not a proven false-accept bug."
+patch_pattern: "Carry explicit version metadata through verifier configuration objects and derive it canonically from fork name plus validium mode when constructing verifier state."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/raw-findings/2025-09-25-scroll-core-logic-b63e2473.md"
+  - "git:b63e2473ddf323e5ad0c14394b44dcc61547c934"
+  - "coordinator/internal/logic/verifier/verifier.go:27"
+  - "coordinator/internal/utils/version.go:1"
+  - "crates/libzkp/src/verifier.rs:70"
+  - "coordinator/cmd/tool/verify.go:37"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

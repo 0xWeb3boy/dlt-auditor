@@ -1,0 +1,64 @@
+id: "scroll-2023-03-27-scroll-storage-f26ab8b7"
+source_finding: "2023-03-27-scroll-storage-f26ab8b7.md"
+project: "scroll"
+date: "2023-03-27"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "insecure-file-permissions"
+subsystem: "storage"
+architecture_tags:
+  - "bridge"
+  - "ci"
+  - "test-harness"
+  - "local-config"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+  - "eval_positive"
+
+missing_property: "file-permission-hardening"
+violated_invariant: "Generated bridge configuration files that may hold privileged local connection material should be written with owner-only filesystem permissions."
+trust_boundary: "operator-or-ci-runner->local-filesystem"
+entrypoint_type: "local-config-materialization"
+sensitive_sink: "persisted bridge configuration readable by other local principals"
+
+attacker_capabilities:
+  - "obtain local access to the shared CI host, developer machine, or workspace where generated config files are written"
+  - "read generated files before cleanup or before the process narrows permissions elsewhere"
+exploit_preconditions:
+  - "the helper writes a config file containing useful connection or environment material"
+  - "the filesystem context allows broader users or groups to read files created with permissive defaults"
+blast_radius: "client-local"
+
+impact_types:
+  - "privileged-disclosure"
+severity_guess: "low"
+severity_rationale: "The issue is local to CI or developer helper workflows and does not demonstrate remote chain compromise, but it can still expose privileged configuration material on shared hosts."
+
+code_shape_summary: "The evidence supports a narrow permission tightening in mock/CI helper code, not a demonstrated vulnerability fix. The commit is titled `fix ci`, most touched files are tests or mock helpers, and the other shown hunks are receiver renames with no evidenced security effect."
+search_motifs:
+  - "temporary or generated config file written with 0644 or world-readable mode"
+  - "test or CI helper writes secrets, endpoints, or credentials without tightening file permissions"
+  - "os.WriteFile on privileged local config material with permissive defaults"
+negative_signals:
+  - "If the generated file contains only public test data and no privileged material, the case is usually just hygiene rather than security hardening."
+  - "If the file lives in an isolated ephemeral sandbox where no other principal can read it, the practical security impact is much lower."
+  - "Receiver renames or helper refactors in nearby files are not the core issue; the security-relevant part is the permission mode on the file write."
+patch_pattern: "Tighten generated-file permissions at creation time so local config artifacts default to owner-only access instead of inheriting permissive filesystem modes."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/raw-findings/2023-03-27-scroll-storage-f26ab8b7.md"
+  - "git:f26ab8b7273d2c5a9af80bfd431d7c34ea074104"
+  - "bridge/cmd/app/mock_app.go:76"
+  - "common/docker/docker_app.go:121"
+  - "common/docker/docker_app.go:153"
+  - "common/docker/docker_app.go:201"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

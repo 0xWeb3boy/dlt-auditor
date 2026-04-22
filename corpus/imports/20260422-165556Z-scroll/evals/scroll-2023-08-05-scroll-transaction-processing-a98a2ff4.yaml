@@ -1,0 +1,21 @@
+id: "scroll-2023-08-05-scroll-transaction-processing-a98a2ff4"
+source_record: "scroll-2023-08-05-scroll-transaction-processing-a98a2ff4.yaml"
+project: "scroll"
+
+expected_bug_family: "authz_and_role_gates"
+expected_bug_class: "authentication-challenge-replay-protection"
+expected_missing_property: "replay-freshness-binding"
+
+expected_impact_band: "trust_or_policy_integrity"
+expected_severity_band: "high_or_medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "If the challenge is already single-use, bound to the session token, and consumed on the canonical nonce value, a similar login flow is usually safe."
+  - "Signature-format refactors near the login path are not enough by themselves; the key issue is whether replay tracking and token binding use the same challenge."
+  - "The evidence supports replay hardening, not a proven forged-signature or privilege-escalation exploit beyond session reuse."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

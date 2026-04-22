@@ -1,0 +1,21 @@
+id: "scroll-2025-09-29-scroll-transaction-processing-09ef1ddb"
+source_record: "scroll-2025-09-29-scroll-transaction-processing-09ef1ddb.yaml"
+project: "scroll"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "canonical-input-selection"
+expected_missing_property: "canonical-input-selection"
+
+expected_impact_band: "state_or_consensus_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "If the alternate query path is guaranteed to return the exact same canonical transactions in the same order, a similar refactor may be less meaningful."
+  - "The interesting signal is not variable renaming but the move to the authoritative transaction source for subsequent processing."
+  - "The evidence supports watcher integrity hardening, not a demonstrated bridge exploit."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

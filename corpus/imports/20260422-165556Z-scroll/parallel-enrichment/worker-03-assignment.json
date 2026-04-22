@@ -1,0 +1,48 @@
+{
+  "worker_id": "worker-03",
+  "worker_index": 3,
+  "effective_workers": 6,
+  "bundle_root": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll",
+  "instruction_prompt": "/testing/dlt-ai-audit-system/03_enrich_corpus_import.md",
+  "assigned_findings": [
+    {
+      "id": "scroll-2023-08-05-scroll-transaction-processing-a98a2ff4",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "authentication-challenge-replay-protection",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "raw_finding_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/raw-findings/2023-08-05-scroll-transaction-processing-a98a2ff4.md",
+      "record_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/records/scroll-2023-08-05-scroll-transaction-processing-a98a2ff4.yaml",
+      "root_cause_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/cards/root-cause/scroll-2023-08-05-scroll-transaction-processing-a98a2ff4.md",
+      "code_shape_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/cards/code-shape/scroll-2023-08-05-scroll-transaction-processing-a98a2ff4.md",
+      "validation_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/cards/validation/scroll-2023-08-05-scroll-transaction-processing-a98a2ff4.md",
+      "eval_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/evals/scroll-2023-08-05-scroll-transaction-processing-a98a2ff4.yaml"
+    },
+    {
+      "id": "scroll-2025-07-02-scroll-rpc-client-api-adac0404",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "verifier-artifact-validation",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "raw_finding_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/raw-findings/2025-07-02-scroll-rpc-client-api-adac0404.md",
+      "record_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/records/scroll-2025-07-02-scroll-rpc-client-api-adac0404.yaml",
+      "root_cause_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/cards/root-cause/scroll-2025-07-02-scroll-rpc-client-api-adac0404.md",
+      "code_shape_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/cards/code-shape/scroll-2025-07-02-scroll-rpc-client-api-adac0404.md",
+      "validation_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/cards/validation/scroll-2025-07-02-scroll-rpc-client-api-adac0404.md",
+      "eval_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/evals/scroll-2025-07-02-scroll-rpc-client-api-adac0404.yaml"
+    },
+    {
+      "id": "scroll-2025-11-28-scroll-transaction-processing-752e4e11",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "insufficient-fee-bounds",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "raw_finding_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/raw-findings/2025-11-28-scroll-transaction-processing-752e4e11.md",
+      "record_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/records/scroll-2025-11-28-scroll-transaction-processing-752e4e11.yaml",
+      "root_cause_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/cards/root-cause/scroll-2025-11-28-scroll-transaction-processing-752e4e11.md",
+      "code_shape_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/cards/code-shape/scroll-2025-11-28-scroll-transaction-processing-752e4e11.md",
+      "validation_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/cards/validation/scroll-2025-11-28-scroll-transaction-processing-752e4e11.md",
+      "eval_path": "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/evals/scroll-2025-11-28-scroll-transaction-processing-752e4e11.yaml"
+    }
+  ]
+}

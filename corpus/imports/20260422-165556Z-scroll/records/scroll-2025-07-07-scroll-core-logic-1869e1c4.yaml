@@ -1,0 +1,63 @@
+id: "scroll-2025-07-07-scroll-core-logic-1869e1c4"
+source_finding: "2025-07-07-scroll-core-logic-1869e1c4.md"
+project: "scroll"
+date: "2025-07-07"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "input-validation"
+subsystem: "core-logic"
+architecture_tags:
+  - "prover"
+  - "libzkp"
+  - "universal-task"
+  - "fork-selection"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+  - "eval_positive"
+
+missing_property: "canonical-input-normalization"
+violated_invariant: "Universal task generation should normalize and compare fork identifiers before deriving proving inputs from both serialized task JSON and separate fork arguments."
+trust_boundary: "task-json->universal-task-builder"
+entrypoint_type: "state-transition"
+sensitive_sink: "constructed universal proving task passed into proof generation or verification"
+
+attacker_capabilities:
+  - "cause inconsistent fork-name representations to reach the universal task builder through task JSON and separate function arguments"
+  - "trigger proving logic that depends on fork-specific configuration or circuits"
+exploit_preconditions:
+  - "fork identity is accepted from multiple sources without canonicalization or equality checks"
+  - "the resulting universal task influences fork-specific proving behavior before a later stage rejects the mismatch"
+blast_radius: "chain-wide"
+
+impact_types:
+  - "state-integrity"
+severity_guess: "medium"
+severity_rationale: "Fork-selection mismatches at the universal-task boundary can undermine proof-pipeline integrity, but the evidence supports consistency hardening rather than confirmed invalid-proof acceptance."
+
+code_shape_summary: "The patch in `crates/libzkp/src/lib.rs` adds canonicalization and an equality check for `fork_name` when building chunk and batch universal tasks. The code evidence supports a consistency fix at a protocol-sensitive boundary, but it does not establish that this previously enabled invalid proof acceptance, verifier bypass, or another concrete vulnerability."
+search_motifs:
+  - "same semantic field passed both inside task json and as a separate function parameter"
+  - "fork or version string normalized in one path but not compared across all sources"
+  - "universal task builder trusts mismatched identifiers before constructing fork-specific config"
+negative_signals:
+  - "If only one canonical source of fork identity exists at runtime, a similar string-normalization change may be routine hygiene."
+  - "String cleanup alone is not enough; the security-relevant part is whether mismatches could reach fork-specific proving logic."
+  - "The evidence supports integrity hardening, not a demonstrated verifier bypass."
+patch_pattern: "Normalize fork-name aliases and reject cross-field mismatches before building chunk or batch universal tasks from mixed task sources."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/raw-findings/2025-07-07-scroll-core-logic-1869e1c4.md"
+  - "git:1869e1c469a5bbfcd88a11ec74db38f076a546c5"
+  - "crates/libzkp/src/lib.rs:49"
+  - "crates/libzkp/src/lib.rs:31"
+  - "crates/libzkp/src/lib.rs:6"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

@@ -1,0 +1,63 @@
+id: "scroll-2025-07-07-scroll-core-logic-7f081d66"
+source_finding: "2025-07-07-scroll-core-logic-7f081d66.md"
+project: "scroll"
+date: "2025-07-07"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "input-validation"
+subsystem: "core-logic"
+architecture_tags:
+  - "prover"
+  - "libzkp"
+  - "universal-task"
+  - "fork-selection"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+  - "eval_positive"
+
+missing_property: "canonical-input-normalization"
+violated_invariant: "Universal task generation should canonicalize fork names and reject inconsistent fork identity before deriving proving inputs from mixed task sources."
+trust_boundary: "task-json->universal-task-builder"
+entrypoint_type: "state-transition"
+sensitive_sink: "constructed universal proving task passed into proof generation or verification"
+
+attacker_capabilities:
+  - "cause inconsistent fork-name representations to reach the universal task generator through serialized task data and an external fork-name argument"
+  - "trigger task generation that selects fork-specific proving behavior based on those inconsistent values"
+exploit_preconditions:
+  - "fork identity is represented in multiple inputs without a single canonicalization or equality gate"
+  - "the generated universal task is consumed before another layer revalidates the same fork binding"
+blast_radius: "chain-wide"
+
+impact_types:
+  - "state-integrity"
+severity_guess: "medium"
+severity_rationale: "The bug shape concerns integrity of fork-dependent task generation rather than a proven exploit, but the affected boundary is protocol-sensitive and worth retaining as a hardening exemplar."
+
+code_shape_summary: "The patch adds fork-name normalization and an equality check in `gen_universal_task`, so chunk and batch tasks no longer proceed with an unchecked combination of `task_json` fork data and a separate fork-name string. The evidence supports a correctness/integrity fix around inconsistent fork-name handling, but it does not establish a concrete vulnerability or prior acceptance of invalid proofs."
+search_motifs:
+  - "fork name supplied in both serialized task payload and explicit parameter"
+  - "normalization step added alongside an equality check between semantically duplicate fields"
+  - "task generator previously trusted stringly typed fork metadata from more than one source"
+negative_signals:
+  - "If the duplicated field is never attacker-controlled or never diverges semantically, a similar cleanup may be lower value."
+  - "The important signal is not string normalization alone, but the added rejection of mismatched fork identity before task construction."
+  - "The evidence supports consistency hardening, not a demonstrated acceptance of malformed proofs."
+patch_pattern: "Normalize fork-name variants and fail closed when task JSON and explicit fork arguments disagree before generating universal tasks."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/raw-findings/2025-07-07-scroll-core-logic-7f081d66.md"
+  - "git:7f081d6636ce17fc8f29561c3fa852928b294fa7"
+  - "crates/libzkp/src/lib.rs:49"
+  - "crates/libzkp/src/lib.rs:31"
+  - "crates/libzkp/src/lib.rs:6"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

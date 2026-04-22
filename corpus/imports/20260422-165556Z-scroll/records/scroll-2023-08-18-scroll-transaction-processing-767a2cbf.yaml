@@ -1,0 +1,63 @@
+id: "scroll-2023-08-18-scroll-transaction-processing-767a2cbf"
+source_finding: "2023-08-18-scroll-transaction-processing-767a2cbf.md"
+project: "scroll"
+date: "2023-08-18"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "improper-state-transition"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "coordinator"
+  - "proof-system"
+  - "state-machine"
+  - "task-status"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+  - "eval_positive"
+
+missing_property: "terminal-state-enforcement"
+violated_invariant: "Once a proof task reaches a verified terminal state, later submissions must not downgrade or mutate the verified batch or chunk status."
+trust_boundary: "prover-result->coordinator-state-machine"
+entrypoint_type: "proof-submission-handler"
+sensitive_sink: "coordinator updates to chunk and batch proving status in persistent state"
+
+attacker_capabilities:
+  - "submit late, duplicated, or failing proof messages for a task that has already been verified"
+  - "reach the coordinator proof receiver after the terminal state was already recorded"
+exploit_preconditions:
+  - "the state machine allows post-success status updates to flow into the same update path"
+  - "later task outcomes are not treated as no-ops after verification"
+blast_radius: "chain-wide"
+
+impact_types:
+  - "state-integrity"
+  - "stale-trust-state"
+severity_guess: "medium"
+severity_rationale: "The issue affects coordinator lifecycle integrity for proof tasks and can corrupt trusted status transitions, but the evidence stops short of proving consensus or cryptographic compromise."
+
+code_shape_summary: "The evidence shows a focused state-machine fix in the coordinator proof receiver: after a chunk or batch is already verified, the code now skips later chunk/batch-level status updates for all incoming statuses instead of only `ProvingTaskFailed`. That supports a post-verification integrity/correctness hardening claim. The provided diff does not establish an attacker-driven vulnerability, cryptographic bypass, or consensus-impacting exploit."
+search_motifs:
+  - "success state only guards one failure status instead of all later updates"
+  - "proof receiver mutates persistent task state after verified status is already set"
+  - "terminal lifecycle state is not enforced as immutable in updateProofStatus-style paths"
+negative_signals:
+  - "If later status messages are append-only telemetry and cannot alter the canonical task status, a similar pattern may be benign."
+  - "If the state transition is wrapped in a stronger idempotency guard or compare-and-swap on terminal status, the downgrade risk is lower."
+  - "The evidence supports lifecycle integrity hardening, not a demonstrated proof-verification bypass."
+patch_pattern: "Make the verified status terminal and short-circuit all later state transitions that would otherwise revisit chunk or batch status after success."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260422-165556Z-scroll/raw-findings/2023-08-18-scroll-transaction-processing-767a2cbf.md"
+  - "git:767a2cbfdf6a566ea6991505a13e06a7ef09bfdd"
+  - "coordinator/internal/logic/submitproof/proof_receiver.go:311"
+  - "common/version/version.go:7"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."
