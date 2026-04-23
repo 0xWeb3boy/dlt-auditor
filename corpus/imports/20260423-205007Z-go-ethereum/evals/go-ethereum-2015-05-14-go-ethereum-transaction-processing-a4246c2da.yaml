@@ -1,0 +1,17 @@
+id: "go-ethereum-2015-05-14-go-ethereum-transaction-processing-a4246c2da"
+source_record: "go-ethereum-2015-05-14-go-ethereum-transaction-processing-a4246c2da.yaml"
+project: "go-ethereum"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "unknown-parent-sync-hardening"
+expected_missing_property: "input-validation"
+
+expected_impact_band: "low"
+expected_severity_band: "low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Classify as block downloader synchronization hardening, not transaction processing."
+  - "Do not claim confirmed remote DoS from the supplied patch alone."

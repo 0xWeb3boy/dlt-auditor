@@ -1,0 +1,17 @@
+id: "go-ethereum-2016-10-28-go-ethereum-transaction-processing-b59c8399f"
+source_record: "go-ethereum-2016-10-28-go-ethereum-transaction-processing-b59c8399f.yaml"
+project: "go-ethereum"
+
+expected_bug_family: "signature_binding_and_signer_scope"
+expected_bug_class: "signature-domain-separation"
+expected_missing_property: "domain-separated-signing"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Classify as RPC/account-signing hardening, not transaction-processing."
+  - "Do not claim a confirmed transaction replay vulnerability."

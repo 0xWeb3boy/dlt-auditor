@@ -1,0 +1,47 @@
+id: "go-ethereum-2017-06-22-go-ethereum-storage-0042f13d4"
+source_finding: "2017-06-22-go-ethereum-storage-0042f13d4.md"
+project: "go-ethereum"
+date: "2017-06-22"
+language_tags: []
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "resource-exhaustion"
+subsystem: "storage"
+architecture_tags: []
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "resource-bounds"
+violated_invariant: "During fast/state sync, untrusted peer state-node responses must match outstanding requests and must not reset retry or failure accounting unless they produce committed trie data; stale, duplicate, or unexpected deliveries must not create overlapping requests or leaked work."
+trust_boundary: "Peer-supplied synchronization or protocol data crossing into local validation and scheduling logic."
+entrypoint_type: "p2p message"
+sensitive_sink: "consensus-visible state transition or journal replay"
+
+attacker_capabilities:
+  - "Send crafted peer protocol messages, metadata, blocks, or headers during synchronization or discovery."
+  - "Repeat low-cost requests to amplify local work, outbound traffic, or memory pressure."
+exploit_preconditions:
+  - "The attacker must be able to reach the affected peer-facing protocol path or sync interaction."
+  - "The intended validation, policy, or accounting gate is missing, too weak, or applied too late."
+  - "Exploitability depends on deployment reachability and surrounding controls because the source evidence is framed as hardening."
+blast_radius: "The affected node crosses a security boundary with weaker validation than intended."
+
+impact_types: []
+severity_guess: "low"
+severity_rationale: "The evidence supports  hardening, but it does not prove a complete exploit path or broad real-world impact."
+
+code_shape_summary: "State-sync request and progress accounting could diverge from actual useful persisted trie progress. Stale or duplicate peer deliveries and quick peer reconnects could affect idle/retry/failure state incorrectly, causing overlapping requests, leaked requests that were not retried, duplicate retrieval storms, or repeated attacker-driven sync failure loops."
+search_motifs:
+  - "p2p message missing exact checks for resource exhaustion"
+  - "security-sensitive path reaches consensus-visible state transition or journal replay before rejecting malformed or unauthorized input"
+  - "Separate high-latency untrusted state-node sync from shared downloader scheduling, reject stale or duplicate peer responses, retry leaked or timed-out work explicitly, and count progress only after trie data is committed"
+negative_signals:
+  - "Classify as resource-exhaustion or sync-level remote DoS hardening, not as state corruption or consensus bypass."
+  - "Do not claim remote code execution, authorization bypass, or cryptographic weakness."
+  - "No advisory, CVE, issue, or external exploit report is provided."
+patch_pattern: "Separate high-latency untrusted state-node sync from shared downloader scheduling, reject stale or duplicate peer responses, retry leaked or timed-out work explicitly, and count progress only after trie data is committed."
+
+source_refs: ["/testing/go-ethereum/validated-findings/kept/2017-06-22-go-ethereum-storage-0042f13d4.md"]

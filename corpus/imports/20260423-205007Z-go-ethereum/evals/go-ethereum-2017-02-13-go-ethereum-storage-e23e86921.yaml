@@ -1,0 +1,17 @@
+id: "go-ethereum-2017-02-13-go-ethereum-storage-e23e86921"
+source_record: "go-ethereum-2017-02-13-go-ethereum-storage-e23e86921.yaml"
+project: "go-ethereum"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "missing-content-integrity-check"
+expected_missing_property: "input-validation"
+
+expected_impact_band: "low"
+expected_severity_band: "low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Validated only as Swarm chunk integrity hardening, not as a proven high-impact vulnerability fix."
+  - "Do not claim transaction validation, consensus safety, or Ethereum core protocol impact."

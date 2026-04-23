@@ -8,14 +8,6 @@ This is the shortest workflow for turning `validated-findings/kept` into corpus 
 /testing/dlt-ai-audit-system/bin/prepare-corpus-from-repo /path/to/repo
 ```
 
-That now includes a six-worker `parallel-enrichment/` plan by default.
-
-Parallel example:
-
-```bash
-/testing/dlt-ai-audit-system/bin/prepare-corpus-from-repo /path/to/repo --parallel-workers 8
-```
-
 Example:
 
 ```bash
@@ -35,7 +27,6 @@ Given a repo path, the command:
 7. creates one validation card per finding
 8. creates one eval record per finding
 9. writes a `manifest.json` and `SUMMARY.md`
-10. unless `--parallel-workers 1` is used, creates `parallel-enrichment/` with per-worker prompts, assignment manifests, and finding lists for multi-agent enrichment
 
 ## What It Does Not Do
 
@@ -51,6 +42,5 @@ In practice, that means:
 
 1. open the new `SUMMARY.md`
 2. review the generated `records/`
-3. start one worker per `parallel-enrichment/worker-XX.md`, unless you disabled planning with `--parallel-workers 1`
-4. enrich the cards and evals
-5. then merge the good records into your long-lived corpus
+3. enrich the cards and evals
+4. then merge the good records into your long-lived corpus

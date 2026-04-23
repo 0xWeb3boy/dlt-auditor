@@ -1,0 +1,17 @@
+id: "go-ethereum-2024-05-07-go-ethereum-transaction-processing-e4b8058d5"
+source_record: "go-ethereum-2024-05-07-go-ethereum-transaction-processing-e4b8058d5.yaml"
+project: "go-ethereum"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "unbounded-query-parameter"
+expected_missing_property: "resource-bounds"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Classify as security-hardening, not a proven security-fix."
+  - "Limit claims to FeeHistory rewardPercentiles cardinality control."

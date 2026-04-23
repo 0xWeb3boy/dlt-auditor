@@ -1,0 +1,46 @@
+id: "go-ethereum-2018-09-20-go-ethereum-storage-d6254f827"
+source_finding: "2018-09-20-go-ethereum-storage-d6254f827.md"
+project: "go-ethereum"
+date: "2018-09-20"
+language_tags: []
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "fork-choice-tie-break-hardening"
+subsystem: "storage"
+architecture_tags: []
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "deterministic-fork-choice"
+violated_invariant: "When an imported block has total difficulty equal to the current canonical chain, fork choice should not randomly replace a locally authored canonical block with an external same-height competitor. The patch makes local-author preservation an explicit tie-break input, with Clique exempted due to a documented deadlock concern."
+trust_boundary: "Untrusted RPC or debug request parameters reaching privileged node logic."
+entrypoint_type: "rpc method"
+sensitive_sink: "expensive RPC-side computation, allocation, or response construction"
+
+attacker_capabilities:
+  - "Invoke the exposed RPC or debug method with crafted parameters."
+exploit_preconditions:
+  - "The relevant RPC or debug method must be reachable to the attacker directly or through a shared service."
+  - "The intended validation, policy, or accounting gate is missing, too weak, or applied too late."
+  - "Exploitability depends on deployment reachability and surrounding controls because the source evidence is framed as hardening."
+blast_radius: "Nodes following the affected path can diverge on validation, canonical-chain choice, or state outcomes."
+
+impact_types: ["canonical-chain-integrity", "reorg-resistance"]
+severity_guess: "medium"
+severity_rationale: "The evidence supports canonical-chain-integrity, reorg-resistance hardening, but it does not prove a complete exploit path or broad real-world impact."
+
+code_shape_summary: "The root cause was a random equal-total-difficulty, same-height fork-choice tie-break that did not account for whether the current canonical block was locally mined. This could cause a self-mined canonical block to be replaced by an external competitor solely due to randomness. The evidence does not support classifying this as persisted state corruption or a block validation flaw."
+search_motifs:
+  - "rpc method missing exact checks for fork choice tie break hardening"
+  - "security-sensitive path reaches expensive RPC-side computation, allocation, or response construction before rejecting malformed or unauthorized input"
+  - "Replace random consensus-adjacent tie-break behavior with explicit policy-aware fork-choice logic that can consult local node state, while preserving stronger-chain total-difficulty selection"
+negative_signals:
+  - "Classify as fork-choice hardening, not a confirmed security fix."
+  - "Do not claim remote exploitability from the supplied patch alone."
+  - "No exploit scenario or attacker-controlled path is shown."
+patch_pattern: "Replace random consensus-adjacent tie-break behavior with explicit policy-aware fork-choice logic that can consult local node state, while preserving stronger-chain total-difficulty selection."
+
+source_refs: ["/testing/go-ethereum/validated-findings/kept/2018-09-20-go-ethereum-storage-d6254f827.md"]

@@ -1,0 +1,47 @@
+id: "go-ethereum-2015-03-25-go-ethereum-cryptography-de7af720d"
+source_finding: "2015-03-25-go-ethereum-cryptography-de7af720d.md"
+project: "go-ethereum"
+date: "2015-03-25"
+language_tags: []
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "udp-reflection-amplification"
+subsystem: "cryptography"
+architecture_tags: []
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "resource-bounds"
+violated_invariant: "The discovery protocol should not process findnode requests or send larger neighbors responses unless the sender has an existing bond established through the discovery ping/pong flow. This is a bond requirement, not complete source-address validation."
+trust_boundary: "Unauthenticated network packets crossing into discovery request handling."
+entrypoint_type: "p2p message"
+sensitive_sink: "network response generation and peer table mutation"
+
+attacker_capabilities:
+  - "Spoof the apparent source address of a network request."
+  - "Send crafted peer protocol messages, metadata, blocks, or headers during synchronization or discovery."
+  - "Repeat low-cost requests to amplify local work, outbound traffic, or memory pressure."
+exploit_preconditions:
+  - "The attacker must be able to reach the affected peer-facing protocol path or sync interaction."
+  - "The intended validation, policy, or accounting gate is missing, too weak, or applied too late."
+blast_radius: "The affected node or service can waste CPU, memory, bandwidth, or queue capacity under attacker-controlled input."
+
+impact_types: ["ddos-amplification"]
+severity_guess: "medium"
+severity_rationale: "The evidence directly ties the patch to ddos-amplification risk on a reachable security boundary, but the supplied material still limits the claim to what the patch demonstrates."
+
+code_shape_summary: "The findnode request path could generate a substantially larger neighbors response before verifying that the recovered sender NodeID had an existing bond. In a UDP protocol, the commit states this allowed spoofed-source findnode packets to reflect amplified traffic at a victim address."
+search_motifs:
+  - "p2p message missing exact checks for udp reflection amplification"
+  - "security-sensitive path reaches network response generation and peer table mutation before rejecting malformed or unauthorized input"
+  - "Require a prior lightweight peer bond before performing an asymmetric UDP response"
+negative_signals:
+  - "Applies to UDP discovery findnode handling and neighbors responses."
+  - "Supports a DDoS reflection/amplification fix, not a general cryptography vulnerability."
+  - "No evidence of in-the-wild exploitation is provided."
+patch_pattern: "Require a prior lightweight peer bond before performing an asymmetric UDP response."
+
+source_refs: ["/testing/go-ethereum/validated-findings/kept/2015-03-25-go-ethereum-cryptography-de7af720d.md"]

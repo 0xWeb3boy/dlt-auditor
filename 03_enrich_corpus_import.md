@@ -6,8 +6,6 @@ Use this after running:
 /testing/dlt-ai-audit-system/bin/prepare-corpus-from-repo /path/to/repo
 ```
 
-By default, imports now include a six-worker `parallel-enrichment/` plan. Each worker should use its own `parallel-enrichment/worker-XX.md` prompt and only edit the files listed in its matching `worker-XX-assignment.json`. If the importer was run with `--parallel-workers 1`, use this prompt as a single-agent enrichment pass instead.
-
 ## Objective
 
 Take an auto-generated corpus import bundle and upgrade its record stubs, retrieval cards, and eval stubs into useful structured knowledge.
@@ -21,8 +19,6 @@ Your job is not to audit the target repo directly. Your job is to turn validated
 
 Inputs:
 - The import bundle created by `prepare-corpus-from-repo`
-- If present, the worker-specific prompt in `parallel-enrichment/worker-XX.md`
-- If present, the worker-specific file-ownership manifest in `parallel-enrichment/worker-XX-assignment.json`
 - The original raw finding markdown files, usually in `raw-findings/` or otherwise via the source paths listed in the assignment/source metadata
 - The generated stubs in:
   - `records/`
@@ -30,8 +26,6 @@ Inputs:
   - `cards/code-shape/`
   - `cards/validation/`
   - `evals/`
-
-If you are running as one worker in a multi-agent enrichment pass, only edit the findings and files assigned to you.
 
 Your tasks for each finding:
 1. Rewrite the violated invariant in plain, generic terms.

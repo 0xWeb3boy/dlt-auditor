@@ -1,0 +1,46 @@
+id: "go-ethereum-2024-05-07-go-ethereum-transaction-processing-e4b8058d5"
+source_finding: "2024-05-07-go-ethereum-transaction-processing-e4b8058d5.md"
+project: "go-ethereum"
+date: "2024-05-07"
+language_tags: []
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "unbounded-query-parameter"
+subsystem: "transaction-processing"
+architecture_tags: []
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "resource-bounds"
+violated_invariant: "The FeeHistory/gasprice oracle path should bound caller-controlled query dimensions so a request cannot force unbounded fee-history work or response construction. The supplied patch establishes a limit on rewardPercentiles length; it does not establish a consensus, transaction-validation, or crash-safety invariant."
+trust_boundary: "Untrusted RPC or debug request parameters reaching privileged node logic."
+entrypoint_type: "rpc method"
+sensitive_sink: "expensive RPC-side computation, allocation, or response construction"
+
+attacker_capabilities:
+  - "Invoke the exposed RPC or debug method with crafted parameters."
+  - "Repeat low-cost requests to amplify local work, outbound traffic, or memory pressure."
+exploit_preconditions:
+  - "The relevant RPC or debug method must be reachable to the attacker directly or through a shared service."
+  - "The intended validation, policy, or accounting gate is missing, too weak, or applied too late."
+blast_radius: "The affected node or service can waste CPU, memory, bandwidth, or queue capacity under attacker-controlled input."
+
+impact_types: ["availability"]
+severity_guess: "medium"
+severity_rationale: "The evidence directly ties the patch to availability risk on a reachable security boundary, but the supplied material still limits the claim to what the patch demonstrates."
+
+code_shape_summary: "The FeeHistory path lacked an early cardinality limit for the rewardPercentiles input, leaving one caller-supplied query dimension unchecked while other dimensions such as block history length were already bounded."
+search_motifs:
+  - "rpc method missing exact checks for unbounded query parameter"
+  - "security-sensitive path reaches expensive RPC-side computation, allocation, or response construction before rejecting malformed or unauthorized input"
+  - "Add an explicit upper bound for a caller-controlled query parameter and reject over-limit requests before expensive downstream processing"
+negative_signals:
+  - "Classify as security-hardening, not a proven security-fix."
+  - "Limit claims to FeeHistory rewardPercentiles cardinality control."
+  - "No proof of remote reachability is shown in the supplied evidence."
+patch_pattern: "Add an explicit upper bound for a caller-controlled query parameter and reject over-limit requests before expensive downstream processing."
+
+source_refs: ["/testing/go-ethereum/validated-findings/kept/2024-05-07-go-ethereum-transaction-processing-e4b8058d5.md"]

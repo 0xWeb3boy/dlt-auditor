@@ -1,0 +1,46 @@
+id: "go-ethereum-2015-04-29-go-ethereum-storage-4e0796771"
+source_finding: "2015-04-29-go-ethereum-storage-4e0796771.md"
+project: "go-ethereum"
+date: "2015-04-29"
+language_tags: []
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "canonical-chain-reorg-invariant"
+subsystem: "storage"
+architecture_tags: []
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "consensus-validation"
+violated_invariant: "A node's canonical chain numbering should represent one contiguous parent-linked branch selected by total difficulty: for each canonical block at height N, its parent hash should match the canonical block at height N-1. The patch enforces this consistency check more directly during reorg handling, but the provided evidence does not establish a concrete security vulnerability or exploit path."
+trust_boundary: "Untrusted transaction data crossing into local execution and admission checks."
+entrypoint_type: "transaction validation path"
+sensitive_sink: "canonical-chain selection or persistent chain-state update"
+
+attacker_capabilities:
+  - "Supply crafted external inputs that reach the affected validation or execution path."
+exploit_preconditions:
+  - "The crafted input must reach the affected processing path before stronger downstream checks stop it."
+  - "The intended validation, policy, or accounting gate is missing, too weak, or applied too late."
+  - "Exploitability depends on deployment reachability and surrounding controls because the source evidence is framed as hardening."
+blast_radius: "Nodes following the affected path can diverge on validation, canonical-chain choice, or state outcomes."
+
+impact_types: ["consensus-integrity", "canonical-chain-integrity"]
+severity_guess: "medium"
+severity_rationale: "The evidence supports consensus-integrity, canonical-chain-integrity hardening, but it does not prove a complete exploit path or broad real-world impact."
+
+code_shape_summary: "Fork detection was based on relative block height instead of direct parent-link consistency with the current canonical chain. In a split where the higher-total-difficulty fork was ahead of the current head, the old condition could fail to detect that the incoming block belonged to another branch."
+search_motifs:
+  - "transaction validation path missing exact checks for canonical chain reorg invariant"
+  - "security-sensitive path reaches canonical-chain selection or persistent chain-state update before rejecting malformed or unauthorized input"
+  - "Replace indirect height-based fork detection with direct structural validation of the canonical parent-link relationship before reorg handling proceeds"
+negative_signals:
+  - "Classify as security-hardening rather than confirmed security-fix."
+  - "Limit the claim to canonical chain/reorg invariant enforcement."
+  - "No proof that invalid blocks bypassed validation."
+patch_pattern: "Replace indirect height-based fork detection with direct structural validation of the canonical parent-link relationship before reorg handling proceeds."
+
+source_refs: ["/testing/go-ethereum/validated-findings/kept/2015-04-29-go-ethereum-storage-4e0796771.md"]

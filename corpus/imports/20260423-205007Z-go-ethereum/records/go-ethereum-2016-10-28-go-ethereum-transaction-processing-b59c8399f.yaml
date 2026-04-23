@@ -1,0 +1,46 @@
+id: "go-ethereum-2016-10-28-go-ethereum-transaction-processing-b59c8399f"
+source_finding: "2016-10-28-go-ethereum-transaction-processing-b59c8399f.md"
+project: "go-ethereum"
+date: "2016-10-28"
+language_tags: []
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "signature-domain-separation"
+subsystem: "transaction-processing"
+architecture_tags: []
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "domain-separated-signing"
+violated_invariant: "Account-signing RPC methods should not expose raw ECDSA signing over caller-controlled input in a form that can be confused with other Ethereum signature contexts; arbitrary messages should be domain-prefixed and hashed before signing."
+trust_boundary: "Untrusted RPC or debug request parameters reaching privileged node logic."
+entrypoint_type: "rpc method"
+sensitive_sink: "expensive RPC-side computation, allocation, or response construction"
+
+attacker_capabilities:
+  - "Invoke the exposed RPC or debug method with crafted parameters."
+exploit_preconditions:
+  - "The relevant RPC or debug method must be reachable to the attacker directly or through a shared service."
+  - "The intended validation, policy, or accounting gate is missing, too weak, or applied too late."
+  - "Exploitability depends on deployment reachability and surrounding controls because the source evidence is framed as hardening."
+blast_radius: "The affected signer, transaction flow, or verification path can accept actions under weaker-than-intended trust assumptions."
+
+impact_types: ["signature-misuse-risk", "private-key-exposure-risk"]
+severity_guess: "medium"
+severity_rationale: "The evidence supports signature-misuse-risk, private-key-exposure-risk hardening, but it does not prove a complete exploit path or broad real-world impact."
+
+code_shape_summary: "The supported root cause is that account-signing RPC behavior was tied too closely to raw ECDSA hash-signing semantics. Without explicit message-prefix domain separation before signing, caller-supplied signing input could be used in a less clearly scoped signature context. The evidence does not establish transaction replay, nonce handling failure, or a concrete private-key leakage exploit."
+search_motifs:
+  - "rpc method missing exact checks for signature domain separation"
+  - "security-sensitive path reaches expensive RPC-side computation, allocation, or response construction before rejecting malformed or unauthorized input"
+  - "Apply signature domain separation at the RPC/account-signing boundary by prefixing arbitrary messages, hashing the prefixed payload, and then invoking the ECDSA signing primitive; keep raw hash signing as an internal or trusted low-level operation with explicit warnings"
+negative_signals:
+  - "Classify as RPC/account-signing hardening, not transaction-processing."
+  - "Do not claim a confirmed transaction replay vulnerability."
+  - "No full eth_sign implementation diff is provided in the evidence snippets."
+patch_pattern: "Apply signature domain separation at the RPC/account-signing boundary by prefixing arbitrary messages, hashing the prefixed payload, and then invoking the ECDSA signing primitive; keep raw hash signing as an internal or trusted low-level operation with explicit warnings."
+
+source_refs: ["/testing/go-ethereum/validated-findings/kept/2016-10-28-go-ethereum-transaction-processing-b59c8399f.md"]

@@ -1,0 +1,45 @@
+id: "go-ethereum-2015-05-15-go-ethereum-core-logic-5c1a7b965"
+source_finding: "2015-05-15-go-ethereum-core-logic-5c1a7b965.md"
+project: "go-ethereum"
+date: "2015-05-15"
+language_tags: []
+
+bug_family: "authz_and_role_gates"
+bug_class: "p2p-sync-validation-bypass"
+subsystem: "core-logic"
+architecture_tags: []
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "exact-validation-gate"
+violated_invariant: "During downloader hash-chain synchronization, a block returned for a pending random cross-check must be linked to the queued hash chain: matching the sampled block hash is not enough if the block's parent hash is absent from the downloader queue."
+trust_boundary: "Peer-supplied synchronization or protocol data crossing into local validation and scheduling logic."
+entrypoint_type: "p2p message"
+sensitive_sink: "bounded work queue, fetch scheduling, or peer-driven validation/import logic"
+
+attacker_capabilities:
+  - "Send crafted peer protocol messages, metadata, blocks, or headers during synchronization or discovery."
+exploit_preconditions:
+  - "The attacker must be able to reach the affected peer-facing protocol path or sync interaction."
+  - "The intended validation, policy, or accounting gate is missing, too weak, or applied too late."
+blast_radius: "The affected node crosses a security boundary with weaker validation than intended."
+
+impact_types: ["p2p-sync-disruption"]
+severity_guess: "medium"
+severity_rationale: "The evidence directly ties the patch to p2p-sync-disruption risk on a reachable security boundary, but the supplied material still limits the claim to what the patch demonstrates."
+
+code_shape_summary: "The cross-check path treated a returned block hash match as sufficient and cleared the pending check without confirming that the returned block's parent belonged to the downloader's queued hash chain."
+search_motifs:
+  - "p2p message missing exact checks for p2p sync validation bypass"
+  - "security-sensitive path reaches bounded work queue, fetch scheduling, or peer-driven validation/import logic before rejecting malformed or unauthorized input"
+  - "Strengthen protocol cross-check validation by requiring structural parent linkage before accepting and clearing a sampled block check"
+negative_signals:
+  - "This supports a security fix in the eth/downloader P2P synchronization path."
+  - "The validated issue is fake-chain or disconnected-chain acceptance during cross-checking."
+  - "No quantified CPU, memory, or bandwidth exhaustion impact is shown."
+patch_pattern: "Strengthen protocol cross-check validation by requiring structural parent linkage before accepting and clearing a sampled block check."
+
+source_refs: ["/testing/go-ethereum/validated-findings/kept/2015-05-15-go-ethereum-core-logic-5c1a7b965.md"]

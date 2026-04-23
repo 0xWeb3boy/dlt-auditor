@@ -1,0 +1,46 @@
+id: "go-ethereum-2020-12-04-go-ethereum-transaction-processing-15339cf1c"
+source_finding: "2020-12-04-go-ethereum-transaction-processing-15339cf1c.md"
+project: "go-ethereum"
+date: "2020-12-04"
+language_tags: []
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "signed-vulnerability-advisory-check"
+subsystem: "transaction-processing"
+architecture_tags: []
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "input-validation"
+violated_invariant: "The geth vulnerability checker should rely only on advisory feed data authenticated by trusted signing keys before using that data to warn about locally vulnerable versions."
+trust_boundary: "Caller-controlled signing or account-management requests crossing into wallet-held authority."
+entrypoint_type: "wallet or signing api"
+sensitive_sink: "transaction or message signing under local account authority"
+
+attacker_capabilities:
+  - "Submit crafted signing or account-management requests through the exposed wallet API."
+exploit_preconditions:
+  - "The exposed signing API or operator workflow must allow the attacker-controlled request to reach the policy check."
+  - "The intended validation, policy, or accounting gate is missing, too weak, or applied too late."
+  - "Exploitability depends on deployment reachability and surrounding controls because the source evidence is framed as hardening."
+blast_radius: "The affected signer, transaction flow, or verification path can accept actions under weaker-than-intended trust assumptions."
+
+impact_types: ["advisory-integrity", "vulnerability-detection"]
+severity_guess: "low"
+severity_rationale: "The evidence supports advisory-integrity, vulnerability-detection hardening, but it does not prove a complete exploit path or broad real-world impact."
+
+code_shape_summary: "The supported root issue is a missing advisory-check path that can authenticate vulnerability feed contents before using them for local version warnings. The evidence does not establish that an exploitable feed-spoofing vulnerability existed before the patch, nor that this commit fixes the underlying CorruptedDAG index-overflow mining issue."
+search_motifs:
+  - "wallet or signing api missing exact checks for signed vulnerability advisory check"
+  - "security-sensitive path reaches transaction or message signing under local account authority before rejecting malformed or unauthorized input"
+  - "Introduce an authenticated vulnerability advisory-feed checker: load advisory metadata, verify detached signatures against trusted signing keys, parse affected/fixed version ranges, and warn only when the local version matches trusted advisory data"
+negative_signals:
+  - "Classify as security-hardening for authenticated vulnerability advisory checking only."
+  - "Do not classify as a transaction-processing, mempool, or consensus-validation fix."
+  - "No implementation body for version_check.go is provided beyond the license header."
+patch_pattern: "Introduce an authenticated vulnerability advisory-feed checker: load advisory metadata, verify detached signatures against trusted signing keys, parse affected/fixed version ranges, and warn only when the local version matches trusted advisory data."
+
+source_refs: ["/testing/go-ethereum/validated-findings/kept/2020-12-04-go-ethereum-transaction-processing-15339cf1c.md"]

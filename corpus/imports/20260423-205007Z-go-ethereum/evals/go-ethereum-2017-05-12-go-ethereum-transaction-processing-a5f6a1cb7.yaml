@@ -1,0 +1,17 @@
+id: "go-ethereum-2017-05-12-go-ethereum-transaction-processing-a5f6a1cb7"
+source_record: "go-ethereum-2017-05-12-go-ethereum-transaction-processing-a5f6a1cb7.yaml"
+project: "go-ethereum"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "consensus-configuration-hardening"
+expected_missing_property: "consensus-validation"
+
+expected_impact_band: "high"
+expected_severity_band: "low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Classify as consensus configuration hardening, not a confirmed security fix."
+  - "Do not claim transaction-processing, signature, replay, or VM impact from this evidence."

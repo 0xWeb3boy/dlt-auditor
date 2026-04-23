@@ -1,0 +1,17 @@
+id: "go-ethereum-2020-12-04-go-ethereum-transaction-processing-15339cf1c"
+source_record: "go-ethereum-2020-12-04-go-ethereum-transaction-processing-15339cf1c.yaml"
+project: "go-ethereum"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "signed-vulnerability-advisory-check"
+expected_missing_property: "input-validation"
+
+expected_impact_band: "low"
+expected_severity_band: "low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Classify as security-hardening for authenticated vulnerability advisory checking only."
+  - "Do not classify as a transaction-processing, mempool, or consensus-validation fix."

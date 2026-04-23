@@ -132,15 +132,7 @@ If you already have `validated-findings/kept` in another repo, you can prepare t
 /testing/dlt-ai-audit-system/bin/prepare-corpus-from-repo /path/to/repo
 ```
 
-By default, that now prepares a six-worker `parallel-enrichment/` plan inside the bundle so `03_enrich` can be split across multiple agents immediately.
-
-If you want a different worker count, use:
-
-```bash
-/testing/dlt-ai-audit-system/bin/prepare-corpus-from-repo /path/to/repo --parallel-workers 8
-```
-
-That will create a timestamped import bundle under `corpus/imports/` with raw copies, record stubs, retrieval-card stubs, eval stubs, and an import summary. Unless you set `--parallel-workers 1`, it also creates a `parallel-enrichment/` plan inside the bundle with `worker-XX.md` prompts, `worker-XX-assignment.json` ownership files, `worker-XX-findings.txt` lists, and a manifest for multi-agent `03_enrich` runs.
+That will create a timestamped import bundle under `corpus/imports/` with raw copies, record stubs, retrieval-card stubs, eval stubs, and an import summary.
 
 ### How To Run `03_enrich`
 
@@ -157,7 +149,7 @@ Use /testing/dlt-ai-audit-system/bin/prepare-corpus-from-repo /path/to/target-re
 Then use /testing/dlt-ai-audit-system/03_enrich_corpus_import.md on the newly created import bundle.
 
 Read the bundle's SUMMARY.md, raw-findings/, records/, cards/, and evals/ folders.
-If parallel-enrichment/ exists, follow the worker prompt and assignment files and only edit the files assigned to this worker.
+Enrich the generated records, cards, and evals in place.
 ```
 
 In practice, this produces a timestamped import bundle under `corpus/imports/`, for example:

@@ -1,0 +1,17 @@
+id: "go-ethereum-2015-05-15-go-ethereum-core-logic-5c1a7b965"
+source_record: "go-ethereum-2015-05-15-go-ethereum-core-logic-5c1a7b965.yaml"
+project: "go-ethereum"
+
+expected_bug_family: "authz_and_role_gates"
+expected_bug_class: "p2p-sync-validation-bypass"
+expected_missing_property: "exact-validation-gate"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "This supports a security fix in the eth/downloader P2P synchronization path."
+  - "The validated issue is fake-chain or disconnected-chain acceptance during cross-checking."

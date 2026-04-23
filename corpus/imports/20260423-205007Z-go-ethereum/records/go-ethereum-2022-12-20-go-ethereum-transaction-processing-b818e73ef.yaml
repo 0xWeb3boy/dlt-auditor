@@ -1,0 +1,46 @@
+id: "go-ethereum-2022-12-20-go-ethereum-transaction-processing-b818e73ef"
+source_finding: "2022-12-20-go-ethereum-transaction-processing-b818e73ef.md"
+project: "go-ethereum"
+date: "2022-12-20"
+language_tags: []
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-validation-hardening"
+subsystem: "transaction-processing"
+architecture_tags: []
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "consensus-validation"
+violated_invariant: "During The Merge transition, the beacon consensus engine should classify header batches into pre-TTD PoW and post-Merge PoS segments, verify each segment with the appropriate consensus rules, and report errors without assuming the caller already sanitized the headers or blocks."
+trust_boundary: "Untrusted transaction data crossing into local execution and admission checks."
+entrypoint_type: "transaction validation path"
+sensitive_sink: "canonical-chain selection or persistent chain-state update"
+
+attacker_capabilities:
+  - "Supply crafted external inputs that reach the affected validation or execution path."
+exploit_preconditions:
+  - "The crafted input must reach the affected processing path before stronger downstream checks stop it."
+  - "The intended validation, policy, or accounting gate is missing, too weak, or applied too late."
+  - "Exploitability depends on deployment reachability and surrounding controls because the source evidence is framed as hardening."
+blast_radius: "Nodes following the affected path can diverge on validation, canonical-chain choice, or state outcomes."
+
+impact_types: ["consensus-integrity-hardening"]
+severity_guess: "medium"
+severity_rationale: "The evidence supports consensus-integrity-hardening hardening, but it does not prove a complete exploit path or broad real-world impact."
+
+code_shape_summary: "The evidence supports a conservative root cause of insufficiently self-contained Merge-boundary validation in the beacon consensus engine. It does not prove that this caused an exploitable security flaw; it only shows that validation responsibility was moved into the engine rather than relying on caller-side sanitization or simpler header classification."
+search_motifs:
+  - "transaction validation path missing exact checks for consensus validation hardening"
+  - "security-sensitive path reaches canonical-chain selection or persistent chain-state update before rejecting malformed or unauthorized input"
+  - "Centralize Merge-boundary header classification and error propagation inside the beacon consensus engine, then dispatch each segment to the verifier matching its consensus rules"
+negative_signals:
+  - "Classify as consensus validation hardening, not transaction processing."
+  - "Do not claim a confirmed exploitable security bug."
+  - "No concrete vulnerability identifier or advisory is provided."
+patch_pattern: "Centralize Merge-boundary header classification and error propagation inside the beacon consensus engine, then dispatch each segment to the verifier matching its consensus rules."
+
+source_refs: ["/testing/go-ethereum/validated-findings/kept/2022-12-20-go-ethereum-transaction-processing-b818e73ef.md"]

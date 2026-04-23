@@ -1,0 +1,17 @@
+id: "go-ethereum-2018-02-12-go-ethereum-p2p-networking-9123eceb0"
+source_record: "go-ethereum-2018-02-12-go-ethereum-p2p-networking-9123eceb0.yaml"
+project: "go-ethereum"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "protocol-response-correlation"
+expected_missing_property: "input-validation"
+
+expected_impact_band: "medium"
+expected_severity_band: "low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Classify only the ReplyTok validation as security hardening."
+  - "Do not claim a confirmed vulnerability or exploitability from the supplied evidence."

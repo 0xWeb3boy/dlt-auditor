@@ -1,0 +1,46 @@
+id: "go-ethereum-2016-11-24-go-ethereum-storage-12d654a6f"
+source_finding: "2016-11-24-go-ethereum-storage-12d654a6f.md"
+project: "go-ethereum"
+date: "2016-11-24"
+language_tags: []
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-state-revert-bug"
+subsystem: "storage"
+architecture_tags: []
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-fix"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "consensus-validation"
+violated_invariant: "Ethereum state transition execution must produce the same post-state across clients for EIP158 empty-account clearing, including when execution uses Snapshot/Revert. If an empty account is touched by a zero-value balance operation, that touch state must be recorded and reverted consistently."
+trust_boundary: "Peer-supplied synchronization or protocol data crossing into local validation and scheduling logic."
+entrypoint_type: "p2p message"
+sensitive_sink: "consensus-visible state transition or journal replay"
+
+attacker_capabilities:
+  - "Send crafted peer protocol messages, metadata, blocks, or headers during synchronization or discovery."
+exploit_preconditions:
+  - "The attacker must be able to reach the affected peer-facing protocol path or sync interaction."
+  - "The intended validation, policy, or accounting gate is missing, too weak, or applied too late."
+  - "Exploitability depends on deployment reachability and surrounding controls because the source evidence is framed as hardening."
+blast_radius: "Nodes following the affected path can diverge on validation, canonical-chain choice, or state outcomes."
+
+impact_types: ["consensus-integrity", "state-integrity"]
+severity_guess: "medium"
+severity_rationale: "The evidence is security-relevant and maps to consensus-integrity, state-integrity, but the finding is framed conservatively because exploitability is not fully demonstrated."
+
+code_shape_summary: "Touching an account was consensus-relevant under the shown EIP158 empty-account clearing path, but the pre-fix behavior did not represent that touch as an independently journaled and revertible state transition. Snapshot/Revert could therefore leave account existence or dirty-state inconsistent with the intended state transition behavior."
+search_motifs:
+  - "p2p message missing exact checks for consensus state revert bug"
+  - "security-sensitive path reaches consensus-visible state transition or journal replay before rejecting malformed or unauthorized input"
+  - "Model implicit consensus-relevant state as an explicit journal entry, mutate it through one helper, and implement undo logic so snapshot rollback restores account tracking consistently"
+negative_signals:
+  - "Valid claim: consensus-relevant state handling for touched empty accounts was corrected or made client-compatible."
+  - "Valid claim: Snapshot/Revert behavior for touch state became explicitly journaled and reversible."
+  - "No supplied evidence shows attacker-controlled exploitation."
+patch_pattern: "Model implicit consensus-relevant state as an explicit journal entry, mutate it through one helper, and implement undo logic so snapshot rollback restores account tracking consistently."
+
+source_refs: ["/testing/go-ethereum/validated-findings/kept/2016-11-24-go-ethereum-storage-12d654a6f.md"]

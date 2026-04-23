@@ -1,0 +1,17 @@
+id: "go-ethereum-2025-12-11-go-ethereum-transaction-processing-56d201b0f"
+source_record: "go-ethereum-2025-12-11-go-ethereum-transaction-processing-56d201b0f.yaml"
+project: "go-ethereum"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "p2p-metadata-validation"
+expected_missing_property: "input-validation"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Keep only as low-impact P2P resource-hardening, not as a state-integrity fix."
+  - "Do not claim transaction bodies were accepted incorrectly; later validation still applies according to the commit body."

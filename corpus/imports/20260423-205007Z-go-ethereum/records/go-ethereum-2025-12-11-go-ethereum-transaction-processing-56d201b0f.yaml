@@ -1,0 +1,45 @@
+id: "go-ethereum-2025-12-11-go-ethereum-transaction-processing-56d201b0f"
+source_finding: "2025-12-11-go-ethereum-transaction-processing-56d201b0f.md"
+project: "go-ethereum"
+date: "2025-12-11"
+language_tags: []
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "p2p-metadata-validation"
+subsystem: "transaction-processing"
+architecture_tags: []
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "input-validation"
+violated_invariant: "Remote peers should not be able to make a node schedule or request transaction bodies for announced transaction types that the local txpool does not support. This invariant is limited to early fetch scheduling; final fetched-body validation still applies."
+trust_boundary: "Untrusted transaction submissions crossing into shared mempool resource accounting."
+entrypoint_type: "transaction admission path"
+sensitive_sink: "shared txpool reservation, scheduling, or eviction state"
+
+attacker_capabilities:
+  - "Submit crafted transactions that stress shared mempool reservation or admission rules."
+exploit_preconditions:
+  - "The crafted input must reach the affected processing path before stronger downstream checks stop it."
+  - "The intended validation, policy, or accounting gate is missing, too weak, or applied too late."
+blast_radius: "The affected node or service can waste CPU, memory, bandwidth, or queue capacity under attacker-controlled input."
+
+impact_types: ["bandwidth-waste", "resource-consumption"]
+severity_guess: "medium"
+severity_rationale: "The evidence directly ties the patch to bandwidth-waste, resource-consumption risk on a reachable security boundary, but the supplied material still limits the claim to what the patch demonstrates."
+
+code_shape_summary: "The fetcher accepted peer-supplied announcement metadata far enough to schedule fetches without first checking whether the announced transaction type was supported by the local txpool. The commit text says later body validation still rejected mismatched or unsupported responses, so the root cause is early metadata validation missing in the P2P fetch path."
+search_motifs:
+  - "transaction admission path missing exact checks for p2p metadata validation"
+  - "security-sensitive path reaches shared txpool reservation, scheduling, or eviction state before rejecting malformed or unauthorized input"
+  - "Validate untrusted P2P announcement metadata at the scheduling boundary using the same local capability model that downstream txpool acceptance relies on"
+negative_signals:
+  - "Keep only as low-impact P2P resource-hardening, not as a state-integrity fix."
+  - "Do not claim transaction bodies were accepted incorrectly; later validation still applies according to the commit body."
+  - "No evidence that unsupported announcements could bypass final transaction validation."
+patch_pattern: "Validate untrusted P2P announcement metadata at the scheduling boundary using the same local capability model that downstream txpool acceptance relies on."
+
+source_refs: ["/testing/go-ethereum/validated-findings/kept/2025-12-11-go-ethereum-transaction-processing-56d201b0f.md"]

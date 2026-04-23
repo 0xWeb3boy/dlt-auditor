@@ -1,0 +1,46 @@
+id: "go-ethereum-2015-07-01-go-ethereum-p2p-networking-d6f2c0a76"
+source_finding: "2015-07-01-go-ethereum-p2p-networking-d6f2c0a76.md"
+project: "go-ethereum"
+date: "2015-07-01"
+language_tags: []
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "resource-exhaustion"
+subsystem: "p2p-networking"
+architecture_tags: []
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "resource-bounds"
+violated_invariant: "During eth synchronization, remotely supplied hash batches must not cause the downloader's pending hash queue to grow past an explicit capacity limit; fetching should stop once queued hash work reaches that limit."
+trust_boundary: "Peer-supplied synchronization or protocol data crossing into local validation and scheduling logic."
+entrypoint_type: "p2p message"
+sensitive_sink: "bounded work queue, fetch scheduling, or peer-driven validation/import logic"
+
+attacker_capabilities:
+  - "Send crafted peer protocol messages, metadata, blocks, or headers during synchronization or discovery."
+  - "Repeat low-cost requests to amplify local work, outbound traffic, or memory pressure."
+exploit_preconditions:
+  - "The attacker must be able to reach the affected peer-facing protocol path or sync interaction."
+  - "The intended validation, policy, or accounting gate is missing, too weak, or applied too late."
+blast_radius: "The affected node crosses a security boundary with weaker validation than intended."
+
+impact_types: []
+severity_guess: "medium"
+severity_rationale: "The evidence directly ties the patch to  risk on a reachable security boundary, but the supplied material still limits the claim to what the patch demonstrates."
+
+code_shape_summary: "The hash-fetch loop's continuation decision was not tied to pending hash queue depth. After accepting a valid batch, the downloader continued requesting additional batches without the newly added cap check in this path."
+search_motifs:
+  - "p2p message missing exact checks for resource exhaustion"
+  - "security-sensitive path reaches bounded work queue, fetch scheduling, or peer-driven validation/import logic before rejecting malformed or unauthorized input"
+  - "Add resource admission control to a remotely driven queueing path by checking queue depth before continuing to request more work"
+negative_signals:
+  - "Scope should remain limited to denial-of-service/resource exhaustion through downloader hash queue growth."
+  - "The handler logging change is ancillary and should not be treated as security-relevant."
+  - "No exploit procedure or concrete crash threshold is shown."
+patch_pattern: "Add resource admission control to a remotely driven queueing path by checking queue depth before continuing to request more work."
+
+source_refs: ["/testing/go-ethereum/validated-findings/kept/2015-07-01-go-ethereum-p2p-networking-d6f2c0a76.md"]

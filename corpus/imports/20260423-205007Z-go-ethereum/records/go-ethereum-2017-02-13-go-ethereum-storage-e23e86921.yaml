@@ -1,0 +1,45 @@
+id: "go-ethereum-2017-02-13-go-ethereum-storage-e23e86921"
+source_finding: "2017-02-13-go-ethereum-storage-e23e86921.md"
+project: "go-ethereum"
+date: "2017-02-13"
+language_tags: []
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "missing-content-integrity-check"
+subsystem: "storage"
+architecture_tags: []
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "input-validation"
+violated_invariant: "Swarm chunks are content-addressed: incoming or persisted chunk bytes must hash to the advertised chunk key before being accepted or treated as valid."
+trust_boundary: "Peer-supplied synchronization or protocol data crossing into local validation and scheduling logic."
+entrypoint_type: "p2p message"
+sensitive_sink: "consensus-visible state transition or journal replay"
+
+attacker_capabilities:
+  - "Send crafted peer protocol messages, metadata, blocks, or headers during synchronization or discovery."
+exploit_preconditions:
+  - "The attacker must be able to reach the affected peer-facing protocol path or sync interaction."
+  - "The intended validation, policy, or accounting gate is missing, too weak, or applied too late."
+blast_radius: "The affected signer, transaction flow, or verification path can accept actions under weaker-than-intended trust assumptions."
+
+impact_types: ["integrity"]
+severity_guess: "low"
+severity_rationale: "The evidence directly ties the patch to integrity risk on a reachable security boundary, but the supplied material still limits the claim to what the patch demonstrates."
+
+code_shape_summary: "The supported root cause is incomplete enforcement of the content-addressed chunk invariant in Swarm chunk handling. Peer-supplied chunk bytes were not shown to be validated against their advertised key before use in the affected handler, and corrupt persisted records were not cleaned up consistently."
+search_motifs:
+  - "p2p message missing exact checks for missing content integrity check"
+  - "security-sensitive path reaches consensus-visible state transition or journal replay before rejecting malformed or unauthorized input"
+  - "Validate content-addressed data at ingestion and cleanup boundaries, rejecting mismatched payloads and deleting corrupt records through the store's normal deletion abstraction"
+negative_signals:
+  - "Validated only as Swarm chunk integrity hardening, not as a proven high-impact vulnerability fix."
+  - "Do not claim transaction validation, consensus safety, or Ethereum core protocol impact."
+  - "No proof of a concrete exploit path beyond peer-supplied malformed chunk data."
+patch_pattern: "Validate content-addressed data at ingestion and cleanup boundaries, rejecting mismatched payloads and deleting corrupt records through the store's normal deletion abstraction."
+
+source_refs: ["/testing/go-ethereum/validated-findings/kept/2017-02-13-go-ethereum-storage-e23e86921.md"]

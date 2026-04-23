@@ -1,0 +1,47 @@
+id: "go-ethereum-2025-04-08-go-ethereum-transaction-processing-2e739fce5"
+source_finding: "2025-04-08-go-ethereum-transaction-processing-2e739fce5.md"
+project: "go-ethereum"
+date: "2025-04-08"
+language_tags: []
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "mempool-resource-exhaustion"
+subsystem: "transaction-processing"
+architecture_tags: []
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "resource-bounds"
+violated_invariant: "Txpool admission should not let EIP-7702 delegated senders or pending SetCode authorities use blobpool and legacy-pool interactions to reserve many executable slots, evict other transactions, and then cheaply invalidate the reserved transactions."
+trust_boundary: "Untrusted transaction submissions crossing into shared mempool resource accounting."
+entrypoint_type: "transaction admission path"
+sensitive_sink: "shared txpool reservation, scheduling, or eviction state"
+
+attacker_capabilities:
+  - "Submit crafted transactions that stress shared mempool reservation or admission rules."
+  - "Repeat low-cost requests to amplify local work, outbound traffic, or memory pressure."
+exploit_preconditions:
+  - "The crafted input must reach the affected processing path before stronger downstream checks stop it."
+  - "The intended validation, policy, or accounting gate is missing, too weak, or applied too late."
+  - "Exploitability depends on deployment reachability and surrounding controls because the source evidence is framed as hardening."
+blast_radius: "The affected node or service can waste CPU, memory, bandwidth, or queue capacity under attacker-controlled input."
+
+impact_types: ["availability", "resource-exhaustion", "transaction-eviction"]
+severity_guess: "low"
+severity_rationale: "The evidence supports availability, resource-exhaustion, transaction-eviction hardening, but it does not prove a complete exploit path or broad real-world impact."
+
+code_shape_summary: "The issue was missing EIP-7702-aware txpool admission and reservation policy across blobpool and legacy-pool paths. That gap allowed the spam, eviction, and later cancellation pattern described in the commit message when delegated accounts or pending authorities interacted with blob transactions and SetCode transactions."
+search_motifs:
+  - "transaction admission path missing exact checks for mempool resource exhaustion"
+  - "security-sensitive path reaches shared txpool reservation, scheduling, or eviction state before rejecting malformed or unauthorized input"
+  - "Add conservative mempool admission checks around EIP-7702 delegation state and shared address reservations: limit delegated senders to one executable blobpool transaction and reject SetCode authorities already reserved elsewhere"
+negative_signals:
+  - "Classify as txpool resource-control hardening for EIP-7702/blobpool interactions."
+  - "Do not claim a complete fix for all cross-subpool races."
+  - "No supplied evidence proves consensus compromise, transaction forgery, signature bypass, or chain-state corruption."
+patch_pattern: "Add conservative mempool admission checks around EIP-7702 delegation state and shared address reservations: limit delegated senders to one executable blobpool transaction and reject SetCode authorities already reserved elsewhere."
+
+source_refs: ["/testing/go-ethereum/validated-findings/kept/2025-04-08-go-ethereum-transaction-processing-2e739fce5.md"]

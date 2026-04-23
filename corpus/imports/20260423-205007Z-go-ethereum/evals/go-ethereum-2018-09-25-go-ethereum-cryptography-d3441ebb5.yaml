@@ -1,0 +1,17 @@
+id: "go-ethereum-2018-09-25-go-ethereum-cryptography-d3441ebb5"
+source_record: "go-ethereum-2018-09-25-go-ethereum-cryptography-d3441ebb5.yaml"
+project: "go-ethereum"
+
+expected_bug_family: "signature_binding_and_signer_scope"
+expected_bug_class: "signer-policy-hardening"
+expected_missing_property: "domain-separated-signing"
+
+expected_impact_band: "low"
+expected_severity_band: "low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Validate as signer/Clef hardening, not a proven cryptographic vulnerability fix."
+  - "Do not claim private-key extraction, signature forgery, consensus impact, or remote compromise from this evidence."

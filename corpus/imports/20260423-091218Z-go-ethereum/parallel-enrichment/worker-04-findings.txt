@@ -1,5 +1,0 @@
-go-ethereum-2015-03-25-go-ethereum-cryptography-de7af720d
-go-ethereum-2024-05-07-go-ethereum-transaction-processing-e4b8058d5
-go-ethereum-2016-11-24-go-ethereum-storage-db567eb01
-go-ethereum-2015-01-13-go-ethereum-transaction-processing-82beaabf6
-go-ethereum-2023-01-11-go-ethereum-transaction-processing-793f0f9ec

@@ -1,0 +1,46 @@
+id: "go-ethereum-2015-05-14-go-ethereum-transaction-processing-a4246c2da"
+source_finding: "2015-05-14-go-ethereum-transaction-processing-a4246c2da.md"
+project: "go-ethereum"
+date: "2015-05-14"
+language_tags: []
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "unknown-parent-sync-hardening"
+subsystem: "transaction-processing"
+architecture_tags: []
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "input-validation"
+violated_invariant: "During block synchronization, the downloader should distinguish benign absence of ready blocks from an invalid queued head whose parent is not locally known, and callers should abort on the invalid state instead of treating it as normal no-work."
+trust_boundary: "Untrusted RPC or debug request parameters reaching privileged node logic."
+entrypoint_type: "rpc method"
+sensitive_sink: "expensive RPC-side computation, allocation, or response construction"
+
+attacker_capabilities:
+  - "Invoke the exposed RPC or debug method with crafted parameters."
+exploit_preconditions:
+  - "The relevant RPC or debug method must be reachable to the attacker directly or through a shared service."
+  - "The intended validation, policy, or accounting gate is missing, too weak, or applied too late."
+  - "Exploitability depends on deployment reachability and surrounding controls because the source evidence is framed as hardening."
+blast_radius: "The affected node crosses a security boundary with weaker validation than intended."
+
+impact_types: ["sync-disruption"]
+severity_guess: "low"
+severity_rationale: "The evidence supports sync-disruption hardening, but it does not prove a complete exploit path or broad real-world impact."
+
+code_shape_summary: "The old downloader API conflated two different synchronization states: no queued head was ready, and a queued head could not connect to a known parent. That made an invalid or suspicious queued-head condition look like ordinary lack of work."
+search_motifs:
+  - "rpc method missing exact checks for unknown parent sync hardening"
+  - "security-sensitive path reaches expensive RPC-side computation, allocation, or response construction before rejecting malformed or unauthorized input"
+  - "Split benign readiness checks from invariant failures"
+negative_signals:
+  - "Classify as block downloader synchronization hardening, not transaction processing."
+  - "Do not claim confirmed remote DoS from the supplied patch alone."
+  - "The supplied snippet does not show the exact new unknown-parent error branch."
+patch_pattern: "Split benign readiness checks from invariant failures. Return an explicit error for invalid synchronization state and require the caller to abort instead of silently treating it as no work."
+
+source_refs: ["/testing/go-ethereum/validated-findings/kept/2015-05-14-go-ethereum-transaction-processing-a4246c2da.md"]

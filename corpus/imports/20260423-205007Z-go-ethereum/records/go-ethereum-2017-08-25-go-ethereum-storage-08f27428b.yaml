@@ -1,0 +1,46 @@
+id: "go-ethereum-2017-08-25-go-ethereum-storage-08f27428b"
+source_finding: "2017-08-25-go-ethereum-storage-08f27428b.md"
+project: "go-ethereum"
+date: "2017-08-25"
+language_tags: []
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "contract-address-collision"
+subsystem: "storage"
+architecture_tags: []
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "state-transition-consistency"
+violated_invariant: "EVM contract creation should fail when the deterministic CREATE destination is already occupied, evidenced here by a nonzero nonce or a non-empty deployed code hash."
+trust_boundary: "External block or header data crossing into canonical-chain validation and state-transition logic."
+entrypoint_type: "block or header validation path"
+sensitive_sink: "consensus-visible state transition or journal replay"
+
+attacker_capabilities:
+  - "Supply crafted external inputs that reach the affected validation or execution path."
+exploit_preconditions:
+  - "The crafted input must reach the affected processing path before stronger downstream checks stop it."
+  - "The intended validation, policy, or accounting gate is missing, too weak, or applied too late."
+  - "Exploitability depends on deployment reachability and surrounding controls because the source evidence is framed as hardening."
+blast_radius: "Nodes following the affected path can diverge on validation, canonical-chain choice, or state outcomes."
+
+impact_types: ["state-integrity"]
+severity_guess: "medium"
+severity_rationale: "The evidence supports state-integrity hardening, but it does not prove a complete exploit path or broad real-world impact."
+
+code_shape_summary: "The provided evidence supports a missing pre-creation occupancy check in the EVM CREATE path relative to the Metropolis EIP 684 rule. It does not prove that this omission was exploitable as a vulnerability."
+search_motifs:
+  - "block or header validation path missing exact checks for contract address collision"
+  - "security-sensitive path reaches consensus-visible state transition or journal replay before rejecting malformed or unauthorized input"
+  - "Add a fail-closed protocol invariant check at the contract-creation boundary before downstream account creation proceeds"
+negative_signals:
+  - "Treat as protocol security hardening, not a proven vulnerability fix."
+  - "Do not claim demonstrated state corruption or storage overwrite from the supplied evidence alone."
+  - "No exploit scenario is shown in the supplied patch evidence."
+patch_pattern: "Add a fail-closed protocol invariant check at the contract-creation boundary before downstream account creation proceeds."
+
+source_refs: ["/testing/go-ethereum/validated-findings/kept/2017-08-25-go-ethereum-storage-08f27428b.md"]

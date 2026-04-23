@@ -1,0 +1,17 @@
+id: "go-ethereum-2016-11-24-go-ethereum-storage-12d654a6f"
+source_record: "go-ethereum-2016-11-24-go-ethereum-storage-12d654a6f.yaml"
+project: "go-ethereum"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "consensus-state-revert-bug"
+expected_missing_property: "consensus-validation"
+
+expected_impact_band: "high"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Valid claim: consensus-relevant state handling for touched empty accounts was corrected or made client-compatible."
+  - "Valid claim: Snapshot/Revert behavior for touch state became explicitly journaled and reversible."

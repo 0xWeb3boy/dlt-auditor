@@ -1,0 +1,17 @@
+id: "go-ethereum-2017-06-22-go-ethereum-storage-0042f13d4"
+source_record: "go-ethereum-2017-06-22-go-ethereum-storage-0042f13d4.yaml"
+project: "go-ethereum"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "resource-exhaustion"
+expected_missing_property: "resource-bounds"
+
+expected_impact_band: "low"
+expected_severity_band: "low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Classify as resource-exhaustion or sync-level remote DoS hardening, not as state corruption or consensus bypass."
+  - "Do not claim remote code execution, authorization bypass, or cryptographic weakness."

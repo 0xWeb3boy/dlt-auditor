@@ -1,0 +1,46 @@
+id: "go-ethereum-2014-11-12-go-ethereum-transaction-processing-60cdb1148"
+source_finding: "2014-11-12-go-ethereum-transaction-processing-60cdb1148.md"
+project: "go-ethereum"
+date: "2014-11-12"
+language_tags: []
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "missing-consensus-commitment-validation"
+subsystem: "transaction-processing"
+architecture_tags: []
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "consensus-validation"
+violated_invariant: "During block processing, the transaction trie hash derived from the block's transaction list must match the block header's TxSha commitment before the block is accepted by that validation path."
+trust_boundary: "Untrusted transaction data crossing into local execution and admission checks."
+entrypoint_type: "transaction validation path"
+sensitive_sink: "canonical-chain selection or persistent chain-state update"
+
+attacker_capabilities:
+  - "Supply crafted external inputs that reach the affected validation or execution path."
+exploit_preconditions:
+  - "The crafted input must reach the affected processing path before stronger downstream checks stop it."
+  - "The intended validation, policy, or accounting gate is missing, too weak, or applied too late."
+  - "Exploitability depends on deployment reachability and surrounding controls because the source evidence is framed as hardening."
+blast_radius: "Nodes following the affected path can diverge on validation, canonical-chain choice, or state outcomes."
+
+impact_types: ["consensus-integrity"]
+severity_guess: "medium"
+severity_rationale: "The evidence supports consensus-integrity hardening, but it does not prove a complete exploit path or broad real-world impact."
+
+code_shape_summary: "A consensus commitment check in the block-processing path had been disabled by being left inside a block comment. As a result, this function lacked an active rejection path for a mismatch between the transactions carried by the block and the header's `TxSha` commitment. The empty-trie-root normalization is related commitment hygiene, but the provided evidence does not prove it was the primary vulnerability."
+search_motifs:
+  - "transaction validation path missing exact checks for missing consensus commitment validation"
+  - "security-sensitive path reaches canonical-chain selection or persistent chain-state update before rejecting malformed or unauthorized input"
+  - "Restore explicit consensus commitment validation in the block-processing path and normalize trie root encoding used by commitment calculations"
+negative_signals:
+  - "Supported claim: this patch tightens block transaction-root validation in a consensus-sensitive path."
+  - "Supported claim: trie root canonicalization is commitment-calculation hygiene."
+  - "No commit body or advisory describes a vulnerability or exploit scenario."
+patch_pattern: "Restore explicit consensus commitment validation in the block-processing path and normalize trie root encoding used by commitment calculations."
+
+source_refs: ["/testing/go-ethereum/validated-findings/kept/2014-11-12-go-ethereum-transaction-processing-60cdb1148.md"]

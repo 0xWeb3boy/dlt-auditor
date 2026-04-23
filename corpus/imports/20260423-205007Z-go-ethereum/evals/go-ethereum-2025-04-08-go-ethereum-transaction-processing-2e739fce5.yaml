@@ -1,0 +1,17 @@
+id: "go-ethereum-2025-04-08-go-ethereum-transaction-processing-2e739fce5"
+source_record: "go-ethereum-2025-04-08-go-ethereum-transaction-processing-2e739fce5.yaml"
+project: "go-ethereum"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "mempool-resource-exhaustion"
+expected_missing_property: "resource-bounds"
+
+expected_impact_band: "medium"
+expected_severity_band: "low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Classify as txpool resource-control hardening for EIP-7702/blobpool interactions."
+  - "Do not claim a complete fix for all cross-subpool races."

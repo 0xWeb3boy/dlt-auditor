@@ -1,0 +1,46 @@
+id: "go-ethereum-2020-12-08-go-ethereum-transaction-processing-ed0670cb1"
+source_finding: "2020-12-08-go-ethereum-transaction-processing-ed0670cb1.md"
+project: "go-ethereum"
+date: "2020-12-08"
+language_tags: []
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "replay-protection"
+subsystem: "transaction-processing"
+architecture_tags: []
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "replay-protection"
+violated_invariant: "Contract transaction signing should use a signer appropriate to the target chain. On EIP-155 chains, callers should be able to bind signatures to the intended chainID rather than always producing legacy Homestead-style signatures."
+trust_boundary: "Untrusted RPC or debug request parameters reaching privileged node logic."
+entrypoint_type: "rpc method"
+sensitive_sink: "expensive RPC-side computation, allocation, or response construction"
+
+attacker_capabilities:
+  - "Invoke the exposed RPC or debug method with crafted parameters."
+  - "Reuse signatures or unprotected transactions across domains where stronger replay binding is expected."
+exploit_preconditions:
+  - "The relevant RPC or debug method must be reachable to the attacker directly or through a shared service."
+  - "The intended validation, policy, or accounting gate is missing, too weak, or applied too late."
+blast_radius: "Nodes following the affected path can diverge on validation, canonical-chain choice, or state outcomes."
+
+impact_types: ["cross-chain-replay-risk"]
+severity_guess: "medium"
+severity_rationale: "The evidence directly ties the patch to cross-chain-replay-risk risk on a reachable security boundary, but the supplied material still limits the claim to what the patch demonstrates."
+
+code_shape_summary: "The prior helper API defaulted to Homestead signing and did not let these entry points express EIP-155 chain-domain separation. The supported root cause is legacy/default signing behavior without chainID selection, not missing authorization."
+search_motifs:
+  - "rpc method missing exact checks for replay protection"
+  - "security-sensitive path reaches expensive RPC-side computation, allocation, or response construction before rejecting malformed or unauthorized input"
+  - "Add explicit chainID-aware transaction signer construction and update affected entry points that need chain-specific signing to use it, while retaining the legacy Homestead helper as deprecated compatibility API"
+negative_signals:
+  - "Classify as replay-protection hardening, not access control."
+  - "Do not claim a proven security fix for an exploited vulnerability."
+  - "No evidence shows a concrete exploit, theft, privilege escalation, or unauthorized contract execution."
+patch_pattern: "Add explicit chainID-aware transaction signer construction and update affected entry points that need chain-specific signing to use it, while retaining the legacy Homestead helper as deprecated compatibility API."
+
+source_refs: ["/testing/go-ethereum/validated-findings/kept/2020-12-08-go-ethereum-transaction-processing-ed0670cb1.md"]

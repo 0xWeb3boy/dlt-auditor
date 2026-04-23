@@ -64,7 +64,6 @@ If you already have a repo with `validated-findings/kept`, you can scaffold the 
 ```
 
 That creates a timestamped import bundle under `corpus/imports/`.
-By default, it also includes a six-worker `parallel-enrichment/` folder with per-worker prompts and assignment files for multi-agent enrichment. Use `--parallel-workers N` to change that count, or `--parallel-workers 1` to skip the planner.
 
 ## Confidence Tiers
 

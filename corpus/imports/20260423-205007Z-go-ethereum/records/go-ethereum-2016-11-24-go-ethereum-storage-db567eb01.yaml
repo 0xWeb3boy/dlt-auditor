@@ -1,0 +1,46 @@
+id: "go-ethereum-2016-11-24-go-ethereum-storage-db567eb01"
+source_finding: "2016-11-24-go-ethereum-storage-db567eb01.md"
+project: "go-ethereum"
+date: "2016-11-24"
+language_tags: []
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-state-revert-mismatch"
+subsystem: "storage"
+architecture_tags: []
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "consensus-validation"
+violated_invariant: "Ethereum clients must apply EIP158 empty-account touch and snapshot/revert behavior deterministically so consensus-visible state remains compatible across clients and chain history."
+trust_boundary: "Untrusted transaction data crossing into local execution and admission checks."
+entrypoint_type: "transaction validation path"
+sensitive_sink: "consensus-visible state transition or journal replay"
+
+attacker_capabilities:
+  - "Supply crafted external inputs that reach the affected validation or execution path."
+exploit_preconditions:
+  - "The crafted input must reach the affected processing path before stronger downstream checks stop it."
+  - "The intended validation, policy, or accounting gate is missing, too weak, or applied too late."
+  - "Exploitability depends on deployment reachability and surrounding controls because the source evidence is framed as hardening."
+blast_radius: "Nodes following the affected path can diverge on validation, canonical-chain choice, or state outcomes."
+
+impact_types: ["consensus-integrity", "state-integrity"]
+severity_guess: "medium"
+severity_rationale: "The evidence supports consensus-integrity, state-integrity hardening, but it does not prove a complete exploit path or broad real-world impact."
+
+code_shape_summary: "Touched-account state could be introduced during EIP158 empty-account handling without a corresponding reversible journal entry. That could leave snapshot/revert behavior inconsistent with the intended consensus-compatible state transition."
+search_motifs:
+  - "transaction validation path missing exact checks for consensus state revert mismatch"
+  - "security-sensitive path reaches consensus-visible state transition or journal replay before rejecting malformed or unauthorized input"
+  - "Represent consensus-visible transient state changes as journaled mutations with an explicit undo path, then add regression coverage around snapshot/revert boundaries"
+negative_signals:
+  - "Validate as consensus/state-integrity hardening, not a proven exploit fix."
+  - "Do not claim funds loss or account takeover."
+  - "No direct exploit path is shown."
+patch_pattern: "Represent consensus-visible transient state changes as journaled mutations with an explicit undo path, then add regression coverage around snapshot/revert boundaries."
+
+source_refs: ["/testing/go-ethereum/validated-findings/kept/2016-11-24-go-ethereum-storage-db567eb01.md"]

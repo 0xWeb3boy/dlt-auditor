@@ -1,0 +1,17 @@
+id: "go-ethereum-2026-03-04-go-ethereum-storage-6d99759f0"
+source_record: "go-ethereum-2026-03-04-go-ethereum-storage-6d99759f0.yaml"
+project: "go-ethereum"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "rpc-persistent-state-side-effect"
+expected_missing_property: "state-transition-consistency"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Treat as hardening against unintended persistent side effects from RPC/debug execution, not as a proven vulnerability fix."
+  - "Do not claim cryptographic, replay-protection, validator, or consensus-rule fixes from the supplied evidence."

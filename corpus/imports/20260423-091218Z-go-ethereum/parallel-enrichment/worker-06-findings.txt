@@ -1,5 +1,0 @@
-go-ethereum-2015-07-01-go-ethereum-p2p-networking-d6f2c0a76
-go-ethereum-2018-09-25-go-ethereum-cryptography-d3441ebb5
-go-ethereum-2017-08-25-go-ethereum-storage-08f27428b
-go-ethereum-2017-05-12-go-ethereum-transaction-processing-a5f6a1cb7
-go-ethereum-2026-03-24-go-ethereum-transaction-processing-8327e870e

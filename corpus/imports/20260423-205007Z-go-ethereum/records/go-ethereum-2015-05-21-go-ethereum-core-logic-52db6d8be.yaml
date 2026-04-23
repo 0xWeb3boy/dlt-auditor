@@ -1,0 +1,45 @@
+id: "go-ethereum-2015-05-21-go-ethereum-core-logic-52db6d8be"
+source_finding: "2015-05-21-go-ethereum-core-logic-52db6d8be.md"
+project: "go-ethereum"
+date: "2015-05-21"
+language_tags: []
+
+bug_family: "authz_and_role_gates"
+bug_class: "cross-check-validation-bypass"
+subsystem: "core-logic"
+architecture_tags: []
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "exact-validation-gate"
+violated_invariant: "During downloader synchronization, a peer-supplied block selected for cross-check must have the exact expected parent from the advertised hash chain; it is not enough for the parent hash to merely exist somewhere in the local download queue."
+trust_boundary: "Peer-supplied synchronization or protocol data crossing into local validation and scheduling logic."
+entrypoint_type: "p2p message"
+sensitive_sink: "consensus-visible state transition or journal replay"
+
+attacker_capabilities:
+  - "Send crafted peer protocol messages, metadata, blocks, or headers during synchronization or discovery."
+exploit_preconditions:
+  - "The attacker must be able to reach the affected peer-facing protocol path or sync interaction."
+  - "The intended validation, policy, or accounting gate is missing, too weak, or applied too late."
+blast_radius: "The affected signer, transaction flow, or verification path can accept actions under weaker-than-intended trust assumptions."
+
+impact_types: ["sync-integrity"]
+severity_guess: "medium"
+severity_rationale: "The evidence directly ties the patch to sync-integrity risk on a reachable security boundary, but the supplied material still limits the claim to what the patch demonstrates."
+
+code_shape_summary: "The downloader used queue membership as a proxy for validating the parent-child relationship of a cross-checked block. Because the expected parent was not retained in the cross-check state, a malicious peer could craft parent links to known hashes and pass the weaker check."
+search_motifs:
+  - "p2p message missing exact checks for cross check validation bypass"
+  - "security-sensitive path reaches consensus-visible state transition or journal replay before rejecting malformed or unauthorized input"
+  - "Store the exact validation predicate needed for later checks, then compare peer-supplied data against that expected value instead of using approximate membership tests"
+negative_signals:
+  - "Keep the finding limited to downloader cross-check validation bypass by malicious or faulty peers."
+  - "Do not claim arbitrary code execution, key compromise, fund theft, or consensus validation bypass."
+  - "No evidence shows invalid consensus blocks could be imported after full validation."
+patch_pattern: "Store the exact validation predicate needed for later checks, then compare peer-supplied data against that expected value instead of using approximate membership tests."
+
+source_refs: ["/testing/go-ethereum/validated-findings/kept/2015-05-21-go-ethereum-core-logic-52db6d8be.md"]

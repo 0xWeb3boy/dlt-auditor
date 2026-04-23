@@ -1,0 +1,17 @@
+id: "go-ethereum-2018-09-20-go-ethereum-storage-d6254f827"
+source_record: "go-ethereum-2018-09-20-go-ethereum-storage-d6254f827.yaml"
+project: "go-ethereum"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "fork-choice-tie-break-hardening"
+expected_missing_property: "deterministic-fork-choice"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Classify as fork-choice hardening, not a confirmed security fix."
+  - "Do not claim remote exploitability from the supplied patch alone."

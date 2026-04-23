@@ -1,0 +1,46 @@
+id: "go-ethereum-2017-05-12-go-ethereum-transaction-processing-a5f6a1cb7"
+source_finding: "2017-05-12-go-ethereum-transaction-processing-a5f6a1cb7.md"
+project: "go-ethereum"
+date: "2017-05-12"
+language_tags: []
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-configuration-hardening"
+subsystem: "transaction-processing"
+architecture_tags: []
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "consensus-validation"
+violated_invariant: "A node with an existing local chain should reject a replacement ChainConfig that would change consensus fork boundaries already relevant at the current head. The patch extends that compatibility invariant to MetropolisBlock."
+trust_boundary: "Caller-controlled signing or account-management requests crossing into wallet-held authority."
+entrypoint_type: "wallet or signing api"
+sensitive_sink: "transaction or message signing under local account authority"
+
+attacker_capabilities:
+  - "Submit crafted signing or account-management requests through the exposed wallet API."
+exploit_preconditions:
+  - "The exposed signing API or operator workflow must allow the attacker-controlled request to reach the policy check."
+  - "The intended validation, policy, or accounting gate is missing, too weak, or applied too late."
+  - "Exploitability depends on deployment reachability and surrounding controls because the source evidence is framed as hardening."
+blast_radius: "Nodes following the affected path can diverge on validation, canonical-chain choice, or state outcomes."
+
+impact_types: ["consensus-configuration-mismatch"]
+severity_guess: "low"
+severity_rationale: "The evidence supports consensus-configuration-mismatch hardening, but it does not prove a complete exploit path or broad real-world impact."
+
+code_shape_summary: "MetropolisBlock was omitted from the same chain configuration compatibility boundary used for earlier consensus fork blocks. Based on the shown code, that meant a replacement ChainConfig could avoid rejection solely because the changed field was the Metropolis activation height."
+search_motifs:
+  - "wallet or signing api missing exact checks for consensus configuration hardening"
+  - "security-sensitive path reaches transaction or message signing under local account authority before rejecting malformed or unauthorized input"
+  - "Extend fork-configuration compatibility checks to cover the newly supported fork boundary, using the same shared predicates already used for earlier forks"
+negative_signals:
+  - "Classify as consensus configuration hardening, not a confirmed security fix."
+  - "Do not claim transaction-processing, signature, replay, or VM impact from this evidence."
+  - "No exploit path or externally triggerable attack is shown."
+patch_pattern: "Extend fork-configuration compatibility checks to cover the newly supported fork boundary, using the same shared predicates already used for earlier forks."
+
+source_refs: ["/testing/go-ethereum/validated-findings/kept/2017-05-12-go-ethereum-transaction-processing-a5f6a1cb7.md"]

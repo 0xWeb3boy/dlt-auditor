@@ -1,0 +1,17 @@
+id: "go-ethereum-2015-05-21-go-ethereum-core-logic-52db6d8be"
+source_record: "go-ethereum-2015-05-21-go-ethereum-core-logic-52db6d8be.yaml"
+project: "go-ethereum"
+
+expected_bug_family: "authz_and_role_gates"
+expected_bug_class: "cross-check-validation-bypass"
+expected_missing_property: "exact-validation-gate"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Keep the finding limited to downloader cross-check validation bypass by malicious or faulty peers."
+  - "Do not claim arbitrary code execution, key compromise, fund theft, or consensus validation bypass."

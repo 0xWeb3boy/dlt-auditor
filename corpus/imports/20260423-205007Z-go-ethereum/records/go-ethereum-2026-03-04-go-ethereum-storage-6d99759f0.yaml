@@ -1,0 +1,46 @@
+id: "go-ethereum-2026-03-04-go-ethereum-storage-6d99759f0"
+source_finding: "2026-03-04-go-ethereum-storage-6d99759f0.md"
+project: "go-ethereum"
+date: "2026-03-04"
+language_tags: []
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "rpc-persistent-state-side-effect"
+subsystem: "storage"
+architecture_tags: []
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "state-transition-consistency"
+violated_invariant: "Debug/RPC execution paths used for witness generation or inspection should not persist computed block/state data unless the caller explicitly requests normal chain-import side effects."
+trust_boundary: "Untrusted RPC or debug request parameters reaching privileged node logic."
+entrypoint_type: "rpc method"
+sensitive_sink: "persistent state writes or canonical-head side effects behind an RPC/debug path"
+
+attacker_capabilities:
+  - "Invoke the exposed RPC or debug method with crafted parameters."
+exploit_preconditions:
+  - "The relevant RPC or debug method must be reachable to the attacker directly or through a shared service."
+  - "The intended validation, policy, or accounting gate is missing, too weak, or applied too late."
+  - "Exploitability depends on deployment reachability and surrounding controls because the source evidence is framed as hardening."
+blast_radius: "Nodes following the affected path can diverge on validation, canonical-chain choice, or state outcomes."
+
+impact_types: ["state-integrity", "resource-exhaustion"]
+severity_guess: "medium"
+severity_rationale: "The evidence supports state-integrity, resource-exhaustion hardening, but it does not prove a complete exploit path or broad real-world impact."
+
+code_shape_summary: "ProcessBlock mixed normal import side effects with debug/RPC execution use cases. The old boolean controls distinguished head updates and witness generation, but did not clearly express a read-only mode, allowing a non-head-updating execution path to still persist block/state data."
+search_motifs:
+  - "rpc method missing exact checks for rpc persistent state side effect"
+  - "security-sensitive path reaches persistent state writes or canonical-head side effects behind an RPC/debug path before rejecting malformed or unauthorized input"
+  - "Replace ambiguous boolean execution controls with explicit configuration flags and gate persistent write operations behind a dedicated WriteState option"
+negative_signals:
+  - "Treat as hardening against unintended persistent side effects from RPC/debug execution, not as a proven vulnerability fix."
+  - "Do not claim cryptographic, replay-protection, validator, or consensus-rule fixes from the supplied evidence."
+  - "No evidence that the RPC method is exposed without authentication in affected deployments."
+patch_pattern: "Replace ambiguous boolean execution controls with explicit configuration flags and gate persistent write operations behind a dedicated WriteState option."
+
+source_refs: ["/testing/go-ethereum/validated-findings/kept/2026-03-04-go-ethereum-storage-6d99759f0.md"]

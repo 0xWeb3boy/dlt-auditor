@@ -1,0 +1,47 @@
+id: "go-ethereum-2023-01-11-go-ethereum-transaction-processing-793f0f9ec"
+source_finding: "2023-01-11-go-ethereum-transaction-processing-793f0f9ec.md"
+project: "go-ethereum"
+date: "2023-01-11"
+language_tags: []
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "resource-accounting-hardening"
+subsystem: "transaction-processing"
+architecture_tags: []
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "resource-bounds"
+violated_invariant: "After Shanghai, contract-creation initcode is bounded by params.MaxInitCodeSize and charged additional per-word initcode gas under EIP-3860."
+trust_boundary: "Untrusted transaction data crossing into local execution and admission checks."
+entrypoint_type: "transaction validation path"
+sensitive_sink: "canonical-chain selection or persistent chain-state update"
+
+attacker_capabilities:
+  - "Supply crafted external inputs that reach the affected validation or execution path."
+  - "Repeat low-cost requests to amplify local work, outbound traffic, or memory pressure."
+exploit_preconditions:
+  - "The crafted input must reach the affected processing path before stronger downstream checks stop it."
+  - "The intended validation, policy, or accounting gate is missing, too weak, or applied too late."
+  - "Exploitability depends on deployment reachability and surrounding controls because the source evidence is framed as hardening."
+blast_radius: "The affected node or service can waste CPU, memory, bandwidth, or queue capacity under attacker-controlled input."
+
+impact_types: ["resource-exhaustion-mitigation"]
+severity_guess: "low"
+severity_rationale: "The evidence supports resource-exhaustion-mitigation hardening, but it does not prove a complete exploit path or broad real-world impact."
+
+code_shape_summary: "No proven vulnerability root cause is established. The grounded issue is that the pre-change code did not yet implement the new Shanghai/EIP-3860 initcode resource-accounting rules across the shown transaction and EVM gas paths."
+search_motifs:
+  - "transaction validation path missing exact checks for resource accounting hardening"
+  - "security-sensitive path reaches canonical-chain selection or persistent chain-state update before rejecting malformed or unauthorized input"
+  - "Implement fork-gated resource accounting at relevant transaction and VM gas boundaries, with explicit size limits and checked uint64 gas arithmetic"
+negative_signals:
+  - "Classify as protocol resource-accounting hardening, not a proven vulnerability fix."
+  - "Do not claim a concrete liveness failure from the patch alone."
+  - "No demonstrated exploit path or attacker-controlled transaction causing node failure is shown."
+patch_pattern: "Implement fork-gated resource accounting at relevant transaction and VM gas boundaries, with explicit size limits and checked uint64 gas arithmetic."
+
+source_refs: ["/testing/go-ethereum/validated-findings/kept/2023-01-11-go-ethereum-transaction-processing-793f0f9ec.md"]

@@ -1,6 +1,6 @@
 # How To Run
 
-This is the short operator guide for using the audit system with one agent or multiple agents.
+This is the short operator guide for using the audit system.
 
 ## Single-Agent Workflow
 
@@ -31,14 +31,6 @@ If you already have `validated-findings/kept` from another repo and want to turn
 /testing/dlt-ai-audit-system/bin/prepare-corpus-from-repo /path/to/repo
 ```
 
-That command now prepares the bundle for a parallel `03_enrich` pass by default, using six workers unless you override it.
-
-If you want a different worker count, use:
-
-```bash
-/testing/dlt-ai-audit-system/bin/prepare-corpus-from-repo /path/to/repo --parallel-workers 8
-```
-
 That command prepares a timestamped import bundle under `corpus/imports/` with:
 
 - raw finding copies
@@ -46,13 +38,6 @@ That command prepares a timestamped import bundle under `corpus/imports/` with:
 - retrieval card stubs
 - eval stubs
 - an import manifest
-
-Unless you set `--parallel-workers 1`, it also prepares `parallel-enrichment/` inside the bundle with:
-
-- `worker-XX.md` prompts
-- `worker-XX-assignment.json` file-ownership manifests
-- `worker-XX-findings.txt` finding lists
-- a `parallel-enrichment/manifest.json` worker index
 
 After that, use [03_enrich_corpus_import.md](/testing/dlt-ai-audit-system/03_enrich_corpus_import.md) to turn the stubs into higher-quality corpus artifacts.
 
@@ -68,20 +53,6 @@ That workflow asks the agent to:
 - compare those clusters to the current prompt pack,
 - refine existing prompts where possible,
 - and add a new family prompt only when the mechanism is distinct enough to justify it.
-
-## Multi-Agent Workflow
-
-1. A lead agent fills `repo-context.md`.
-
-2. Every worker agent reads the same `repo-context.md`.
-
-3. Each worker takes one prompt family and fills one `family-scan-<family>.md`.
-
-4. The lead agent compares the family scans and picks the strongest candidates.
-
-5. A lead or validator agent fills one `candidate-<id>.md` per serious issue.
-
-For corpus enrichment, you can use the same pattern after import: use the default six-worker plan or prepare the bundle with `--parallel-workers N`, then start one worker per `parallel-enrichment/worker-XX.md` and have each worker edit only the files listed in its `worker-XX-assignment.json`.
 
 ## Suggested Family Order
 
