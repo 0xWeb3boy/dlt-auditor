@@ -1,0 +1,21 @@
+id: "nitro-2022-01-26-nitro-transaction-processing-b5048b881"
+source_record: "nitro-2022-01-26-nitro-transaction-processing-b5048b881.yaml"
+project: "nitro"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "missing-payment-validation"
+expected_missing_property: "payment-recipient-binding"
+
+expected_impact_band: "trust_or_policy_integrity"
+expected_severity_band: "high_or_medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "If a later authoritative validator rejects the same input before it can affect persistent state, similar cases may reduce to wasted work rather than a security bug."
+  - "If the feature is disabled or only reachable in tests, classify similar cases as hardening or correctness only."
+  - "Do not claim fund loss or consensus breakage without evidence that the unchecked input reaches a state-changing sink."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

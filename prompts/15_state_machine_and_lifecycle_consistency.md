@@ -39,6 +39,8 @@ Search patterns:
 - fork, reorg, retry, failed-prewarm, abort, or recovery paths that reuse caches from a prior parent hash, verifier state, peer state, or execution context
 - rollback paths in authenticated or persisted state that restore a nearby object but not the exact mutated coordinate
 - invalid, syncing, timeout, empty-response, and already-known states that update state in one path but not the analogous path
+- parent operations that queue or spawn protocol-generated child work, where failure or filtering of the child should rewind the parent group but the code only drops the child result
+- round, epoch, or session scoped privileged work queues where enqueue, wake-up, dequeue, and replay use different freshness or authorization sources
 
 Questions to answer:
 1. What are the legal states and transitions?
@@ -48,6 +50,8 @@ Questions to answer:
 5. Can stale state cause later enforcement, verification, or feedback to apply to the wrong object?
 6. Is object reuse revalidated against the current authoritative state before it influences a new decision?
 7. Is the policy enforced where the object is actually read, written, or executed?
+8. If a parent operation generates child work, what is the atomicity boundary: parent only, child only, or the whole group?
+9. Are queue wake-up, dequeue, and replay paths revalidating the same round, epoch, finalized boundary, or authorization state that admission checked?
 
 Severity guidance:
 - Medium for stale-state liveness or integrity issues.

@@ -1,0 +1,64 @@
+id: "nitro-2024-11-07-nitro-transaction-processing-ae1d18a4c"
+source_finding: "2024-11-07-nitro-transaction-processing-ae1d18a4c.md"
+project: "nitro"
+date: "2024-11-07"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "challenge-proof-generation-hardening"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "validator"
+  - "challenge-protocol"
+  - "proof-generation"
+  - "virtual-blocks"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "proof-boundary-state-selection"
+violated_invariant: "Boundary-case proof generation should return the concrete fallback state to use, not a boolean hint that leaves callers free to guess the correct finished state."
+trust_boundary: "virtual challenge range metadata->proof or hash generation"
+entrypoint_type: "proof-generation-or-challenge-response"
+sensitive_sink: "building challenge proofs or hashes for boundary cases"
+
+attacker_capabilities:
+  - "trigger challenge or proof-generation logic on crafted, stale, or edge-case assertion metadata"
+  - "reach range-boundary cases where callers guess or derive proof state from incomplete context"
+exploit_preconditions:
+  - "the dispute or proof path is used in production-relevant validator workflows"
+  - "the generated proof, machine hash, or challenge edge is trusted without a later full canonical rebuild"
+blast_radius: "validator-local"
+
+impact_types:
+  - "challenge-proof-integrity"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, integrity, or state-selection sink and the fix closes a real gap, but most cases here are still best described as hardening rather than fully demonstrated exploitation, so medium is the right default severity guess."
+
+code_shape_summary: "The evidence supports a correctness fix in BoLD challenge handling: virtual-range block challenges were previously handled with a boolean shortcut that did not provide the concrete finished state to use, and the commit message says this could lead to looking up a block index for which no real block existed and producing incorrect inclusion proofs."
+search_motifs:
+  - "helpers return booleans like useFinishedMachine instead of the actual state object required by the sink"
+  - "boundary-case challenge logic is duplicated across proof and hash generation entry points"
+  - "virtual range handling gains a concrete virtualState API after correctness bugs are found"
+negative_signals:
+  - "Supported claim: the commit tightens proof-boundary-state-selection at or before building challenge proofs or hashes for boundary cases."
+  - "Supported claim: the strongest grounded reading is likely security-hardening around this sink, not an unconstrained worst-case exploit."
+  - "Do not claim profitable challenge manipulation without evidence that the malformed proof or edge can actually be submitted or accepted."
+patch_pattern: "Replace a boolean boundary-case shortcut with an API that returns the concrete fallback state, and use that state at each proof/hash generation entry point."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/raw-findings/2024-11-07-nitro-transaction-processing-ae1d18a4c.md"
+  - "git:ae1d18a4c83be1473a931068adf8491928447add"
+  - "staker/bold/bold_state_provider.go:448"
+  - "staker/bold/bold_state_provider.go:518"
+  - "staker/bold/bold_state_provider.go:339"
+  - "staker/bold/bold_state_provider.go:436"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

@@ -1,0 +1,64 @@
+id: "nitro-2025-07-16-nitro-storage-6821f734d"
+source_finding: "2025-07-16-nitro-storage-6821f734d.md"
+project: "nitro"
+date: "2025-07-16"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "state-validation-hardening"
+subsystem: "storage"
+architecture_tags:
+  - "consensus"
+  - "validator"
+  - "state-validation"
+  - "hardening"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "reconstructed-canonical-validation-state"
+violated_invariant: "Validation should rebuild cached accumulators from persisted canonical partials before use and gate pruning or head updates on explicit safety conditions."
+trust_boundary: "cached validation state->MEL validation and pruning logic"
+entrypoint_type: "validation-or-pruning"
+sensitive_sink: "accepting delayed-message state or pruning supporting data"
+
+attacker_capabilities:
+  - "drive extraction, validation, or state-recovery code through stale, partial, or inconsistent persisted data"
+  - "trigger reorg, finality, cache-rebuild, or backlog-management edge cases in validator support code"
+exploit_preconditions:
+  - "the storage or delayed-message subsystem feeds production validator decisions"
+  - "the sink uses cached or partially reconstructed state without a later full canonical rebuild"
+blast_radius: "validator-local"
+
+impact_types:
+  - "state-integrity"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, integrity, or state-selection sink and the fix closes a real gap, but most cases here are still best described as hardening rather than fully demonstrated exploitation, so medium is the right default severity guess."
+
+code_shape_summary: "The evidence supports a consensus-sensitive correctness hardening change in MEL state handling, not a confirmed vulnerability fix. The patch makes delayed-message validation tolerate a missing cached accumulator by rebuilding it from persisted partials, adds a batched head-state save path, and narrows backlog trimming to finalized-and-read entries."
+search_motifs:
+  - "validators assume cached accumulators are populated instead of reconstructing them from disk"
+  - "pruning decisions depend on head state that is updated before validation completes"
+  - "patches add accumulator rebuilds from persisted partials and tighter pruning guards"
+negative_signals:
+  - "Supported claim: the commit tightens reconstructed-canonical-validation-state at or before accepting delayed-message state or pruning supporting data."
+  - "Supported claim: the strongest grounded reading is likely security-hardening around this sink, not an unconstrained worst-case exploit."
+  - "Do not claim consensus impact without evidence that the bad state can escape local storage and influence validation or sequencing."
+patch_pattern: "Re-derive cached validation state from canonical persisted data before use, and make pruning and head-state updates follow explicit safety conditions."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/raw-findings/2025-07-16-nitro-storage-6821f734d.md"
+  - "git:6821f734d10b4dfb324033be55f15e900b277a27"
+  - "arbnode/mel/runner/database.go:33"
+  - "arbnode/mel/runner/database.go:206"
+  - "arbnode/mel/delayed_message_backlog.go:85"
+  - "arbnode/mel/delayed_message_backlog.go:66"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

@@ -1,0 +1,64 @@
+id: "nitro-2022-09-13-nitro-transaction-processing-d23127344"
+source_finding: "2022-09-13-nitro-transaction-processing-d23127344.md"
+project: "nitro"
+date: "2022-09-13"
+language_tags:
+  - "go"
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "signature-verification-initialization"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "signature"
+  - "verification"
+  - "fail-closed"
+  - "broadcast-feed"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "fail-closed-verifier-initialization"
+violated_invariant: "A component that relies on signature verification should construct its verifier during initialization and fail startup if that security dependency cannot be built."
+trust_boundary: "startup configuration->broadcast client or relay initialization"
+entrypoint_type: "node-startup-or-configuration"
+sensitive_sink: "starting a consumer that assumes verified feed input"
+
+attacker_capabilities:
+  - "send malformed, replayed, or tampered protocol messages, payloads, proofs, or signatures"
+  - "reach a path that relies on weak, deferred, or mode-dependent verification before a sensitive sink"
+exploit_preconditions:
+  - "the verifier or protocol handshake is enabled in a production-relevant deployment"
+  - "no downstream component fully canonicalizes and revalidates the same signed bytes before the sink"
+blast_radius: "service-local"
+
+impact_types:
+  - "integrity"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, integrity, or state-selection sink and the fix closes a real gap, but most cases here are still best described as hardening rather than fully demonstrated exploitation, so medium is the right default severity guess."
+
+code_shape_summary: "The supplied evidence supports an API and startup-hardening change around broadcast-feed verifier setup: `BroadcastClient` now builds its own verifier and can fail during construction, and relay startup now propagates those initialization errors."
+search_motifs:
+  - "security-sensitive verifier objects are injected separately from the client that needs them"
+  - "constructors become fallible only after signature-validation bugs are found"
+  - "startup paths ignore verifier construction errors until later patches propagate them"
+negative_signals:
+  - "Supported claim: the commit tightens fail-closed-verifier-initialization at or before starting a consumer that assumes verified feed input."
+  - "Supported claim: the strongest grounded reading is likely security-hardening around this sink, not an unconstrained worst-case exploit."
+  - "Do not claim key compromise or replay without evidence that invalid or tampered data is actually accepted."
+patch_pattern: "Centralize security-sensitive dependency construction inside the consumer's constructor and propagate initialization failure to startup so the component fails closed."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/raw-findings/2022-09-13-nitro-transaction-processing-d23127344.md"
+  - "git:d2312734493db94d7787b25a44cccfd16daa7813"
+  - "broadcastclient/broadcastclient.go:123"
+  - "cmd/relay/relay.go:65"
+  - "arbnode/node.go:808"
+  - "relay/relay.go:45"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

@@ -1,0 +1,63 @@
+id: "nitro-2022-03-03-nitro-cryptography-65e9598f0"
+source_finding: "2022-03-03-nitro-cryptography-65e9598f0.md"
+project: "nitro"
+date: "2022-03-03"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "protocol-input-validation"
+subsystem: "cryptography"
+architecture_tags:
+  - "das"
+  - "protocol-validation"
+  - "certificate-parsing"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "structured-protocol-input-validation"
+violated_invariant: "Protocol messages and certificates should be decoded with the canonical structure before embedded bytes are reused as lookup keys, hashes, or commitments."
+trust_boundary: "protocol message bytes->DAS lookup and validation path"
+entrypoint_type: "rpc-or-protocol-message-validation"
+sensitive_sink: "using parsed message content as a data lookup key or commitment"
+
+attacker_capabilities:
+  - "send malformed, replayed, or tampered protocol messages, payloads, proofs, or signatures"
+  - "reach a path that relies on weak, deferred, or mode-dependent verification before a sensitive sink"
+exploit_preconditions:
+  - "the verifier or protocol handshake is enabled in a production-relevant deployment"
+  - "no downstream component fully canonicalizes and revalidates the same signed bytes before the sink"
+blast_radius: "service-local"
+
+impact_types:
+  - "integrity"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, integrity, or state-selection sink and the fix closes a real gap, but most cases here are still best described as hardening rather than fully demonstrated exploitation, so medium is the right default severity guess."
+
+code_shape_summary: "The patch changes DAS-backed message handling from using raw bytes after the DAS header as a lookup key to first deserializing a `DataAvailabilityCertificate` and then using `cert.DataHash`."
+search_motifs:
+  - "raw byte slices after a header are reused directly as hashes or keys"
+  - "lookup paths consume untyped protocol payload tails instead of parsed structures"
+  - "certificate deserialization is added after a long period of ad hoc byte handling"
+negative_signals:
+  - "Supported claim: the commit tightens structured-protocol-input-validation at or before using parsed message content as a data lookup key or commitment."
+  - "Supported claim: the strongest grounded reading is likely security-hardening around this sink, not an unconstrained worst-case exploit."
+  - "Do not claim key compromise or replay without evidence that invalid or tampered data is actually accepted."
+patch_pattern: "Replace ad hoc byte-slice interpretation with structured decoding at the protocol boundary, then derive lookup inputs from parsed fields."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/raw-findings/2022-03-03-nitro-cryptography-65e9598f0.md"
+  - "git:65e9598f0bc154333b9839b83639417d8fdc010d"
+  - "validator/block_validator.go:387"
+  - "arbstate/das_reader.go:23"
+  - "das/das.go:169"
+  - "arbstate/inbox.go:69"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

@@ -1,0 +1,21 @@
+id: "nitro-2023-06-16-nitro-transaction-processing-edf0a0ec8"
+source_record: "nitro-2023-06-16-nitro-transaction-processing-edf0a0ec8.yaml"
+project: "nitro"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "incorrect-challenge-metadata"
+expected_missing_property: "authoritative-challenge-metadata"
+
+expected_impact_band: "proof_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "If a later proof verifier deterministically recomputes the same boundary state from canonical inputs, similar cases may stay local correctness bugs."
+  - "If the edge case only affects unreachable dispute states, downgrade similar patterns."
+  - "Do not claim profitable challenge manipulation without evidence that the malformed proof or edge can actually be submitted or accepted."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

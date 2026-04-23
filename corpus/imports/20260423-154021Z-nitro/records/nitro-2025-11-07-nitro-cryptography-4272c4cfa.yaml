@@ -1,0 +1,64 @@
+id: "nitro-2025-11-07-nitro-cryptography-4272c4cfa"
+source_finding: "2025-11-07-nitro-cryptography-4272c4cfa.md"
+project: "nitro"
+date: "2025-11-07"
+language_tags:
+  - "go"
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "signature-verification-hardening"
+subsystem: "cryptography"
+architecture_tags:
+  - "rpc"
+  - "signature"
+  - "replay-protection"
+  - "configuration-hardening"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "explicit-signature-verification-mode"
+violated_invariant: "Security-sensitive RPC and data-streaming paths should reject unsupported signer configurations early and make signature-checking mode explicit for each operating mode."
+trust_boundary: "operator config or incoming RPC data->DAS client or server verifier selection"
+entrypoint_type: "rpc-startup-or-streaming-configuration"
+sensitive_sink: "starting or accepting data under a selected signature-verification mode"
+
+attacker_capabilities:
+  - "send malformed, replayed, or tampered protocol messages, payloads, proofs, or signatures"
+  - "reach a path that relies on weak, deferred, or mode-dependent verification before a sensitive sink"
+exploit_preconditions:
+  - "the verifier or protocol handshake is enabled in a production-relevant deployment"
+  - "no downstream component fully canonicalizes and revalidates the same signed bytes before the sink"
+blast_radius: "service-local"
+
+impact_types:
+  - "defense-in-depth"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, integrity, or state-selection sink and the fix closes a real gap, but most cases here are still best described as hardening rather than fully demonstrated exploitation, so medium is the right default severity guess."
+
+code_shape_summary: "The provided evidence supports correctness and hardening changes in the Anytrust DAS RPC/data-streaming path, not a confirmed vulnerability fix. The patch makes nil-signer chunked-store setup fail fast and makes `DisableSignatureChecking=true` use a consistent no-verification path instead of partially wired verifier logic."
+search_motifs:
+  - "nil signers are tolerated in modes that later depend on authenticated chunk storage"
+  - "DisableSignatureChecking flips behavior through implicit defaults rather than explicit verifier selection"
+  - "later fixes fail fast on unsupported signer combinations and clarify verifier mode wiring"
+negative_signals:
+  - "Supported claim: the commit tightens explicit-signature-verification-mode at or before starting or accepting data under a selected signature-verification mode."
+  - "Supported claim: the strongest grounded reading is likely security-hardening around this sink, not an unconstrained worst-case exploit."
+  - "Do not claim key compromise or replay without evidence that invalid or tampered data is actually accepted."
+patch_pattern: "Reject unsupported security-sensitive configuration early and make verifier selection explicit for each operating mode."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/raw-findings/2025-11-07-nitro-cryptography-4272c4cfa.md"
+  - "git:4272c4cfaa51509416cc493c86e2805647b8e9c1"
+  - "daprovider/das/rpc_client.go:67"
+  - "daprovider/das/rpc_server.go:140"
+  - "daprovider/das/rpc_server.go:66"
+  - "daprovider/das/factory.go:217"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

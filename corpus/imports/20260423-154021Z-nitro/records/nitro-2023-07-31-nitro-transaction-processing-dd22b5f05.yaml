@@ -1,0 +1,64 @@
+id: "nitro-2023-07-31-nitro-transaction-processing-dd22b5f05"
+source_finding: "2023-07-31-nitro-transaction-processing-dd22b5f05.md"
+project: "nitro"
+date: "2023-07-31"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "validator-state-validation"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "validator"
+  - "consensus-sensitive"
+  - "domain-separation"
+  - "security-hardening"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "canonical-validator-state-derivation"
+violated_invariant: "State-derived hashes and message counts should be computed only from canonical boundary states and domain-separated commitments."
+trust_boundary: "validator state and proof inputs->message-count and hash derivation"
+entrypoint_type: "proof-or-state-derivation"
+sensitive_sink: "deriving assertion, proof, or validator hashes from state"
+
+attacker_capabilities:
+  - "drive validator, recovery, or machine-loading code through stale, ambiguous, or attacker-influenced metadata"
+  - "trigger boundary conditions such as reorgs, cache misses, alias resolution, or partial initialization"
+exploit_preconditions:
+  - "the validator or prover path is used in production-relevant workflows"
+  - "the affected sink trusts cached or derived state instead of independently rebuilding canonical state before use"
+blast_radius: "validator-local"
+
+impact_types:
+  - "state-integrity"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, integrity, or state-selection sink and the fix closes a real gap, but most cases here are still best described as hardening rather than fully demonstrated exploitation, so medium is the right default severity guess."
+
+code_shape_summary: "The patch tightens how the staker/validator path interprets execution state when deriving message counts and hashes. The evidence supports a protocol-correctness or hardening change, but it does not establish an exploitable vulnerability from the provided diff alone."
+search_motifs:
+  - "message-count conversions accept non-boundary execution states"
+  - "hash domains are reused across semantically different states or edges"
+  - "state-derivation helpers gain explicit boundary-state preconditions after hardening"
+negative_signals:
+  - "Supported claim: the commit tightens canonical-validator-state-derivation at or before deriving assertion, proof, or validator hashes from state."
+  - "Supported claim: the strongest grounded reading is likely security-hardening around this sink, not an unconstrained worst-case exploit."
+  - "Do not claim chain-wide divergence without evidence that the wrong state can be persisted, signed, or submitted onward."
+patch_pattern: "Enforce stricter canonical-state preconditions, derive indices from the intended boundary state, and domain-separate hashes for semantically different states."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/raw-findings/2023-07-31-nitro-transaction-processing-dd22b5f05.md"
+  - "git:dd22b5f05ed2ac7cac93c53b6fac4bc6d6e043a2"
+  - "staker/state_provider.go:58"
+  - "staker/state_provider.go:74"
+  - "validator/execution_state.go:71"
+  - "staker/state_provider.go:641"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

@@ -1,0 +1,64 @@
+id: "nitro-2022-06-01-nitro-transaction-processing-37c04d56b"
+source_finding: "2022-06-01-nitro-transaction-processing-37c04d56b.md"
+project: "nitro"
+date: "2022-06-01"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "caller-controlled-withdrawal-destination"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "validator"
+  - "withdrawal-path"
+  - "interface-hardening"
+  - "access-control"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "fixed-withdrawal-destination"
+violated_invariant: "Privileged withdrawal operations should not accept an arbitrary caller-chosen destination when protocol or local policy expects a fixed authorized destination."
+trust_boundary: "client or operator request->validator withdrawal path"
+entrypoint_type: "withdrawal-or-funds-movement"
+sensitive_sink: "constructing or submitting a withdrawal transaction"
+
+attacker_capabilities:
+  - "invoke a privileged withdrawal or control path with attacker-chosen parameters or unsafe settings"
+  - "reach policy-sensitive code before a narrower destination or mode constraint is applied"
+exploit_preconditions:
+  - "the caller can reach the privileged API or startup path in a production-relevant deployment"
+  - "no later signer, contract, or policy layer overrides the unsafe parameter before funds or authority are exercised"
+blast_radius: "validator-local"
+
+impact_types:
+  - "integrity"
+severity_guess: "medium"
+severity_rationale: "The finding reaches a security-sensitive admission, authorization, configuration, or exposure decision. The patch meaningfully improves policy enforcement, but the raw evidence usually stops short of proving worst-case exploitation, so medium is the right default band."
+
+code_shape_summary: "The grounded change is that the validator client no longer accepts or passes a configurable `withdrawDestination` when withdrawing staker funds. That is consistent with hardening a sensitive withdrawal path, but the provided excerpts do not establish a concrete vulnerability, exploit path, or the exact contract-side validation change."
+search_motifs:
+  - "withdraw or sweep APIs expose a free-form destination parameter in privileged contexts"
+  - "client structs store withdrawal recipient addresses even though the underlying action should be policy-bound"
+  - "sensitive funds movement paths narrow parameters in later patches by deleting rather than validating them"
+negative_signals:
+  - "Supported claim: the commit tightens fixed-withdrawal-destination at or before constructing or submitting a withdrawal transaction."
+  - "Supported claim: the strongest grounded reading is likely security-hardening around this sink, not an unconstrained worst-case exploit."
+  - "Do not claim theft or validator compromise without evidence that the unsafe choice reaches the final sink."
+patch_pattern: "Remove a caller-controlled parameter from a privileged path and centralize selection or validation behind a narrower interface."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/raw-findings/2022-06-01-nitro-transaction-processing-37c04d56b.md"
+  - "git:37c04d56b5db76ad4e0ac9c46e20cf80ca4a7c60"
+  - "validator/staker.go:367"
+  - "validator/staker.go:328"
+  - "validator/staker.go:155"
+  - "validator/staker.go:80"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

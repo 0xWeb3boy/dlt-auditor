@@ -1,0 +1,106 @@
+{
+  "source_manifest": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/manifest.json",
+  "repo": "/testing/nitro",
+  "bundle_root": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro",
+  "requested_workers": 6,
+  "effective_workers": 6,
+  "chunk_strategy": "balanced_greedy_v1",
+  "total_findings": 40,
+  "instruction_prompt": "/testing/dlt-ai-audit-system/03_enrich_corpus_import.md",
+  "workers": [
+    {
+      "worker_id": "worker-01",
+      "finding_count": 7,
+      "total_weight": 15,
+      "finding_ids": [
+        "nitro-2025-03-31-nitro-transaction-processing-475d442de",
+        "nitro-2022-11-04-nitro-storage-9eb8b5709",
+        "nitro-2026-04-07-nitro-storage-b4cd4e850",
+        "nitro-2022-04-07-nitro-transaction-processing-b5cf8b667",
+        "nitro-2023-06-16-nitro-transaction-processing-edf0a0ec8",
+        "nitro-2026-03-11-nitro-transaction-processing-8fe83188c",
+        "nitro-2022-09-13-nitro-transaction-processing-d23127344"
+      ],
+      "assignment_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/parallel-enrichment/worker-01-assignment.json",
+      "prompt_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/parallel-enrichment/worker-01.md"
+    },
+    {
+      "worker_id": "worker-02",
+      "finding_count": 6,
+      "total_weight": 13,
+      "finding_ids": [
+        "nitro-2025-10-01-nitro-cryptography-7bd9fa47b",
+        "nitro-2025-06-02-nitro-storage-b3bbf4e7d",
+        "nitro-2021-12-16-nitro-transaction-processing-1fa7557cf",
+        "nitro-2022-04-10-nitro-transaction-processing-3a9ee3753",
+        "nitro-2023-07-31-nitro-transaction-processing-dd22b5f05",
+        "nitro-2023-05-02-nitro-validator-ops-ccfa06f67"
+      ],
+      "assignment_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/parallel-enrichment/worker-02-assignment.json",
+      "prompt_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/parallel-enrichment/worker-02.md"
+    },
+    {
+      "worker_id": "worker-03",
+      "finding_count": 6,
+      "total_weight": 13,
+      "finding_ids": [
+        "nitro-2026-02-12-nitro-transaction-processing-66d78e539",
+        "nitro-2025-06-03-nitro-storage-300a695a7",
+        "nitro-2022-01-26-nitro-transaction-processing-b5048b881",
+        "nitro-2022-05-31-nitro-transaction-processing-6d8c634ba",
+        "nitro-2023-11-15-nitro-transaction-processing-4b8676d77",
+        "nitro-2023-10-13-nitro-storage-f88557d06"
+      ],
+      "assignment_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/parallel-enrichment/worker-03-assignment.json",
+      "prompt_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/parallel-enrichment/worker-03.md"
+    },
+    {
+      "worker_id": "worker-04",
+      "finding_count": 7,
+      "total_weight": 14,
+      "finding_ids": [
+        "nitro-2021-12-30-nitro-core-logic-8c2505ddf",
+        "nitro-2022-03-03-nitro-cryptography-65e9598f0",
+        "nitro-2025-07-07-nitro-storage-a1b99c526",
+        "nitro-2022-02-17-nitro-transaction-processing-8ad394df3",
+        "nitro-2022-06-01-nitro-transaction-processing-37c04d56b",
+        "nitro-2024-11-07-nitro-transaction-processing-ae1d18a4c",
+        "nitro-2022-08-28-nitro-cryptography-d70317ed8"
+      ],
+      "assignment_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/parallel-enrichment/worker-04-assignment.json",
+      "prompt_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/parallel-enrichment/worker-04.md"
+    },
+    {
+      "worker_id": "worker-05",
+      "finding_count": 7,
+      "total_weight": 14,
+      "finding_ids": [
+        "nitro-2023-11-21-nitro-core-logic-995df9e00",
+        "nitro-2023-12-11-nitro-cryptography-1d3b655ea",
+        "nitro-2025-07-16-nitro-storage-6821f734d",
+        "nitro-2022-02-21-nitro-transaction-processing-9d6ff6021",
+        "nitro-2022-09-07-nitro-transaction-processing-4f32fd7c7",
+        "nitro-2024-12-20-nitro-transaction-processing-a719c5c92",
+        "nitro-2025-11-07-nitro-cryptography-4272c4cfa"
+      ],
+      "assignment_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/parallel-enrichment/worker-05-assignment.json",
+      "prompt_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/parallel-enrichment/worker-05.md"
+    },
+    {
+      "worker_id": "worker-06",
+      "finding_count": 7,
+      "total_weight": 14,
+      "finding_ids": [
+        "nitro-2024-02-05-nitro-core-logic-6b420cb12",
+        "nitro-2022-03-17-nitro-storage-368fbe57c",
+        "nitro-2026-01-14-nitro-storage-9b7a73c97",
+        "nitro-2022-03-17-nitro-transaction-processing-c4a31f084",
+        "nitro-2023-02-24-nitro-transaction-processing-e853315fb",
+        "nitro-2026-01-05-nitro-transaction-processing-10aa51df2",
+        "nitro-2022-09-10-nitro-transaction-processing-112522808"
+      ],
+      "assignment_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/parallel-enrichment/worker-06-assignment.json",
+      "prompt_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/parallel-enrichment/worker-06.md"
+    }
+  ]
+}

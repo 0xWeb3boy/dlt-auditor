@@ -1,0 +1,64 @@
+id: "nitro-2026-04-07-nitro-storage-b4cd4e850"
+source_finding: "2026-04-07-nitro-storage-b4cd4e850.md"
+project: "nitro"
+date: "2026-04-07"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "resource-exhaustion-guard"
+subsystem: "storage"
+architecture_tags:
+  - "wasm"
+  - "native-execution"
+  - "stack-overflow"
+  - "resource-limits"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "bounded-recovery-resource-growth"
+violated_invariant: "Recovery handlers should bound stack-growth retries and only perform expensive recovery once in the allowed execution context."
+trust_boundary: "runtime trap->native stack-overflow recovery path"
+entrypoint_type: "runtime-recovery-path"
+sensitive_sink: "repeating stack growth or fault recovery until resources are exhausted"
+
+attacker_capabilities:
+  - "trigger repeated exceptional execution states such as stack overflows or recovery retries"
+  - "exercise the recovery path in the contexts where the missing cap or guard matters"
+exploit_preconditions:
+  - "the affected runtime path is reachable in production-relevant execution"
+  - "no outer watchdog, quota, or retry cap already bounds the same failure mode"
+blast_radius: "node-local"
+
+impact_types:
+  - "availability"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, integrity, or state-selection sink and the fix closes a real gap, but most cases here are still best described as hardening rather than fully demonstrated exploitation, so medium is the right default severity guess."
+
+code_shape_summary: "The patch is best supported as runtime hardening for native stack-overflow handling, not as a demonstrated security fix. The shown changes bound stack-growth retry behavior and update tests around that path, but the provided evidence does not establish an exploitable vulnerability or a protocol-level security violation."
+search_motifs:
+  - "trap handlers double stack or memory allocations without one-time guards"
+  - "recovery retries are not restricted to the execution context they were designed for"
+  - "tests are added later to prove only one bounded retry occurs after stack overflow"
+negative_signals:
+  - "Supported claim: the commit tightens bounded-recovery-resource-growth at or before repeating stack growth or fault recovery until resources are exhausted."
+  - "Supported claim: the strongest grounded reading is likely security-hardening around this sink, not an unconstrained worst-case exploit."
+  - "Do not claim remote denial of service without evidence of repeatable triggerability."
+patch_pattern: "Add an explicit one-time guard to a recovery path, cap resource growth, restrict the behavior by execution context, and add tests that exercise the bounded retry flow."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/raw-findings/2026-04-07-nitro-storage-b4cd4e850.md"
+  - "git:b4cd4e850d3ca3332a6fc68f52cb03aa2e68d4c2"
+  - "arbos/programs/testcompile.go:495"
+  - "arbos/programs/testcompile.go:663"
+  - "arbos/programs/native.go:612"
+  - "arbos/programs/native.go:628"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

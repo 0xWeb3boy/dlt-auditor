@@ -1,0 +1,65 @@
+id: "nitro-2022-03-17-nitro-storage-368fbe57c"
+source_finding: "2022-03-17-nitro-storage-368fbe57c.md"
+project: "nitro"
+date: "2022-03-17"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "configuration-validation"
+subsystem: "storage"
+architecture_tags:
+  - "validator"
+  - "startup-validation"
+  - "wasm-module-root"
+  - "misconfiguration-guard"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "configuration-artifact-integrity"
+violated_invariant: "Validator startup should reject inconsistent data-availability settings and runtime artifacts whose measured module root does not match the configured root."
+trust_boundary: "operator configuration and loaded artifact->validator startup"
+entrypoint_type: "node-startup-or-configuration"
+sensitive_sink: "starting a validator with a selected runtime artifact and DA mode"
+
+attacker_capabilities:
+  - "drive validator, recovery, or machine-loading code through stale, ambiguous, or attacker-influenced metadata"
+  - "trigger boundary conditions such as reorgs, cache misses, alias resolution, or partial initialization"
+exploit_preconditions:
+  - "the validator or prover path is used in production-relevant workflows"
+  - "the affected sink trusts cached or derived state instead of independently rebuilding canonical state before use"
+blast_radius: "validator-local"
+
+impact_types:
+  - "integrity-protection"
+  - "fail-safe-startup"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, integrity, or state-selection sink and the fix closes a real gap, but most cases here are still best described as hardening rather than fully demonstrated exploitation, so medium is the right default severity guess."
+
+code_shape_summary: "The visible patch adds fail-fast validation in the validator startup path, including configuration sanity checks and a runtime WASM module-root comparison."
+search_motifs:
+  - "startup validation grows new sanity checks for mutually dependent config knobs"
+  - "runtime-loaded artifacts are measured after load but not compared to configured identity"
+  - "validator startup proceeds even when DA mode or module-root assumptions are inconsistent"
+negative_signals:
+  - "Supported claim: the commit tightens configuration-artifact-integrity at or before starting a validator with a selected runtime artifact and DA mode."
+  - "Supported claim: the strongest grounded reading is likely security-hardening around this sink, not an unconstrained worst-case exploit."
+  - "Do not claim chain-wide divergence without evidence that the wrong state can be persisted, signed, or submitted onward."
+patch_pattern: "Add fail-fast startup validation for critical configuration dependencies and verify that the runtime-loaded validator artifact matches the expected configured identity."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/raw-findings/2022-03-17-nitro-storage-368fbe57c.md"
+  - "git:368fbe57cb921a1b35929915bd02bb0330ef70b5"
+  - "cmd/node/node.go:125"
+  - "cmd/node/node.go:81"
+  - "cmd/node/node.go:112"
+  - "arbnode/node.go:455"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

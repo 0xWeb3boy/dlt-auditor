@@ -36,6 +36,10 @@ Search patterns:
 - proof-carried or caller-supplied artifacts that can replace the locally authoritative verifier, root, target, fork, or state source at the sink
 - canonicality checks that rely on transient indices when persisted canonical state is the source of truth
 - read-only, debug, witness, trace, or inspection flows that reuse normal execution or import helpers and may still reach persistent writers unless write suppression is enforced at the actual sink
+- validator, prover, or runtime loaders that resolve a latest alias, directory default, or config shorthand before checking the measured artifact identity against the challenge, chain, fork, or genesis identity that actually governs correctness
+- extraction or validation subsystems that key cleanup, retention, or early-return logic by local read progress, cache occupancy, or processed counters when the authoritative boundary is finalized, safe, validated, or on-chain state
+- witness, log, preimage, or payload recording paths that are best-effort, optional, or split across modes even though later validation or sequencing treats the recorded data as mandatory
+- privileged admission paths that check current authorization in one layer, but dequeue, replay, or execution paths consult a cache, mirror, watch channel, or stale local summary instead of the same authoritative source
 
 Questions to answer:
 1. What source is authoritative for this decision right now?
@@ -45,6 +49,8 @@ Questions to answer:
 5. Is the code comparing the real governing state, or only a proxy for it?
 6. Is the code using the authoritative artifact or source at the actual sink, or only in an earlier watcher, helper, builder, or validation layer?
 7. If the path is supposed to be read-only, where is persistence actually prevented: in the wrapper, in the shared helper, or at the storage sink itself?
+8. If the decision depends on a loaded artifact, verifier context, or tracker state, where is the measured or live authoritative identity compared to the expected identity before the sensitive sink?
+9. If cleanup or reuse depends on progress, is the progress boundary merely local processing state, or is it tied to finalized, validated, or otherwise authoritative protocol state?
 
 Severity guidance:
 - Medium by default for stale-policy, stale-checkpoint, sink-coverage, and proxy-state bugs.

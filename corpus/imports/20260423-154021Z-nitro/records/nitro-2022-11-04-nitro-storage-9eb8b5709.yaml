@@ -1,0 +1,64 @@
+id: "nitro-2022-11-04-nitro-storage-9eb8b5709"
+source_finding: "2022-11-04-nitro-storage-9eb8b5709.md"
+project: "nitro"
+date: "2022-11-04"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "preimage-source-mixing"
+subsystem: "storage"
+architecture_tags:
+  - "validator"
+  - "preimage"
+  - "stateless-validation"
+  - "hardening"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "single-source-of-truth-validation"
+violated_invariant: "Stateless validation should resolve preimages from the canonical validation context only and should not mix in live state fallbacks from unrelated sources."
+trust_boundary: "proof or preimage request->stateless validator resolver"
+entrypoint_type: "proof-preimage-resolution"
+sensitive_sink: "validating proofs or state transitions from resolved preimages"
+
+attacker_capabilities:
+  - "drive extraction, validation, or state-recovery code through stale, partial, or inconsistent persisted data"
+  - "trigger reorg, finality, cache-rebuild, or backlog-management edge cases in validator support code"
+exploit_preconditions:
+  - "the storage or delayed-message subsystem feeds production validator decisions"
+  - "the sink uses cached or partially reconstructed state without a later full canonical rebuild"
+blast_radius: "validator-local"
+
+impact_types:
+  - "validation-integrity"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, integrity, or state-selection sink and the fix closes a real gap, but most cases here are still best described as hardening rather than fully demonstrated exploitation, so medium is the right default severity guess."
+
+code_shape_summary: "The diff shows a consistency hardening change in validator wiring and preimage sourcing, but the provided evidence does not establish a concrete vulnerability. The strongest grounded change is that the stateless preimage resolver stops consulting live trie state via `db.Node(hash)` and the staker path is rewired to use handles owned by `statelessBlockValidator`."
+search_motifs:
+  - "stateless resolvers fall back to live trie or database reads when data is missing"
+  - "validator subcomponents can fetch preimages from both local chain state and supplied proof context"
+  - "patches remove convenient fallback reads to force a single validation source"
+negative_signals:
+  - "Supported claim: the commit tightens single-source-of-truth-validation at or before validating proofs or state transitions from resolved preimages."
+  - "Supported claim: the strongest grounded reading is likely security-hardening around this sink, not an unconstrained worst-case exploit."
+  - "Do not claim consensus impact without evidence that the bad state can escape local storage and influence validation or sequencing."
+patch_pattern: "Remove fallback reads from alternate live state in a supposedly self-contained validation path, and route dependent components through a single owning validator context."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/raw-findings/2022-11-04-nitro-storage-9eb8b5709.md"
+  - "git:9eb8b5709e3e9bdc6740d3a44a14b7c57c4d08bc"
+  - "arbnode/node.go:982"
+  - "arbnode/node.go:971"
+  - "validator/stateless_block_validator.go:504"
+  - "validator/staker.go:168"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

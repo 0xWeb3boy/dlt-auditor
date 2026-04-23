@@ -1,0 +1,64 @@
+id: "nitro-2022-09-07-nitro-transaction-processing-4f32fd7c7"
+source_finding: "2022-09-07-nitro-transaction-processing-4f32fd7c7.md"
+project: "nitro"
+date: "2022-09-07"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "message-integrity-enforcement"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "broadcast"
+  - "signature"
+  - "sequence-validation"
+  - "hardening"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "contiguous-sequence-enforcement"
+violated_invariant: "Broadcast-feed messages should preserve contiguous sequence numbers on ingest and receive uniform signing behavior on emission."
+trust_boundary: "broadcast-feed input->stream ingestion and emission"
+entrypoint_type: "protocol-stream-ingestion"
+sensitive_sink: "accepting or forwarding ordered feed messages"
+
+attacker_capabilities:
+  - "send malformed, replayed, or tampered protocol messages, payloads, proofs, or signatures"
+  - "reach a path that relies on weak, deferred, or mode-dependent verification before a sensitive sink"
+exploit_preconditions:
+  - "the verifier or protocol handshake is enabled in a production-relevant deployment"
+  - "no downstream component fully canonicalizes and revalidates the same signed bytes before the sink"
+blast_radius: "service-local"
+
+impact_types:
+  - "protocol-integrity-risk"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, integrity, or state-selection sink and the fix closes a real gap, but most cases here are still best described as hardening rather than fully demonstrated exploitation, so medium is the right default severity guess."
+
+code_shape_summary: "The strongest supported reading is protocol-integrity hardening in the broadcast-feed path, not a confirmed vulnerability fix. The patch adds explicit contiguous-sequence checks during broadcast ingestion and removes a `RequestId` condition so outbound messages are signed whenever a signer exists."
+search_motifs:
+  - "stream processors append feed items without contiguous sequence checks"
+  - "signature behavior depends on a field like RequestId instead of the feed policy itself"
+  - "ingest and emit paths enforce different integrity rules for the same message family"
+negative_signals:
+  - "Supported claim: the commit tightens contiguous-sequence-enforcement at or before accepting or forwarding ordered feed messages."
+  - "Supported claim: the strongest grounded reading is likely security-hardening around this sink, not an unconstrained worst-case exploit."
+  - "Do not claim key compromise or replay without evidence that invalid or tampered data is actually accepted."
+patch_pattern: "Tighten adjacent protocol-integrity checks by adding explicit sequence validation on ingest and making signing behavior uniform on emission."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/raw-findings/2022-09-07-nitro-transaction-processing-4f32fd7c7.md"
+  - "git:4f32fd7c7794f5a31927a3c283ee416b219bac47"
+  - "arbnode/transaction_streamer.go:256"
+  - "cmd/util/keystore.go:19"
+  - "broadcaster/broadcaster.go:72"
+  - "cmd/nitro/nitro.go:58"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

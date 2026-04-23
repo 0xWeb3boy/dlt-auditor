@@ -1,0 +1,64 @@
+id: "nitro-2022-02-17-nitro-transaction-processing-8ad394df3"
+source_finding: "2022-02-17-nitro-transaction-processing-8ad394df3.md"
+project: "nitro"
+date: "2022-02-17"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "challenge-boundary-validation"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "validator"
+  - "challenge-path"
+  - "boundary-validation"
+  - "fail-closed"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "challenge-boundary-consistency"
+violated_invariant: "Challenge setup should derive machine state and boundaries from canonical genesis-relative indices and reject special cases that would point outside the valid dispute range."
+trust_boundary: "challenge metadata->machine lookup and dispute initialization"
+entrypoint_type: "challenge-construction-or-dispute-initialization"
+sensitive_sink: "generating challenge state, ranges, or proof inputs"
+
+attacker_capabilities:
+  - "trigger challenge or proof-generation logic on crafted, stale, or edge-case assertion metadata"
+  - "reach range-boundary cases where callers guess or derive proof state from incomplete context"
+exploit_preconditions:
+  - "the dispute or proof path is used in production-relevant validator workflows"
+  - "the generated proof, machine hash, or challenge edge is trusted without a later full canonical rebuild"
+blast_radius: "validator-local"
+
+impact_types:
+  - "challenge-integrity"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, integrity, or state-selection sink and the fix closes a real gap, but most cases here are still best described as hardening rather than fully demonstrated exploitation, so medium is the right default severity guess."
+
+code_shape_summary: "The patch fixes correctness bugs in validator challenge setup and machine initialization around genesis-relative indexing and boundary handling. The shown evidence supports dispute-path correctness hardening, but it does not establish a concrete exploitable vulnerability."
+search_motifs:
+  - "genesis-relative offsets are reconstructed ad hoc during challenge setup"
+  - "boundary cases such as zero, final, or empty ranges are handled by generic code paths"
+  - "challenge machine state is derived before validating the requested range against genesis context"
+negative_signals:
+  - "Supported claim: the commit tightens challenge-boundary-consistency at or before generating challenge state, ranges, or proof inputs."
+  - "Supported claim: the strongest grounded reading is likely security-hardening around this sink, not an unconstrained worst-case exploit."
+  - "Do not claim profitable challenge manipulation without evidence that the malformed proof or edge can actually be submitted or accepted."
+patch_pattern: "Thread canonical genesis context through challenge construction, handle valid boundary special cases explicitly, and add fail-closed checks before deriving machine state from challenge metadata."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/raw-findings/2022-02-17-nitro-transaction-processing-8ad394df3.md"
+  - "git:8ad394df335165afad3c0b07d22257a772847e09"
+  - "validator/block_challenge_backend.go:92"
+  - "validator/challenge_manager.go:68"
+  - "validator/challenge_manager.go:330"
+  - "validator/block_challenge_backend.go:127"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

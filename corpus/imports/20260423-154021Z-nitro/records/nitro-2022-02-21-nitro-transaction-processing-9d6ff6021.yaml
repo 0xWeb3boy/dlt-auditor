@@ -1,0 +1,64 @@
+id: "nitro-2022-02-21-nitro-transaction-processing-9d6ff6021"
+source_finding: "2022-02-21-nitro-transaction-processing-9d6ff6021.md"
+project: "nitro"
+date: "2022-02-21"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "insufficient-state-validation"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "validator"
+  - "reorg"
+  - "consensus-adjacent"
+  - "state-validation"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "canonical-state-consistency-check"
+violated_invariant: "Validator branch traversal should verify that a looked-up node still matches the expected canonical hash before deriving children or creating new nodes from it."
+trust_boundary: "persisted validator tree state->branch traversal and node creation"
+entrypoint_type: "validator-state-traversal"
+sensitive_sink: "child traversal or new-node creation on validator state"
+
+attacker_capabilities:
+  - "drive validator, recovery, or machine-loading code through stale, ambiguous, or attacker-influenced metadata"
+  - "trigger boundary conditions such as reorgs, cache misses, alias resolution, or partial initialization"
+exploit_preconditions:
+  - "the validator or prover path is used in production-relevant workflows"
+  - "the affected sink trusts cached or derived state instead of independently rebuilding canonical state before use"
+blast_radius: "validator-local"
+
+impact_types:
+  - "state-integrity"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, integrity, or state-selection sink and the fix closes a real gap, but most cases here are still best described as hardening rather than fully demonstrated exploitation, so medium is the right default severity guess."
+
+code_shape_summary: "The visible patch is best supported as validator correctness hardening. It adds a node-hash consistency check before child traversal and narrows when new-node creation is attempted, but the provided evidence does not establish a concrete vulnerability or a definite security impact."
+search_motifs:
+  - "tree traversal continues after a node-number lookup without checking the returned hash"
+  - "branch-selection logic uses partial state matches to continue validation work"
+  - "new state nodes are created from references that may be stale after reorgs or races"
+negative_signals:
+  - "Supported claim: the commit tightens canonical-state-consistency-check at or before child traversal or new-node creation on validator state."
+  - "Supported claim: the strongest grounded reading is likely security-hardening around this sink, not an unconstrained worst-case exploit."
+  - "Do not claim chain-wide divergence without evidence that the wrong state can be persisted, signed, or submitted onward."
+patch_pattern: "Add a fail-fast consistency check and tighten validator branch-selection conditions."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/raw-findings/2022-02-21-nitro-transaction-processing-9d6ff6021.md"
+  - "git:9d6ff60210bb84adb0d042a78e3bcea5282e081a"
+  - "validator/rollup_watcher.go:150"
+  - "validator/l1_validator.go:412"
+  - "validator/staker.go:105"
+  - "validator/l1_validator.go:77"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

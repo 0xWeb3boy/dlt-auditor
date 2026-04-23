@@ -1,0 +1,64 @@
+id: "nitro-2023-02-24-nitro-transaction-processing-e853315fb"
+source_finding: "2023-02-24-nitro-transaction-processing-e853315fb.md"
+project: "nitro"
+date: "2023-02-24"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "improper-version-gating"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "protocol-versioning"
+  - "consensus-sensitive"
+  - "input-validation"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "protocol-version-gating"
+violated_invariant: "Transaction parsing should gate transaction types on the active protocol version derived from canonical state, not on implicit assumptions or stale context."
+trust_boundary: "transaction bytes->parser and replay logic"
+entrypoint_type: "transaction-or-batch-validation"
+sensitive_sink: "accepting or replaying a transaction type not yet enabled"
+
+attacker_capabilities:
+  - "submit crafted transactions, messages, or protocol inputs to the affected admission or sequencing path"
+  - "time or shape those inputs around stale state, missing checks, or edge-case protocol transitions"
+exploit_preconditions:
+  - "the feature is enabled and reachable in a production-relevant path"
+  - "no downstream sink fully revalidates the same canonical state, payment, or protocol gate before acceptance"
+blast_radius: "sequencer-local"
+
+impact_types:
+  - "unexpected-transaction-acceptance"
+  - "consensus-integrity"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, integrity, or state-selection sink and the fix closes a real gap, but most cases here are still best described as hardening rather than fully demonstrated exploitation, so medium is the right default severity guess."
+
+code_shape_summary: "The patch makes L2 transaction parsing version-aware across block production and reorg replay, and adds an explicit rejection of `ArbitrumExtendedTxType` when `arbOSVersion < 11`. That supports a protocol-correctness invariant, but the provided evidence does not establish a concrete vulnerability rather than feature rollout and compatibility work."
+search_motifs:
+  - "transaction parsers lack access to current protocol version and guess from defaults"
+  - "reorg replay paths parse transactions differently from live block production"
+  - "unsupported transaction-type checks appear only after ArbOS or protocol-state plumbing is added"
+negative_signals:
+  - "Supported claim: the commit tightens protocol-version-gating at or before accepting or replaying a transaction type not yet enabled."
+  - "Supported claim: the strongest grounded reading is likely security-hardening around this sink, not an unconstrained worst-case exploit."
+  - "Do not claim fund loss or consensus breakage without evidence that the unchecked input reaches a state-changing sink."
+patch_pattern: "Thread protocol-version context from canonical state into transaction parsing and fail closed on transaction types that are not yet enabled."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/raw-findings/2023-02-24-nitro-transaction-processing-e853315fb.md"
+  - "git:e853315fb2b6f16ef26919074c4c8a9ed2ed7715"
+  - "arbnode/transaction_streamer.go:834"
+  - "arbos/block_processor.go:110"
+  - "arbos/block_processor.go:149"
+  - "arbos/incomingmessage.go:383"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

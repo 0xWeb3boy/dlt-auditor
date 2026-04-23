@@ -32,6 +32,10 @@ Your task:
 14. Search for cached execution, proof, or state-provider outputs that include invocation-local state. On cache hits, the code should rebind or reconstruct caller-local accounting, fork identity, verifier context, and authoritative state instead of cloning stale composite objects.
 15. In peer-driven paths, compare identity checks against context checks. Ask whether the code validates only a hash, type, peer, or object ID, or also validates the expected parent, predecessor, request token, chain segment, fork context, or authoritative metadata that makes the response meaningful.
 16. Search read-only, debug, witness, trace, simulation, and inspection flows that reuse normal execution, import, or persistence helpers. Check whether writes are disabled at the actual storage or canonical-state sink, not just by a wrapper flag.
+17. Compare constructor and startup paths for security-sensitive dependencies against steady-state enforcement paths. Ask whether verifier, signer, runtime-artifact, tracker, or state-provider initialization can fail open, fall back to trust mode, or proceed with incomplete chain context.
+18. For multi-stage pipelines, compare extraction, witness recording, validation, pruning, recovery, and live execution. Ask whether later stages assume a witness, accumulator, module root, finalized boundary, or sequence check that earlier stages only record best-effort or under a different progress predicate.
+19. Search for internally generated or cascaded work that should be grouped atomically with its parent operation, such as retryables, auto-redeems, generated proofs, queued privileged submissions, or background follow-on actions. Check whether failure, filtering, replay, or recovery drops only the child work while keeping the parent side effects.
+20. Search for privileged queues or session-bound workers where admission uses one authorization or freshness source but dequeue, replay, or round-transition execution uses another, such as cached controller maps, helper summaries, or stale progress state.
 
 For each candidate include:
 - Title

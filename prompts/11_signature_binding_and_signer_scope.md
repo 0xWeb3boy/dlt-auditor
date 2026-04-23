@@ -39,6 +39,9 @@ Search patterns:
 - wrappers that deserialize twice or carry typed values instead of raw authenticated bytes
 - code that checks signer public key equality but not signer membership in the active authorized role set
 - multisig validation that accepts "a signer" instead of "the required signers"
+- startup or constructor paths that can build a consumer without successfully constructing the verifier, signer-scope, or chain-context object that later code assumes exists
+- live paths wired to placeholder, trusting, noop, or development verifiers or signers while tests or helper code use stronger verification
+- protocol pipelines where emission and ingestion use different commitment, sequence, or signing rules, such as a sender producing one representation while the receiver verifies another or verifies nothing at all
 
 Questions to answer:
 1. What exact bytes are authenticated?
@@ -48,6 +51,8 @@ Questions to answer:
 5. Are historical queries and latest-state queries verified by equally strong paths?
 6. Does the caller require explicit semantic success from the verifier, or only absence of an API error?
 7. Is the code validating the exact challenged or indexed object that governs the decision?
+8. If verifier creation depends on chain context, contract state, signer registries, or feature mode, does startup fail closed when that context is unavailable?
+9. Do emitters and receivers bind the same bytes, metadata, counters, and mode flags, or is one side still using a weaker placeholder representation?
 
 Severity guidance:
 - High for signer-authorization gaps, registration-signature gaps, bridge or validator signature binding failures, or domain-separation failures in consensus-sensitive paths.

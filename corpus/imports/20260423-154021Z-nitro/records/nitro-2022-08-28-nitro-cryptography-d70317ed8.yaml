@@ -1,0 +1,63 @@
+id: "nitro-2022-08-28-nitro-cryptography-d70317ed8"
+source_finding: "2022-08-28-nitro-cryptography-d70317ed8.md"
+project: "nitro"
+date: "2022-08-28"
+language_tags:
+  - "go"
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "message-signature-validation-hardening"
+subsystem: "cryptography"
+architecture_tags:
+  - "signature"
+  - "canonicalization"
+  - "feed-authentication"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "canonical-message-signing"
+violated_invariant: "Sequencer or feed messages should be signed and hashed over one canonical serialized representation, and verification should be explicitly gated by the intended operating mode."
+trust_boundary: "feed message bytes->signature creation and verification"
+entrypoint_type: "feed-message-signing-or-validation"
+sensitive_sink: "accepting or emitting signed feed messages"
+
+attacker_capabilities:
+  - "send malformed, replayed, or tampered protocol messages, payloads, proofs, or signatures"
+  - "reach a path that relies on weak, deferred, or mode-dependent verification before a sensitive sink"
+exploit_preconditions:
+  - "the verifier or protocol handshake is enabled in a production-relevant deployment"
+  - "no downstream component fully canonicalizes and revalidates the same signed bytes before the sink"
+blast_radius: "service-local"
+
+impact_types:
+  - "message-integrity-risk"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, integrity, or state-selection sink and the fix closes a real gap, but most cases here are still best described as hardening rather than fully demonstrated exploitation, so medium is the right default severity guess."
+
+code_shape_summary: "The patch is security-relevant because it changes sequencer feed signature creation, verification gating, and message hashing. However, the provided evidence does not establish an actual vulnerability, exploitable acceptance path, or production configuration in which forged, replayed, or malformed messages could bypass validation."
+search_motifs:
+  - "message hash construction changes without matching verification cleanup"
+  - "signing and verification are conditioned on different mode flags"
+  - "a dedicated signature verifier is introduced to replace ad hoc checks in message paths"
+negative_signals:
+  - "Supported claim: the commit tightens canonical-message-signing at or before accepting or emitting signed feed messages."
+  - "Supported claim: the strongest grounded reading is likely security-hardening around this sink, not an unconstrained worst-case exploit."
+  - "Do not claim key compromise or replay without evidence that invalid or tampered data is actually accepted."
+patch_pattern: "Clarify signature applicability and canonicalize the data being signed, using a dedicated verifier path and strict serialization for hash construction."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/raw-findings/2022-08-28-nitro-cryptography-d70317ed8.md"
+  - "git:d70317ed86b5cb31598b837bc53dfda73a43893a"
+  - "broadcastclient/broadcastclient.go:378"
+  - "broadcaster/broadcaster.go:77"
+  - "broadcaster/broadcaster.go:54"
+  - "arbstate/inbox.go:60"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

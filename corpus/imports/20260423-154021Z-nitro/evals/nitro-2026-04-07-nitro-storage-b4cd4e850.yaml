@@ -1,0 +1,21 @@
+id: "nitro-2026-04-07-nitro-storage-b4cd4e850"
+source_record: "nitro-2026-04-07-nitro-storage-b4cd4e850.yaml"
+project: "nitro"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "resource-exhaustion-guard"
+expected_missing_property: "bounded-recovery-resource-growth"
+
+expected_impact_band: "availability_or_resource_exhaustion"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "If the trap is unreachable under production limits, similar code may not be security-relevant."
+  - "If a process supervisor or outer quota already bounds retries, the bug may reduce to robustness hardening."
+  - "Do not claim remote denial of service without evidence of repeatable triggerability."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

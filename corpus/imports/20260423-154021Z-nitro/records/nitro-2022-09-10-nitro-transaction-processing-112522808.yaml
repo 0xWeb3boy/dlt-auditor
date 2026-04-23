@@ -1,0 +1,65 @@
+id: "nitro-2022-09-10-nitro-transaction-processing-112522808"
+source_finding: "2022-09-10-nitro-transaction-processing-112522808.md"
+project: "nitro"
+date: "2022-09-10"
+language_tags:
+  - "go"
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "protocol-handshake-and-signature-validation"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "protocol-validation"
+  - "signature"
+  - "handshake"
+  - "chain-id"
+  - "hardening"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "handshake-signature-validation"
+violated_invariant: "Handshake and feed setup messages should reject wrong-chain inputs, missing mandatory metadata, and invalid signatures at the protocol boundary."
+trust_boundary: "peer handshake->feed session establishment"
+entrypoint_type: "protocol-handshake-or-session-setup"
+sensitive_sink: "establishing a feed session or accepting a peer stream"
+
+attacker_capabilities:
+  - "send malformed, replayed, or tampered protocol messages, payloads, proofs, or signatures"
+  - "reach a path that relies on weak, deferred, or mode-dependent verification before a sensitive sink"
+exploit_preconditions:
+  - "the verifier or protocol handshake is enabled in a production-relevant deployment"
+  - "no downstream component fully canonicalizes and revalidates the same signed bytes before the sink"
+blast_radius: "service-local"
+
+impact_types:
+  - "improper-input-validation"
+severity_guess: "medium"
+severity_rationale: "The finding reaches a security-sensitive admission, authorization, configuration, or exposure decision. The patch meaningfully improves policy enforcement, but the raw evidence usually stops short of proving worst-case exploitation, so medium is the right default band."
+
+code_shape_summary: "The supplied evidence shows feed-handshake and test tightening around wrong-chain, missing-metadata, and invalid-signature cases, but it does not establish a concrete vulnerability or show that unsafe messages were previously accepted. This is best treated as unclear security relevance rather than a validated security fix."
+search_motifs:
+  - "handshake code accepts nil or incomplete metadata and leaves later code to notice"
+  - "wrong-chain and invalid-signature errors are collapsed into generic failures"
+  - "regression tests get added for missing metadata and wrong-chain cases after protocol hardening"
+negative_signals:
+  - "Supported claim: the commit tightens handshake-signature-validation at or before establishing a feed session or accepting a peer stream."
+  - "Supported claim: the strongest grounded reading is likely security-hardening around this sink, not an unconstrained worst-case exploit."
+  - "Do not claim key compromise or replay without evidence that invalid or tampered data is actually accepted."
+patch_pattern: "Make protocol rejection conditions explicit at the trust boundary and add regression tests that assert exact failure modes."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/raw-findings/2022-09-10-nitro-transaction-processing-112522808.md"
+  - "git:112522808c06f617048eed7172782819cfc48409"
+  - "broadcastclient/broadcastclient_test.go:290"
+  - "broadcastclient/broadcastclient_test.go:114"
+  - "broadcastclient/broadcastclient.go:231"
+  - "util/signature/verifier.go:32"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

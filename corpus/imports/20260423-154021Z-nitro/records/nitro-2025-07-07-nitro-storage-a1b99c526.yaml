@@ -1,0 +1,65 @@
+id: "nitro-2025-07-07-nitro-storage-a1b99c526"
+source_finding: "2025-07-07-nitro-storage-a1b99c526.md"
+project: "nitro"
+date: "2025-07-07"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "verification-state-retention"
+subsystem: "storage"
+architecture_tags:
+  - "consensus"
+  - "validator-logic"
+  - "reorg-resilience"
+  - "verification-state"
+  - "delayed-messages"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "finalized-verification-state-retention"
+violated_invariant: "Validation backlog and delayed-message tracking state should be explicitly initialized and retained until finalized cleanup conditions are met."
+trust_boundary: "persisted delayed-message metadata->validation backlog and cleanup logic"
+entrypoint_type: "state-retention-or-cleanup"
+sensitive_sink: "discarding, retaining, or validating pending message state"
+
+attacker_capabilities:
+  - "drive extraction, validation, or state-recovery code through stale, partial, or inconsistent persisted data"
+  - "trigger reorg, finality, cache-rebuild, or backlog-management edge cases in validator support code"
+exploit_preconditions:
+  - "the storage or delayed-message subsystem feeds production validator decisions"
+  - "the sink uses cached or partially reconstructed state without a later full canonical rebuild"
+blast_radius: "validator-local"
+
+impact_types:
+  - "state-integrity"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, integrity, or state-selection sink and the fix closes a real gap, but most cases here are still best described as hardening rather than fully demonstrated exploitation, so medium is the right default severity guess."
+
+code_shape_summary: "The patch is well supported as a correctness/state-handling change in MEL delayed-message tracking. It replaces the older seen-unread deque flow with an explicitly initialized delayedMetaBacklog, stops silently creating missing tracking state during accumulation, and changes trimming logic to depend on finalized MEL state."
+search_motifs:
+  - "tracking state is silently created on demand instead of explicitly initialized at startup"
+  - "cleanup code deletes backlog state based on local assumptions rather than finalized progress"
+  - "deque or seen/unread structures are replaced by explicit backlog objects in hardening patches"
+negative_signals:
+  - "Supported claim: the commit tightens finalized-verification-state-retention at or before discarding, retaining, or validating pending message state."
+  - "Supported claim: the strongest grounded reading is likely security-hardening around this sink, not an unconstrained worst-case exploit."
+  - "Do not claim consensus impact without evidence that the bad state can escape local storage and influence validation or sequencing."
+patch_pattern: "Replace implicit or lazily created tracking state with an explicitly initialized backlog, and tie retention/cleanup to finalized state rather than local assumptions."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/raw-findings/2025-07-07-nitro-storage-a1b99c526.md"
+  - "git:a1b99c526e4898f056d165bfcbff7d8b2abddfdc"
+  - "arbnode/mel/runner/mel.go:325"
+  - "arbnode/mel/runner/database.go:34"
+  - "arbnode/mel/state.go:162"
+  - "arbnode/mel/runner/mel.go:349"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

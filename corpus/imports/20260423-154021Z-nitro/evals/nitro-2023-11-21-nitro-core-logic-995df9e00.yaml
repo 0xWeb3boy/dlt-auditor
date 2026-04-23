@@ -1,0 +1,21 @@
+id: "nitro-2023-11-21-nitro-core-logic-995df9e00"
+source_record: "nitro-2023-11-21-nitro-core-logic-995df9e00.yaml"
+project: "nitro"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "error-handling-policy"
+expected_missing_property: "explicit-error-recovery-policy"
+
+expected_impact_band: "integrity_or_policy_enforcement"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "If all later sinks independently recompute the same canonical state from finalized inputs, similar cases may remain correctness-only."
+  - "If the path is test-only or offline tooling only, treat similar issues as lower-severity hardening."
+  - "Do not claim chain-wide divergence without evidence that the wrong state can be persisted, signed, or submitted onward."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

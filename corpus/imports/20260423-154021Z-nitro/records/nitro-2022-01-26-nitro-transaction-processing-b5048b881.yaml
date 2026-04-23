@@ -1,0 +1,64 @@
+id: "nitro-2022-01-26-nitro-transaction-processing-b5048b881"
+source_finding: "2022-01-26-nitro-transaction-processing-b5048b881.md"
+project: "nitro"
+date: "2022-01-26"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "missing-payment-validation"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "sequencer"
+  - "admission-control"
+  - "payment-routing"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "payment-recipient-binding"
+violated_invariant: "A paid submission service should accept a transaction only when the sender's configured payment routing or pricing state authorizes this specific sequencer or ingress path."
+trust_boundary: "external transaction submission->paid sequencer admission path"
+entrypoint_type: "transaction-or-message-admission"
+sensitive_sink: "accepting or serializing a transaction into a paid service queue"
+
+attacker_capabilities:
+  - "submit crafted transactions, messages, or protocol inputs to the affected admission or sequencing path"
+  - "time or shape those inputs around stale state, missing checks, or edge-case protocol transitions"
+exploit_preconditions:
+  - "the feature is enabled and reachable in a production-relevant path"
+  - "no downstream sink fully revalidates the same canonical state, payment, or protocol gate before acceptance"
+blast_radius: "sequencer-local"
+
+impact_types:
+  - "unauthorized-service-use"
+  - "fee-bypass"
+severity_guess: "medium"
+severity_rationale: "The finding reaches a security-sensitive admission, authorization, configuration, or exposure decision. The patch meaningfully improves policy enforcement, but the raw evidence usually stops short of proving worst-case exploitation, so medium is the right default band."
+
+code_shape_summary: "The supplied diff supports a likely security-relevant admission-control fix in the sequencer: before, the shown publish path serialized submitted transactions without an evident check that the sender's pricing configuration pointed at this sequencer; after, `preTxFilter` rejects senders whose `PreferredAggregator` is not `SequencerAddress`."
+search_motifs:
+  - "paid or privileged ingress path forwards transactions before checking configured payment recipient"
+  - "authorization or pricing configuration is read only after serialization or queueing"
+  - "service-specific payment rules are validated in downstream consumers instead of at ingress"
+negative_signals:
+  - "Supported claim: the commit tightens payment-recipient-binding at or before accepting or serializing a transaction into a paid service queue."
+  - "Supported claim: the strongest grounded reading is likely security-hardening around this sink, not an unconstrained worst-case exploit."
+  - "Do not claim fund loss or consensus breakage without evidence that the unchecked input reaches a state-changing sink."
+patch_pattern: "Add an explicit authorization/payment-routing check at the service ingress point, then propagate rejection state through downstream encoding and consumption paths instead of assuming all submitted inputs are valid."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/raw-findings/2022-01-26-nitro-transaction-processing-b5048b881.md"
+  - "git:b5048b881ef126fa349a52d4ce80e3633e2c5aa4"
+  - "arbos/block_processor.go:89"
+  - "arbnode/transaction_streamer.go:268"
+  - "arbnode/sequencer.go:72"
+  - "arbnode/sequencer.go:50"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

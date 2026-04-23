@@ -1,0 +1,21 @@
+id: "nitro-2025-03-31-nitro-transaction-processing-475d442de"
+source_record: "nitro-2025-03-31-nitro-transaction-processing-475d442de.yaml"
+project: "nitro"
+
+expected_bug_family: "authz_and_role_gates"
+expected_bug_class: "stale-authorization-state"
+expected_missing_property: "fresh-authorization-binding"
+
+expected_impact_band: "trust_or_policy_integrity"
+expected_severity_band: "high_or_medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "If a later authoritative validator rejects the same input before it can affect persistent state, similar cases may reduce to wasted work rather than a security bug."
+  - "If the feature is disabled or only reachable in tests, classify similar cases as hardening or correctness only."
+  - "Do not claim fund loss or consensus breakage without evidence that the unchecked input reaches a state-changing sink."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: confirmed / security-hardening."

@@ -1,0 +1,65 @@
+id: "nitro-2023-11-15-nitro-transaction-processing-4b8676d77"
+source_finding: "2023-11-15-nitro-transaction-processing-4b8676d77.md"
+project: "nitro"
+date: "2023-11-15"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "incorrect-index-derivation"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "validator"
+  - "challenge-protocol"
+  - "state-provider"
+  - "index-translation"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "authoritative-index-derivation"
+violated_invariant: "Proof generation and machine-hash lookups should derive message indices from authoritative batch metadata and reject ambiguous equal-boundary ranges."
+trust_boundary: "batch metadata->proof generation and state-provider lookups"
+entrypoint_type: "proof-generation-or-state-provider-query"
+sensitive_sink: "generating a proof or machine hash at a selected message index"
+
+attacker_capabilities:
+  - "trigger challenge or proof-generation logic on crafted, stale, or edge-case assertion metadata"
+  - "reach range-boundary cases where callers guess or derive proof state from incomplete context"
+exploit_preconditions:
+  - "the dispute or proof path is used in production-relevant validator workflows"
+  - "the generated proof, machine hash, or challenge edge is trusted without a later full canonical rebuild"
+blast_radius: "validator-local"
+
+impact_types:
+  - "state-consistency"
+  - "proof-generation-integrity"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, integrity, or state-selection sink and the fix closes a real gap, but most cases here are still best described as hardening rather than fully demonstrated exploitation, so medium is the right default severity guess."
+
+code_shape_summary: "The supplied diff supports a correctness fix in the staker state-provider path: proof and machine-hash lookups now derive the message index from batch metadata, equal-batch ranges are rejected, and missing batch-count data is surfaced as a catch-up condition. The evidence does not establish an exploitable vulnerability, invalid proof acceptance, or consensus impact."
+search_motifs:
+  - "proof helpers accept caller-provided indices when batch metadata is available"
+  - "equal-batch or empty-range cases are treated as ordinary ranges"
+  - "missing batch counts are surfaced as catch-up conditions only in later hardening patches"
+negative_signals:
+  - "Supported claim: the commit tightens authoritative-index-derivation at or before generating a proof or machine hash at a selected message index."
+  - "Supported claim: the strongest grounded reading is likely security-hardening around this sink, not an unconstrained worst-case exploit."
+  - "Do not claim profitable challenge manipulation without evidence that the malformed proof or edge can actually be submitted or accepted."
+patch_pattern: "Replace direct or ambiguous index inputs with indices derived from authoritative batch metadata, add stricter argument validation, and translate sync-lag conditions into an explicit error."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/raw-findings/2023-11-15-nitro-transaction-processing-4b8676d77.md"
+  - "git:4b8676d777e02ad807b1a115bdc0cbeeeb8e7538"
+  - "staker/state_provider.go:170"
+  - "staker/state_provider.go:359"
+  - "staker/state_provider.go:308"
+  - "staker/state_provider.go:142"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

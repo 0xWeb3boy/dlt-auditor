@@ -1,0 +1,63 @@
+id: "nitro-2023-05-02-nitro-validator-ops-ccfa06f67"
+source_finding: "2023-05-02-nitro-validator-ops-ccfa06f67.md"
+project: "nitro"
+date: "2023-05-02"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "unsafe-validator-configuration"
+subsystem: "validator-ops"
+architecture_tags:
+  - "validator"
+  - "configuration-hardening"
+  - "consensus-safety"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "safe-validator-defaults"
+violated_invariant: "Validator or staker modes should default to the safer validation setting unless the operator explicitly opts out with a clearly dangerous override."
+trust_boundary: "operator configuration->validator or staker startup policy"
+entrypoint_type: "node-startup-or-configuration"
+sensitive_sink: "starting validator duties with weakened safety checks"
+
+attacker_capabilities:
+  - "invoke a privileged withdrawal or control path with attacker-chosen parameters or unsafe settings"
+  - "reach policy-sensitive code before a narrower destination or mode constraint is applied"
+exploit_preconditions:
+  - "the caller can reach the privileged API or startup path in a production-relevant deployment"
+  - "no later signer, contract, or policy layer overrides the unsafe parameter before funds or authority are exercised"
+blast_radius: "validator-local"
+
+impact_types:
+  - "integrity-hardening"
+severity_guess: "medium"
+severity_rationale: "The finding reaches a security-sensitive admission, authorization, configuration, or exposure decision. The patch meaningfully improves policy enforcement, but the raw evidence usually stops short of proving worst-case exploitation, so medium is the right default band."
+
+code_shape_summary: "The strongest supported change is a validator/staker startup hardening in `cmd/nitro/nitro.go`: active staker strategies now auto-enable `BlockValidator` unless the dangerous override is set. That supports a configuration-safety reading, but the provided evidence does not establish a concrete vulnerability, attacker path, or demonstrated security impact."
+search_motifs:
+  - "safer validator flags are optional until patches invert them to defaults"
+  - "dangerous overrides are introduced to preserve legacy behavior while tightening defaults"
+  - "staker mode implicitly requires validation checks that the config surface did not enforce"
+negative_signals:
+  - "Supported claim: the commit tightens safe-validator-defaults at or before starting validator duties with weakened safety checks."
+  - "Supported claim: the strongest grounded reading is likely security-hardening around this sink, not an unconstrained worst-case exploit."
+  - "Do not claim theft or validator compromise without evidence that the unsafe choice reaches the final sink."
+patch_pattern: "Convert a safer validator setting from manual configuration into a defaulted startup rule, while preserving an explicitly named dangerous override for opting out."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/raw-findings/2023-05-02-nitro-validator-ops-ccfa06f67.md"
+  - "git:ccfa06f6726cf28d803587ae4c5e9a093c944399"
+  - "util/rpcclient/rpcclient.go:67"
+  - "cmd/nitro/nitro.go:320"
+  - "cmd/nitro/nitro.go:362"
+  - "util/rpcclient/rpcclient.go:93"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

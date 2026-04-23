@@ -1,0 +1,27 @@
+# Validation Card
+
+## Metadata
+
+- ID: `nitro-2022-02-21-nitro-transaction-processing-9d6ff6021`
+- Bug family: `input_validation_and_invariant_enforcement`
+- Bug class: `insufficient-state-validation`
+
+## What Confirmed The Issue
+
+- Evidence 1: The visible patch is best supported as validator correctness hardening.
+- Evidence 2: Add a fail-fast consistency check and tighten validator branch-selection conditions.
+
+## What Could Have Invalidated It
+
+- Compensating control 1: If all later sinks independently recompute the same canonical state from finalized inputs, similar cases may remain correctness-only.
+- Compensating control 2: If the path is test-only or offline tooling only, treat similar issues as lower-severity hardening.
+
+## Severity Guidance
+
+- Expected impact band: `state_or_consensus_integrity`
+- Expected severity band: `medium_or_low`
+
+## False-Positive Cautions
+
+- Caution 1: If all later sinks independently recompute the same canonical state from finalized inputs, similar cases may remain correctness-only.
+- Caution 2: Do not claim chain-wide divergence without evidence that the wrong state can be persisted, signed, or submitted onward.

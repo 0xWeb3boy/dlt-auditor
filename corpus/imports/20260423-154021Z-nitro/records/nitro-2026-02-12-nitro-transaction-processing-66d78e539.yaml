@@ -1,0 +1,63 @@
+id: "nitro-2026-02-12-nitro-transaction-processing-66d78e539"
+source_finding: "2026-02-12-nitro-transaction-processing-66d78e539.md"
+project: "nitro"
+date: "2026-02-12"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-divergence"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "consensus-divergence"
+  - "state-integrity"
+  - "determinism"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "atomic-derived-transaction-processing"
+violated_invariant: "A user transaction and its derived retryable auto-redeems should be processed atomically for consensus so that a filter failure in a derived redeem reverts the entire group."
+trust_boundary: "transaction execution->derived retryable redeem processing"
+entrypoint_type: "block-production-or-transaction-group-processing"
+sensitive_sink: "finalizing block state for a user transaction and its derived redeems"
+
+attacker_capabilities:
+  - "submit transactions that cause derived follow-on execution such as auto-redeems or delayed side effects"
+  - "hit error cases where part of the group succeeds and part is filtered or reverted"
+exploit_preconditions:
+  - "the derived-transaction path is active in production block building"
+  - "the block builder can finalize part of the group without a later atomicity check"
+blast_radius: "chain-wide"
+
+impact_types:
+  - "state-integrity"
+severity_guess: "high"
+severity_rationale: "The patch reaches a consensus- or system-integrity sink where partial success can create divergent or materially unsafe outcomes, so high is the right default severity guess even though the finding still reads as code-change evidence rather than a public incident report."
+
+code_shape_summary: "The evidence supports a consensus-divergence fix in `ProduceBlockAdvanced` for retryable auto-redeems. The patch adds group-level checkpointing around a user transaction and its generated redeems so that if a redeem triggers `state.ErrArbTxFilter`, the whole tentative group is reverted rather than only dropping the redeem."
+search_motifs:
+  - "block builders checkpoint around individual transactions but not their system-generated follow-on work"
+  - "derived retries or auto-redeems can fail a filter after the originating transaction has already committed"
+  - "later fixes add group-level snapshots and defer irreversible finalization until derived work succeeds"
+negative_signals:
+  - "Supported claim: the commit tightens atomic-derived-transaction-processing at or before finalizing block state for a user transaction and its derived redeems."
+  - "Supported claim: the strongest grounded reading is confirmed security-fix around this sink, not an unconstrained worst-case exploit."
+  - "Do not claim finalized chain splits without evidence that different nodes can persist different outcomes from the same group."
+patch_pattern: "Enforce group-level atomicity for consensus-sensitive derived transactions: snapshot before the originating transaction, process derived work tentatively, defer irreversible finalization, and revert the whole group on a redeem-filter failure."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/raw-findings/2026-02-12-nitro-transaction-processing-66d78e539.md"
+  - "git:66d78e539998cffc70883762fed0dc9e3ab01ac0"
+  - "arbos/block_processor.go:267"
+  - "arbos/block_processor.go:516"
+  - "arbos/block_processor.go:639"
+  - "arbos/block_processor.go:357"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: confirmed / security-fix."

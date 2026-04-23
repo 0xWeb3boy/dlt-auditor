@@ -1,0 +1,64 @@
+id: "nitro-2025-06-03-nitro-storage-300a695a7"
+source_finding: "2025-06-03-nitro-storage-300a695a7.md"
+project: "nitro"
+date: "2025-06-03"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "finality-boundary-handling"
+subsystem: "storage"
+architecture_tags:
+  - "consensus-adjacent"
+  - "reorg-resilience"
+  - "state-recovery"
+  - "finality-aware"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "finalized-state-initialization"
+violated_invariant: "Recovery and initialization should seed delayed-message tracking from finalized parent-chain boundaries, not from merely observed or current heads."
+trust_boundary: "finalized parent-chain state->MEL startup and recovery logic"
+entrypoint_type: "startup-or-state-recovery"
+sensitive_sink: "initializing delayed-message tracking state"
+
+attacker_capabilities:
+  - "drive extraction, validation, or state-recovery code through stale, partial, or inconsistent persisted data"
+  - "trigger reorg, finality, cache-rebuild, or backlog-management edge cases in validator support code"
+exploit_preconditions:
+  - "the storage or delayed-message subsystem feeds production validator decisions"
+  - "the sink uses cached or partially reconstructed state without a later full canonical rebuild"
+blast_radius: "validator-local"
+
+impact_types:
+  - "state-integrity"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, integrity, or state-selection sink and the fix closes a real gap, but most cases here are still best described as hardening rather than fully demonstrated exploitation, so medium is the right default severity guess."
+
+code_shape_summary: "The patch changes MEL startup and state-recovery logic to use the finalized parent-chain block when initializing delayed-message tracking. The evidence supports a reorg-resilience fix in message-extraction state handling, but it does not establish a concrete security vulnerability or exploit path."
+search_motifs:
+  - "startup paths initialize tracking from current heads without consulting finalized state"
+  - "recovery code trims or seeds state based on read progress rather than finality boundaries"
+  - "later patches thread finalized parent block numbers through extraction or recovery APIs"
+negative_signals:
+  - "Supported claim: the commit tightens finalized-state-initialization at or before initializing delayed-message tracking state."
+  - "Supported claim: the strongest grounded reading is likely security-hardening around this sink, not an unconstrained worst-case exploit."
+  - "Do not claim consensus impact without evidence that the bad state can escape local storage and influence validation or sequencing."
+patch_pattern: "Thread an explicit finalized-boundary parameter through recovery code, and gate state initialization and trimming on finality rather than read-progress alone."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/raw-findings/2025-06-03-nitro-storage-300a695a7.md"
+  - "git:300a695a7cc22c9f24fbbec5ab97d7370f293b9c"
+  - "arbnode/message-extraction/mel.go:169"
+  - "arbnode/message-extraction/database.go:34"
+  - "arbnode/message-extraction/types/state.go:239"
+  - "arbnode/message-extraction/database.go:127"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

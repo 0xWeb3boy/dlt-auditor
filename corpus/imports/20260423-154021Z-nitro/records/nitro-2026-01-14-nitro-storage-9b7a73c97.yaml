@@ -1,0 +1,64 @@
+id: "nitro-2026-01-14-nitro-storage-9b7a73c97"
+source_finding: "2026-01-14-nitro-storage-9b7a73c97.md"
+project: "nitro"
+date: "2026-01-14"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "validation-gating"
+subsystem: "storage"
+architecture_tags:
+  - "validator"
+  - "consensus"
+  - "message-extraction-layer"
+  - "hardening"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "validation-progress-gating"
+violated_invariant: "New validator work should be gated on the relevant validated-message progress so block validation does not outrun extraction validation."
+trust_boundary: "validated-message progress->block-validator work scheduling"
+entrypoint_type: "work-scheduling-or-validation-gating"
+sensitive_sink: "creating new block-validation work on insufficiently validated state"
+
+attacker_capabilities:
+  - "drive extraction, validation, or state-recovery code through stale, partial, or inconsistent persisted data"
+  - "trigger reorg, finality, cache-rebuild, or backlog-management edge cases in validator support code"
+exploit_preconditions:
+  - "the storage or delayed-message subsystem feeds production validator decisions"
+  - "the sink uses cached or partially reconstructed state without a later full canonical rebuild"
+blast_radius: "validator-local"
+
+impact_types:
+  - "validation-integrity"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, integrity, or state-selection sink and the fix closes a real gap, but most cases here are still best described as hardening rather than fully demonstrated exploitation, so medium is the right default severity guess."
+
+code_shape_summary: "The patch adds an explicit MEL validated-message-count gate before block validation creates new work, adjusts MEL validator progress tracking, and changes MEL state hash construction."
+search_motifs:
+  - "block validation checks execution progress but not validated delayed-message progress"
+  - "progress fields for extraction and validation drift independently until later patches tie them together"
+  - "commitment or state-hash code changes accompany new validation gates between subsystems"
+negative_signals:
+  - "Supported claim: the commit tightens validation-progress-gating at or before creating new block-validation work on insufficiently validated state."
+  - "Supported claim: the strongest grounded reading is likely security-hardening around this sink, not an unconstrained worst-case exploit."
+  - "Do not claim consensus impact without evidence that the bad state can escape local storage and influence validation or sequencing."
+patch_pattern: "Add an explicit validation-progress gate at the boundary between MEL extraction validation and block validation, and align related progress-tracking and commitment construction code with that boundary."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/raw-findings/2026-01-14-nitro-storage-9b7a73c97.md"
+  - "git:9b7a73c975c3f4257158323afe6a5601bd8a77de"
+  - "staker/mel_validator.go:254"
+  - "staker/block_validator.go:646"
+  - "arbnode/mel/state.go:81"
+  - "arbnode/mel/state.go:98"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

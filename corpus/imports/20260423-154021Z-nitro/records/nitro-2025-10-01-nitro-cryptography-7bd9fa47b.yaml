@@ -1,0 +1,63 @@
+id: "nitro-2025-10-01-nitro-cryptography-7bd9fa47b"
+source_finding: "2025-10-01-nitro-cryptography-7bd9fa47b.md"
+project: "nitro"
+date: "2025-10-01"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "insufficient-payload-integrity-verification"
+subsystem: "cryptography"
+architecture_tags:
+  - "integrity-check"
+  - "rpc"
+  - "validator"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "payload-commitment-verification"
+violated_invariant: "A DA or RPC server should recompute and verify a payload commitment from received content and protocol metadata before accepting or serving that payload."
+trust_boundary: "incoming payload and metadata->DA provider or RPC acceptance path"
+entrypoint_type: "rpc-or-payload-validation"
+sensitive_sink: "accepting, storing, or serving payload bytes as valid"
+
+attacker_capabilities:
+  - "send malformed, replayed, or tampered protocol messages, payloads, proofs, or signatures"
+  - "reach a path that relies on weak, deferred, or mode-dependent verification before a sensitive sink"
+exploit_preconditions:
+  - "the verifier or protocol handshake is enabled in a production-relevant deployment"
+  - "no downstream component fully canonicalizes and revalidates the same signed bytes before the sink"
+blast_radius: "service-local"
+
+impact_types:
+  - "payload-tampering"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, integrity, or state-selection sink and the fix closes a real gap, but most cases here are still best described as hardening rather than fully demonstrated exploitation, so medium is the right default severity guess."
+
+code_shape_summary: "The patch replaces a noop payload marker and an always-success verifier with a Keccak-based commitment over the payload plus extras, and enables that verifier on the live DA provider server path."
+search_motifs:
+  - "integrity markers are placeholders or no-op bytes instead of content-derived commitments"
+  - "server-side verifiers return success without recomputing payload hashes"
+  - "a live provider path enables real commitment verification only in later fixes"
+negative_signals:
+  - "Supported claim: the commit tightens payload-commitment-verification at or before accepting, storing, or serving payload bytes as valid."
+  - "Supported claim: the strongest grounded reading is confirmed security-hardening around this sink, not an unconstrained worst-case exploit."
+  - "Do not claim key compromise or replay without evidence that invalid or tampered data is actually accepted."
+patch_pattern: "Replace placeholder acceptance logic with deterministic verification that recomputes a payload commitment from the received content and protocol metadata before accepting the message."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/raw-findings/2025-10-01-nitro-cryptography-7bd9fa47b.md"
+  - "git:7bd9fa47b57b68e07bc3001e8a26eb9b962d1dce"
+  - "daprovider/data_streaming/signing.go:54"
+  - "daprovider/data_streaming/signing.go:30"
+  - "cmd/daprovider/daprovider.go:288"
+  - "daprovider/server/client_provider_test.go:68"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: confirmed / security-hardening."

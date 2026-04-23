@@ -1,0 +1,369 @@
+{
+  "repo": "/testing/nitro",
+  "repo_slug": "nitro",
+  "kept_dir": "/testing/nitro/validated-findings/kept",
+  "created_at_utc": "20260423-154021Z",
+  "finding_count": 40,
+  "findings": [
+    {
+      "id": "nitro-2021-12-16-nitro-transaction-processing-1fa7557cf",
+      "source": "/testing/nitro/validated-findings/kept/2021-12-16-nitro-transaction-processing-1fa7557cf.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "unsafe-default-service-exposure",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "nitro-2021-12-30-nitro-core-logic-8c2505ddf",
+      "source": "/testing/nitro/validated-findings/kept/2021-12-30-nitro-core-logic-8c2505ddf.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "improper-state-management",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "nitro-2022-01-26-nitro-transaction-processing-b5048b881",
+      "source": "/testing/nitro/validated-findings/kept/2022-01-26-nitro-transaction-processing-b5048b881.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-payment-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "nitro-2022-02-17-nitro-transaction-processing-8ad394df3",
+      "source": "/testing/nitro/validated-findings/kept/2022-02-17-nitro-transaction-processing-8ad394df3.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "challenge-boundary-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "nitro-2022-02-21-nitro-transaction-processing-9d6ff6021",
+      "source": "/testing/nitro/validated-findings/kept/2022-02-21-nitro-transaction-processing-9d6ff6021.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "insufficient-state-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "nitro-2022-03-03-nitro-cryptography-65e9598f0",
+      "source": "/testing/nitro/validated-findings/kept/2022-03-03-nitro-cryptography-65e9598f0.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "protocol-input-validation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "nitro-2022-03-17-nitro-storage-368fbe57c",
+      "source": "/testing/nitro/validated-findings/kept/2022-03-17-nitro-storage-368fbe57c.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "configuration-validation",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "nitro-2022-03-17-nitro-transaction-processing-c4a31f084",
+      "source": "/testing/nitro/validated-findings/kept/2022-03-17-nitro-transaction-processing-c4a31f084.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "reorg-state-mismatch",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "nitro-2022-04-07-nitro-transaction-processing-b5cf8b667",
+      "source": "/testing/nitro/validated-findings/kept/2022-04-07-nitro-transaction-processing-b5cf8b667.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "module-root-mismatch",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "nitro-2022-04-10-nitro-transaction-processing-3a9ee3753",
+      "source": "/testing/nitro/validated-findings/kept/2022-04-10-nitro-transaction-processing-3a9ee3753.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "artifact-identity-check",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "nitro-2022-05-31-nitro-transaction-processing-6d8c634ba",
+      "source": "/testing/nitro/validated-findings/kept/2022-05-31-nitro-transaction-processing-6d8c634ba.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "insufficient-initialization-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "nitro-2022-06-01-nitro-transaction-processing-37c04d56b",
+      "source": "/testing/nitro/validated-findings/kept/2022-06-01-nitro-transaction-processing-37c04d56b.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "caller-controlled-withdrawal-destination",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "nitro-2022-08-28-nitro-cryptography-d70317ed8",
+      "source": "/testing/nitro/validated-findings/kept/2022-08-28-nitro-cryptography-d70317ed8.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "message-signature-validation-hardening",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "nitro-2022-09-07-nitro-transaction-processing-4f32fd7c7",
+      "source": "/testing/nitro/validated-findings/kept/2022-09-07-nitro-transaction-processing-4f32fd7c7.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "message-integrity-enforcement",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "nitro-2022-09-10-nitro-transaction-processing-112522808",
+      "source": "/testing/nitro/validated-findings/kept/2022-09-10-nitro-transaction-processing-112522808.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "protocol-handshake-and-signature-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "nitro-2022-09-13-nitro-transaction-processing-d23127344",
+      "source": "/testing/nitro/validated-findings/kept/2022-09-13-nitro-transaction-processing-d23127344.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "signature-verification-initialization",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "nitro-2022-11-04-nitro-storage-9eb8b5709",
+      "source": "/testing/nitro/validated-findings/kept/2022-11-04-nitro-storage-9eb8b5709.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "preimage-source-mixing",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "nitro-2023-02-24-nitro-transaction-processing-e853315fb",
+      "source": "/testing/nitro/validated-findings/kept/2023-02-24-nitro-transaction-processing-e853315fb.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "improper-version-gating",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "nitro-2023-05-02-nitro-validator-ops-ccfa06f67",
+      "source": "/testing/nitro/validated-findings/kept/2023-05-02-nitro-validator-ops-ccfa06f67.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "unsafe-validator-configuration",
+      "subsystem": "validator-ops",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "nitro-2023-06-16-nitro-transaction-processing-edf0a0ec8",
+      "source": "/testing/nitro/validated-findings/kept/2023-06-16-nitro-transaction-processing-edf0a0ec8.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "incorrect-challenge-metadata",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "nitro-2023-07-31-nitro-transaction-processing-dd22b5f05",
+      "source": "/testing/nitro/validated-findings/kept/2023-07-31-nitro-transaction-processing-dd22b5f05.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "validator-state-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "nitro-2023-10-13-nitro-storage-f88557d06",
+      "source": "/testing/nitro/validated-findings/kept/2023-10-13-nitro-storage-f88557d06.md",
+      "bug_family": "resource_accounting_and_limits",
+      "bug_class": "gas-metering",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "resource-accounting"
+    },
+    {
+      "id": "nitro-2023-11-15-nitro-transaction-processing-4b8676d77",
+      "source": "/testing/nitro/validated-findings/kept/2023-11-15-nitro-transaction-processing-4b8676d77.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "incorrect-index-derivation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "nitro-2023-11-21-nitro-core-logic-995df9e00",
+      "source": "/testing/nitro/validated-findings/kept/2023-11-21-nitro-core-logic-995df9e00.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "error-handling-policy",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "nitro-2023-12-11-nitro-cryptography-1d3b655ea",
+      "source": "/testing/nitro/validated-findings/kept/2023-12-11-nitro-cryptography-1d3b655ea.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "incomplete-state-commitment",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "nitro-2024-02-05-nitro-core-logic-6b420cb12",
+      "source": "/testing/nitro/validated-findings/kept/2024-02-05-nitro-core-logic-6b420cb12.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-state-check",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "nitro-2024-11-07-nitro-transaction-processing-ae1d18a4c",
+      "source": "/testing/nitro/validated-findings/kept/2024-11-07-nitro-transaction-processing-ae1d18a4c.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "challenge-proof-generation-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "nitro-2024-12-20-nitro-transaction-processing-a719c5c92",
+      "source": "/testing/nitro/validated-findings/kept/2024-12-20-nitro-transaction-processing-a719c5c92.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "state-machine-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "nitro-2025-03-31-nitro-transaction-processing-475d442de",
+      "source": "/testing/nitro/validated-findings/kept/2025-03-31-nitro-transaction-processing-475d442de.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "stale-authorization-state",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "nitro-2025-06-02-nitro-storage-b3bbf4e7d",
+      "source": "/testing/nitro/validated-findings/kept/2025-06-02-nitro-storage-b3bbf4e7d.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "incomplete-validation",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "nitro-2025-06-03-nitro-storage-300a695a7",
+      "source": "/testing/nitro/validated-findings/kept/2025-06-03-nitro-storage-300a695a7.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "finality-boundary-handling",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "nitro-2025-07-07-nitro-storage-a1b99c526",
+      "source": "/testing/nitro/validated-findings/kept/2025-07-07-nitro-storage-a1b99c526.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "verification-state-retention",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "nitro-2025-07-16-nitro-storage-6821f734d",
+      "source": "/testing/nitro/validated-findings/kept/2025-07-16-nitro-storage-6821f734d.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "state-validation-hardening",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "nitro-2025-10-01-nitro-cryptography-7bd9fa47b",
+      "source": "/testing/nitro/validated-findings/kept/2025-10-01-nitro-cryptography-7bd9fa47b.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "insufficient-payload-integrity-verification",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "nitro-2025-11-07-nitro-cryptography-4272c4cfa",
+      "source": "/testing/nitro/validated-findings/kept/2025-11-07-nitro-cryptography-4272c4cfa.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "signature-verification-hardening",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "nitro-2026-01-05-nitro-transaction-processing-10aa51df2",
+      "source": "/testing/nitro/validated-findings/kept/2026-01-05-nitro-transaction-processing-10aa51df2.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "incomplete-validation-recording",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "nitro-2026-01-14-nitro-storage-9b7a73c97",
+      "source": "/testing/nitro/validated-findings/kept/2026-01-14-nitro-storage-9b7a73c97.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "validation-gating",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "nitro-2026-02-12-nitro-transaction-processing-66d78e539",
+      "source": "/testing/nitro/validated-findings/kept/2026-02-12-nitro-transaction-processing-66d78e539.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-divergence",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "nitro-2026-03-11-nitro-transaction-processing-8fe83188c",
+      "source": "/testing/nitro/validated-findings/kept/2026-03-11-nitro-transaction-processing-8fe83188c.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-integrity-check",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "nitro-2026-04-07-nitro-storage-b4cd4e850",
+      "source": "/testing/nitro/validated-findings/kept/2026-04-07-nitro-storage-b4cd4e850.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "resource-exhaustion-guard",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    }
+  ]
+}

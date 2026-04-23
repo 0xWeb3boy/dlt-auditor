@@ -1,0 +1,64 @@
+id: "nitro-2021-12-30-nitro-core-logic-8c2505ddf"
+source_finding: "2021-12-30-nitro-core-logic-8c2505ddf.md"
+project: "nitro"
+date: "2021-12-30"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "improper-state-management"
+subsystem: "core-logic"
+architecture_tags:
+  - "validator"
+  - "state-integrity"
+  - "immutability"
+  - "hardening"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "immutable-state-handling"
+violated_invariant: "Shared or frozen validator/prover machine state should be cloned from a fresh canonical base object and mutators should fail closed when the target machine is immutable."
+trust_boundary: "shared machine handle->validator or prover mutation logic"
+entrypoint_type: "state-transition-or-machine-management"
+sensitive_sink: "mutation of validator or prover machine state"
+
+attacker_capabilities:
+  - "drive validator, recovery, or machine-loading code through stale, ambiguous, or attacker-influenced metadata"
+  - "trigger boundary conditions such as reorgs, cache misses, alias resolution, or partial initialization"
+exploit_preconditions:
+  - "the validator or prover path is used in production-relevant workflows"
+  - "the affected sink trusts cached or derived state instead of independently rebuilding canonical state before use"
+blast_radius: "validator-local"
+
+impact_types:
+  - "state-integrity"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, integrity, or state-selection sink and the fix closes a real gap, but most cases here are still best described as hardening rather than fully demonstrated exploitation, so medium is the right default severity guess."
+
+code_shape_summary: "The supplied diff supports validator-machine state-management hardening: validation now fetches a host-IO machine before cloning, and mutators now reject frozen machines. The evidence does not establish a concrete vulnerability, attacker trigger, or protocol-level security failure."
+search_motifs:
+  - "clone or copy operations performed from cached machine pointers instead of freshly fetched canonical state"
+  - "mutator methods that do not check whether the machine is frozen or shared"
+  - "stateful VM helpers that reuse host-io or backing state across validation calls"
+negative_signals:
+  - "Supported claim: the commit tightens immutable-state-handling at or before mutation of validator or prover machine state."
+  - "Supported claim: the strongest grounded reading is likely security-hardening around this sink, not an unconstrained worst-case exploit."
+  - "Do not claim chain-wide divergence without evidence that the wrong state can be persisted, signed, or submitted onward."
+patch_pattern: "Fetch the canonical base object at use time and add fail-closed guards to mutating APIs so shared or frozen instances cannot be modified silently."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/raw-findings/2021-12-30-nitro-core-logic-8c2505ddf.md"
+  - "git:8c2505ddf6aaea0b5de5606fdb14bea3d39bd38c"
+  - "validator/block_validator.go:318"
+  - "validator/block_validator.go:540"
+  - "validator/machine.go:74"
+  - "validator/machine.go:222"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

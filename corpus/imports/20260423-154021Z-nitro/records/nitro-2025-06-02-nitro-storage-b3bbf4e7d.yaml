@@ -1,0 +1,64 @@
+id: "nitro-2025-06-02-nitro-storage-b3bbf4e7d"
+source_finding: "2025-06-02-nitro-storage-b3bbf4e7d.md"
+project: "nitro"
+date: "2025-06-02"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "incomplete-validation"
+subsystem: "storage"
+architecture_tags:
+  - "validation"
+  - "delayed-messages"
+  - "merkle-accumulator"
+  - "consensus-sensitive"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "complete-delayed-message-validation"
+violated_invariant: "Delayed-message or MEL validation should reconstruct the relevant accumulator context and perform the full set of checks instead of placeholder success paths."
+trust_boundary: "delayed-message extraction data->native validation path"
+entrypoint_type: "validation-or-accumulator-checking"
+sensitive_sink: "marking delayed-message data as valid or advancing validation state"
+
+attacker_capabilities:
+  - "drive extraction, validation, or state-recovery code through stale, partial, or inconsistent persisted data"
+  - "trigger reorg, finality, cache-rebuild, or backlog-management edge cases in validator support code"
+exploit_preconditions:
+  - "the storage or delayed-message subsystem feeds production validator decisions"
+  - "the sink uses cached or partially reconstructed state without a later full canonical rebuild"
+blast_radius: "validator-local"
+
+impact_types:
+  - "integrity-risk"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, integrity, or state-selection sink and the fix closes a real gap, but most cases here are still best described as hardening rather than fully demonstrated exploitation, so medium is the right default severity guess."
+
+code_shape_summary: "The provided evidence supports that this patch implements previously missing delayed-message accumulation and accumulator checks in native-mode MEL. It does not, by itself, establish that the prior behavior was a proven exploitable vulnerability rather than an incomplete or unfinished validation path."
+search_motifs:
+  - "validation functions return success without reconstructing accumulators or indexes they depend on"
+  - "placeholder state update code is replaced by real accumulator reconstruction in later fixes"
+  - "delayed-message validators begin tracking explicit context objects only after hardening patches"
+negative_signals:
+  - "Supported claim: the commit tightens complete-delayed-message-validation at or before marking delayed-message data as valid or advancing validation state."
+  - "Supported claim: the strongest grounded reading is likely security-hardening around this sink, not an unconstrained worst-case exploit."
+  - "Do not claim consensus impact without evidence that the bad state can escape local storage and influence validation or sequencing."
+patch_pattern: "Replace placeholder state/update and always-success validation code with explicit accumulator reconstruction, indexed context tracking, and real checks."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/raw-findings/2025-06-02-nitro-storage-b3bbf4e7d.md"
+  - "git:b3bbf4e7da3360026ad51249825a06b1193f38ce"
+  - "arbnode/message-extraction/database.go:34"
+  - "arbnode/message-extraction/types/state.go:146"
+  - "arbnode/message-extraction/database.go:202"
+  - "arbnode/message-extraction/mel.go:214"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

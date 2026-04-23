@@ -1,0 +1,63 @@
+id: "nitro-2026-03-11-nitro-transaction-processing-8fe83188c"
+source_finding: "2026-03-11-nitro-transaction-processing-8fe83188c.md"
+project: "nitro"
+date: "2026-03-11"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "missing-integrity-check"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "consensus-sensitive"
+  - "integrity-check"
+  - "reorg-handling"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "mandatory-accumulator-continuity-check"
+violated_invariant: "Delayed-message sequencing should always perform accumulator continuity and reorg checks before appending messages, regardless of execution mode."
+trust_boundary: "delayed-message backlog->sequencing path"
+entrypoint_type: "sequencing-or-delayed-message-processing"
+sensitive_sink: "sequencing delayed messages into chain state"
+
+attacker_capabilities:
+  - "drive extraction, validation, or state-recovery code through stale, partial, or inconsistent persisted data"
+  - "trigger reorg, finality, cache-rebuild, or backlog-management edge cases in validator support code"
+exploit_preconditions:
+  - "the storage or delayed-message subsystem feeds production validator decisions"
+  - "the sink uses cached or partially reconstructed state without a later full canonical rebuild"
+blast_radius: "validator-local"
+
+impact_types:
+  - "state-integrity"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, integrity, or state-selection sink and the fix closes a real gap, but most cases here are still best described as hardening rather than fully demonstrated exploitation, so medium is the right default severity guess."
+
+code_shape_summary: "The patch appears to remove a MEL-specific gap where delayed-message sequencing could skip an accumulator continuity/reorg check and adds MEL support code needed to perform that check."
+search_motifs:
+  - "one execution mode skips an accumulator continuity check that another mode performs"
+  - "reorg-detection helpers are missing from new backends or execution engines until later patches"
+  - "consistency checks migrate from optional branches into common sequencing code"
+negative_signals:
+  - "Supported claim: the commit tightens mandatory-accumulator-continuity-check at or before sequencing delayed messages into chain state."
+  - "Supported claim: the strongest grounded reading is likely security-hardening around this sink, not an unconstrained worst-case exploit."
+  - "Do not claim consensus impact without evidence that the bad state can escape local storage and influence validation or sequencing."
+patch_pattern: "Move a previously conditional consistency check into the common execution path and add backend support methods so all modes can enforce the same invariant."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/raw-findings/2026-03-11-nitro-transaction-processing-8fe83188c.md"
+  - "git:8fe83188ce0d03957b1f0421e68d8a3b49255aeb"
+  - "arbnode/inbox_tracker.go:952"
+  - "arbnode/delayed_sequencer.go:373"
+  - "arbnode/delayed_sequencer.go:253"
+  - "arbnode/mel/runner/mel.go:330"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

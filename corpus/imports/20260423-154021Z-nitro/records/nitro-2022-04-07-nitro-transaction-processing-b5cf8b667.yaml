@@ -1,0 +1,65 @@
+id: "nitro-2022-04-07-nitro-transaction-processing-b5cf8b667"
+source_finding: "2022-04-07-nitro-transaction-processing-b5cf8b667.md"
+project: "nitro"
+date: "2022-04-07"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "module-root-mismatch"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "validator"
+  - "challenge-manager"
+  - "module-root"
+  - "wasm-machine"
+  - "hardening"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "module-root-binding"
+violated_invariant: "Challenge or validator machine loading should select the artifact by the requested module root and confirm the loaded machine reports that same root before use."
+trust_boundary: "challenge metadata or config->machine loader"
+entrypoint_type: "machine-loading-or-challenge-setup"
+sensitive_sink: "loading a machine artifact for validator or challenge execution"
+
+attacker_capabilities:
+  - "drive validator, recovery, or machine-loading code through stale, ambiguous, or attacker-influenced metadata"
+  - "trigger boundary conditions such as reorgs, cache misses, alias resolution, or partial initialization"
+exploit_preconditions:
+  - "the validator or prover path is used in production-relevant workflows"
+  - "the affected sink trusts cached or derived state instead of independently rebuilding canonical state before use"
+blast_radius: "validator-local"
+
+impact_types:
+  - "validator-misexecution"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, integrity, or state-selection sink and the fix closes a real gap, but most cases here are still best described as hardening rather than fully demonstrated exploitation, so medium is the right default severity guess."
+
+code_shape_summary: "The patch changes challenge-related machine loading so the validator can select a machine by module root instead of implicitly using the latest machine directory, and it adds an explicit module-root equality check before using the loaded machine."
+search_motifs:
+  - "loaders default to latest or implicit directories instead of an explicit root parameter"
+  - "module-root equality is checked only after downstream work has already begun"
+  - "challenge setup relies on artifact selection conventions rather than measured identity"
+negative_signals:
+  - "Supported claim: the commit tightens module-root-binding at or before loading a machine artifact for validator or challenge execution."
+  - "Supported claim: the strongest grounded reading is likely security-hardening around this sink, not an unconstrained worst-case exploit."
+  - "Do not claim chain-wide divergence without evidence that the wrong state can be persisted, signed, or submitted onward."
+patch_pattern: "Replace implicit default artifact selection with identifier-based selection, then add a fail-closed validation check at use time."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/raw-findings/2022-04-07-nitro-transaction-processing-b5cf8b667.md"
+  - "git:b5cf8b6671428a5a8149295b251c077bad94d49e"
+  - "validator/challenge_manager.go:415"
+  - "arbnode/node.go:574"
+  - "validator/challenge_manager.go:121"
+  - "validator/nitro_machine.go:45"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

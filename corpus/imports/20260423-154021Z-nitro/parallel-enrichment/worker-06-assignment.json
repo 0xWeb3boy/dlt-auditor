@@ -1,0 +1,100 @@
+{
+  "worker_id": "worker-06",
+  "worker_index": 6,
+  "effective_workers": 6,
+  "bundle_root": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro",
+  "instruction_prompt": "/testing/dlt-ai-audit-system/03_enrich_corpus_import.md",
+  "assigned_findings": [
+    {
+      "id": "nitro-2024-02-05-nitro-core-logic-6b420cb12",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-state-check",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "raw_finding_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/raw-findings/2024-02-05-nitro-core-logic-6b420cb12.md",
+      "record_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/records/nitro-2024-02-05-nitro-core-logic-6b420cb12.yaml",
+      "root_cause_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/cards/root-cause/nitro-2024-02-05-nitro-core-logic-6b420cb12.md",
+      "code_shape_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/cards/code-shape/nitro-2024-02-05-nitro-core-logic-6b420cb12.md",
+      "validation_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/cards/validation/nitro-2024-02-05-nitro-core-logic-6b420cb12.md",
+      "eval_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/evals/nitro-2024-02-05-nitro-core-logic-6b420cb12.yaml"
+    },
+    {
+      "id": "nitro-2022-03-17-nitro-storage-368fbe57c",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "configuration-validation",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "raw_finding_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/raw-findings/2022-03-17-nitro-storage-368fbe57c.md",
+      "record_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/records/nitro-2022-03-17-nitro-storage-368fbe57c.yaml",
+      "root_cause_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/cards/root-cause/nitro-2022-03-17-nitro-storage-368fbe57c.md",
+      "code_shape_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/cards/code-shape/nitro-2022-03-17-nitro-storage-368fbe57c.md",
+      "validation_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/cards/validation/nitro-2022-03-17-nitro-storage-368fbe57c.md",
+      "eval_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/evals/nitro-2022-03-17-nitro-storage-368fbe57c.yaml"
+    },
+    {
+      "id": "nitro-2026-01-14-nitro-storage-9b7a73c97",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "validation-gating",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "raw_finding_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/raw-findings/2026-01-14-nitro-storage-9b7a73c97.md",
+      "record_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/records/nitro-2026-01-14-nitro-storage-9b7a73c97.yaml",
+      "root_cause_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/cards/root-cause/nitro-2026-01-14-nitro-storage-9b7a73c97.md",
+      "code_shape_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/cards/code-shape/nitro-2026-01-14-nitro-storage-9b7a73c97.md",
+      "validation_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/cards/validation/nitro-2026-01-14-nitro-storage-9b7a73c97.md",
+      "eval_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/evals/nitro-2026-01-14-nitro-storage-9b7a73c97.yaml"
+    },
+    {
+      "id": "nitro-2022-03-17-nitro-transaction-processing-c4a31f084",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "reorg-state-mismatch",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "raw_finding_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/raw-findings/2022-03-17-nitro-transaction-processing-c4a31f084.md",
+      "record_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/records/nitro-2022-03-17-nitro-transaction-processing-c4a31f084.yaml",
+      "root_cause_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/cards/root-cause/nitro-2022-03-17-nitro-transaction-processing-c4a31f084.md",
+      "code_shape_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/cards/code-shape/nitro-2022-03-17-nitro-transaction-processing-c4a31f084.md",
+      "validation_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/cards/validation/nitro-2022-03-17-nitro-transaction-processing-c4a31f084.md",
+      "eval_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/evals/nitro-2022-03-17-nitro-transaction-processing-c4a31f084.yaml"
+    },
+    {
+      "id": "nitro-2023-02-24-nitro-transaction-processing-e853315fb",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "improper-version-gating",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "raw_finding_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/raw-findings/2023-02-24-nitro-transaction-processing-e853315fb.md",
+      "record_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/records/nitro-2023-02-24-nitro-transaction-processing-e853315fb.yaml",
+      "root_cause_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/cards/root-cause/nitro-2023-02-24-nitro-transaction-processing-e853315fb.md",
+      "code_shape_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/cards/code-shape/nitro-2023-02-24-nitro-transaction-processing-e853315fb.md",
+      "validation_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/cards/validation/nitro-2023-02-24-nitro-transaction-processing-e853315fb.md",
+      "eval_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/evals/nitro-2023-02-24-nitro-transaction-processing-e853315fb.yaml"
+    },
+    {
+      "id": "nitro-2026-01-05-nitro-transaction-processing-10aa51df2",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "incomplete-validation-recording",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "raw_finding_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/raw-findings/2026-01-05-nitro-transaction-processing-10aa51df2.md",
+      "record_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/records/nitro-2026-01-05-nitro-transaction-processing-10aa51df2.yaml",
+      "root_cause_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/cards/root-cause/nitro-2026-01-05-nitro-transaction-processing-10aa51df2.md",
+      "code_shape_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/cards/code-shape/nitro-2026-01-05-nitro-transaction-processing-10aa51df2.md",
+      "validation_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/cards/validation/nitro-2026-01-05-nitro-transaction-processing-10aa51df2.md",
+      "eval_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/evals/nitro-2026-01-05-nitro-transaction-processing-10aa51df2.yaml"
+    },
+    {
+      "id": "nitro-2022-09-10-nitro-transaction-processing-112522808",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "protocol-handshake-and-signature-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "raw_finding_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/raw-findings/2022-09-10-nitro-transaction-processing-112522808.md",
+      "record_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/records/nitro-2022-09-10-nitro-transaction-processing-112522808.yaml",
+      "root_cause_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/cards/root-cause/nitro-2022-09-10-nitro-transaction-processing-112522808.md",
+      "code_shape_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/cards/code-shape/nitro-2022-09-10-nitro-transaction-processing-112522808.md",
+      "validation_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/cards/validation/nitro-2022-09-10-nitro-transaction-processing-112522808.md",
+      "eval_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/evals/nitro-2022-09-10-nitro-transaction-processing-112522808.yaml"
+    }
+  ]
+}

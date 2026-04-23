@@ -1,0 +1,65 @@
+id: "nitro-2023-10-13-nitro-storage-f88557d06"
+source_finding: "2023-10-13-nitro-storage-f88557d06.md"
+project: "nitro"
+date: "2023-10-13"
+language_tags:
+  - "rust"
+  - "go"
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "gas-metering"
+subsystem: "storage"
+architecture_tags:
+  - "gas-metering"
+  - "resource-accounting"
+  - "wasm"
+  - "jit"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "complete-resource-accounting"
+violated_invariant: "Cross-language or offloaded execution should return consumed gas to the protocol layer so all activation work is charged exactly once before finalization."
+trust_boundary: "ArbOS or Go caller->native or Rust activation engine"
+entrypoint_type: "gas-accounting-or-resource-charging"
+sensitive_sink: "burning or finalizing gas charges for activation work"
+
+attacker_capabilities:
+  - "execute workloads that amplify undercharging or accounting gaps in a metered path"
+  - "trigger the expensive path repeatedly while the accounting sink trusts the returned budget"
+exploit_preconditions:
+  - "the metered feature is enabled in production-relevant execution"
+  - "no later burner or accounting layer independently charges the full consumed work before finalization"
+blast_radius: "chain-wide"
+
+impact_types:
+  - "resource-underpricing"
+severity_guess: "medium"
+severity_rationale: "The path controls protocol charging and the fix closes a real under-accounting gap across a subsystem boundary. That can matter economically, but the evidence still stops short of a documented exploit campaign, so medium is a grounded severity guess."
+
+code_shape_summary: "The evidence supports a likely security fix for undercharging in the native/JIT Stylus activation path. The patch adds explicit gas-in/gas-out handling across the ArbOS-to-Rust activation boundary and burns the consumed amount afterward."
+search_motifs:
+  - "cross-language execution APIs take gas in but do not return gas out"
+  - "native or JIT activation burns gas only after a patch threads remaining gas back"
+  - "resource consumption spans a subsystem boundary and the caller assumes the callee accounted for it"
+negative_signals:
+  - "Supported claim: the commit tightens complete-resource-accounting at or before burning or finalizing gas charges for activation work."
+  - "Supported claim: the strongest grounded reading is likely security-hardening around this sink, not an unconstrained worst-case exploit."
+  - "Do not claim economic exploitation without evidence that the undercharge reaches final gas or fee accounting."
+patch_pattern: "Thread a mutable gas budget through the cross-language activation call, return the remaining gas to the caller, and charge the consumed delta at the protocol burner layer."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/raw-findings/2023-10-13-nitro-storage-f88557d06.md"
+  - "git:f88557d061d3184c68f99f9614bace3afed34d9c"
+  - "arbitrator/jit/src/user/mod.rs:49"
+  - "arbos/programs/wasm.go:67"
+  - "arbos/programs/wasm.go:111"
+  - "arbitrator/jit/src/gostack.rs:244"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

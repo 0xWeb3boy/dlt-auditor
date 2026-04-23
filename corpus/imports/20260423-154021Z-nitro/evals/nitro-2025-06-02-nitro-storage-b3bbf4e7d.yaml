@@ -1,0 +1,21 @@
+id: "nitro-2025-06-02-nitro-storage-b3bbf4e7d"
+source_record: "nitro-2025-06-02-nitro-storage-b3bbf4e7d.yaml"
+project: "nitro"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "incomplete-validation"
+expected_missing_property: "complete-delayed-message-validation"
+
+expected_impact_band: "state_or_consensus_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "If the subsystem later rebuilds the same state from finalized data before any decision point, similar cases may remain correctness-only."
+  - "If the path is not enabled in production modes, downgrade similar patterns to hardening."
+  - "Do not claim consensus impact without evidence that the bad state can escape local storage and influence validation or sequencing."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

@@ -1,0 +1,63 @@
+id: "nitro-2025-03-31-nitro-transaction-processing-475d442de"
+source_finding: "2025-03-31-nitro-transaction-processing-475d442de.md"
+project: "nitro"
+date: "2025-03-31"
+language_tags:
+  - "go"
+
+bug_family: "authz_and_role_gates"
+bug_class: "stale-authorization-state"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "authorization"
+  - "state-freshness"
+  - "fail-closed"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "fresh-authorization-binding"
+violated_invariant: "Privileged submissions should be authorized against fresh round or controller state from the authoritative tracker before deeper processing or sequencing."
+trust_boundary: "network submission->express-lane authorization and sequencing"
+entrypoint_type: "transaction-or-message-admission"
+sensitive_sink: "accepting or sequencing a privileged transaction"
+
+attacker_capabilities:
+  - "submit crafted transactions, messages, or protocol inputs to the affected admission or sequencing path"
+  - "time or shape those inputs around stale state, missing checks, or edge-case protocol transitions"
+exploit_preconditions:
+  - "the feature is enabled and reachable in a production-relevant path"
+  - "no downstream sink fully revalidates the same canonical state, payment, or protocol gate before acceptance"
+blast_radius: "sequencer-local"
+
+impact_types:
+  - "unauthorized-transaction-acceptance-risk"
+severity_guess: "medium"
+severity_rationale: "The finding reaches a security-sensitive admission, authorization, configuration, or exposure decision. The patch meaningfully improves policy enforcement, but the raw evidence usually stops short of proving worst-case exploitation, so medium is the right default band."
+
+code_shape_summary: "The patch is clearly hardening the express-lane admission path against stale or improperly validated submissions, but the provided evidence does not firmly establish a concrete vulnerability beyond correctness and fail-closed behavior."
+search_motifs:
+  - "authorization decisions read from local round-control caches instead of the authoritative tracker"
+  - "tracker-backed validation is added at ingress after earlier code performed only nil or shape checks"
+  - "comments mention stale messages around round transfer, handoff, or epoch end"
+negative_signals:
+  - "Supported claim: the commit tightens fresh-authorization-binding at or before accepting or sequencing a privileged transaction."
+  - "Supported claim: the strongest grounded reading is confirmed security-hardening around this sink, not an unconstrained worst-case exploit."
+  - "Do not claim fund loss or consensus breakage without evidence that the unchecked input reaches a state-changing sink."
+patch_pattern: "Replace local/cached authorization lookups with tracker-backed validation at admission time and fail closed when the authoritative validator is unavailable."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/raw-findings/2025-03-31-nitro-transaction-processing-475d442de.md"
+  - "git:475d442de6eec960312f9df95081b780c1b90100"
+  - "execution/gethexec/express_lane_service.go:234"
+  - "execution/gethexec/express_lane_service.go:142"
+  - "execution/gethexec/tx_pre_checker.go:234"
+  - "execution/gethexec/sequencer.go:556"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: confirmed / security-hardening."

@@ -1,0 +1,63 @@
+id: "nitro-2024-12-20-nitro-transaction-processing-a719c5c92"
+source_finding: "2024-12-20-nitro-transaction-processing-a719c5c92.md"
+project: "nitro"
+date: "2024-12-20"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "state-machine-hardening"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "state-machine"
+  - "round-boundary"
+  - "sequencing"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "round-bound-state-machine"
+violated_invariant: "Round-scoped sequencing logic should stop when the round or authorization context changes and should not advance to the next queued item until the current item is explicitly acknowledged."
+trust_boundary: "queued privileged submissions->round-scoped sequencing loop"
+entrypoint_type: "sequencing-or-queue-processing"
+sensitive_sink: "sequencing an express-lane or otherwise privileged transaction"
+
+attacker_capabilities:
+  - "submit crafted transactions, messages, or protocol inputs to the affected admission or sequencing path"
+  - "time or shape those inputs around stale state, missing checks, or edge-case protocol transitions"
+exploit_preconditions:
+  - "the feature is enabled and reachable in a production-relevant path"
+  - "no downstream sink fully revalidates the same canonical state, payment, or protocol gate before acceptance"
+blast_radius: "sequencer-local"
+
+impact_types:
+  - "transaction-ordering-integrity"
+severity_guess: "medium"
+severity_rationale: "The finding reaches a security-sensitive admission, authorization, configuration, or exposure decision. The patch meaningfully improves policy enforcement, but the raw evidence usually stops short of proving worst-case exploitation, so medium is the right default band."
+
+code_shape_summary: "This patch tightens express-lane transaction sequencing by binding processing to the current round and adding an explicit notifier before advancing to the next queued transaction. The code is security-relevant, and one inline comment mentions a security concern, but the provided evidence does not establish a concrete vulnerability or exploit path."
+search_motifs:
+  - "queue workers keep processing after the round or epoch used for authorization has changed"
+  - "next-item advancement happens before an explicit result or notifier is delivered"
+  - "security-relevant ordering fixes add per-item channels or acknowledgements to queue entries"
+negative_signals:
+  - "Supported claim: the commit tightens round-bound-state-machine at or before sequencing an express-lane or otherwise privileged transaction."
+  - "Supported claim: the strongest grounded reading is likely security-hardening around this sink, not an unconstrained worst-case exploit."
+  - "Do not claim fund loss or consensus breakage without evidence that the unchecked input reaches a state-changing sink."
+patch_pattern: "Constrain a sequencing loop to the valid protocol scope and require explicit downstream acknowledgement before advancing state."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/raw-findings/2024-12-20-nitro-transaction-processing-a719c5c92.md"
+  - "git:a719c5c92368f6fb4f6b7931125358e77b3fcbda"
+  - "execution/gethexec/express_lane_service.go:363"
+  - "execution/gethexec/sequencer.go:462"
+  - "execution/gethexec/express_lane_service_test.go:348"
+  - "execution/gethexec/express_lane_service_test.go:299"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

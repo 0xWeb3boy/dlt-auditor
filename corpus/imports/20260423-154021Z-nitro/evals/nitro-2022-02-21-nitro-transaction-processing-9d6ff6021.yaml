@@ -1,0 +1,21 @@
+id: "nitro-2022-02-21-nitro-transaction-processing-9d6ff6021"
+source_record: "nitro-2022-02-21-nitro-transaction-processing-9d6ff6021.yaml"
+project: "nitro"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "insufficient-state-validation"
+expected_missing_property: "canonical-state-consistency-check"
+
+expected_impact_band: "state_or_consensus_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "If all later sinks independently recompute the same canonical state from finalized inputs, similar cases may remain correctness-only."
+  - "If the path is test-only or offline tooling only, treat similar issues as lower-severity hardening."
+  - "Do not claim chain-wide divergence without evidence that the wrong state can be persisted, signed, or submitted onward."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

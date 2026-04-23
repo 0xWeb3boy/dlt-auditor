@@ -1,0 +1,63 @@
+id: "nitro-2021-12-16-nitro-transaction-processing-1fa7557cf"
+source_finding: "2021-12-16-nitro-transaction-processing-1fa7557cf.md"
+project: "nitro"
+date: "2021-12-16"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "unsafe-default-service-exposure"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "configuration-hardening"
+  - "secure-defaults"
+  - "websocket-broadcaster"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "explicit-service-enable-gating"
+violated_invariant: "A relay, broadcaster, or similar externally reachable service should stay disabled unless the operator explicitly enables it and supplies the security-relevant configuration that path depends on."
+trust_boundary: "operator configuration->network-facing broadcaster or relay startup"
+entrypoint_type: "node-startup-or-configuration"
+sensitive_sink: "enabling a network-facing service or feed output path"
+
+attacker_capabilities:
+  - "control deployment or operator inputs that decide whether the service is instantiated"
+  - "reach the network-facing service if it comes up with broader exposure than intended"
+exploit_preconditions:
+  - "the affected service or listener is enabled in a production-relevant environment"
+  - "no later authentication, binding, or ACL layer fully restores the intended exposure policy before use"
+blast_radius: "service-local"
+
+impact_types:
+  - "network-service-exposure"
+severity_guess: "medium"
+severity_rationale: "The finding reaches a security-sensitive admission, authorization, configuration, or exposure decision. The patch meaningfully improves policy enforcement, but the raw evidence usually stops short of proving worst-case exploitation, so medium is the right default band."
+
+code_shape_summary: "The provided diff supports a configuration refactor in node startup, not a demonstrated vulnerability fix. It consolidates broadcaster settings into NodeConfig, renames the CLI flags, and removes a separate CreateNode parameter for feed output configuration."
+search_motifs:
+  - "security-sensitive listener or broadcaster settings moved into a generic node config object"
+  - "constructor arguments for an exposed service disappear during config refactors"
+  - "feature enablement becomes implicit when flags are renamed or consolidated"
+negative_signals:
+  - "Supported claim: the commit tightens explicit-service-enable-gating at or before enabling a network-facing service or feed output path."
+  - "Supported claim: the strongest grounded reading is likely security-hardening around this sink, not an unconstrained worst-case exploit."
+  - "Do not overclaim remote compromise from flag or config refactors alone."
+patch_pattern: "Configuration-source consolidation and API cleanup: move subsystem settings into the main node configuration object and require explicit enablement before instantiation."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/raw-findings/2021-12-16-nitro-transaction-processing-1fa7557cf.md"
+  - "git:1fa7557cf30e2a40250e9ae2b4e551d34ff4f050"
+  - "arbnode/node.go:127"
+  - "cmd/node/node.go:57"
+  - "cmd/node/node.go:232"
+  - "cmd/node/node.go:195"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

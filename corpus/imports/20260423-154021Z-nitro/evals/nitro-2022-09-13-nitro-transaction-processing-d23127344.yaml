@@ -1,0 +1,21 @@
+id: "nitro-2022-09-13-nitro-transaction-processing-d23127344"
+source_record: "nitro-2022-09-13-nitro-transaction-processing-d23127344.yaml"
+project: "nitro"
+
+expected_bug_family: "signature_binding_and_signer_scope"
+expected_bug_class: "signature-verification-initialization"
+expected_missing_property: "fail-closed-verifier-initialization"
+
+expected_impact_band: "integrity_or_policy_enforcement"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "If the weak mode is explicit development-only behavior, similar code may be intentional hardening rather than a production bug."
+  - "If a downstream verifier canonicalizes and rechecks the same bytes before use, earlier shaping bugs may be benign."
+  - "Do not claim key compromise or replay without evidence that invalid or tampered data is actually accepted."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

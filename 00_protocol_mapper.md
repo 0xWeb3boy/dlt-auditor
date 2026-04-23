@@ -77,6 +77,24 @@ Your task:
   - whether the shared helper can still reach persistent writers, journaling, or canonical-state mutation,
   - what flag, mode, or option is supposed to disable writes,
   - whether that write suppression is enforced at the actual sink or only in a wrapper layer.
+15. Map validator, prover, and runtime artifact-selection surfaces separately:
+  - module root, machine version, latest alias, genesis identity, verifier config, and challenge-specified artifacts.
+  For each surface, note:
+  - where alias or default selection happens,
+  - what measured identity the loaded artifact reports,
+  - where that measured identity is compared against the expected chain, challenge, or config identity before use.
+16. Map extraction, witness-recording, validation, pruning, and sequencing pipelines as one integrity boundary when the repo has delayed-message, DA, inbox, bridge, or proof-support subsystems.
+  For each pipeline, note:
+  - what raw inputs are extracted,
+  - what witness or auxiliary data must be recorded for later validation,
+  - what finalized, safe, validated, or read-progress boundary governs retention and reuse,
+  - which sink consumes the recorded data to authorize sequencing, validation, or proof generation.
+17. Map internally generated follow-on work separately from user-supplied work:
+  - retryables, auto-redeems, delayed messages, background challenge moves, queue-drained work, and protocol-generated side effects.
+  For each, note:
+  - what parent operation spawned it,
+  - whether success or failure must revert the whole group,
+  - whether replay, recovery, or alternate execution modes rebuild the same group with the same atomicity rules.
 
 Output format:
 - System summary

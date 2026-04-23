@@ -39,6 +39,9 @@ Search patterns:
 - cache-hit paths that return stored execution or precompile result objects containing gas, quota, reservoir, refund, or caller-local accounting state
 - batch-mode decisions that choose clean, incremental, bounded, or unbounded work based only on the next local window instead of the full remaining range
 - shared sender, authority, account, or reservation handles enforced in one pool, queue, or subpool but not in the others that consume the same underlying resource
+- cross-language, cross-process, or offloaded execution APIs that receive a mutable budget, gas, or quota on entry but do not return the remaining budget to the authoritative charging layer
+- recovery or trap-handling paths that retry with larger stacks, buffers, or allocations without a one-time guard, context restriction, or outer quota
+- parent operations that spawn derived work where the parent is charged, finalized, or committed before the child work proves cleanly met the same accounting or filter rules
 
 Questions to answer:
 1. What resource is the protocol trying to meter: gas, fees, bytes, weight, queue slots, proving budget, bridge capacity, committee size, or sender concurrency?
@@ -48,6 +51,8 @@ Questions to answer:
 5. Are errors propagated back to the correct transaction and caller?
 6. Are front-door services bounded before expensive handshake, parsing, or per-client task creation?
 7. Can a peer or caller keep the system busy without making forward progress or consuming the same reservation accounting as successful work?
+8. If work crosses a subsystem boundary, which layer is authoritative for charging the consumed budget, and does that layer learn the post-execution remaining budget instead of assuming the callee charged it correctly?
+9. If the code retries after a fault, what prevents repeated resource growth or repeated expensive recovery for the same failing invocation?
 
 Severity guidance:
 - Medium by default for DoS, fee bypass, and resource exhaustion.

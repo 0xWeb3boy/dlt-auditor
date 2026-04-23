@@ -1,0 +1,64 @@
+id: "nitro-2026-01-05-nitro-transaction-processing-10aa51df2"
+source_finding: "2026-01-05-nitro-transaction-processing-10aa51df2.md"
+project: "nitro"
+date: "2026-01-05"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "incomplete-validation-recording"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "validator"
+  - "replay"
+  - "log-recording"
+  - "fail-closed"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "mandatory-validation-witness-recording"
+violated_invariant: "When later validation depends on auxiliary witnesses such as tx-indexed logs, recording those witnesses should be mandatory and failure should abort the extraction path."
+trust_boundary: "parent-chain log consumption->MEL extraction witness recording"
+entrypoint_type: "extraction-or-witness-recording"
+sensitive_sink: "continuing extraction without the witness data later validation needs"
+
+attacker_capabilities:
+  - "drive extraction, validation, or state-recovery code through stale, partial, or inconsistent persisted data"
+  - "trigger reorg, finality, cache-rebuild, or backlog-management edge cases in validator support code"
+exploit_preconditions:
+  - "the storage or delayed-message subsystem feeds production validator decisions"
+  - "the sink uses cached or partially reconstructed state without a later full canonical rebuild"
+blast_radius: "validator-local"
+
+impact_types:
+  - "validation-integrity"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, integrity, or state-selection sink and the fix closes a real gap, but most cases here are still best described as hardening rather than fully demonstrated exploitation, so medium is the right default severity guess."
+
+code_shape_summary: "The grounded change is that MEL extraction now records tx-indexed logs when consuming certain parent-chain logs, and aborts if that recording fails. That supports later MEL validation, but the provided evidence does not establish a concrete vulnerability, exploit path, or prior security bypass."
+search_motifs:
+  - "extractors consume logs but do not persist the per-tx witness data required by validators"
+  - "recording errors are ignored on paths that later assume the witness exists"
+  - "later fixes make log or witness recording a hard requirement instead of best effort"
+negative_signals:
+  - "Supported claim: the commit tightens mandatory-validation-witness-recording at or before continuing extraction without the witness data later validation needs."
+  - "Supported claim: the strongest grounded reading is likely security-hardening around this sink, not an unconstrained worst-case exploit."
+  - "Do not claim consensus impact without evidence that the bad state can escape local storage and influence validation or sequencing."
+patch_pattern: "Make witness-recording mandatory at the point where relevant logs are consumed, and treat recording failure as a hard error."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/raw-findings/2026-01-05-nitro-transaction-processing-10aa51df2.md"
+  - "git:10aa51df2d0592d437be6dcecef93a66d63b5378"
+  - "staker/mel_validator.go:22"
+  - "arbnode/mel/extraction/delayed_message_lookup.go:38"
+  - "arbnode/mel/extraction/delayed_message_lookup.go:81"
+  - "arbnode/mel/extraction/batch_lookup.go:59"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

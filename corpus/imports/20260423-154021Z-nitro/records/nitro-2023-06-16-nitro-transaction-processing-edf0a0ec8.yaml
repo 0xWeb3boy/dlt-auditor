@@ -1,0 +1,63 @@
+id: "nitro-2023-06-16-nitro-transaction-processing-edf0a0ec8"
+source_finding: "2023-06-16-nitro-transaction-processing-edf0a0ec8.md"
+project: "nitro"
+date: "2023-06-16"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "incorrect-challenge-metadata"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "validator"
+  - "challenge-protocol"
+  - "wrong-reference"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "authoritative-challenge-metadata"
+violated_invariant: "Challenge edge construction should use the challenged assertion's own creation metadata, not metadata inherited from an adjacent or previous assertion."
+trust_boundary: "assertion metadata->challenge edge construction"
+entrypoint_type: "challenge-construction-or-dispute-initialization"
+sensitive_sink: "building commitments or edges for a challenge"
+
+attacker_capabilities:
+  - "trigger challenge or proof-generation logic on crafted, stale, or edge-case assertion metadata"
+  - "reach range-boundary cases where callers guess or derive proof state from incomplete context"
+exploit_preconditions:
+  - "the dispute or proof path is used in production-relevant validator workflows"
+  - "the generated proof, machine hash, or challenge edge is trusted without a later full canonical rebuild"
+blast_radius: "validator-local"
+
+impact_types:
+  - "challenge-integrity"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, integrity, or state-selection sink and the fix closes a real gap, but most cases here are still best described as hardening rather than fully demonstrated exploitation, so medium is the right default severity guess."
+
+code_shape_summary: "The evidence supports a challenge-initiation correctness bug, not a clearly established vulnerability. The patch changes level-zero edge construction to use the challenged assertion's `creationInfo` instead of previously using `prevCreationInfo` for commitment inputs, and it threads that metadata back to the caller."
+search_motifs:
+  - "challenge setup reads prevCreationInfo or parent-derived metadata instead of the challenged object's record"
+  - "commitments are assembled from nearby assertion state rather than the target assertion itself"
+  - "patches add early fetching of authoritative creation metadata before edge construction"
+negative_signals:
+  - "Supported claim: the commit tightens authoritative-challenge-metadata at or before building commitments or edges for a challenge."
+  - "Supported claim: the strongest grounded reading is likely security-hardening around this sink, not an unconstrained worst-case exploit."
+  - "Do not claim profitable challenge manipulation without evidence that the malformed proof or edge can actually be submitted or accepted."
+patch_pattern: "Replace indirectly inferred or parent-derived state with authoritative creation metadata from the challenged assertion when building challenge-sensitive inputs."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/raw-findings/2023-06-16-nitro-transaction-processing-edf0a0ec8.md"
+  - "git:edf0a0ec82e74d4b5f8097d2dcd7fe09893e432e"
+  - "challenge-manager/challenges.go:27"
+  - "testing/toys/assertions/scanner.go:192"
+  - "challenge-manager/challenges.go:84"
+  - "main.go:89"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

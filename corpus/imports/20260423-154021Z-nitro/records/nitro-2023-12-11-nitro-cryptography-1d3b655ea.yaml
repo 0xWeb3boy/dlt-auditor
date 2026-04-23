@@ -1,0 +1,63 @@
+id: "nitro-2023-12-11-nitro-cryptography-1d3b655ea"
+source_finding: "2023-12-11-nitro-cryptography-1d3b655ea.md"
+project: "nitro"
+date: "2023-12-11"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "incomplete-state-commitment"
+subsystem: "cryptography"
+architecture_tags:
+  - "prover"
+  - "hashing"
+  - "state-commitment"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "complete-state-commitment"
+violated_invariant: "State commitments should include every mode bit that changes behavior, even when the associated collection or stack is empty."
+trust_boundary: "machine state->hash or state commitment"
+entrypoint_type: "state-commitment-computation"
+sensitive_sink: "accepting or comparing a machine state hash"
+
+attacker_capabilities:
+  - "drive validator, recovery, or machine-loading code through stale, ambiguous, or attacker-influenced metadata"
+  - "trigger boundary conditions such as reorgs, cache misses, alias resolution, or partial initialization"
+exploit_preconditions:
+  - "the validator or prover path is used in production-relevant workflows"
+  - "the affected sink trusts cached or derived state instead of independently rebuilding canonical state before use"
+blast_radius: "validator-local"
+
+impact_types:
+  - "integrity"
+severity_guess: "medium"
+severity_rationale: "The path reaches a security-sensitive validation, integrity, or state-selection sink and the fix closes a real gap, but most cases here are still best described as hardening rather than fully demonstrated exploitation, so medium is the right default severity guess."
+
+code_shape_summary: "The strongest supported finding is a prover state-hash correctness fix: `Machine::hash` now commits the guard-enabled flag even when the guard stack is empty, and `ErrorGuardProof::hash_guards` no longer mixes that flag into the stack-hash helper."
+search_motifs:
+  - "state hashes include a collection hash but omit the mode bit that changes semantics when the collection is empty"
+  - "helper hash functions mix collection contents with unrelated top-level state flags"
+  - "patches move a flag from helper hashing into the top-level machine hash function"
+negative_signals:
+  - "Supported claim: the commit tightens complete-state-commitment at or before accepting or comparing a machine state hash."
+  - "Supported claim: the strongest grounded reading is likely security-hardening around this sink, not an unconstrained worst-case exploit."
+  - "Do not claim chain-wide divergence without evidence that the wrong state can be persisted, signed, or submitted onward."
+patch_pattern: "Move mode or feature flags into the top-level state commitment and keep collection-hash helpers responsible only for collection contents."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/corpus/imports/20260423-154021Z-nitro/raw-findings/2023-12-11-nitro-cryptography-1d3b655ea.md"
+  - "git:1d3b655ea287526d3f7fc8d4be7e3c9380370dcf"
+  - "arbitrator/wasm-libraries/user-host/src/program.rs:61"
+  - "arbitrator/prover/src/machine.rs:2506"
+  - "arbitrator/wasm-libraries/user-host/src/host.rs:2"
+  - "arbitrator/prover/src/error_guard.rs:103"
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

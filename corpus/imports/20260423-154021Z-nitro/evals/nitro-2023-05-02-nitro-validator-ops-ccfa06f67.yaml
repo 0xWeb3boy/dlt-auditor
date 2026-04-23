@@ -1,0 +1,21 @@
+id: "nitro-2023-05-02-nitro-validator-ops-ccfa06f67"
+source_record: "nitro-2023-05-02-nitro-validator-ops-ccfa06f67.yaml"
+project: "nitro"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "unsafe-validator-configuration"
+expected_missing_property: "safe-validator-defaults"
+
+expected_impact_band: "trust_or_policy_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "If the destination or mode is deterministically overwritten later, similar parameter flow may be harmless."
+  - "If only trusted operators can invoke the path and the policy is documented, the issue may be operational hardening rather than a security bug."
+  - "Do not claim theft or validator compromise without evidence that the unsafe choice reaches the final sink."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

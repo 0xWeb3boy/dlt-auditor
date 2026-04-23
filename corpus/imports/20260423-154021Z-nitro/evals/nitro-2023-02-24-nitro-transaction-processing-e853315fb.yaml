@@ -1,0 +1,21 @@
+id: "nitro-2023-02-24-nitro-transaction-processing-e853315fb"
+source_record: "nitro-2023-02-24-nitro-transaction-processing-e853315fb.yaml"
+project: "nitro"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "improper-version-gating"
+expected_missing_property: "protocol-version-gating"
+
+expected_impact_band: "state_or_consensus_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "If a later authoritative validator rejects the same input before it can affect persistent state, similar cases may reduce to wasted work rather than a security bug."
+  - "If the feature is disabled or only reachable in tests, classify similar cases as hardening or correctness only."
+  - "Do not claim fund loss or consensus breakage without evidence that the unchecked input reaches a state-changing sink."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

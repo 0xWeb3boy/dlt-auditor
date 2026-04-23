@@ -1,0 +1,21 @@
+id: "nitro-2023-10-13-nitro-storage-f88557d06"
+source_record: "nitro-2023-10-13-nitro-storage-f88557d06.yaml"
+project: "nitro"
+
+expected_bug_family: "resource_accounting_and_limits"
+expected_bug_class: "gas-metering"
+expected_missing_property: "complete-resource-accounting"
+
+expected_impact_band: "resource_accounting"
+expected_severity_band: "high_or_medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "If a later accounting layer already charges the same work exactly once, similar cross-boundary refactors may be benign."
+  - "If the feature is gated behind non-production settings, classify similar cases as hardening."
+  - "Do not claim economic exploitation without evidence that the undercharge reaches final gas or fee accounting."
+notes:
+  - "Enriched from the raw finding in the prepared import bundle."
+  - "Source finding classification: likely / security-hardening."

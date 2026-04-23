@@ -24,6 +24,10 @@ Search patterns:
 - Sidechain or fork-local hash reconstruction keyed by height instead of block hash and parent relation.
 - Error results ignored or logged-only in canonicalization, persistence, or state-root paths.
 - Transient touched, exists, empty, dirty, or journaled flags that affect commitment or clearing semantics but are not reverted symmetrically on rollback or failed execution.
+- proof, challenge, or validator-state builders that derive indices, message counts, or fallback states from local counters, parent objects, or latest aliases instead of authoritative batch metadata, challenge metadata, or explicit boundary-state objects
+- proof-support pipelines where preimages, logs, receipts, tx indexes, or other witness material are recorded only on some modes or ignored on error even though later validation requires them
+- challenge or proof helpers that return booleans, generic success, or loosely scoped objects where the caller really needs the concrete fallback state, module root, or challenged object that governs the proof
+- resume or recovery code that binds cached or persisted validation state to height alone when the authoritative identity includes hash, root, finalized boundary, module root, or challenged assertion identity
 
 Questions to answer:
 1. What object is authoritative: block hash, state root, trie node, proof, checkpoint target, canonical DB state, or in-memory overlay?
@@ -33,6 +37,8 @@ Questions to answer:
 5. Are mutations atomic, or can failed validation leave a partially modified authenticated state?
 6. Does persistence fail closed when required derived state is missing?
 7. If account or object liveness is tracked through transient flags, are those flags journaled and reverted with the same authority as the committed state?
+8. If the sink needs a specific challenged object, batch boundary, module root, or fallback state, does the helper return that exact object, or only a hint that lets the caller guess?
+9. Are all witnesses needed for later proof or validation recorded fail-closed at the time they are first observed, or can the system advance after a recording failure and only discover the gap later?
 
 Severity guidance:
 - High if a malformed proof or state root can be accepted by another trust domain, bridge, light client, or consensus path.
