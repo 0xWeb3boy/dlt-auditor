@@ -1,0 +1,477 @@
+{
+  "repo": "/testing/reth",
+  "repo_slug": "reth",
+  "kept_dir": "/testing/reth/validated-findings/kept",
+  "created_at_utc": "20260423-072233Z",
+  "finding_count": 52,
+  "findings": [
+    {
+      "id": "reth-2022-12-02-reth-p2p-networking-debc87177",
+      "source": "/testing/reth/validated-findings/kept/2022-12-02-reth-p2p-networking-debc87177.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "protocol-input-validation",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "reth-2022-12-15-reth-transaction-processing-9208f2fd9",
+      "source": "/testing/reth/validated-findings/kept/2022-12-15-reth-transaction-processing-9208f2fd9.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "fork-selection-logic",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "reth-2023-01-13-reth-p2p-networking-5c80bc912",
+      "source": "/testing/reth/validated-findings/kept/2023-01-13-reth-p2p-networking-5c80bc912.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "insufficient-peer-validation",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "reth-2023-01-20-reth-p2p-networking-eb11da8ad",
+      "source": "/testing/reth/validated-findings/kept/2023-01-20-reth-p2p-networking-eb11da8ad.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "p2p-handshake-state-inconsistency",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "reth-2023-01-30-reth-storage-0e24093b0",
+      "source": "/testing/reth/validated-findings/kept/2023-01-30-reth-storage-0e24093b0.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "protocol-state-invariant",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "reth-2023-02-11-reth-transaction-processing-eba63b8f7",
+      "source": "/testing/reth/validated-findings/kept/2023-02-11-reth-transaction-processing-eba63b8f7.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-transition-check",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "reth-2023-03-28-reth-rpc-client-api-b55b2d618",
+      "source": "/testing/reth/validated-findings/kept/2023-03-28-reth-rpc-client-api-b55b2d618.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "peer-penalty-misclassification",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "reth-2023-04-11-reth-transaction-processing-e0e449d5f",
+      "source": "/testing/reth/validated-findings/kept/2023-04-11-reth-transaction-processing-e0e449d5f.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "signature-input-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "reth-2023-04-12-reth-consensus-e87960ea8",
+      "source": "/testing/reth/validated-findings/kept/2023-04-12-reth-consensus-e87960ea8.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "forkchoice-input-validation",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "reth-2023-05-02-reth-storage-949b3639c",
+      "source": "/testing/reth/validated-findings/kept/2023-05-02-reth-storage-949b3639c.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "invalid-ancestor-handling",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "reth-2023-05-02-reth-storage-be87dcc68",
+      "source": "/testing/reth/validated-findings/kept/2023-05-02-reth-storage-be87dcc68.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "checkpoint-target-mismatch",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "reth-2023-05-04-reth-consensus-010b600f3",
+      "source": "/testing/reth/validated-findings/kept/2023-05-04-reth-consensus-010b600f3.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "insufficient-consensus-validation",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "reth-2023-05-18-reth-consensus-460bf13b6",
+      "source": "/testing/reth/validated-findings/kept/2023-05-18-reth-consensus-460bf13b6.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-validation",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "reth-2023-06-06-reth-storage-c0fb169da",
+      "source": "/testing/reth/validated-findings/kept/2023-06-06-reth-storage-c0fb169da.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-error-handling",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "reth-2023-07-03-reth-transaction-processing-64554dd0f",
+      "source": "/testing/reth/validated-findings/kept/2023-07-03-reth-transaction-processing-64554dd0f.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "input-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "reth-2023-07-12-reth-storage-99240906a",
+      "source": "/testing/reth/validated-findings/kept/2023-07-12-reth-storage-99240906a.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "insufficient-state-validation",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "reth-2023-08-02-reth-p2p-networking-94dfeb3ad",
+      "source": "/testing/reth/validated-findings/kept/2023-08-02-reth-p2p-networking-94dfeb3ad.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "insufficient-input-validation",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "reth-2023-08-03-reth-transaction-processing-3f63a0887",
+      "source": "/testing/reth/validated-findings/kept/2023-08-03-reth-transaction-processing-3f63a0887.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "policy-enforcement",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "reth-2023-08-29-reth-p2p-networking-03afe376b",
+      "source": "/testing/reth/validated-findings/kept/2023-08-29-reth-p2p-networking-03afe376b.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "listener-filter-bypass",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "reth-2023-09-21-reth-transaction-processing-6a601755c",
+      "source": "/testing/reth/validated-findings/kept/2023-09-21-reth-transaction-processing-6a601755c.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "numeric-range-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "reth-2023-09-26-reth-storage-eb6dc5197",
+      "source": "/testing/reth/validated-findings/kept/2023-09-26-reth-storage-eb6dc5197.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-rule-validation",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "reth-2023-11-16-reth-transaction-processing-2b4eb8438",
+      "source": "/testing/reth/validated-findings/kept/2023-11-16-reth-transaction-processing-2b4eb8438.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "incomplete-blob-transaction-validation-context",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "reth-2023-11-29-reth-transaction-processing-2c5a748c5",
+      "source": "/testing/reth/validated-findings/kept/2023-11-29-reth-transaction-processing-2c5a748c5.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "signature-malleability",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "reth-2023-12-23-reth-transaction-processing-8fb6ed9cc",
+      "source": "/testing/reth/validated-findings/kept/2023-12-23-reth-transaction-processing-8fb6ed9cc.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "incorrect-fork-gating",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "reth-2024-02-02-reth-transaction-processing-72b7caa4c",
+      "source": "/testing/reth/validated-findings/kept/2024-02-02-reth-transaction-processing-72b7caa4c.md",
+      "bug_family": "resource_accounting_and_limits",
+      "bug_class": "resource-limit-enforcement",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "resource-accounting"
+    },
+    {
+      "id": "reth-2024-02-03-reth-transaction-processing-d4dffa2ee",
+      "source": "/testing/reth/validated-findings/kept/2024-02-03-reth-transaction-processing-d4dffa2ee.md",
+      "bug_family": "resource_accounting_and_limits",
+      "bug_class": "improper-resource-limit-enforcement",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "resource-accounting"
+    },
+    {
+      "id": "reth-2024-02-15-reth-transaction-processing-945031900",
+      "source": "/testing/reth/validated-findings/kept/2024-02-15-reth-transaction-processing-945031900.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-protocol-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "reth-2024-03-18-reth-storage-9962c3949",
+      "source": "/testing/reth/validated-findings/kept/2024-03-18-reth-storage-9962c3949.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "ignored-error-result",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "reth-2024-03-19-reth-p2p-networking-1ad50d148",
+      "source": "/testing/reth/validated-findings/kept/2024-03-19-reth-p2p-networking-1ad50d148.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-handshake-timeout",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "reth-2024-04-16-reth-storage-33b195af3",
+      "source": "/testing/reth/validated-findings/kept/2024-04-16-reth-storage-33b195af3.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "fork-hash-reconstruction",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "reth-2024-04-25-reth-rpc-client-api-33e7e0208",
+      "source": "/testing/reth/validated-findings/kept/2024-04-25-reth-rpc-client-api-33e7e0208.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "insufficient-bad-peer-penalization",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "reth-2024-05-21-reth-transaction-processing-5100ddd28",
+      "source": "/testing/reth/validated-findings/kept/2024-05-21-reth-transaction-processing-5100ddd28.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "input-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "reth-2024-08-05-reth-storage-08158e444",
+      "source": "/testing/reth/validated-findings/kept/2024-08-05-reth-storage-08158e444.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "insufficient-parent-header-validation",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "reth-2024-09-02-reth-consensus-d59854f1d",
+      "source": "/testing/reth/validated-findings/kept/2024-09-02-reth-consensus-d59854f1d.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-runtime-bound-check",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "reth-2024-12-04-reth-transaction-processing-d298fb1b8",
+      "source": "/testing/reth/validated-findings/kept/2024-12-04-reth-transaction-processing-d298fb1b8.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "reth-2025-04-19-reth-core-logic-6ef19f403",
+      "source": "/testing/reth/validated-findings/kept/2025-04-19-reth-core-logic-6ef19f403.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-upper-bound-check",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "reth-2025-04-25-reth-transaction-processing-82d650594",
+      "source": "/testing/reth/validated-findings/kept/2025-04-25-reth-transaction-processing-82d650594.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "improper-consensus-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "reth-2025-05-28-reth-storage-1cfe50998",
+      "source": "/testing/reth/validated-findings/kept/2025-05-28-reth-storage-1cfe50998.md",
+      "bug_family": "state_machine_and_lifecycle_consistency",
+      "bug_class": "state-integrity-hardening",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "lifecycle-cleanup"
+    },
+    {
+      "id": "reth-2025-09-25-reth-rpc-client-api-aa192c255",
+      "source": "/testing/reth/validated-findings/kept/2025-09-25-reth-rpc-client-api-aa192c255.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "improper-auth-header-parsing",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "reth-2025-10-29-reth-transaction-processing-77ef028ac",
+      "source": "/testing/reth/validated-findings/kept/2025-10-29-reth-transaction-processing-77ef028ac.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "reth-2026-01-29-reth-core-logic-bc5e23ddd",
+      "source": "/testing/reth/validated-findings/kept/2026-01-29-reth-core-logic-bc5e23ddd.md",
+      "bug_family": "state_machine_and_lifecycle_consistency",
+      "bug_class": "state-integrity-hardening",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "lifecycle-cleanup"
+    },
+    {
+      "id": "reth-2026-01-29-reth-storage-edf75de4d",
+      "source": "/testing/reth/validated-findings/kept/2026-01-29-reth-storage-edf75de4d.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "atomicity-violation",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "reth-2026-02-03-reth-storage-4b9244c7d",
+      "source": "/testing/reth/validated-findings/kept/2026-02-03-reth-storage-4b9244c7d.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "incomplete-trie-proof-generation",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "reth-2026-02-04-reth-transaction-processing-7671838c6",
+      "source": "/testing/reth/validated-findings/kept/2026-02-04-reth-transaction-processing-7671838c6.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-safety",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "reth-2026-03-04-reth-storage-d8de8afa9",
+      "source": "/testing/reth/validated-findings/kept/2026-03-04-reth-storage-d8de8afa9.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "resource-exhaustion",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "reth-2026-03-06-reth-storage-a1600ef0c",
+      "source": "/testing/reth/validated-findings/kept/2026-03-06-reth-storage-a1600ef0c.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "proof-integrity",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "reth-2026-03-09-reth-transaction-processing-9c33fb5d4",
+      "source": "/testing/reth/validated-findings/kept/2026-03-09-reth-transaction-processing-9c33fb5d4.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "cache-state-isolation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "reth-2026-03-21-reth-transaction-processing-b78f74f52",
+      "source": "/testing/reth/validated-findings/kept/2026-03-21-reth-transaction-processing-b78f74f52.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "validation-bypass",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "reth-2026-04-01-reth-storage-7c1a43bac",
+      "source": "/testing/reth/validated-findings/kept/2026-04-01-reth-storage-7c1a43bac.md",
+      "bug_family": "resource_accounting_and_limits",
+      "bug_class": "gas-accounting-state-reuse",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "resource-accounting"
+    },
+    {
+      "id": "reth-2026-04-01-reth-transaction-processing-c4517d4c3",
+      "source": "/testing/reth/validated-findings/kept/2026-04-01-reth-transaction-processing-c4517d4c3.md",
+      "bug_family": "resource_accounting_and_limits",
+      "bug_class": "gas-accounting-corruption",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "resource-accounting"
+    },
+    {
+      "id": "reth-2026-04-20-reth-storage-d577814eb",
+      "source": "/testing/reth/validated-findings/kept/2026-04-20-reth-storage-d577814eb.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "protocol-validation",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "reth-2026-04-21-reth-storage-d92ad5aa3",
+      "source": "/testing/reth/validated-findings/kept/2026-04-21-reth-storage-d92ad5aa3.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "improper-state-binding",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    }
+  ]
+}

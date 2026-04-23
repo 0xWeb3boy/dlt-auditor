@@ -1,0 +1,51 @@
+id: "reth-2026-02-03-reth-storage-4b9244c7d"
+source_finding: "2026-02-03-reth-storage-4b9244c7d.md"
+project: "reth"
+date: "2026-02-03"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "incomplete-trie-proof-generation"
+subsystem: "storage"
+architecture_tags: ["ethereum-client", "execution-client", "storage"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "complete-authenticated-proof-evidence"
+violated_invariant: "Proof builders must emit enough root or empty-root evidence to distinguish an empty subtrie from missing proof data, and stale reveal metadata must be invalidated after pruning."
+trust_boundary: "State/proof request inputs crossing into authenticated trie proof material returned to a verifier or caller."
+entrypoint_type: "state-proof-generation"
+sensitive_sink: "Trie proof output and sparse-trie reveal cache."
+
+attacker_capabilities:
+  - "Can request proofs for storage slots or accounts that may be absent or under empty subtries."
+  - "Can benefit if proof output is ambiguous or built from stale reveal metadata."
+exploit_preconditions:
+  - "Storage-only proof targets do not force root-level evidence."
+  - "Empty subtries collapse to empty proof output."
+  - "Pruning changes trie node representation without clearing revealed paths."
+blast_radius: "Authenticated data proof integrity; verifier-side exploitability is not shown."
+
+impact_types:
+  - "proof-integrity"
+  - "state-query-hardening"
+severity_guess: "medium"
+severity_rationale: "Trie proofs are security-sensitive, but evidence stops at proof-construction correctness without a verifier bypass or consensus impact."
+
+code_shape_summary: "Storage proof generation could omit root evidence for storage-only or empty-subtrie cases, and pruning could leave reveal metadata stale. The patch forces root-level evidence, emits explicit EmptyRoot markers, and clears revealed paths after pruning."
+search_motifs:
+  - "empty subtrie returns empty proof"
+  - "retain_root false drops EmptyRoot evidence"
+  - "prune converts nodes to hashes without clearing revealed_paths"
+negative_signals:
+  - "A proof-generation bug is not automatically a verifier acceptance bug."
+  - "Local debug proof APIs may not cross a security boundary."
+  - "Need evidence that ambiguous proofs are consumed by trust decisions before claiming exploitability."
+patch_pattern: "Preserve explicit root or EmptyRoot proof nodes for absence cases and invalidate proof caches whenever pruning changes trie shape."
+
+source_refs: ["/testing/reth/validated-findings/kept/2026-02-03-reth-storage-4b9244c7d.md"]
+notes:
+  - "Enriched by worker-01 from validated finding evidence; framed as security hardening unless exploitability was directly shown."

@@ -1,0 +1,38 @@
+id: "reth-2023-11-16-reth-transaction-processing-2b4eb8438"
+source_finding: "2023-11-16-reth-transaction-processing-2b4eb8438.md"
+project: "reth"
+date: "2023-11-16"
+language_tags: []
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "incomplete-blob-transaction-validation-context"
+subsystem: "transaction-processing"
+architecture_tags: []
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "input-validation"
+violated_invariant: "TODO: rewrite from the finding in plain, generic terms."
+trust_boundary: "TODO: identify the trust boundary crossed."
+entrypoint_type: "TODO: classify the entrypoint."
+sensitive_sink: "TODO: name the privileged action or state reached."
+
+attacker_capabilities: []
+exploit_preconditions: []
+blast_radius: ""
+
+impact_types: []
+severity_guess: ""
+severity_rationale: "TODO: justify the expected severity band."
+
+code_shape_summary: "The evidence supports a transaction-pool correctness fix, not a demonstrated vulnerability fix. The patch changes reorg reinsertion of EIP-4844 transactions so blob sidecars are fetched and included before those transactions are reconstructed for pool handling."
+search_motifs: []
+negative_signals: []
+patch_pattern: "TODO: summarize the structural fix pattern."
+
+source_refs: ["/testing/reth/validated-findings/kept/2023-11-16-reth-transaction-processing-2b4eb8438.md"]
+notes:
+  - "Prepared automatically from a raw finding. Needs enrichment."

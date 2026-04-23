@@ -35,6 +35,10 @@ Search patterns:
 - policies enforced at wake-up or signaling boundaries but not at the underlying provider or write sink
 - append-only histories stored as mutable read-modify-write objects under concurrent writers instead of immutable write-once records
 - fallback paths that do not preserve enough state to transition cleanly into the alternate recovery mode
+- event, listener, subscription, or gossip paths where a policy bit is checked at admission but dropped before delivery
+- fork, reorg, retry, failed-prewarm, abort, or recovery paths that reuse caches from a prior parent hash, verifier state, peer state, or execution context
+- rollback paths in authenticated or persisted state that restore a nearby object but not the exact mutated coordinate
+- invalid, syncing, timeout, empty-response, and already-known states that update state in one path but not the analogous path
 
 Questions to answer:
 1. What are the legal states and transitions?

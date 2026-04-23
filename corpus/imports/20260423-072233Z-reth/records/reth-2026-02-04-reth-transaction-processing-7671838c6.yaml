@@ -1,0 +1,38 @@
+id: "reth-2026-02-04-reth-transaction-processing-7671838c6"
+source_finding: "2026-02-04-reth-transaction-processing-7671838c6.md"
+project: "reth"
+date: "2026-02-04"
+language_tags: []
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-safety"
+subsystem: "transaction-processing"
+architecture_tags: []
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "input-validation"
+violated_invariant: "TODO: rewrite from the finding in plain, generic terms."
+trust_boundary: "TODO: identify the trust boundary crossed."
+entrypoint_type: "TODO: classify the entrypoint."
+sensitive_sink: "TODO: name the privileged action or state reached."
+
+attacker_capabilities: []
+exploit_preconditions: []
+blast_radius: ""
+
+impact_types: []
+severity_guess: ""
+severity_rationale: "TODO: justify the expected severity band."
+
+code_shape_summary: "The patch appears to fix a protocol-validation bug in a consensus-critical path: Amsterdam/EIP-7778 changed gas-accounting semantics, and the affected code was not consistently preserving the distinction between header gas_used and receipt cumulative_gas_used. The evidence supports a likely security-relevant consensus fix, but not stronger claims such as demonstrated chain split or exploitability."
+search_motifs: []
+negative_signals: []
+patch_pattern: "TODO: summarize the structural fix pattern."
+
+source_refs: ["/testing/reth/validated-findings/kept/2026-02-04-reth-transaction-processing-7671838c6.md"]
+notes:
+  - "Prepared automatically from a raw finding. Needs enrichment."

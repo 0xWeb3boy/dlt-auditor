@@ -1,0 +1,38 @@
+id: "reth-2022-12-15-reth-transaction-processing-9208f2fd9"
+source_finding: "2022-12-15-reth-transaction-processing-9208f2fd9.md"
+project: "reth"
+date: "2022-12-15"
+language_tags: []
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "fork-selection-logic"
+subsystem: "transaction-processing"
+architecture_tags: []
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "input-validation"
+violated_invariant: "TODO: rewrite from the finding in plain, generic terms."
+trust_boundary: "TODO: identify the trust boundary crossed."
+entrypoint_type: "TODO: classify the entrypoint."
+sensitive_sink: "TODO: name the privileged action or state reached."
+
+attacker_capabilities: []
+exploit_preconditions: []
+blast_radius: ""
+
+impact_types: []
+severity_guess: ""
+severity_rationale: "TODO: justify the expected severity band."
+
+code_shape_summary: "The strongest supported finding is a correctness bug in executor configuration: `SpecUpgrades::revm_spec()` used reversed comparisons, so the executor could choose the wrong REVM hardfork rules for a block. The patch also tightens receipt-status derivation so unexpected VM exit reasons become errors instead of being folded into a normal failed receipt. This touches consensus-sensitive code, but the provided evidence does not prove attacker reachability, exploitation, or an observed security incident, so the security classification should be downgraded to unclear."
+search_motifs: []
+negative_signals: []
+patch_pattern: "TODO: summarize the structural fix pattern."
+
+source_refs: ["/testing/reth/validated-findings/kept/2022-12-15-reth-transaction-processing-9208f2fd9.md"]
+notes:
+  - "Prepared automatically from a raw finding. Needs enrichment."

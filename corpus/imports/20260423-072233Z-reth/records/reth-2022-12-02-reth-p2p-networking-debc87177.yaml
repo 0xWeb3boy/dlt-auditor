@@ -1,0 +1,38 @@
+id: "reth-2022-12-02-reth-p2p-networking-debc87177"
+source_finding: "2022-12-02-reth-p2p-networking-debc87177.md"
+project: "reth"
+date: "2022-12-02"
+language_tags: []
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "protocol-input-validation"
+subsystem: "p2p-networking"
+architecture_tags: []
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "input-validation"
+violated_invariant: "TODO: rewrite from the finding in plain, generic terms."
+trust_boundary: "TODO: identify the trust boundary crossed."
+entrypoint_type: "TODO: classify the entrypoint."
+sensitive_sink: "TODO: name the privileged action or state reached."
+
+attacker_capabilities: []
+exploit_preconditions: []
+blast_radius: ""
+
+impact_types: []
+severity_guess: ""
+severity_rationale: "TODO: justify the expected severity band."
+
+code_shape_summary: "The provided evidence supports a wire-format decoding and encoding correctness fix in the `eth-wire` p2p control path. It shows handling for the RLP `0x80` zero case was corrected for `P2PMessageID` and, per the commit message, for `DisconnectReason`, and that one handshake size check was changed to inspect the received `first_message_bytes` rather than `hello_bytes`. That is enough to classify this as a protocol-decoding fix, but not enough to confirm a security vulnerability."
+search_motifs: []
+negative_signals: []
+patch_pattern: "TODO: summarize the structural fix pattern."
+
+source_refs: ["/testing/reth/validated-findings/kept/2022-12-02-reth-p2p-networking-debc87177.md"]
+notes:
+  - "Prepared automatically from a raw finding. Needs enrichment."

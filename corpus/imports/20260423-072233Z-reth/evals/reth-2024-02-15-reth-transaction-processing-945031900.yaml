@@ -1,0 +1,21 @@
+id: "reth-2024-02-15-reth-transaction-processing-945031900"
+source_record: "reth-2024-02-15-reth-transaction-processing-945031900.yaml"
+project: "reth"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "missing-protocol-validation"
+expected_missing_property: "cryptographic-commitment-binding-validation"
+
+expected_impact_band: "protocol_integrity"
+expected_severity_band: "medium_high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Other validation layers may already enforce the same binding."
+  - "A mismatch rejection path is not proof of asset theft or state corruption."
+  - "Documentation-only error changes are not the security fix."
+notes:
+  - "Security-hardening positive: evaluate for the generic invariant, not for repo-specific names alone."
+  - "Do not require proof of exploitability unless the prompt asks for confirmed vulnerabilities only."

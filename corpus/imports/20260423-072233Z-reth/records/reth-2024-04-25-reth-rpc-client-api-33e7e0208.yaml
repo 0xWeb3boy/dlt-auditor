@@ -1,0 +1,50 @@
+id: "reth-2024-04-25-reth-rpc-client-api-33e7e0208"
+source_finding: "2024-04-25-reth-rpc-client-api-33e7e0208.md"
+project: "reth"
+date: "2024-04-25"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "insufficient-bad-peer-penalization"
+subsystem: "rpc-client-api"
+architecture_tags: ["ethereum-client", "execution-client", "rpc-client-api"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "bad-response-peer-penalization"
+violated_invariant: "Schedulers that consume untrusted peer responses must feed bad-response signals back into peer selection before assigning follow-up work."
+trust_boundary: "Remote block-response data crossing into the local fetch scheduler and peer ranking state."
+entrypoint_type: "p2p-response-handler"
+sensitive_sink: "Queued request dispatch and immediate follow-up scheduling."
+
+attacker_capabilities:
+  - "Can return missing, empty, or otherwise suspect block-body responses."
+  - "Can receive repeated follow-up requests if the scheduler ignores response quality."
+exploit_preconditions:
+  - "Peer scoring tracks last-response quality but one response path fails to update it."
+  - "The dispatcher can immediately reuse a peer after a suspect response."
+blast_radius: "Availability and abuse-resistance hardening for sync/fetch work; no concrete resource-exhaustion magnitude is shown."
+
+impact_types:
+  - "abuse-resistance"
+  - "network-availability-hardening"
+severity_guess: "low_medium"
+severity_rationale: "Remote peers influence the scheduler, but the patch evidence supports deranking hardening rather than a demonstrated DoS."
+
+code_shape_summary: "The block-bodies response path failed to mark suspect responses and could immediately reuse a bad peer. The patch classifies empty or failed responses as likely bad, records that state, blocks immediate follow-up, and dispatches queued work through best-peer selection."
+search_motifs:
+  - "response handler ignores empty result before followup_request"
+  - "next_peer used where next_best_peer exists"
+  - "headers path penalizes bad responses but bodies path does not"
+negative_signals:
+  - "Empty responses can be benign at protocol edges."
+  - "Peer ranking internals must actually consume the bad-response flag."
+  - "No DoS claim without evidence of queue growth, resource exhaustion, or repeated attacker control."
+patch_pattern: "Propagate response-quality classification into peer state, prevent immediate reuse after suspect output, and choose future work using the quality-aware peer selector."
+
+source_refs: ["/testing/reth/validated-findings/kept/2024-04-25-reth-rpc-client-api-33e7e0208.md"]
+notes:
+  - "Enriched by worker-01 from validated finding evidence; framed as security hardening unless exploitability was directly shown."

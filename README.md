@@ -64,6 +64,8 @@ The prompt files are organized by recurring issue family instead of one file per
 - `prompts/16_staking_registry_and_accountability.md`
 - `prompts/17_checked_arithmetic_and_parameter_bounds.md`
 - `prompts/18_authoritative_state_and_boundary_enforcement.md`
+- `prompts/19_consensus_fork_and_payload_rule_validation.md`
+- `prompts/20_authenticated_state_proof_and_persistence_integrity.md`
 
 ## Intermediate Artifacts
 

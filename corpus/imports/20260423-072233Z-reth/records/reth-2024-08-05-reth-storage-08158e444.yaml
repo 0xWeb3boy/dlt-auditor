@@ -1,0 +1,38 @@
+id: "reth-2024-08-05-reth-storage-08158e444"
+source_finding: "2024-08-05-reth-storage-08158e444.md"
+project: "reth"
+date: "2024-08-05"
+language_tags: []
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "insufficient-parent-header-validation"
+subsystem: "storage"
+architecture_tags: []
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "input-validation"
+violated_invariant: "TODO: rewrite from the finding in plain, generic terms."
+trust_boundary: "TODO: identify the trust boundary crossed."
+entrypoint_type: "TODO: classify the entrypoint."
+sensitive_sink: "TODO: name the privileged action or state reached."
+
+attacker_capabilities: []
+exploit_preconditions: []
+blast_radius: ""
+
+impact_types: []
+severity_guess: ""
+severity_rationale: "TODO: justify the expected severity band."
+
+code_shape_summary: "The patch adds an explicit parent-header validation step to the engine2 block insertion path. The evidence supports that this path previously validated the block and checked parent state availability, but did not perform a visible parent-relative header check here. After the change, it fetches the parent sealed header, fails if that header is missing, and rejects the block if `validate_header_against_parent` fails. The test utility timestamp change is supporting evidence that parent-relative header rules are now enforced."
+search_motifs: []
+negative_signals: []
+patch_pattern: "TODO: summarize the structural fix pattern."
+
+source_refs: ["/testing/reth/validated-findings/kept/2024-08-05-reth-storage-08158e444.md"]
+notes:
+  - "Prepared automatically from a raw finding. Needs enrichment."

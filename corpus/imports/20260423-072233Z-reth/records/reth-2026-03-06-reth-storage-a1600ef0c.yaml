@@ -1,0 +1,38 @@
+id: "reth-2026-03-06-reth-storage-a1600ef0c"
+source_finding: "2026-03-06-reth-storage-a1600ef0c.md"
+project: "reth"
+date: "2026-03-06"
+language_tags: []
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "proof-integrity"
+subsystem: "storage"
+architecture_tags: []
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "input-validation"
+violated_invariant: "TODO: rewrite from the finding in plain, generic terms."
+trust_boundary: "TODO: identify the trust boundary crossed."
+entrypoint_type: "TODO: classify the entrypoint."
+sensitive_sink: "TODO: name the privileged action or state reached."
+
+attacker_capabilities: []
+exploit_preconditions: []
+blast_radius: ""
+
+impact_types: []
+severity_guess: ""
+severity_rationale: "TODO: justify the expected severity band."
+
+code_shape_summary: "The patch changes `MaskedTrieCursor::mask_node` so the last surviving hashed child is cleared whenever masking removes other hashed children, even if `state_mask` still contains unhashed children. The provided code and tests support a trie-structure correctness bug that previously left a stale single hashed child in place. The commit message says this caused debug panics and invalid proofs in release builds, but the supplied evidence does not establish a concrete security vulnerability beyond that correctness/integrity claim."
+search_motifs: []
+negative_signals: []
+patch_pattern: "TODO: summarize the structural fix pattern."
+
+source_refs: ["/testing/reth/validated-findings/kept/2026-03-06-reth-storage-a1600ef0c.md"]
+notes:
+  - "Prepared automatically from a raw finding. Needs enrichment."

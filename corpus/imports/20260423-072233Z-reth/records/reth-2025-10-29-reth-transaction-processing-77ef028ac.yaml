@@ -1,0 +1,38 @@
+id: "reth-2025-10-29-reth-transaction-processing-77ef028ac"
+source_finding: "2025-10-29-reth-transaction-processing-77ef028ac.md"
+project: "reth"
+date: "2025-10-29"
+language_tags: []
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-validation"
+subsystem: "transaction-processing"
+architecture_tags: []
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "input-validation"
+violated_invariant: "TODO: rewrite from the finding in plain, generic terms."
+trust_boundary: "TODO: identify the trust boundary crossed."
+entrypoint_type: "TODO: classify the entrypoint."
+sensitive_sink: "TODO: name the privileged action or state reached."
+
+attacker_capabilities: []
+exploit_preconditions: []
+blast_radius: ""
+
+impact_types: []
+severity_guess: ""
+severity_rationale: "TODO: justify the expected severity band."
+
+code_shape_summary: "The patch changes Optimism header validation to enforce Ecotone/Jovian-specific blob-gas rules directly instead of calling a generic EIP-4844 parent-based helper. That is a consensus-rule correctness change in a sensitive path, but the provided evidence does not establish a concrete vulnerability or show whether the old code accepted invalid headers, rejected valid headers, or both."
+search_motifs: []
+negative_signals: []
+patch_pattern: "TODO: summarize the structural fix pattern."
+
+source_refs: ["/testing/reth/validated-findings/kept/2025-10-29-reth-transaction-processing-77ef028ac.md"]
+notes:
+  - "Prepared automatically from a raw finding. Needs enrichment."

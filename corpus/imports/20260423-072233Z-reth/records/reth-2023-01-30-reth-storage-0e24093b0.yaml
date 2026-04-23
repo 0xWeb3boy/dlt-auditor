@@ -1,0 +1,38 @@
+id: "reth-2023-01-30-reth-storage-0e24093b0"
+source_finding: "2023-01-30-reth-storage-0e24093b0.md"
+project: "reth"
+date: "2023-01-30"
+language_tags: []
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "protocol-state-invariant"
+subsystem: "storage"
+architecture_tags: []
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "input-validation"
+violated_invariant: "TODO: rewrite from the finding in plain, generic terms."
+trust_boundary: "TODO: identify the trust boundary crossed."
+entrypoint_type: "TODO: classify the entrypoint."
+sensitive_sink: "TODO: name the privileged action or state reached."
+
+attacker_capabilities: []
+exploit_preconditions: []
+blast_radius: ""
+
+impact_types: []
+severity_guess: ""
+severity_rationale: "TODO: justify the expected severity band."
+
+code_shape_summary: "The provided evidence supports a likely security-relevant protocol/state-integrity fix rather than a mere cleanup. The main demonstrated issue is that newly created empty accounts could still be recorded or persisted after Spurious Dragon state clearing should treat them as empty. The patch adds an explicit emptiness predicate, applies it only after the fork activates, and skips inserting such accounts. The storage-unwind hunk appears supportive, but the excerpts do not establish it as the primary bug on their own."
+search_motifs: []
+negative_signals: []
+patch_pattern: "TODO: summarize the structural fix pattern."
+
+source_refs: ["/testing/reth/validated-findings/kept/2023-01-30-reth-storage-0e24093b0.md"]
+notes:
+  - "Prepared automatically from a raw finding. Needs enrichment."

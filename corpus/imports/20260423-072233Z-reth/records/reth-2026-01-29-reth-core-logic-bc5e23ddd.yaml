@@ -1,0 +1,38 @@
+id: "reth-2026-01-29-reth-core-logic-bc5e23ddd"
+source_finding: "2026-01-29-reth-core-logic-bc5e23ddd.md"
+project: "reth"
+date: "2026-01-29"
+language_tags: []
+
+bug_family: "state_machine_and_lifecycle_consistency"
+bug_class: "state-integrity-hardening"
+subsystem: "core-logic"
+architecture_tags: []
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "lifecycle-cleanup"
+violated_invariant: "TODO: rewrite from the finding in plain, generic terms."
+trust_boundary: "TODO: identify the trust boundary crossed."
+entrypoint_type: "TODO: classify the entrypoint."
+sensitive_sink: "TODO: name the privileged action or state reached."
+
+attacker_capabilities: []
+exploit_preconditions: []
+blast_radius: ""
+
+impact_types: []
+severity_guess: ""
+severity_rationale: "TODO: justify the expected severity band."
+
+code_shape_summary: "The provided evidence supports a correctness fix in parallel sparse trie mutation and rollback handling. The commit message explicitly describes preventing silent trie corruption and correcting restoration to the original subtrie on error. That establishes an integrity/atomicity bug in trie updates, but the supplied material does not establish attacker triggerability or a concrete security exploit path."
+search_motifs: []
+negative_signals: []
+patch_pattern: "TODO: summarize the structural fix pattern."
+
+source_refs: ["/testing/reth/validated-findings/kept/2026-01-29-reth-core-logic-bc5e23ddd.md"]
+notes:
+  - "Prepared automatically from a raw finding. Needs enrichment."

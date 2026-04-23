@@ -1,0 +1,38 @@
+id: "reth-2024-02-02-reth-transaction-processing-72b7caa4c"
+source_finding: "2024-02-02-reth-transaction-processing-72b7caa4c.md"
+project: "reth"
+date: "2024-02-02"
+language_tags: []
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "resource-limit-enforcement"
+subsystem: "transaction-processing"
+architecture_tags: []
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "resource-accounting"
+violated_invariant: "TODO: rewrite from the finding in plain, generic terms."
+trust_boundary: "TODO: identify the trust boundary crossed."
+entrypoint_type: "TODO: classify the entrypoint."
+sensitive_sink: "TODO: name the privileged action or state reached."
+
+attacker_capabilities: []
+exploit_preconditions: []
+blast_radius: ""
+
+impact_types: []
+severity_guess: ""
+severity_rationale: "TODO: justify the expected severity band."
+
+code_shape_summary: "The supplied diff supports a correctness fix in parked-pool truncation: the code now enforces the full pool-limit predicate using both count and size, whereas before it only used transaction count. That is grounded as a resource-control bug in mempool eviction logic. The evidence does not establish a concrete security vulnerability, exploit path, crash, or protocol-integrity failure."
+search_motifs: []
+negative_signals: []
+patch_pattern: "TODO: summarize the structural fix pattern."
+
+source_refs: ["/testing/reth/validated-findings/kept/2024-02-02-reth-transaction-processing-72b7caa4c.md"]
+notes:
+  - "Prepared automatically from a raw finding. Needs enrichment."

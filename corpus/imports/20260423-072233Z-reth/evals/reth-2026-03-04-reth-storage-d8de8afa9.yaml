@@ -1,0 +1,18 @@
+id: "reth-2026-03-04-reth-storage-d8de8afa9"
+source_record: "reth-2026-03-04-reth-storage-d8de8afa9.yaml"
+project: "reth"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "resource-exhaustion"
+expected_missing_property: "input-validation"
+
+expected_impact_band: "TODO"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "TODO: describe what could make a similar case non-security."
+notes:
+  - "Prepared automatically from a raw finding. Needs enrichment."

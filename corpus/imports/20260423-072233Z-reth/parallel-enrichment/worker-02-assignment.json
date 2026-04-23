@@ -1,0 +1,113 @@
+{
+  "worker_id": "worker-02",
+  "worker_index": 2,
+  "effective_workers": 6,
+  "bundle_root": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth",
+  "instruction_prompt": "/testing/dlt-ai-audit-system/03_enrich_corpus_import.md",
+  "assigned_findings": [
+    {
+      "id": "reth-2024-12-04-reth-transaction-processing-d298fb1b8",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "raw_finding_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/raw-findings/2024-12-04-reth-transaction-processing-d298fb1b8.md",
+      "record_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/records/reth-2024-12-04-reth-transaction-processing-d298fb1b8.yaml",
+      "root_cause_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/cards/root-cause/reth-2024-12-04-reth-transaction-processing-d298fb1b8.md",
+      "code_shape_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/cards/code-shape/reth-2024-12-04-reth-transaction-processing-d298fb1b8.md",
+      "validation_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/cards/validation/reth-2024-12-04-reth-transaction-processing-d298fb1b8.md",
+      "eval_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/evals/reth-2024-12-04-reth-transaction-processing-d298fb1b8.yaml"
+    },
+    {
+      "id": "reth-2023-01-20-reth-p2p-networking-eb11da8ad",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "p2p-handshake-state-inconsistency",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_b_likely",
+      "raw_finding_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/raw-findings/2023-01-20-reth-p2p-networking-eb11da8ad.md",
+      "record_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/records/reth-2023-01-20-reth-p2p-networking-eb11da8ad.yaml",
+      "root_cause_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/cards/root-cause/reth-2023-01-20-reth-p2p-networking-eb11da8ad.md",
+      "code_shape_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/cards/code-shape/reth-2023-01-20-reth-p2p-networking-eb11da8ad.md",
+      "validation_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/cards/validation/reth-2023-01-20-reth-p2p-networking-eb11da8ad.md",
+      "eval_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/evals/reth-2023-01-20-reth-p2p-networking-eb11da8ad.yaml"
+    },
+    {
+      "id": "reth-2025-09-25-reth-rpc-client-api-aa192c255",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "improper-auth-header-parsing",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "raw_finding_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/raw-findings/2025-09-25-reth-rpc-client-api-aa192c255.md",
+      "record_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/records/reth-2025-09-25-reth-rpc-client-api-aa192c255.yaml",
+      "root_cause_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/cards/root-cause/reth-2025-09-25-reth-rpc-client-api-aa192c255.md",
+      "code_shape_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/cards/code-shape/reth-2025-09-25-reth-rpc-client-api-aa192c255.md",
+      "validation_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/cards/validation/reth-2025-09-25-reth-rpc-client-api-aa192c255.md",
+      "eval_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/evals/reth-2025-09-25-reth-rpc-client-api-aa192c255.yaml"
+    },
+    {
+      "id": "reth-2023-09-26-reth-storage-eb6dc5197",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-rule-validation",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "raw_finding_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/raw-findings/2023-09-26-reth-storage-eb6dc5197.md",
+      "record_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/records/reth-2023-09-26-reth-storage-eb6dc5197.yaml",
+      "root_cause_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/cards/root-cause/reth-2023-09-26-reth-storage-eb6dc5197.md",
+      "code_shape_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/cards/code-shape/reth-2023-09-26-reth-storage-eb6dc5197.md",
+      "validation_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/cards/validation/reth-2023-09-26-reth-storage-eb6dc5197.md",
+      "eval_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/evals/reth-2023-09-26-reth-storage-eb6dc5197.yaml"
+    },
+    {
+      "id": "reth-2026-03-04-reth-storage-d8de8afa9",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "resource-exhaustion",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "raw_finding_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/raw-findings/2026-03-04-reth-storage-d8de8afa9.md",
+      "record_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/records/reth-2026-03-04-reth-storage-d8de8afa9.yaml",
+      "root_cause_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/cards/root-cause/reth-2026-03-04-reth-storage-d8de8afa9.md",
+      "code_shape_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/cards/code-shape/reth-2026-03-04-reth-storage-d8de8afa9.md",
+      "validation_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/cards/validation/reth-2026-03-04-reth-storage-d8de8afa9.md",
+      "eval_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/evals/reth-2026-03-04-reth-storage-d8de8afa9.yaml"
+    },
+    {
+      "id": "reth-2023-07-03-reth-transaction-processing-64554dd0f",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "input-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "raw_finding_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/raw-findings/2023-07-03-reth-transaction-processing-64554dd0f.md",
+      "record_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/records/reth-2023-07-03-reth-transaction-processing-64554dd0f.yaml",
+      "root_cause_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/cards/root-cause/reth-2023-07-03-reth-transaction-processing-64554dd0f.md",
+      "code_shape_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/cards/code-shape/reth-2023-07-03-reth-transaction-processing-64554dd0f.md",
+      "validation_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/cards/validation/reth-2023-07-03-reth-transaction-processing-64554dd0f.md",
+      "eval_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/evals/reth-2023-07-03-reth-transaction-processing-64554dd0f.yaml"
+    },
+    {
+      "id": "reth-2024-05-21-reth-transaction-processing-5100ddd28",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "input-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "raw_finding_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/raw-findings/2024-05-21-reth-transaction-processing-5100ddd28.md",
+      "record_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/records/reth-2024-05-21-reth-transaction-processing-5100ddd28.yaml",
+      "root_cause_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/cards/root-cause/reth-2024-05-21-reth-transaction-processing-5100ddd28.md",
+      "code_shape_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/cards/code-shape/reth-2024-05-21-reth-transaction-processing-5100ddd28.md",
+      "validation_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/cards/validation/reth-2024-05-21-reth-transaction-processing-5100ddd28.md",
+      "eval_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/evals/reth-2024-05-21-reth-transaction-processing-5100ddd28.yaml"
+    },
+    {
+      "id": "reth-2024-02-02-reth-transaction-processing-72b7caa4c",
+      "bug_family": "resource_accounting_and_limits",
+      "bug_class": "resource-limit-enforcement",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "raw_finding_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/raw-findings/2024-02-02-reth-transaction-processing-72b7caa4c.md",
+      "record_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/records/reth-2024-02-02-reth-transaction-processing-72b7caa4c.yaml",
+      "root_cause_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/cards/root-cause/reth-2024-02-02-reth-transaction-processing-72b7caa4c.md",
+      "code_shape_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/cards/code-shape/reth-2024-02-02-reth-transaction-processing-72b7caa4c.md",
+      "validation_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/cards/validation/reth-2024-02-02-reth-transaction-processing-72b7caa4c.md",
+      "eval_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-072233Z-reth/evals/reth-2024-02-02-reth-transaction-processing-72b7caa4c.yaml"
+    }
+  ]
+}

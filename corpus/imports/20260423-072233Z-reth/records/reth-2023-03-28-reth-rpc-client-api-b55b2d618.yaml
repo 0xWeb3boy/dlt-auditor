@@ -1,0 +1,38 @@
+id: "reth-2023-03-28-reth-rpc-client-api-b55b2d618"
+source_finding: "2023-03-28-reth-rpc-client-api-b55b2d618.md"
+project: "reth"
+date: "2023-03-28"
+language_tags: []
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "peer-penalty-misclassification"
+subsystem: "rpc-client-api"
+architecture_tags: []
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "input-validation"
+violated_invariant: "TODO: rewrite from the finding in plain, generic terms."
+trust_boundary: "TODO: identify the trust boundary crossed."
+entrypoint_type: "TODO: classify the entrypoint."
+sensitive_sink: "TODO: name the privileged action or state reached."
+
+attacker_capabilities: []
+exploit_preconditions: []
+blast_radius: ""
+
+impact_types: []
+severity_guess: ""
+severity_rationale: "TODO: justify the expected severity band."
+
+code_shape_summary: "The patch refines txpool error classification so the network transaction import path no longer treats every pool import error as a bad transaction. The evidence supports a correctness and hardening change around sender/import accounting, but it does not, by itself, establish a concrete exploitable vulnerability."
+search_motifs: []
+negative_signals: []
+patch_pattern: "TODO: summarize the structural fix pattern."
+
+source_refs: ["/testing/reth/validated-findings/kept/2023-03-28-reth-rpc-client-api-b55b2d618.md"]
+notes:
+  - "Prepared automatically from a raw finding. Needs enrichment."

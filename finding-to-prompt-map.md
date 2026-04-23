@@ -54,3 +54,62 @@ These are source-corpus examples derived from Oasis findings. The prompt familie
 | 2024-05-11-oasis-core-core-logic-ddf51345a | integer-overflow | `17_checked_arithmetic_and_parameter_bounds.md` | protocol parameter integrity | Medium |
 | 2024-07-04-oasis-core-cryptography-8e2f08bb2 | access-control | `10_authz_and_role_gates.md` | privilege misuse | High |
 | 2024-10-03-oasis-core-cryptography-0d2f546b2 | stale-session-state | `15_state_machine_and_lifecycle_consistency.md` | stale trust policy, session confusion | Medium |
+
+## Reth Calibration Addendum
+
+These mappings were derived from `/testing/reth/validated-findings/kept` after phase 4 validation. They are retained as provenance for prompt-pack refinement and should not be used as runtime instructions.
+
+| Finding | Bug class | Primary prompt | Impact focus | Suggested baseline severity |
+| --- | --- | --- | --- | --- |
+| 2022-12-02-reth-p2p-networking-debc87177 | protocol-input-validation | `13_input_validation_and_invariant_enforcement.md` | p2p parser hardening, availability | Medium |
+| 2022-12-15-reth-transaction-processing-9208f2fd9 | fork-selection-logic | `19_consensus_fork_and_payload_rule_validation.md` | consensus execution rule integrity | Medium |
+| 2023-01-13-reth-p2p-networking-5c80bc912 | insufficient-peer-validation | `13_input_validation_and_invariant_enforcement.md` | peer admission hardening | Medium |
+| 2023-01-20-reth-p2p-networking-eb11da8ad | p2p-handshake-state-inconsistency | `18_authoritative_state_and_boundary_enforcement.md` | handshake artifact binding | Medium |
+| 2023-01-30-reth-storage-0e24093b0 | protocol-state-invariant | `19_consensus_fork_and_payload_rule_validation.md` | fork-specific state integrity | Medium |
+| 2023-02-11-reth-transaction-processing-eba63b8f7 | consensus-transition-check | `19_consensus_fork_and_payload_rule_validation.md` | hardfork transition integrity | Medium |
+| 2023-03-28-reth-rpc-client-api-b55b2d618 | peer-penalty-misclassification | `15_state_machine_and_lifecycle_consistency.md` | peer penalty accuracy | Medium |
+| 2023-04-11-reth-transaction-processing-e0e449d5f | signature-input-validation | `11_signature_binding_and_signer_scope.md` | canonical signature validation | Medium |
+| 2023-04-12-reth-consensus-e87960ea8 | forkchoice-input-validation | `19_consensus_fork_and_payload_rule_validation.md` | forkchoice state integrity | Medium |
+| 2023-05-02-reth-storage-949b3639c | invalid-ancestor-handling | `19_consensus_fork_and_payload_rule_validation.md` | invalid ancestry handling | Medium |
+| 2023-05-02-reth-storage-be87dcc68 | checkpoint-target-mismatch | `20_authenticated_state_proof_and_persistence_integrity.md` | trie rebuild checkpoint binding | Medium |
+| 2023-05-04-reth-consensus-010b600f3 | insufficient-consensus-validation | `19_consensus_fork_and_payload_rule_validation.md` | parent identity validation | Medium |
+| 2023-05-18-reth-consensus-460bf13b6 | consensus-validation | `19_consensus_fork_and_payload_rule_validation.md` | canonical state recognition | Medium |
+| 2023-06-06-reth-storage-c0fb169da | consensus-error-handling | `19_consensus_fork_and_payload_rule_validation.md` | invalid block error classification | Medium |
+| 2023-07-03-reth-transaction-processing-64554dd0f | body-validation-hardening | `13_input_validation_and_invariant_enforcement.md` | peer-supplied block body validation | Medium |
+| 2023-07-12-reth-storage-99240906a | insufficient-state-validation | `19_consensus_fork_and_payload_rule_validation.md` | forkchoice consistency | Medium |
+| 2023-08-02-reth-p2p-networking-94dfeb3ad | insufficient-input-validation | `13_input_validation_and_invariant_enforcement.md` | peer header range validation | Medium |
+| 2023-08-03-reth-transaction-processing-3f63a0887 | policy-enforcement | `15_state_machine_and_lifecycle_consistency.md` | transaction propagation policy | Medium |
+| 2023-08-29-reth-p2p-networking-03afe376b | listener-filter-bypass | `15_state_machine_and_lifecycle_consistency.md` | listener policy preservation | Medium |
+| 2023-09-21-reth-transaction-processing-6a601755c | numeric-range-validation | `13_input_validation_and_invariant_enforcement.md` | RPC transaction bounds | Medium |
+| 2023-09-26-reth-storage-eb6dc5197 | consensus-rule-validation | `19_consensus_fork_and_payload_rule_validation.md` | fork-gated blob transaction rejection | Medium |
+| 2023-11-16-reth-transaction-processing-2b4eb8438 | incomplete-blob-transaction-validation-context | `13_input_validation_and_invariant_enforcement.md` | revalidation sidecar context | Medium |
+| 2023-11-29-reth-transaction-processing-2c5a748c5 | signature-malleability | `11_signature_binding_and_signer_scope.md` | canonical signature recovery | Medium |
+| 2023-12-23-reth-transaction-processing-8fb6ed9cc | incorrect-fork-gating | `19_consensus_fork_and_payload_rule_validation.md` | transaction fork gate correctness | Medium |
+| 2024-02-02-reth-transaction-processing-72b7caa4c | resource-limit-enforcement | `14_resource_accounting_and_limits.md` | txpool count and size limits | Medium |
+| 2024-02-03-reth-transaction-processing-d4dffa2ee | improper-resource-limit-enforcement | `14_resource_accounting_and_limits.md` | blobpool count and size limits | Medium |
+| 2024-02-15-reth-transaction-processing-945031900 | missing-protocol-validation | `13_input_validation_and_invariant_enforcement.md` | cryptographic commitment binding | Medium |
+| 2024-03-18-reth-storage-9962c3949 | ignored-error-result | `19_consensus_fork_and_payload_rule_validation.md` | canonicalization error surfacing | Medium |
+| 2024-03-19-reth-p2p-networking-1ad50d148 | missing-handshake-timeout | `14_resource_accounting_and_limits.md` | p2p handshake resource bounding | Medium |
+| 2024-04-16-reth-storage-33b195af3 | fork-hash-reconstruction | `20_authenticated_state_proof_and_persistence_integrity.md` | fork-local hash reconstruction | Medium |
+| 2024-04-25-reth-rpc-client-api-33e7e0208 | insufficient-bad-peer-penalization | `15_state_machine_and_lifecycle_consistency.md` | bad-peer feedback loop | Medium |
+| 2024-05-21-reth-transaction-processing-5100ddd28 | input-validation | `13_input_validation_and_invariant_enforcement.md` | type-specific transaction form rejection | Medium |
+| 2024-08-05-reth-storage-08158e444 | insufficient-parent-header-validation | `19_consensus_fork_and_payload_rule_validation.md` | parent header validation | Medium |
+| 2024-09-02-reth-consensus-d59854f1d | missing-runtime-bound-check | `15_state_machine_and_lifecycle_consistency.md` | pruning runtime bound enforcement | Medium |
+| 2024-12-04-reth-transaction-processing-d298fb1b8 | consensus-validation | `19_consensus_fork_and_payload_rule_validation.md` | chain-variant header validation | Medium |
+| 2025-04-19-reth-core-logic-6ef19f403 | missing-upper-bound-check | `19_consensus_fork_and_payload_rule_validation.md` | consensus gas-limit bound | Medium |
+| 2025-04-25-reth-transaction-processing-82d650594 | improper-consensus-validation | `19_consensus_fork_and_payload_rule_validation.md` | post-merge header validation | Medium |
+| 2025-05-28-reth-storage-1cfe50998 | state-integrity-hardening | `20_authenticated_state_proof_and_persistence_integrity.md` | missing trie updates before persistence | Medium |
+| 2025-09-25-reth-rpc-client-api-aa192c255 | improper-auth-header-parsing | `13_input_validation_and_invariant_enforcement.md` | auth header syntax hardening | Medium |
+| 2025-10-29-reth-transaction-processing-77ef028ac | consensus-validation | `19_consensus_fork_and_payload_rule_validation.md` | chain-variant blob-gas validation | Medium |
+| 2026-01-29-reth-core-logic-bc5e23ddd | state-integrity-hardening | `20_authenticated_state_proof_and_persistence_integrity.md` | trie mutation atomicity | Medium |
+| 2026-01-29-reth-storage-edf75de4d | atomicity-violation | `20_authenticated_state_proof_and_persistence_integrity.md` | trie rollback correctness | Medium |
+| 2026-02-03-reth-storage-4b9244c7d | incomplete-trie-proof-generation | `20_authenticated_state_proof_and_persistence_integrity.md` | empty-root proof evidence | Medium |
+| 2026-02-04-reth-transaction-processing-7671838c6 | gas-semantics-validation | `19_consensus_fork_and_payload_rule_validation.md` | fork-specific gas accounting semantics | Medium |
+| 2026-03-04-reth-storage-d8de8afa9 | memory-bound-hardening | `14_resource_accounting_and_limits.md` | hashing-stage memory bound | Medium |
+| 2026-03-06-reth-storage-a1600ef0c | proof-integrity | `20_authenticated_state_proof_and_persistence_integrity.md` | trie proof structure integrity | Medium |
+| 2026-03-09-reth-transaction-processing-9c33fb5d4 | cache-state-isolation | `15_state_machine_and_lifecycle_consistency.md` | fork-aware cache isolation | Medium |
+| 2026-03-21-reth-transaction-processing-b78f74f52 | validation-bypass | `19_consensus_fork_and_payload_rule_validation.md` | special-case payload validation narrowing | Medium |
+| 2026-04-01-reth-storage-7c1a43bac | gas-accounting-state-reuse | `14_resource_accounting_and_limits.md` | cache-hit gas accounting isolation | Medium |
+| 2026-04-01-reth-transaction-processing-c4517d4c3 | gas-accounting-corruption | `14_resource_accounting_and_limits.md` | cache-hit gas accounting isolation | Medium |
+| 2026-04-20-reth-storage-d577814eb | protocol-validation | `19_consensus_fork_and_payload_rule_validation.md` | Engine API method-version validation | Medium |
+| 2026-04-21-reth-storage-d92ad5aa3 | improper-state-binding | `20_authenticated_state_proof_and_persistence_integrity.md` | fork-aware state overlay binding | Medium |

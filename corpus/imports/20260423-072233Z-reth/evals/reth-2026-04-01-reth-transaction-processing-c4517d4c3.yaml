@@ -1,0 +1,18 @@
+id: "reth-2026-04-01-reth-transaction-processing-c4517d4c3"
+source_record: "reth-2026-04-01-reth-transaction-processing-c4517d4c3.yaml"
+project: "reth"
+
+expected_bug_family: "resource_accounting_and_limits"
+expected_bug_class: "gas-accounting-corruption"
+expected_missing_property: "resource-accounting"
+
+expected_impact_band: "TODO"
+expected_severity_band: "high_or_medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "TODO: describe what could make a similar case non-security."
+notes:
+  - "Prepared automatically from a raw finding. Needs enrichment."

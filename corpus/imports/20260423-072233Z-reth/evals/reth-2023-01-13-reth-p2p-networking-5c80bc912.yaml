@@ -1,0 +1,21 @@
+id: "reth-2023-01-13-reth-p2p-networking-5c80bc912"
+source_record: "reth-2023-01-13-reth-p2p-networking-5c80bc912.yaml"
+project: "reth"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "insufficient-peer-validation"
+expected_missing_property: "peer-protocol-compatibility-validation"
+
+expected_impact_band: "network_abuse_resistance"
+expected_severity_band: "low_medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Peers with no fork id may be intentionally allowed by protocol policy."
+  - "Invalid discovery metadata is not a full exploit unless it leads to session success or resource exhaustion."
+  - "Handshake-level validation may be a compensating control."
+notes:
+  - "Security-hardening positive: evaluate for the generic invariant, not for repo-specific names alone."
+  - "Do not require proof of exploitability unless the prompt asks for confirmed vulnerabilities only."

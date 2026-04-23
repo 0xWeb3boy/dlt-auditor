@@ -1,0 +1,18 @@
+id: "reth-2024-02-02-reth-transaction-processing-72b7caa4c"
+source_record: "reth-2024-02-02-reth-transaction-processing-72b7caa4c.yaml"
+project: "reth"
+
+expected_bug_family: "resource_accounting_and_limits"
+expected_bug_class: "resource-limit-enforcement"
+expected_missing_property: "resource-accounting"
+
+expected_impact_band: "TODO"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "TODO: describe what could make a similar case non-security."
+notes:
+  - "Prepared automatically from a raw finding. Needs enrichment."

@@ -1,0 +1,50 @@
+id: "reth-2024-02-15-reth-transaction-processing-945031900"
+source_finding: "2024-02-15-reth-transaction-processing-945031900.md"
+project: "reth"
+date: "2024-02-15"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "missing-protocol-validation"
+subsystem: "transaction-processing"
+architecture_tags: ["ethereum-client", "execution-client", "transaction-processing"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "cryptographic-commitment-binding-validation"
+violated_invariant: "Transaction-declared cryptographic references must match the canonical values derived from their supplied commitments before the transaction or sidecar is accepted."
+trust_boundary: "Network/RPC blob transaction data crossing into local transaction and sidecar validation."
+entrypoint_type: "blob-transaction-validation"
+sensitive_sink: "EIP-4844 sidecar acceptance and transaction-pool or block validation."
+
+attacker_capabilities:
+  - "Can supply a blob sidecar whose commitment-derived versioned hash differs from the transaction-declared hash."
+  - "Can rely on proof checks passing while the metadata-to-commitment binding is unchecked."
+exploit_preconditions:
+  - "Validator computes a canonical value but does not compare it to the declared field."
+  - "No earlier validation layer enforces the same commitment binding."
+blast_radius: "Protocol and transaction-integrity hardening; end-to-end consensus reachability is not proven."
+
+impact_types:
+  - "protocol-integrity"
+  - "transaction-validation-bypass"
+severity_guess: "medium_high"
+severity_rationale: "This is a concrete missing validation check in a cryptographic transaction path, but full acceptance-path coverage is not proven."
+
+code_shape_summary: "The blob validator computed each commitment-derived versioned hash but did not reject mismatch with the transaction-declared value. The patch adds a fail-closed comparison and a dedicated WrongVersionedHash error."
+search_motifs:
+  - "derived hash is computed but not compared"
+  - "commitment proof verified without binding to transaction metadata"
+  - "comment questions whether wrong-hash validation failures should be distinguished"
+negative_signals:
+  - "Other validation layers may already enforce the same binding."
+  - "A mismatch rejection path is not proof of asset theft or state corruption."
+  - "Documentation-only error changes are not the security fix."
+patch_pattern: "Compare canonical commitment-derived values against declared transaction metadata and reject mismatches with a specific validation error."
+
+source_refs: ["/testing/reth/validated-findings/kept/2024-02-15-reth-transaction-processing-945031900.md"]
+notes:
+  - "Enriched by worker-01 from validated finding evidence; framed as security hardening unless exploitability was directly shown."

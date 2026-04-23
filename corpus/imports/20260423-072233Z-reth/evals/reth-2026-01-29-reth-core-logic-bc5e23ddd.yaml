@@ -1,0 +1,18 @@
+id: "reth-2026-01-29-reth-core-logic-bc5e23ddd"
+source_record: "reth-2026-01-29-reth-core-logic-bc5e23ddd.yaml"
+project: "reth"
+
+expected_bug_family: "state_machine_and_lifecycle_consistency"
+expected_bug_class: "state-integrity-hardening"
+expected_missing_property: "lifecycle-cleanup"
+
+expected_impact_band: "TODO"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "TODO: describe what could make a similar case non-security."
+notes:
+  - "Prepared automatically from a raw finding. Needs enrichment."

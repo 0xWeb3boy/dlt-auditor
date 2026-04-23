@@ -31,6 +31,10 @@ Search patterns:
 - tooling or verification flows where caller-supplied or proof-supplied artifacts can override the locally trusted verifier, registry, config, or asset set
 - decisions that depend on externally defined values such as fee, pricing, registry, or policy signals, but use local recomputation or helper-derived values instead of the protocol-authoritative source
 - decisions based on proxy values like output-root equality, metadata hashes, request shape, or status flags instead of the authoritative state that defines correctness
+- state, overlay, provider, or cache lookups keyed by height, range, current head, or implicit context where the authoritative identity is a block hash, root, parent, fork, or target tuple
+- helper-produced fork filters, protocol statuses, checkpoints, or derived roots built from separate source inputs that should come from one authoritative snapshot
+- proof-carried or caller-supplied artifacts that can replace the locally authoritative verifier, root, target, fork, or state source at the sink
+- canonicality checks that rely on transient indices when persisted canonical state is the source of truth
 
 Questions to answer:
 1. What source is authoritative for this decision right now?

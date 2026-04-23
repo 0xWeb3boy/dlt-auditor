@@ -1,0 +1,38 @@
+id: "reth-2024-03-19-reth-p2p-networking-1ad50d148"
+source_finding: "2024-03-19-reth-p2p-networking-1ad50d148.md"
+project: "reth"
+date: "2024-03-19"
+language_tags: []
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "missing-handshake-timeout"
+subsystem: "p2p-networking"
+architecture_tags: []
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "input-validation"
+violated_invariant: "TODO: rewrite from the finding in plain, generic terms."
+trust_boundary: "TODO: identify the trust boundary crossed."
+entrypoint_type: "TODO: classify the entrypoint."
+sensitive_sink: "TODO: name the privileged action or state reached."
+
+attacker_capabilities: []
+exploit_preconditions: []
+blast_radius: ""
+
+impact_types: []
+severity_guess: ""
+severity_rationale: "TODO: justify the expected severity band."
+
+code_shape_summary: "The patch clearly adds timeout enforcement to pending session authentication and routes handshake failures through `PendingSessionHandshakeError::Eth`. That supports a grounded claim of resource-control and error-classification improvement in the network session path. The provided evidence does not, by itself, prove an exploitable denial-of-service condition or another concrete vulnerability, so the security thesis should be downgraded to unclear."
+search_motifs: []
+negative_signals: []
+patch_pattern: "TODO: summarize the structural fix pattern."
+
+source_refs: ["/testing/reth/validated-findings/kept/2024-03-19-reth-p2p-networking-1ad50d148.md"]
+notes:
+  - "Prepared automatically from a raw finding. Needs enrichment."

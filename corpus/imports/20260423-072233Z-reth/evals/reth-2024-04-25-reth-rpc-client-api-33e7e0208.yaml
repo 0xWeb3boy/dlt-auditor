@@ -1,0 +1,21 @@
+id: "reth-2024-04-25-reth-rpc-client-api-33e7e0208"
+source_record: "reth-2024-04-25-reth-rpc-client-api-33e7e0208.yaml"
+project: "reth"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "insufficient-bad-peer-penalization"
+expected_missing_property: "bad-response-peer-penalization"
+
+expected_impact_band: "network_abuse_resistance"
+expected_severity_band: "low_medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Empty responses can be benign at protocol edges."
+  - "Peer ranking internals must actually consume the bad-response flag."
+  - "No DoS claim without evidence of queue growth, resource exhaustion, or repeated attacker control."
+notes:
+  - "Security-hardening positive: evaluate for the generic invariant, not for repo-specific names alone."
+  - "Do not require proof of exploitability unless the prompt asks for confirmed vulnerabilities only."

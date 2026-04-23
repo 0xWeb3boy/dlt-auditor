@@ -33,6 +33,10 @@ Search patterns:
 - timeouts without semaphore caps, concurrency limits, or load shedding
 - accept loops or handlers that spawn per-connection or per-request work before acquiring admission permits
 - backlog growth controls that protect one ingress path but leave alternate RPC or publisher paths effectively unbounded
+- multi-dimensional limits where one path enforces count but not bytes, bytes but not count, or uses `both limits exceeded` where the policy says `any limit exceeded`
+- cleanup or truncation paths that use a weaker predicate than insertion/admission paths
+- cache-hit paths that return stored execution or precompile result objects containing gas, quota, reservoir, refund, or caller-local accounting state
+- batch-mode decisions that choose clean, incremental, bounded, or unbounded work based only on the next local window instead of the full remaining range
 
 Questions to answer:
 1. What resource is the protocol trying to meter: gas, fees, bytes, weight, queue slots, proving budget, bridge capacity, committee size, or sender concurrency?

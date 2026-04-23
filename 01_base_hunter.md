@@ -27,6 +27,9 @@ Your task:
 9. Search for the same semantic value carried in two or more representations, where only one representation is validated, canonicalized, or trusted.
 10. Search compatibility, migration, mode-specific, and legacy branches for weaker hashing, version derivation, source selection, or verification behavior than the main path.
 11. Search for sinks that should recompute an identifier, hash, version, capability, or selector from authoritative parsed state, but instead trust a detached field, helper output, cache entry, proof-carried value, or caller-supplied metadata.
+12. Compare every special-case, compatibility, replay, migration, benchmark, recovery, sidechain, and fork-specific path against the normal validation path. Ask whether it skips only the exact non-comparable field or accidentally skips core identity, parent, root, accounting, authorization, or policy checks.
+13. Search for feedback loops where untrusted peer, transaction, or proof outcomes should update reputation, penalties, scheduling, listener filtering, cache invalidation, or cleanup state. Check whether success, empty, invalid, timeout, abort, and retry paths update that state symmetrically.
+14. Search for cached execution, proof, or state-provider outputs that include invocation-local state. On cache hits, the code should rebind or reconstruct caller-local accounting, fork identity, verifier context, and authoritative state instead of cloning stale composite objects.
 
 For each candidate include:
 - Title

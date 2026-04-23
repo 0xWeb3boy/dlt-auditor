@@ -43,6 +43,23 @@ Your task:
   - where canonicalization is supposed to happen,
   - where equality or recomputation is supposed to be enforced before the sensitive sink.
 10. Identify the subsystems where a missing authorization, missing signature binding, missing gas or quota charge, stale state cleanup, or unchecked arithmetic bug would be most dangerous.
+11. Map consensus-rule validation surfaces separately from generic input validation:
+  - Engine or consensus APIs,
+  - block import and sidechain import,
+  - forkchoice or head/safe/finalized updates,
+  - payload building and payload validation,
+  - chain-variant or rollup-specific validators,
+  - replay, recovery, migration, and compatibility validators.
+  For each surface, note which canonical validator should run and which fork, method-version, timestamp, height, chain variant, or payload-type gates define the accepted fields.
+12. Map authenticated-state derivation surfaces:
+  - state roots,
+  - trie or accumulator proofs,
+  - checkpoints,
+  - pruning and compaction,
+  - fork overlays,
+  - state-provider caches,
+  - canonical persistence handoffs.
+  For each, identify what binds derived data to the canonical block, root, range, fork, or target.
 
 Output format:
 - System summary

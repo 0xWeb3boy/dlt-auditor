@@ -35,6 +35,14 @@ For the candidate under review:
    - lifecycle cleanup
    - state-coordinate consistency
    - arithmetic bounds
+   - fork/version/method-specific consensus rule coverage
+   - chain-variant rule coverage
+   - parent/ancestor/forkchoice consistency
+   - explicit absence-proof evidence
+   - authenticated-state rollback atomicity
+   - cache context rebinding
+   - peer-quality feedback enforcement
+   - listener or event policy preservation
 4. Search for compensating controls elsewhere in the codebase.
 5. Decide whether the issue is:
    - confirmed
@@ -47,6 +55,9 @@ Then assess impact:
 2. Does it affect consensus integrity, finalized state integrity, settlement integrity, bridge safety, privileged data access, slashing/accountability, or only availability?
 3. Is the trigger remote, peer-based, cross-domain, operator-only, governance-only, or debug-only?
 4. Is the issue one-shot, repeatable, chain-wide, validator-local, or client-local?
+5. Is the finding proven to cross a production trust boundary, or is it best classified as security hardening because it tightens a consensus, proof, peer, or resource-control path without a demonstrated exploit?
+6. If the bug is in consensus validation, distinguish invalid-block acceptance, invalid-block rejection, syncing/liveness confusion, payload-building side effects, and error-classification hardening.
+7. If the bug is in authenticated state or proof code, distinguish proof-generation ambiguity, verifier acceptance, local state corruption, persistence correctness, and consensus-visible state-root impact.
 
 Assign severity using this baseline:
 - Critical: direct consensus break, forged finalized state acceptance, bridge or settlement compromise, unauthorized mint or burn, or broad secret compromise.

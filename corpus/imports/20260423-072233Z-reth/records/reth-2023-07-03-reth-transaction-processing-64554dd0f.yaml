@@ -1,0 +1,38 @@
+id: "reth-2023-07-03-reth-transaction-processing-64554dd0f"
+source_finding: "2023-07-03-reth-transaction-processing-64554dd0f.md"
+project: "reth"
+date: "2023-07-03"
+language_tags: []
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "input-validation"
+subsystem: "transaction-processing"
+architecture_tags: []
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "input-validation"
+violated_invariant: "TODO: rewrite from the finding in plain, generic terms."
+trust_boundary: "TODO: identify the trust boundary crossed."
+entrypoint_type: "TODO: classify the entrypoint."
+sensitive_sink: "TODO: name the privileged action or state reached."
+
+attacker_capabilities: []
+exploit_preconditions: []
+blast_radius: ""
+
+impact_types: []
+severity_guess: ""
+severity_rationale: "TODO: justify the expected severity band."
+
+code_shape_summary: "The patch adds a missing body-versus-header validation step in the single-block P2P download flow. The evidence supports that this path previously could assemble a block once header and body were both present, while the new code distinguishes validated from unvalidated body data and rejects mismatches. What is not established from the provided snippets is whether other downstream validation would also have caught the issue, so the strongest supported classification is security hardening on a security-relevant integrity boundary."
+search_motifs: []
+negative_signals: []
+patch_pattern: "TODO: summarize the structural fix pattern."
+
+source_refs: ["/testing/reth/validated-findings/kept/2023-07-03-reth-transaction-processing-64554dd0f.md"]
+notes:
+  - "Prepared automatically from a raw finding. Needs enrichment."

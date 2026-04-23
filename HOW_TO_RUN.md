@@ -91,10 +91,13 @@ If you want a practical default order, use:
 2. `11_signature_binding_and_signer_scope.md`
 3. `14_resource_accounting_and_limits.md`
 4. `15_state_machine_and_lifecycle_consistency.md`
-5. `16_staking_registry_and_accountability.md`
-6. `12_attestation_trust_and_freshness.md`
-7. `13_input_validation_and_invariant_enforcement.md`
-8. `17_checked_arithmetic_and_parameter_bounds.md`
+5. `19_consensus_fork_and_payload_rule_validation.md`
+6. `20_authenticated_state_proof_and_persistence_integrity.md`
+7. `16_staking_registry_and_accountability.md`
+8. `12_attestation_trust_and_freshness.md`
+9. `13_input_validation_and_invariant_enforcement.md`
+10. `18_authoritative_state_and_boundary_enforcement.md`
+11. `17_checked_arithmetic_and_parameter_bounds.md`
 
 ## File Discipline
 
