@@ -1,0 +1,288 @@
+{
+  "repo": "/testing/go-ethereum",
+  "repo_slug": "go-ethereum",
+  "kept_dir": "/testing/go-ethereum/validated-findings/kept",
+  "created_at_utc": "20260423-091218Z",
+  "finding_count": 31,
+  "findings": [
+    {
+      "id": "go-ethereum-2014-11-12-go-ethereum-transaction-processing-60cdb1148",
+      "source": "/testing/go-ethereum/validated-findings/kept/2014-11-12-go-ethereum-transaction-processing-60cdb1148.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-consensus-commitment-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "go-ethereum-2015-01-13-go-ethereum-transaction-processing-82beaabf6",
+      "source": "/testing/go-ethereum/validated-findings/kept/2015-01-13-go-ethereum-transaction-processing-82beaabf6.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-rule-correction",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "go-ethereum-2015-03-25-go-ethereum-cryptography-de7af720d",
+      "source": "/testing/go-ethereum/validated-findings/kept/2015-03-25-go-ethereum-cryptography-de7af720d.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "udp-reflection-amplification",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "go-ethereum-2015-04-29-go-ethereum-storage-4e0796771",
+      "source": "/testing/go-ethereum/validated-findings/kept/2015-04-29-go-ethereum-storage-4e0796771.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "canonical-chain-reorg-invariant",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "go-ethereum-2015-05-14-go-ethereum-transaction-processing-a4246c2da",
+      "source": "/testing/go-ethereum/validated-findings/kept/2015-05-14-go-ethereum-transaction-processing-a4246c2da.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "unknown-parent-sync-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "go-ethereum-2015-05-15-go-ethereum-core-logic-5c1a7b965",
+      "source": "/testing/go-ethereum/validated-findings/kept/2015-05-15-go-ethereum-core-logic-5c1a7b965.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "p2p-sync-validation-bypass",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "go-ethereum-2015-05-15-go-ethereum-core-logic-cd2fb0905",
+      "source": "/testing/go-ethereum/validated-findings/kept/2015-05-15-go-ethereum-core-logic-cd2fb0905.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "p2p-sync-no-progress-dos",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "go-ethereum-2015-05-21-go-ethereum-core-logic-52db6d8be",
+      "source": "/testing/go-ethereum/validated-findings/kept/2015-05-21-go-ethereum-core-logic-52db6d8be.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "cross-check-validation-bypass",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "go-ethereum-2015-07-01-go-ethereum-p2p-networking-d6f2c0a76",
+      "source": "/testing/go-ethereum/validated-findings/kept/2015-07-01-go-ethereum-p2p-networking-d6f2c0a76.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "resource-exhaustion",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "go-ethereum-2016-10-28-go-ethereum-transaction-processing-b59c8399f",
+      "source": "/testing/go-ethereum/validated-findings/kept/2016-10-28-go-ethereum-transaction-processing-b59c8399f.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "signature-domain-separation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "go-ethereum-2016-11-24-go-ethereum-storage-12d654a6f",
+      "source": "/testing/go-ethereum/validated-findings/kept/2016-11-24-go-ethereum-storage-12d654a6f.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-state-revert-bug",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "go-ethereum-2016-11-24-go-ethereum-storage-db567eb01",
+      "source": "/testing/go-ethereum/validated-findings/kept/2016-11-24-go-ethereum-storage-db567eb01.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-state-revert-mismatch",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "go-ethereum-2017-02-13-go-ethereum-storage-e23e86921",
+      "source": "/testing/go-ethereum/validated-findings/kept/2017-02-13-go-ethereum-storage-e23e86921.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-content-integrity-check",
+      "subsystem": "storage",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "go-ethereum-2017-05-12-go-ethereum-transaction-processing-a5f6a1cb7",
+      "source": "/testing/go-ethereum/validated-findings/kept/2017-05-12-go-ethereum-transaction-processing-a5f6a1cb7.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-configuration-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "go-ethereum-2017-06-22-go-ethereum-storage-0042f13d4",
+      "source": "/testing/go-ethereum/validated-findings/kept/2017-06-22-go-ethereum-storage-0042f13d4.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "resource-exhaustion",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "go-ethereum-2017-08-25-go-ethereum-storage-08f27428b",
+      "source": "/testing/go-ethereum/validated-findings/kept/2017-08-25-go-ethereum-storage-08f27428b.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "contract-address-collision",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "go-ethereum-2018-02-12-go-ethereum-p2p-networking-9123eceb0",
+      "source": "/testing/go-ethereum/validated-findings/kept/2018-02-12-go-ethereum-p2p-networking-9123eceb0.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "protocol-response-correlation",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "go-ethereum-2018-09-20-go-ethereum-storage-d6254f827",
+      "source": "/testing/go-ethereum/validated-findings/kept/2018-09-20-go-ethereum-storage-d6254f827.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "fork-choice-tie-break-hardening",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "go-ethereum-2018-09-25-go-ethereum-cryptography-d3441ebb5",
+      "source": "/testing/go-ethereum/validated-findings/kept/2018-09-25-go-ethereum-cryptography-d3441ebb5.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "signer-policy-hardening",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "go-ethereum-2020-12-04-go-ethereum-transaction-processing-15339cf1c",
+      "source": "/testing/go-ethereum/validated-findings/kept/2020-12-04-go-ethereum-transaction-processing-15339cf1c.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "signed-vulnerability-advisory-check",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "go-ethereum-2020-12-08-go-ethereum-transaction-processing-ed0670cb1",
+      "source": "/testing/go-ethereum/validated-findings/kept/2020-12-08-go-ethereum-transaction-processing-ed0670cb1.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "replay-protection",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "go-ethereum-2021-02-23-go-ethereum-transaction-processing-142fbcfd6",
+      "source": "/testing/go-ethereum/validated-findings/kept/2021-02-23-go-ethereum-transaction-processing-142fbcfd6.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-replay-protection-enforcement",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "go-ethereum-2021-07-22-go-ethereum-transaction-processing-97aacd9b3",
+      "source": "/testing/go-ethereum/validated-findings/kept/2021-07-22-go-ethereum-transaction-processing-97aacd9b3.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "transaction-balance-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "go-ethereum-2022-06-29-go-ethereum-cryptography-d12b1a91c",
+      "source": "/testing/go-ethereum/validated-findings/kept/2022-06-29-go-ethereum-cryptography-d12b1a91c.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-terminal-block-validation-hardening",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "go-ethereum-2022-12-20-go-ethereum-transaction-processing-b818e73ef",
+      "source": "/testing/go-ethereum/validated-findings/kept/2022-12-20-go-ethereum-transaction-processing-b818e73ef.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-validation-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "go-ethereum-2023-01-11-go-ethereum-transaction-processing-793f0f9ec",
+      "source": "/testing/go-ethereum/validated-findings/kept/2023-01-11-go-ethereum-transaction-processing-793f0f9ec.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "resource-accounting-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "go-ethereum-2024-05-07-go-ethereum-transaction-processing-e4b8058d5",
+      "source": "/testing/go-ethereum/validated-findings/kept/2024-05-07-go-ethereum-transaction-processing-e4b8058d5.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "unbounded-query-parameter",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "go-ethereum-2025-04-08-go-ethereum-transaction-processing-2e739fce5",
+      "source": "/testing/go-ethereum/validated-findings/kept/2025-04-08-go-ethereum-transaction-processing-2e739fce5.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "mempool-resource-exhaustion",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "go-ethereum-2025-12-11-go-ethereum-transaction-processing-56d201b0f",
+      "source": "/testing/go-ethereum/validated-findings/kept/2025-12-11-go-ethereum-transaction-processing-56d201b0f.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "p2p-metadata-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "go-ethereum-2026-03-04-go-ethereum-storage-6d99759f0",
+      "source": "/testing/go-ethereum/validated-findings/kept/2026-03-04-go-ethereum-storage-6d99759f0.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "rpc-persistent-state-side-effect",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "go-ethereum-2026-03-24-go-ethereum-transaction-processing-8327e870e",
+      "source": "/testing/go-ethereum/validated-findings/kept/2026-03-24-go-ethereum-transaction-processing-8327e870e.md",
+      "bug_family": "resource_accounting_and_limits",
+      "bug_class": "gas-accounting-ordering",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "resource-accounting"
+    }
+  ]
+}

@@ -21,6 +21,8 @@ For the candidate under review:
    - authorization
    - signer scope
    - domain separation
+   - request-response correlation
+   - graph or lineage binding
    - freshness
    - replay protection
    - policy/version/fork gating
@@ -30,11 +32,14 @@ For the candidate under review:
    - representation or encoding consistency
    - duplicate-representation binding
    - trusted artifact or config selection at verification time
+   - content-address integrity
    - robust boundary validation
    - gas/resource/quota accounting
+   - progress or reservation monotonicity
    - lifecycle cleanup
    - state-coordinate consistency
    - arithmetic bounds
+   - read-only vs persistent-side-effect separation
    - fork/version/method-specific consensus rule coverage
    - chain-variant rule coverage
    - parent/ancestor/forkchoice consistency

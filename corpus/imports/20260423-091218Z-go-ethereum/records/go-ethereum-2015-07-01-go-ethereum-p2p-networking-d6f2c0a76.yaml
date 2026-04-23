@@ -1,0 +1,38 @@
+id: "go-ethereum-2015-07-01-go-ethereum-p2p-networking-d6f2c0a76"
+source_finding: "2015-07-01-go-ethereum-p2p-networking-d6f2c0a76.md"
+project: "go-ethereum"
+date: "2015-07-01"
+language_tags: []
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "resource-exhaustion"
+subsystem: "p2p-networking"
+architecture_tags: []
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "input-validation"
+violated_invariant: "TODO: rewrite from the finding in plain, generic terms."
+trust_boundary: "TODO: identify the trust boundary crossed."
+entrypoint_type: "TODO: classify the entrypoint."
+sensitive_sink: "TODO: name the privileged action or state reached."
+
+attacker_capabilities: []
+exploit_preconditions: []
+blast_radius: ""
+
+impact_types: []
+severity_guess: ""
+severity_rationale: "TODO: justify the expected severity band."
+
+code_shape_summary: "The patch fixes a denial-of-service risk in go-ethereum's downloader hash-fetch path. It adds `maxQueuedHashes = 256 * 1024` with an explicit DOS-protection comment and changes `fetchHashes` so continuation depends on `d.queue.Pending() < maxQueuedHashes` instead of always continuing after a successful hash insert."
+search_motifs: []
+negative_signals: []
+patch_pattern: "TODO: summarize the structural fix pattern."
+
+source_refs: ["/testing/go-ethereum/validated-findings/kept/2015-07-01-go-ethereum-p2p-networking-d6f2c0a76.md"]
+notes:
+  - "Prepared automatically from a raw finding. Needs enrichment."

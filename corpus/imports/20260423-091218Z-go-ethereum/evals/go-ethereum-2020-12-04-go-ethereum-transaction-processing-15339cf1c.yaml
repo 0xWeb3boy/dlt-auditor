@@ -1,0 +1,19 @@
+id: "go-ethereum-2020-12-04-go-ethereum-transaction-processing-15339cf1c"
+source_record: "go-ethereum-2020-12-04-go-ethereum-transaction-processing-15339cf1c.yaml"
+project: "go-ethereum"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "signed-vulnerability-advisory-check"
+expected_missing_property: "advisory authenticity verification"
+
+expected_impact_band: "trust_or_policy_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Do not assume a new checker proves a previously exploitable spoofing bug unless pre-fix behavior is shown."
+  - "Advisory content about a real CVE does not mean the same commit fixes that underlying vulnerability."
+notes:
+  - "Positive exemplar for authenticated external security advisory ingestion."

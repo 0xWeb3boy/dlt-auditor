@@ -1,0 +1,38 @@
+id: "go-ethereum-2026-03-24-go-ethereum-transaction-processing-8327e870e"
+source_finding: "2026-03-24-go-ethereum-transaction-processing-8327e870e.md"
+project: "go-ethereum"
+date: "2026-03-24"
+language_tags: []
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "gas-accounting-ordering"
+subsystem: "transaction-processing"
+architecture_tags: []
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "resource-accounting"
+violated_invariant: "TODO: rewrite from the finding in plain, generic terms."
+trust_boundary: "TODO: identify the trust boundary crossed."
+entrypoint_type: "TODO: classify the entrypoint."
+sensitive_sink: "TODO: name the privileged action or state reached."
+
+attacker_capabilities: []
+exploit_preconditions: []
+blast_radius: ""
+
+impact_types: []
+severity_guess: ""
+severity_rationale: "TODO: justify the expected severity band."
+
+code_shape_summary: "The patch changes EIP-8037 gas accounting in SSTORE and CALL-family paths so regular gas is charged before state gas, and adjusts parallel receipt aggregation to separate execution cumulative gas from regular/state gas totals. The comments explicitly mention preventing reservoir inflation, but the provided evidence does not establish a concrete vulnerability, exploit path, denial of service, economic impact, or consensus failure."
+search_motifs: []
+negative_signals: []
+patch_pattern: "TODO: summarize the structural fix pattern."
+
+source_refs: ["/testing/go-ethereum/validated-findings/kept/2026-03-24-go-ethereum-transaction-processing-8327e870e.md"]
+notes:
+  - "Prepared automatically from a raw finding. Needs enrichment."

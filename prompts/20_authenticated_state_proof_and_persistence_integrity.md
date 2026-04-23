@@ -23,6 +23,7 @@ Search patterns:
 - Canonical persistence paths that assume trie updates, state diffs, or derived roots exist for fork ancestry instead of detecting and recomputing missing data.
 - Sidechain or fork-local hash reconstruction keyed by height instead of block hash and parent relation.
 - Error results ignored or logged-only in canonicalization, persistence, or state-root paths.
+- Transient touched, exists, empty, dirty, or journaled flags that affect commitment or clearing semantics but are not reverted symmetrically on rollback or failed execution.
 
 Questions to answer:
 1. What object is authoritative: block hash, state root, trie node, proof, checkpoint target, canonical DB state, or in-memory overlay?
@@ -31,6 +32,7 @@ Questions to answer:
 4. Can an absence proof be distinguished from missing proof material?
 5. Are mutations atomic, or can failed validation leave a partially modified authenticated state?
 6. Does persistence fail closed when required derived state is missing?
+7. If account or object liveness is tracked through transient flags, are those flags journaled and reverted with the same authority as the committed state?
 
 Severity guidance:
 - High if a malformed proof or state root can be accepted by another trust domain, bridge, light client, or consensus path.

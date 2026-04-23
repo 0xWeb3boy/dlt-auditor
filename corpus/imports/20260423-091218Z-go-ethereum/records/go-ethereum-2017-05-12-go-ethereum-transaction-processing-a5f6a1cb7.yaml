@@ -1,0 +1,38 @@
+id: "go-ethereum-2017-05-12-go-ethereum-transaction-processing-a5f6a1cb7"
+source_finding: "2017-05-12-go-ethereum-transaction-processing-a5f6a1cb7.md"
+project: "go-ethereum"
+date: "2017-05-12"
+language_tags: []
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-configuration-hardening"
+subsystem: "transaction-processing"
+architecture_tags: []
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "input-validation"
+violated_invariant: "TODO: rewrite from the finding in plain, generic terms."
+trust_boundary: "TODO: identify the trust boundary crossed."
+entrypoint_type: "TODO: classify the entrypoint."
+sensitive_sink: "TODO: name the privileged action or state reached."
+
+attacker_capabilities: []
+exploit_preconditions: []
+blast_radius: ""
+
+impact_types: []
+severity_guess: ""
+severity_rationale: "TODO: justify the expected severity band."
+
+code_shape_summary: "The grounded security-relevant change is in params/config.go: ChainConfig.checkCompatible now rejects incompatible MetropolisBlock settings, matching the existing compatibility checks for earlier fork blocks. The evidence supports consensus-configuration hardening, not a confirmed exploitable vulnerability, transaction replay flaw, or VM execution bug."
+search_motifs: []
+negative_signals: []
+patch_pattern: "TODO: summarize the structural fix pattern."
+
+source_refs: ["/testing/go-ethereum/validated-findings/kept/2017-05-12-go-ethereum-transaction-processing-a5f6a1cb7.md"]
+notes:
+  - "Prepared automatically from a raw finding. Needs enrichment."

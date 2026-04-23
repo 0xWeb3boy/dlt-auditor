@@ -1,0 +1,18 @@
+id: "go-ethereum-2022-06-29-go-ethereum-cryptography-d12b1a91c"
+source_record: "go-ethereum-2022-06-29-go-ethereum-cryptography-d12b1a91c.yaml"
+project: "go-ethereum"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "consensus-terminal-block-validation-hardening"
+expected_missing_property: "input-validation"
+
+expected_impact_band: "TODO"
+expected_severity_band: "high_or_medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "TODO: describe what could make a similar case non-security."
+notes:
+  - "Prepared automatically from a raw finding. Needs enrichment."

@@ -1,0 +1,38 @@
+id: "go-ethereum-2017-08-25-go-ethereum-storage-08f27428b"
+source_finding: "2017-08-25-go-ethereum-storage-08f27428b.md"
+project: "go-ethereum"
+date: "2017-08-25"
+language_tags: []
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "contract-address-collision"
+subsystem: "storage"
+architecture_tags: []
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "input-validation"
+violated_invariant: "TODO: rewrite from the finding in plain, generic terms."
+trust_boundary: "TODO: identify the trust boundary crossed."
+entrypoint_type: "TODO: classify the entrypoint."
+sensitive_sink: "TODO: name the privileged action or state reached."
+
+attacker_capabilities: []
+exploit_preconditions: []
+blast_radius: ""
+
+impact_types: []
+severity_guess: ""
+severity_rationale: "TODO: justify the expected severity band."
+
+code_shape_summary: "The patch implements Metropolis EIP 684 behavior in go-ethereum's EVM CREATE path by rejecting contract creation when the computed destination address already appears occupied. The evidence supports a protocol-semantics/state-integrity change, but it does not establish an exploitable vulnerability or a concrete security fix in released deployments."
+search_motifs: []
+negative_signals: []
+patch_pattern: "TODO: summarize the structural fix pattern."
+
+source_refs: ["/testing/go-ethereum/validated-findings/kept/2017-08-25-go-ethereum-storage-08f27428b.md"]
+notes:
+  - "Prepared automatically from a raw finding. Needs enrichment."

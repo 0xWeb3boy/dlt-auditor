@@ -1,0 +1,18 @@
+id: "go-ethereum-2018-09-25-go-ethereum-cryptography-d3441ebb5"
+source_record: "go-ethereum-2018-09-25-go-ethereum-cryptography-d3441ebb5.yaml"
+project: "go-ethereum"
+
+expected_bug_family: "signature_binding_and_signer_scope"
+expected_bug_class: "signer-policy-hardening"
+expected_missing_property: "signer-authorization"
+
+expected_impact_band: "TODO"
+expected_severity_band: "high_or_medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "TODO: describe what could make a similar case non-security."
+notes:
+  - "Prepared automatically from a raw finding. Needs enrichment."

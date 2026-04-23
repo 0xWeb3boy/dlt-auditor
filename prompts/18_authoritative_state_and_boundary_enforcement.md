@@ -35,6 +35,7 @@ Search patterns:
 - helper-produced fork filters, protocol statuses, checkpoints, or derived roots built from separate source inputs that should come from one authoritative snapshot
 - proof-carried or caller-supplied artifacts that can replace the locally authoritative verifier, root, target, fork, or state source at the sink
 - canonicality checks that rely on transient indices when persisted canonical state is the source of truth
+- read-only, debug, witness, trace, or inspection flows that reuse normal execution or import helpers and may still reach persistent writers unless write suppression is enforced at the actual sink
 
 Questions to answer:
 1. What source is authoritative for this decision right now?
@@ -43,6 +44,7 @@ Questions to answer:
 4. Is the rule enforced in every path that constructs or consumes the object?
 5. Is the code comparing the real governing state, or only a proxy for it?
 6. Is the code using the authoritative artifact or source at the actual sink, or only in an earlier watcher, helper, builder, or validation layer?
+7. If the path is supposed to be read-only, where is persistence actually prevented: in the wrapper, in the shared helper, or at the storage sink itself?
 
 Severity guidance:
 - Medium by default for stale-policy, stale-checkpoint, sink-coverage, and proxy-state bugs.

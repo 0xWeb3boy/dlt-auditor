@@ -1,0 +1,38 @@
+id: "go-ethereum-2021-07-22-go-ethereum-transaction-processing-97aacd9b3"
+source_finding: "2021-07-22-go-ethereum-transaction-processing-97aacd9b3.md"
+project: "go-ethereum"
+date: "2021-07-22"
+language_tags: []
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "transaction-balance-validation"
+subsystem: "transaction-processing"
+architecture_tags: []
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "input-validation"
+violated_invariant: "TODO: rewrite from the finding in plain, generic terms."
+trust_boundary: "TODO: identify the trust boundary crossed."
+entrypoint_type: "TODO: classify the entrypoint."
+sensitive_sink: "TODO: name the privileged action or state reached."
+
+attacker_capabilities: []
+exploit_preconditions: []
+blast_radius: ""
+
+impact_types: []
+severity_guess: ""
+severity_rationale: "TODO: justify the expected severity band."
+
+code_shape_summary: "The patch corrects go-ethereum's London/EIP-1559 upfront balance check. In StateTransition.buyGas, the EIP-1559 balance requirement previously included gas_limit * gasFeeCap but omitted the transaction value. The fix adds st.value before comparing the sender balance to the required amount. This is best classified as a likely security-relevant consensus/state-transition validation fix, not as replay, signature, or cryptographic handling."
+search_motifs: []
+negative_signals: []
+patch_pattern: "TODO: summarize the structural fix pattern."
+
+source_refs: ["/testing/go-ethereum/validated-findings/kept/2021-07-22-go-ethereum-transaction-processing-97aacd9b3.md"]
+notes:
+  - "Prepared automatically from a raw finding. Needs enrichment."

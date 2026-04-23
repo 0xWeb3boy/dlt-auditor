@@ -1,0 +1,38 @@
+id: "go-ethereum-2015-04-29-go-ethereum-storage-4e0796771"
+source_finding: "2015-04-29-go-ethereum-storage-4e0796771.md"
+project: "go-ethereum"
+date: "2015-04-29"
+language_tags: []
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "canonical-chain-reorg-invariant"
+subsystem: "storage"
+architecture_tags: []
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "input-validation"
+violated_invariant: "TODO: rewrite from the finding in plain, generic terms."
+trust_boundary: "TODO: identify the trust boundary crossed."
+entrypoint_type: "TODO: classify the entrypoint."
+sensitive_sink: "TODO: name the privileged action or state reached."
+
+attacker_capabilities: []
+exploit_preconditions: []
+blast_radius: ""
+
+impact_types: []
+severity_guess: ""
+severity_rationale: "TODO: justify the expected severity band."
+
+code_shape_summary: "The patch fixes a chain reorg correctness bug in go-ethereum's core chain manager. Previously, reorg handling depended on comparing the incoming block number with the current canonical head number, which could miss a fork that was ahead and had higher total difficulty. The new logic detects a fork by comparing the canonical predecessor's hash with the incoming block's parent hash. This is plausibly security-relevant because it affects canonical-chain integrity, but the supplied evidence only establishes mixed canonical numbering, not an exploitable vulnerability."
+search_motifs: []
+negative_signals: []
+patch_pattern: "TODO: summarize the structural fix pattern."
+
+source_refs: ["/testing/go-ethereum/validated-findings/kept/2015-04-29-go-ethereum-storage-4e0796771.md"]
+notes:
+  - "Prepared automatically from a raw finding. Needs enrichment."

@@ -1,0 +1,48 @@
+id: "go-ethereum-2017-02-13-go-ethereum-storage-e23e86921"
+source_finding: "2017-02-13-go-ethereum-storage-e23e86921.md"
+project: "go-ethereum"
+date: "2017-02-13"
+language_tags: ["go"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "missing-content-integrity-check"
+subsystem: "storage"
+architecture_tags: ["p2p", "content-addressed-storage", "replication"]
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "content-integrity verification"
+violated_invariant: "Bytes accepted or retained under a content-addressed key must hash to that advertised key before the system stores, serves, or trusts them."
+trust_boundary: "Peer-supplied chunk payloads crossing into local content-addressed storage and repair logic."
+entrypoint_type: "peer store request"
+sensitive_sink: "Persisting or reusing chunk bytes under a trusted content key."
+
+attacker_capabilities:
+  - "Can submit chunk payloads with attacker-chosen data and an advertised chunk key."
+  - "Can trigger retrieval of corrupt persisted chunk records if such records exist."
+exploit_preconditions:
+  - "The node accepts chunk data from peers or other untrusted replication inputs."
+  - "The affected path lacks a strict hash-to-key comparison before use or retention."
+blast_radius: "Unverified chunk data can poison local content-addressed state or cause the node to operate on corrupt data until cleanup or rejection occurs."
+
+impact_types: ["content-integrity", "storage-integrity"]
+severity_guess: "medium"
+severity_rationale: "The patch enforces a core integrity property at a peer-input boundary, but the evidence supports hardening and corruption resistance rather than a demonstrated high-impact exploit chain."
+
+code_shape_summary: "A content-addressed storage path accepted or retained bytes without proving that the payload hashed to the advertised object key, so untrusted data could cross an integrity boundary unchecked."
+search_motifs:
+  - "store request writes payload bytes before verifying content-address hash"
+  - "database get path compares stored bytes to key only after partial use or with incomplete cleanup"
+  - "content-addressed object handler trusts advertised key more than recomputed digest"
+negative_signals:
+  - "Systems where the key is not supposed to be content-derived and therefore a hash mismatch is not meaningful."
+  - "Paths that already validate content integrity in a lower transport or codec layer before storage."
+patch_pattern: "Recompute the object digest at ingestion and retrieval boundaries, reject mismatches, and remove corrupt records through the normal indexed deletion path."
+
+source_refs: ["/testing/go-ethereum/validated-findings/kept/2017-02-13-go-ethereum-storage-e23e86921.md"]
+notes:
+  - "Security-hardening finding centered on content-addressed chunk integrity."
+  - "Do not overclaim consensus or RCE impact from the supplied evidence."

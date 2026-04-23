@@ -1,0 +1,38 @@
+id: "go-ethereum-2018-09-25-go-ethereum-cryptography-d3441ebb5"
+source_finding: "2018-09-25-go-ethereum-cryptography-d3441ebb5.md"
+project: "go-ethereum"
+date: "2018-09-25"
+language_tags: []
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "signer-policy-hardening"
+subsystem: "cryptography"
+architecture_tags: []
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "signer-authorization"
+violated_invariant: "TODO: rewrite from the finding in plain, generic terms."
+trust_boundary: "TODO: identify the trust boundary crossed."
+entrypoint_type: "TODO: classify the entrypoint."
+sensitive_sink: "TODO: name the privileged action or state reached."
+
+attacker_capabilities: []
+exploit_preconditions: []
+blast_radius: ""
+
+impact_types: []
+severity_guess: ""
+severity_rationale: "TODO: justify the expected severity band."
+
+code_shape_summary: "The provided evidence supports a Clef/signer security-hardening finding, not a low-level cryptographic replay or signature-validation flaw. The strongest grounded change is that signer transaction validation warnings are rejected by default before the signing prompt/path, while advanced mode preserves warning behavior. The commit also removes or narrows some external API surface, including EcRecover in the shown code, but several other security claims are supported only by commit text rather than visible hunks."
+search_motifs: []
+negative_signals: []
+patch_pattern: "TODO: summarize the structural fix pattern."
+
+source_refs: ["/testing/go-ethereum/validated-findings/kept/2018-09-25-go-ethereum-cryptography-d3441ebb5.md"]
+notes:
+  - "Prepared automatically from a raw finding. Needs enrichment."

@@ -1,0 +1,38 @@
+id: "go-ethereum-2021-02-23-go-ethereum-transaction-processing-142fbcfd6"
+source_finding: "2021-02-23-go-ethereum-transaction-processing-142fbcfd6.md"
+project: "go-ethereum"
+date: "2021-02-23"
+language_tags: []
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "missing-replay-protection-enforcement"
+subsystem: "transaction-processing"
+architecture_tags: []
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "input-validation"
+violated_invariant: "TODO: rewrite from the finding in plain, generic terms."
+trust_boundary: "TODO: identify the trust boundary crossed."
+entrypoint_type: "TODO: classify the entrypoint."
+sensitive_sink: "TODO: name the privileged action or state reached."
+
+attacker_capabilities: []
+exploit_preconditions: []
+blast_radius: ""
+
+impact_types: []
+severity_guess: ""
+severity_rationale: "TODO: justify the expected severity band."
+
+code_shape_summary: "The patch hardens go-ethereum RPC transaction submission by rejecting non-EIP-155, non-replay-protected transactions before SendTx unless rpc.allow-unprotected-txs is explicitly enabled."
+search_motifs: []
+negative_signals: []
+patch_pattern: "TODO: summarize the structural fix pattern."
+
+source_refs: ["/testing/go-ethereum/validated-findings/kept/2021-02-23-go-ethereum-transaction-processing-142fbcfd6.md"]
+notes:
+  - "Prepared automatically from a raw finding. Needs enrichment."

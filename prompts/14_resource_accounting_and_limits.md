@@ -33,10 +33,12 @@ Search patterns:
 - timeouts without semaphore caps, concurrency limits, or load shedding
 - accept loops or handlers that spawn per-connection or per-request work before acquiring admission permits
 - backlog growth controls that protect one ingress path but leave alternate RPC or publisher paths effectively unbounded
+- streaming sync, fetch, or announcement loops that continue after only already-known items, empty batches, or zero net progress
 - multi-dimensional limits where one path enforces count but not bytes, bytes but not count, or uses `both limits exceeded` where the policy says `any limit exceeded`
 - cleanup or truncation paths that use a weaker predicate than insertion/admission paths
 - cache-hit paths that return stored execution or precompile result objects containing gas, quota, reservoir, refund, or caller-local accounting state
 - batch-mode decisions that choose clean, incremental, bounded, or unbounded work based only on the next local window instead of the full remaining range
+- shared sender, authority, account, or reservation handles enforced in one pool, queue, or subpool but not in the others that consume the same underlying resource
 
 Questions to answer:
 1. What resource is the protocol trying to meter: gas, fees, bytes, weight, queue slots, proving budget, bridge capacity, committee size, or sender concurrency?
@@ -45,6 +47,7 @@ Questions to answer:
 4. Does simulation use the same accounting path as live execution?
 5. Are errors propagated back to the correct transaction and caller?
 6. Are front-door services bounded before expensive handshake, parsing, or per-client task creation?
+7. Can a peer or caller keep the system busy without making forward progress or consuming the same reservation accounting as successful work?
 
 Severity guidance:
 - Medium by default for DoS, fee bypass, and resource exhaustion.

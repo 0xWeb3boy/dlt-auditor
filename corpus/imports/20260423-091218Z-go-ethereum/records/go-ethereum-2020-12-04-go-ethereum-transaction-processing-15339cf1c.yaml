@@ -1,0 +1,48 @@
+id: "go-ethereum-2020-12-04-go-ethereum-transaction-processing-15339cf1c"
+source_finding: "2020-12-04-go-ethereum-transaction-processing-15339cf1c.md"
+project: "go-ethereum"
+date: "2020-12-04"
+language_tags: ["go"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "signed-vulnerability-advisory-check"
+subsystem: "transaction-processing"
+architecture_tags: ["cli", "advisory-feed", "signature-verification"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "advisory authenticity verification"
+violated_invariant: "Security guidance imported from outside the node should be authenticated by trusted signing keys before it influences local vulnerability warnings or operator decisions."
+trust_boundary: "Remote advisory metadata crossing into local CLI security guidance."
+entrypoint_type: "advisory feed ingestion"
+sensitive_sink: "Presenting trusted vulnerability status to operators based on fetched advisory data."
+
+attacker_capabilities:
+  - "Can tamper with or replace vulnerability feed contents in transit or at the source location."
+  - "Can try to make operators trust false vulnerable or non-vulnerable status data."
+exploit_preconditions:
+  - "The node consumes external advisory data."
+  - "The implementation would otherwise use feed contents before verifying signatures or trusted keys."
+blast_radius: "A compromised advisory path can mislead operator security decisions, but the supplied evidence does not show direct chain-state compromise."
+
+impact_types: ["advisory-integrity", "operator-trust"]
+severity_guess: "low"
+severity_rationale: "This is valuable hardening for trusted security messaging, but the evidence does not prove a prior exploitable bug in the running node beyond the risk of unauthenticated advisory data."
+
+code_shape_summary: "A tool consumes security advisory metadata from an external source and must verify detached signatures and trusted key material before using that metadata to label versions as vulnerable."
+search_motifs:
+  - "security advisory feed fetched over file, http, or other external source and then parsed"
+  - "detached signature verification added before warning or gating behavior"
+  - "version range matching on advisory documents backed by trusted public keys"
+negative_signals:
+  - "A new advisory checker added from scratch does not by itself prove that an exploitable spoofing bug existed before."
+  - "Testdata-only advisory files are supportive evidence but not proof of runtime enforcement without implementation context."
+patch_pattern: "Authenticate external advisory documents with trusted signing keys before parsing version ranges and surfacing vulnerability status to operators."
+
+source_refs: ["/testing/go-ethereum/validated-findings/kept/2020-12-04-go-ethereum-transaction-processing-15339cf1c.md"]
+notes:
+  - "Security-hardening finding for trusted advisory consumption."
+  - "The CorruptedDAG issue is feed content here, not the bug fixed by this commit."

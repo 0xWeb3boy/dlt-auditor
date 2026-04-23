@@ -1,0 +1,87 @@
+{
+  "worker_id": "worker-01",
+  "worker_index": 1,
+  "effective_workers": 6,
+  "bundle_root": "/testing/dlt-ai-audit-system/corpus/imports/20260423-091218Z-go-ethereum",
+  "instruction_prompt": "/testing/dlt-ai-audit-system/03_enrich_corpus_import.md",
+  "assigned_findings": [
+    {
+      "id": "go-ethereum-2015-05-15-go-ethereum-core-logic-5c1a7b965",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "p2p-sync-validation-bypass",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_a_confirmed",
+      "raw_finding_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-091218Z-go-ethereum/raw-findings/2015-05-15-go-ethereum-core-logic-5c1a7b965.md",
+      "record_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-091218Z-go-ethereum/records/go-ethereum-2015-05-15-go-ethereum-core-logic-5c1a7b965.yaml",
+      "root_cause_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-091218Z-go-ethereum/cards/root-cause/go-ethereum-2015-05-15-go-ethereum-core-logic-5c1a7b965.md",
+      "code_shape_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-091218Z-go-ethereum/cards/code-shape/go-ethereum-2015-05-15-go-ethereum-core-logic-5c1a7b965.md",
+      "validation_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-091218Z-go-ethereum/cards/validation/go-ethereum-2015-05-15-go-ethereum-core-logic-5c1a7b965.md",
+      "eval_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-091218Z-go-ethereum/evals/go-ethereum-2015-05-15-go-ethereum-core-logic-5c1a7b965.yaml"
+    },
+    {
+      "id": "go-ethereum-2017-02-13-go-ethereum-storage-e23e86921",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-content-integrity-check",
+      "subsystem": "storage",
+      "confidence_tier": "tier_a_confirmed",
+      "raw_finding_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-091218Z-go-ethereum/raw-findings/2017-02-13-go-ethereum-storage-e23e86921.md",
+      "record_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-091218Z-go-ethereum/records/go-ethereum-2017-02-13-go-ethereum-storage-e23e86921.yaml",
+      "root_cause_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-091218Z-go-ethereum/cards/root-cause/go-ethereum-2017-02-13-go-ethereum-storage-e23e86921.md",
+      "code_shape_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-091218Z-go-ethereum/cards/code-shape/go-ethereum-2017-02-13-go-ethereum-storage-e23e86921.md",
+      "validation_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-091218Z-go-ethereum/cards/validation/go-ethereum-2017-02-13-go-ethereum-storage-e23e86921.md",
+      "eval_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-091218Z-go-ethereum/evals/go-ethereum-2017-02-13-go-ethereum-storage-e23e86921.yaml"
+    },
+    {
+      "id": "go-ethereum-2018-02-12-go-ethereum-p2p-networking-9123eceb0",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "protocol-response-correlation",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_b_likely",
+      "raw_finding_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-091218Z-go-ethereum/raw-findings/2018-02-12-go-ethereum-p2p-networking-9123eceb0.md",
+      "record_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-091218Z-go-ethereum/records/go-ethereum-2018-02-12-go-ethereum-p2p-networking-9123eceb0.yaml",
+      "root_cause_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-091218Z-go-ethereum/cards/root-cause/go-ethereum-2018-02-12-go-ethereum-p2p-networking-9123eceb0.md",
+      "code_shape_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-091218Z-go-ethereum/cards/code-shape/go-ethereum-2018-02-12-go-ethereum-p2p-networking-9123eceb0.md",
+      "validation_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-091218Z-go-ethereum/cards/validation/go-ethereum-2018-02-12-go-ethereum-p2p-networking-9123eceb0.md",
+      "eval_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-091218Z-go-ethereum/evals/go-ethereum-2018-02-12-go-ethereum-p2p-networking-9123eceb0.yaml"
+    },
+    {
+      "id": "go-ethereum-2018-09-20-go-ethereum-storage-d6254f827",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "fork-choice-tie-break-hardening",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "raw_finding_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-091218Z-go-ethereum/raw-findings/2018-09-20-go-ethereum-storage-d6254f827.md",
+      "record_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-091218Z-go-ethereum/records/go-ethereum-2018-09-20-go-ethereum-storage-d6254f827.yaml",
+      "root_cause_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-091218Z-go-ethereum/cards/root-cause/go-ethereum-2018-09-20-go-ethereum-storage-d6254f827.md",
+      "code_shape_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-091218Z-go-ethereum/cards/code-shape/go-ethereum-2018-09-20-go-ethereum-storage-d6254f827.md",
+      "validation_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-091218Z-go-ethereum/cards/validation/go-ethereum-2018-09-20-go-ethereum-storage-d6254f827.md",
+      "eval_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-091218Z-go-ethereum/evals/go-ethereum-2018-09-20-go-ethereum-storage-d6254f827.yaml"
+    },
+    {
+      "id": "go-ethereum-2020-12-04-go-ethereum-transaction-processing-15339cf1c",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "signed-vulnerability-advisory-check",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "raw_finding_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-091218Z-go-ethereum/raw-findings/2020-12-04-go-ethereum-transaction-processing-15339cf1c.md",
+      "record_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-091218Z-go-ethereum/records/go-ethereum-2020-12-04-go-ethereum-transaction-processing-15339cf1c.yaml",
+      "root_cause_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-091218Z-go-ethereum/cards/root-cause/go-ethereum-2020-12-04-go-ethereum-transaction-processing-15339cf1c.md",
+      "code_shape_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-091218Z-go-ethereum/cards/code-shape/go-ethereum-2020-12-04-go-ethereum-transaction-processing-15339cf1c.md",
+      "validation_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-091218Z-go-ethereum/cards/validation/go-ethereum-2020-12-04-go-ethereum-transaction-processing-15339cf1c.md",
+      "eval_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-091218Z-go-ethereum/evals/go-ethereum-2020-12-04-go-ethereum-transaction-processing-15339cf1c.yaml"
+    },
+    {
+      "id": "go-ethereum-2016-10-28-go-ethereum-transaction-processing-b59c8399f",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "signature-domain-separation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "raw_finding_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-091218Z-go-ethereum/raw-findings/2016-10-28-go-ethereum-transaction-processing-b59c8399f.md",
+      "record_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-091218Z-go-ethereum/records/go-ethereum-2016-10-28-go-ethereum-transaction-processing-b59c8399f.yaml",
+      "root_cause_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-091218Z-go-ethereum/cards/root-cause/go-ethereum-2016-10-28-go-ethereum-transaction-processing-b59c8399f.md",
+      "code_shape_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-091218Z-go-ethereum/cards/code-shape/go-ethereum-2016-10-28-go-ethereum-transaction-processing-b59c8399f.md",
+      "validation_card_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-091218Z-go-ethereum/cards/validation/go-ethereum-2016-10-28-go-ethereum-transaction-processing-b59c8399f.md",
+      "eval_path": "/testing/dlt-ai-audit-system/corpus/imports/20260423-091218Z-go-ethereum/evals/go-ethereum-2016-10-28-go-ethereum-transaction-processing-b59c8399f.yaml"
+    }
+  ]
+}

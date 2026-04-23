@@ -43,7 +43,19 @@ Your task:
   - where canonicalization is supposed to happen,
   - where equality or recomputation is supposed to be enforced before the sensitive sink.
 10. Identify the subsystems where a missing authorization, missing signature binding, missing gas or quota charge, stale state cleanup, or unchecked arithmetic bug would be most dangerous.
-11. Map consensus-rule validation surfaces separately from generic input validation:
+11. Map long-lived peer-driven pipelines separately from one-shot handlers:
+  - downloader, header sync, body sync, state sync, snapshot sync,
+  - tx announcements and tx fetch,
+  - discovery ping or pong and bonding,
+  - query fanout or history-retrieval paths.
+  For each, note:
+  - pending-response tokens, nonces, or request identifiers,
+  - lineage or predecessor checks that bind a response to local context,
+  - progress counters or "made progress" signals,
+  - queue, reservation, or fetch-capacity limits,
+  - peer-penalty or bad-peer feedback hooks,
+  - where metadata is validated before expensive work is scheduled.
+12. Map consensus-rule validation surfaces separately from generic input validation:
   - Engine or consensus APIs,
   - block import and sidechain import,
   - forkchoice or head/safe/finalized updates,
@@ -51,7 +63,7 @@ Your task:
   - chain-variant or rollup-specific validators,
   - replay, recovery, migration, and compatibility validators.
   For each surface, note which canonical validator should run and which fork, method-version, timestamp, height, chain variant, or payload-type gates define the accepted fields.
-12. Map authenticated-state derivation surfaces:
+13. Map authenticated-state derivation surfaces:
   - state roots,
   - trie or accumulator proofs,
   - checkpoints,
@@ -60,6 +72,11 @@ Your task:
   - state-provider caches,
   - canonical persistence handoffs.
   For each, identify what binds derived data to the canonical block, root, range, fork, or target.
+14. Map read-only, debug, witness, trace, or simulation paths that reuse normal execution or import helpers.
+  For each, identify:
+  - whether the shared helper can still reach persistent writers, journaling, or canonical-state mutation,
+  - what flag, mode, or option is supposed to disable writes,
+  - whether that write suppression is enforced at the actual sink or only in a wrapper layer.
 
 Output format:
 - System summary

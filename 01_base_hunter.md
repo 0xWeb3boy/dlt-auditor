@@ -30,6 +30,8 @@ Your task:
 12. Compare every special-case, compatibility, replay, migration, benchmark, recovery, sidechain, and fork-specific path against the normal validation path. Ask whether it skips only the exact non-comparable field or accidentally skips core identity, parent, root, accounting, authorization, or policy checks.
 13. Search for feedback loops where untrusted peer, transaction, or proof outcomes should update reputation, penalties, scheduling, listener filtering, cache invalidation, or cleanup state. Check whether success, empty, invalid, timeout, abort, and retry paths update that state symmetrically.
 14. Search for cached execution, proof, or state-provider outputs that include invocation-local state. On cache hits, the code should rebind or reconstruct caller-local accounting, fork identity, verifier context, and authoritative state instead of cloning stale composite objects.
+15. In peer-driven paths, compare identity checks against context checks. Ask whether the code validates only a hash, type, peer, or object ID, or also validates the expected parent, predecessor, request token, chain segment, fork context, or authoritative metadata that makes the response meaningful.
+16. Search read-only, debug, witness, trace, simulation, and inspection flows that reuse normal execution, import, or persistence helpers. Check whether writes are disabled at the actual storage or canonical-state sink, not just by a wrapper flag.
 
 For each candidate include:
 - Title

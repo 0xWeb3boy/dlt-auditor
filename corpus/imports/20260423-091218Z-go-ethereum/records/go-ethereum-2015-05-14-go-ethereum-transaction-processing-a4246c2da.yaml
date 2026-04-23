@@ -1,0 +1,38 @@
+id: "go-ethereum-2015-05-14-go-ethereum-transaction-processing-a4246c2da"
+source_finding: "2015-05-14-go-ethereum-transaction-processing-a4246c2da.md"
+project: "go-ethereum"
+date: "2015-05-14"
+language_tags: []
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "unknown-parent-sync-hardening"
+subsystem: "transaction-processing"
+architecture_tags: []
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "input-validation"
+violated_invariant: "TODO: rewrite from the finding in plain, generic terms."
+trust_boundary: "TODO: identify the trust boundary crossed."
+entrypoint_type: "TODO: classify the entrypoint."
+sensitive_sink: "TODO: name the privileged action or state reached."
+
+attacker_capabilities: []
+exploit_preconditions: []
+blast_radius: ""
+
+impact_types: []
+severity_guess: ""
+severity_rationale: "TODO: justify the expected severity band."
+
+code_shape_summary: "Likely security-hardening in go-ethereum's block downloader for a potential unknown-parent synchronization attack. The patch changes `TakeBlocks` to return an error as well as blocks, keeps the missing-head case as non-error, and updates block processing to abort when `TakeBlocks` reports an error. The evidence supports downloader sync hardening, but not a confirmed vulnerability with demonstrated exploitability or quantified resource impact."
+search_motifs: []
+negative_signals: []
+patch_pattern: "TODO: summarize the structural fix pattern."
+
+source_refs: ["/testing/go-ethereum/validated-findings/kept/2015-05-14-go-ethereum-transaction-processing-a4246c2da.md"]
+notes:
+  - "Prepared automatically from a raw finding. Needs enrichment."

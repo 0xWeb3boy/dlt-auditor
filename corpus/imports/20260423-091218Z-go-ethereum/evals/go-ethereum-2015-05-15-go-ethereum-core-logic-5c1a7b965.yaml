@@ -1,0 +1,19 @@
+id: "go-ethereum-2015-05-15-go-ethereum-core-logic-5c1a7b965"
+source_record: "go-ethereum-2015-05-15-go-ethereum-core-logic-5c1a7b965.yaml"
+project: "go-ethereum"
+
+expected_bug_family: "authz_and_role_gates"
+expected_bug_class: "p2p-sync-validation-bypass"
+expected_missing_property: "chain-lineage validation"
+
+expected_impact_band: "integrity_or_policy_enforcement"
+expected_severity_band: "high_or_medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Do not flag paths where predecessor linkage was already enforced before the sampled response is processed."
+  - "Do not overclaim consensus compromise when the evidence only shows downloader trust or sync-integrity impact."
+notes:
+  - "Positive exemplar for remote sync-response validation tied to local chain context."

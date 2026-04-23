@@ -1,0 +1,18 @@
+id: "go-ethereum-2015-05-15-go-ethereum-core-logic-cd2fb0905"
+source_record: "go-ethereum-2015-05-15-go-ethereum-core-logic-cd2fb0905.yaml"
+project: "go-ethereum"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "p2p-sync-no-progress-dos"
+expected_missing_property: "input-validation"
+
+expected_impact_band: "TODO"
+expected_severity_band: "high_or_medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "TODO: describe what could make a similar case non-security."
+notes:
+  - "Prepared automatically from a raw finding. Needs enrichment."

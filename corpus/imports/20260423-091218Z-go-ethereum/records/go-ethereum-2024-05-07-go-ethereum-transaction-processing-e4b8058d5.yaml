@@ -1,0 +1,38 @@
+id: "go-ethereum-2024-05-07-go-ethereum-transaction-processing-e4b8058d5"
+source_finding: "2024-05-07-go-ethereum-transaction-processing-e4b8058d5.md"
+project: "go-ethereum"
+date: "2024-05-07"
+language_tags: []
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "unbounded-query-parameter"
+subsystem: "transaction-processing"
+architecture_tags: []
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "input-validation"
+violated_invariant: "TODO: rewrite from the finding in plain, generic terms."
+trust_boundary: "TODO: identify the trust boundary crossed."
+entrypoint_type: "TODO: classify the entrypoint."
+sensitive_sink: "TODO: name the privileged action or state reached."
+
+attacker_capabilities: []
+exploit_preconditions: []
+blast_radius: ""
+
+impact_types: []
+severity_guess: ""
+severity_rationale: "TODO: justify the expected severity band."
+
+code_shape_summary: "The patch adds a maximum cardinality check for the rewardPercentiles argument in Oracle.FeeHistory. Requests with more than 100 percentiles now fail early with an errInvalidPercentile-derived error. This is supported as DDoS/resource-control hardening, mainly by the explicit commit message and the added query bound, but the evidence does not prove a concrete exploit, crash, or quantified amplification."
+search_motifs: []
+negative_signals: []
+patch_pattern: "TODO: summarize the structural fix pattern."
+
+source_refs: ["/testing/go-ethereum/validated-findings/kept/2024-05-07-go-ethereum-transaction-processing-e4b8058d5.md"]
+notes:
+  - "Prepared automatically from a raw finding. Needs enrichment."

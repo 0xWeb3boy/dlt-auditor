@@ -113,3 +113,39 @@ These mappings were derived from `/testing/reth/validated-findings/kept` after p
 | 2026-04-01-reth-transaction-processing-c4517d4c3 | gas-accounting-corruption | `14_resource_accounting_and_limits.md` | cache-hit gas accounting isolation | Medium |
 | 2026-04-20-reth-storage-d577814eb | protocol-validation | `19_consensus_fork_and_payload_rule_validation.md` | Engine API method-version validation | Medium |
 | 2026-04-21-reth-storage-d92ad5aa3 | improper-state-binding | `20_authenticated_state_proof_and_persistence_integrity.md` | fork-aware state overlay binding | Medium |
+
+## Go-Ethereum Calibration Addendum
+
+These mappings were derived from `/testing/go-ethereum/validated-findings/kept` after phase 4 validation. They are retained as provenance for prompt-pack refinement and should not be used as runtime instructions.
+
+| Finding | Bug class | Primary prompt | Impact focus | Suggested baseline severity |
+| --- | --- | --- | --- | --- |
+| 2015-03-25-go-ethereum-cryptography-de7af720d | udp-reflection-amplification | `13_input_validation_and_invariant_enforcement.md` | p2p transport abuse, reflection | Medium |
+| 2015-05-14-go-ethereum-transaction-processing-a4246c2da | unknown-parent-sync-hardening | `21_peer_sync_progress_and_response_binding.md` | sync integrity, peer-driven work control | Medium |
+| 2015-05-15-go-ethereum-core-logic-5c1a7b965 | p2p-sync-validation-bypass | `21_peer_sync_progress_and_response_binding.md` | sync integrity | High |
+| 2015-05-15-go-ethereum-core-logic-cd2fb0905 | p2p-sync-no-progress-dos | `21_peer_sync_progress_and_response_binding.md` | peer-driven DoS, progress enforcement | Medium |
+| 2015-05-21-go-ethereum-core-logic-52db6d8be | cross-check-validation-bypass | `21_peer_sync_progress_and_response_binding.md` | sync integrity | High |
+| 2015-07-01-go-ethereum-p2p-networking-d6f2c0a76 | resource-exhaustion | `21_peer_sync_progress_and_response_binding.md` | sync queue exhaustion | Medium |
+| 2015-04-29-go-ethereum-storage-4e0796771 | canonical-chain-reorg-invariant | `20_authenticated_state_proof_and_persistence_integrity.md` | canonical-chain integrity | Medium |
+| 2016-10-28-go-ethereum-transaction-processing-b59c8399f | signature-domain-separation | `11_signature_binding_and_signer_scope.md` | signing-scope integrity | Medium |
+| 2016-11-24-go-ethereum-storage-12d654a6f | consensus-state-revert-bug | `20_authenticated_state_proof_and_persistence_integrity.md` | revert and state-root integrity | High |
+| 2016-11-24-go-ethereum-storage-db567eb01 | consensus-state-revert-mismatch | `20_authenticated_state_proof_and_persistence_integrity.md` | revert and state-root integrity | Medium |
+| 2017-02-13-go-ethereum-storage-e23e86921 | missing-content-integrity-check | `13_input_validation_and_invariant_enforcement.md` | content-address integrity | Medium |
+| 2017-05-12-go-ethereum-transaction-processing-a5f6a1cb7 | consensus-configuration-hardening | `19_consensus_fork_and_payload_rule_validation.md` | fork/config compatibility | Medium |
+| 2017-06-22-go-ethereum-storage-0042f13d4 | resource-exhaustion | `21_peer_sync_progress_and_response_binding.md` | state-sync liveness, peer work bounding | Medium |
+| 2017-08-25-go-ethereum-storage-08f27428b | contract-address-collision | `19_consensus_fork_and_payload_rule_validation.md` | protocol-rule enforcement | Medium |
+| 2018-02-12-go-ethereum-p2p-networking-9123eceb0 | protocol-response-correlation | `21_peer_sync_progress_and_response_binding.md` | response binding, anti-spoofing | Medium |
+| 2018-09-20-go-ethereum-storage-d6254f827 | fork-choice-tie-break-hardening | `19_consensus_fork_and_payload_rule_validation.md` | fork-choice policy integrity | Medium |
+| 2018-09-25-go-ethereum-cryptography-d3441ebb5 | signer-policy-hardening | `10_authz_and_role_gates.md` | signer policy enforcement | Medium |
+| 2020-12-04-go-ethereum-transaction-processing-15339cf1c | signed-vulnerability-advisory-check | `11_signature_binding_and_signer_scope.md` | signed metadata trust | Medium |
+| 2020-12-08-go-ethereum-transaction-processing-ed0670cb1 | replay-protection | `11_signature_binding_and_signer_scope.md` | replay scope integrity | Medium |
+| 2021-02-23-go-ethereum-transaction-processing-142fbcfd6 | missing-replay-protection-enforcement | `11_signature_binding_and_signer_scope.md` | transaction replay protection | Medium |
+| 2021-07-22-go-ethereum-transaction-processing-97aacd9b3 | transaction-balance-validation | `19_consensus_fork_and_payload_rule_validation.md` | state-transition validity | Medium |
+| 2022-06-29-go-ethereum-cryptography-d12b1a91c | consensus-terminal-block-validation-hardening | `19_consensus_fork_and_payload_rule_validation.md` | terminal block validation | Medium |
+| 2022-12-20-go-ethereum-transaction-processing-b818e73ef | consensus-validation-hardening | `19_consensus_fork_and_payload_rule_validation.md` | Merge-boundary validation coverage | Medium |
+| 2023-01-11-go-ethereum-transaction-processing-793f0f9ec | resource-accounting-hardening | `14_resource_accounting_and_limits.md` | protocol gas accounting | Medium |
+| 2024-05-07-go-ethereum-transaction-processing-e4b8058d5 | unbounded-query-parameter | `14_resource_accounting_and_limits.md` | RPC fanout bounding | Medium |
+| 2025-04-08-go-ethereum-transaction-processing-2e739fce5 | mempool-resource-exhaustion | `21_peer_sync_progress_and_response_binding.md` | shared reservation and queue isolation | Medium |
+| 2025-12-11-go-ethereum-transaction-processing-56d201b0f | p2p-metadata-validation | `21_peer_sync_progress_and_response_binding.md` | metadata-driven fetch control | Medium |
+| 2026-03-04-go-ethereum-storage-6d99759f0 | rpc-persistent-state-side-effect | `18_authoritative_state_and_boundary_enforcement.md` | read-only/write-sink separation | Medium |
+| 2026-03-24-go-ethereum-transaction-processing-8327e870e | gas-accounting-ordering | `14_resource_accounting_and_limits.md` | gas accounting integrity | Medium |

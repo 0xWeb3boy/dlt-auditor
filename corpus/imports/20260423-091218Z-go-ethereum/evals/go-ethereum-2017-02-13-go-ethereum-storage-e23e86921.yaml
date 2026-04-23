@@ -1,0 +1,19 @@
+id: "go-ethereum-2017-02-13-go-ethereum-storage-e23e86921"
+source_record: "go-ethereum-2017-02-13-go-ethereum-storage-e23e86921.yaml"
+project: "go-ethereum"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "missing-content-integrity-check"
+expected_missing_property: "content-integrity verification"
+
+expected_impact_band: "integrity_or_policy_enforcement"
+expected_severity_band: "high_or_medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Do not flag systems where the identifier is not content-derived and a payload/key mismatch is expected."
+  - "Do not treat cleanup-only code as the bug if integrity verification already happens on every ingest path."
+notes:
+  - "Positive exemplar for content-address verification at peer-ingest and retrieval boundaries."

@@ -1,0 +1,48 @@
+id: "go-ethereum-2018-02-12-go-ethereum-p2p-networking-9123eceb0"
+source_finding: "2018-02-12-go-ethereum-p2p-networking-9123eceb0.md"
+project: "go-ethereum"
+date: "2018-02-12"
+language_tags: ["go"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "protocol-response-correlation"
+subsystem: "p2p-networking"
+architecture_tags: ["udp", "peer-discovery", "request-response"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "request-response correlation"
+violated_invariant: "A protocol reply should only satisfy a pending request if it proves linkage to the exact request instance that opened the pending slot."
+trust_boundary: "Unauthenticated network datagrams crossing into discovery protocol state."
+entrypoint_type: "UDP discovery reply"
+sensitive_sink: "Marking a discovery ping as satisfied and updating peer liveness or bonding state."
+
+attacker_capabilities:
+  - "Can send spoofed, replayed, or stale pong-like traffic toward the node's discovery port."
+  - "Can attempt to satisfy a pending response slot without holding the original request token."
+exploit_preconditions:
+  - "The implementation accepts replies for a pending peer without checking a request-derived token."
+  - "The attacker can reach the discovery interface."
+blast_radius: "At most the discovery and peer-liveness subsystem is affected in the supplied evidence; broader consensus or asset impact is not shown."
+
+impact_types: ["protocol-integrity", "anti-spoofing"]
+severity_guess: "low"
+severity_rationale: "The pattern is security-sensitive because it hardens request correlation on an external network boundary, but the evidence only supports a likely hardening case without a demonstrated exploit chain."
+
+code_shape_summary: "An asynchronous network reply was accepted for the right peer identity but not for the right request instance, leaving the protocol open to response confusion until a request-derived token check was added."
+search_motifs:
+  - "pending callback returns true for any response of a given type"
+  - "reply handler keyed only by peer or address and not by nonce, token, or request hash"
+  - "encoded request hash or nonce becomes the expected reply token in the fix"
+negative_signals:
+  - "Reliability-only cleanups where a stronger authenticator already binds responses elsewhere in the stack."
+  - "Single-packet protocols with no pending state where reply correlation is not part of the trust decision."
+patch_pattern: "Capture a request-derived token before sending and require replies to echo or derive from that token before pending state is cleared."
+
+source_refs: ["/testing/go-ethereum/validated-findings/kept/2018-02-12-go-ethereum-p2p-networking-9123eceb0.md"]
+notes:
+  - "Retained as security hardening, not a confirmed vulnerability fix."
+  - "Keep claims bounded to discovery reply correlation and spoofing resistance."
