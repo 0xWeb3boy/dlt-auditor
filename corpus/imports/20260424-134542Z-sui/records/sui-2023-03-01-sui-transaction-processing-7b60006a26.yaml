@@ -1,0 +1,65 @@
+id: "sui-2023-03-01-sui-transaction-processing-7b60006a26"
+source_finding: "2023-03-01-sui-transaction-processing-7b60006a26.md"
+project: "sui"
+date: "2023-03-01"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "resource-exhaustion"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "mempool-or-quorum-driver"
+  - "object-centric-ledger"
+  - "resource-control"
+  - "transaction-execution"
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "resource-accounting"
+violated_invariant: "Untrusted work must be bounded, attributed, and charged or throttled before it can consume shared validator resources."
+trust_boundary: "submitted transaction or validator response -> execution/effects pipeline"
+entrypoint_type: "transaction-handler"
+sensitive_sink: "consuming validator CPU, memory, network, or execution budget"
+
+attacker_capabilities:
+  - "Submit crafted transactions or API requests to a validator/fullnode."
+  - "Repeat the input enough times to exercise shared resource limits or attribution paths."
+exploit_preconditions:
+  - "The deployment exposes the affected path and lacks an equivalent compensating check before the patched code."
+  - "The attacker can generate enough repeated or expensive requests to matter operationally."
+blast_radius: "validator-local to chain-wide state depending on quorum propagation"
+
+impact_types:
+  - "denial-of-service"
+  - "resource-exhaustion"
+severity_guess: "low-medium"
+severity_rationale: "The primary risk is availability or resource amplification; severity depends on reachable volume, default exposure, and whether throttling exists elsewhere."
+
+code_shape_summary: "Add ProtocolConfig limits for various attributes of input transactions. (#8557) appears to strengthen state integrity in the transaction-processing path of sui. The strongest evidence spans `crates/sui-types/src/messages.rs` and `crates/sui-types/src/messages.rs`."
+search_motifs:
+  - "resource-accounting enforced after parsing but before transaction-processing state mutation"
+  - "transaction-processing handler accepts externally supplied protocol data"
+  - "unbounded loop/cache/retry path driven by remote input"
+  - "missing per-client or per-digest resource attribution"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+  - "A separate hard cap, authenticated quota, or upstream rate limit makes repeated work impossible."
+patch_pattern: "The fix pattern is to tighten the sensitive transaction-processing control path so the key invariant is enforced before downstream work continues."
+
+source_refs:
+  - "git:7b60006a268e7cec1c45250b3b655af8418299ca"
+  - "crates/sui-types/src/messages.rs:215"
+  - "crates/sui-types/src/messages.rs:258"
+  - "crates/sui-types/src/messages.rs:645"
+  - "crates/sui-types/src/messages.rs:138"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

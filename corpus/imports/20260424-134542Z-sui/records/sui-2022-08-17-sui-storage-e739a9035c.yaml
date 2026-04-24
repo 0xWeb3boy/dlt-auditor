@@ -1,0 +1,64 @@
+id: "sui-2022-08-17-sui-storage-e739a9035c"
+source_finding: "2022-08-17-sui-storage-e739a9035c.md"
+project: "sui"
+date: "2022-08-17"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "unbounded-retry-resource-control"
+subsystem: "storage"
+architecture_tags:
+  - "authenticated-storage"
+  - "checkpointing"
+  - "object-centric-ledger"
+  - "resource-control"
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "resource-accounting"
+violated_invariant: "Untrusted work must be bounded, attributed, and charged or throttled before it can consume shared validator resources."
+trust_boundary: "executed effects or checkpoint data -> authenticated persistent state"
+entrypoint_type: "state-transition-storage-update"
+sensitive_sink: "consuming validator CPU, memory, network, or execution budget"
+
+attacker_capabilities:
+  - "Influence checkpoint, object, or effects data that is later persisted or served."
+  - "Repeat the input enough times to exercise shared resource limits or attribution paths."
+exploit_preconditions:
+  - "The deployment exposes the affected path and lacks an equivalent compensating check before the patched code."
+  - "The attacker can generate enough repeated or expensive requests to matter operationally."
+blast_radius: "validator-local to chain-wide state depending on quorum propagation"
+
+impact_types:
+  - "availability"
+severity_guess: "low-medium"
+severity_rationale: "The primary risk is availability or resource amplification; severity depends on reachable volume, default exposure, and whether throttling exists elsewhere."
+
+code_shape_summary: "The patch allows online retry of interrupted transactions, but moves retry accounting into the WAL begin path and rejects retries above `MAX_TX_RECOVERY_RETRY`. The evidence supports security-relevant resource-control hardening against poison-pill or crash-loop style retries, but not a confirmed exploitable vulnerability."
+search_motifs:
+  - "resource-accounting enforced after parsing but before storage state mutation"
+  - "storage handler accepts externally supplied protocol data"
+  - "unbounded loop/cache/retry path driven by remote input"
+  - "missing per-client or per-digest resource attribution"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+  - "A separate hard cap, authenticated quota, or upstream rate limit makes repeated work impossible."
+patch_pattern: "Centralize retry accounting in the guarded transaction-begin path and enforce a maximum retry limit before transaction execution continues."
+
+source_refs:
+  - "git:e739a9035c0054edc04bae2b9a0a1f36a280b5d5"
+  - "crates/sui-core/src/authority/authority_store.rs:106"
+  - "crates/sui-storage/src/write_ahead_log.rs:245"
+  - "crates/sui-storage/src/write_ahead_log.rs:263"
+  - "crates/sui-core/src/authority/authority_store_tables.rs:17"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

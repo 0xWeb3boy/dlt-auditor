@@ -1,0 +1,61 @@
+id: "sui-2025-06-18-sui-rpc-client-api-633ebf9757"
+source_finding: "2025-06-18-sui-rpc-client-api-633ebf9757.md"
+project: "sui"
+date: "2025-06-18"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "transport-security-hardening"
+subsystem: "rpc-client-api"
+architecture_tags:
+  - "client-boundary"
+  - "object-centric-ledger"
+  - "rpc-api"
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "input-validation"
+violated_invariant: "The input-validation property must be enforced before untrusted protocol data reaches a security-sensitive sink."
+trust_boundary: "remote client/proxy request or response -> node API trust decision"
+entrypoint_type: "rpc-handler"
+sensitive_sink: "committing security-sensitive protocol state"
+
+attacker_capabilities:
+  - "Submit crafted transactions or API requests to a validator/fullnode."
+exploit_preconditions:
+  - "The deployment exposes the affected path and lacks an equivalent compensating check before the patched code."
+  - "The API surface is reachable by clients or by an upstream proxy whose identity is trusted."
+blast_radius: "client-facing node/API boundary"
+
+impact_types:
+  - "plaintext-transport-exposure"
+severity_guess: "low-medium"
+severity_rationale: "The finding is security relevant, but the validated evidence is bounded and should be weighted by reachability and compensating checks."
+
+code_shape_summary: "The supported evidence shows a transport-security hardening change for validator gRPC: the release notes state TLS is now required, and the shown sui-tool validator client path now passes a rustls TLS config directly to `connect_lazy` instead of gating it on `use_tls`."
+search_motifs:
+  - "input-validation enforced after parsing but before rpc-client-api state mutation"
+  - "rpc-client-api handler accepts externally supplied protocol data"
+  - "validation split across helper and sink"
+  - "error path treats malformed data as ordinary state"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+patch_pattern: "Require TLS configuration at validator gRPC connection setup instead of allowing conditional or absent TLS config at the observed call sites."
+
+source_refs:
+  - "git:633ebf9757c43f0b8461e85b8da77c417510f701"
+  - "crates/mysten-network/src/server.rs:246"
+  - "crates/mysten-network/src/server.rs:323"
+  - "crates/mysten-network/src/server.rs:366"
+  - "crates/sui-tool/src/lib.rs:110"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

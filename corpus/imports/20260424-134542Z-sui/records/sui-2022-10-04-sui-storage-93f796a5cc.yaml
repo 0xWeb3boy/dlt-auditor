@@ -1,0 +1,65 @@
+id: "sui-2022-10-04-sui-storage-93f796a5cc"
+source_finding: "2022-10-04-sui-storage-93f796a5cc.md"
+project: "sui"
+date: "2022-10-04"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-resource-control-hardening"
+subsystem: "storage"
+architecture_tags:
+  - "authenticated-storage"
+  - "checkpointing"
+  - "object-centric-ledger"
+  - "resource-control"
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "resource-accounting"
+violated_invariant: "Untrusted work must be bounded, attributed, and charged or throttled before it can consume shared validator resources."
+trust_boundary: "executed effects or checkpoint data -> authenticated persistent state"
+entrypoint_type: "state-transition-storage-update"
+sensitive_sink: "consuming validator CPU, memory, network, or execution budget"
+
+attacker_capabilities:
+  - "Influence checkpoint, object, or effects data that is later persisted or served."
+  - "Repeat the input enough times to exercise shared resource limits or attribution paths."
+exploit_preconditions:
+  - "The deployment exposes the affected path and lacks an equivalent compensating check before the patched code."
+  - "The attacker can generate enough repeated or expensive requests to matter operationally."
+blast_radius: "validator-local to chain-wide state depending on quorum propagation"
+
+impact_types:
+  - "denial-of-service-mitigation"
+severity_guess: "low-medium"
+severity_rationale: "The primary risk is availability or resource amplification; severity depends on reachable volume, default exposure, and whether throttling exists elsewhere."
+
+code_shape_summary: "The patch improves consensus adapter resilience by adding user-transaction backpressure before consensus submission, using a fixed 60 second certificate sequencing timeout, reducing listener queue capacity, adding inflight metrics, and improving capacity diagnostics."
+search_motifs:
+  - "resource-accounting enforced after parsing but before storage state mutation"
+  - "storage handler accepts externally supplied protocol data"
+  - "unbounded loop/cache/retry path driven by remote input"
+  - "missing per-client or per-digest resource attribution"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+  - "A separate hard cap, authenticated quota, or upstream rate limit makes repeated work impossible."
+  - "The value is only advisory and is recomputed from canonical local consensus state before use."
+patch_pattern: "Add bounded resource controls and conservative timeout configuration around consensus-adapter ingress, with diagnostic improvements for capacity pressure."
+
+source_refs:
+  - "git:93f796a5cce03ea1abb62904b28263b297c856c7"
+  - "crates/sui-core/src/authority_server.rs:417"
+  - "crates/sui-core/src/authority_server.rs:291"
+  - "crates/sui-types/src/error.rs:392"
+  - "crates/sui-config/src/builder.rs:259"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

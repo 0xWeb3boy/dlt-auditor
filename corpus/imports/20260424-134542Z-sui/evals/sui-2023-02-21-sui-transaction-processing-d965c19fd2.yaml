@@ -1,0 +1,20 @@
+id: "sui-2023-02-21-sui-transaction-processing-d965c19fd2"
+source_record: "sui-2023-02-21-sui-transaction-processing-d965c19fd2.yaml"
+project: "sui"
+
+expected_bug_family: "checked_arithmetic_and_parameter_bounds"
+expected_bug_class: "integer-overflow"
+expected_missing_property: "arithmetic-bounds"
+
+expected_impact_band: "asset-integrity"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+notes:
+  - "Enriched from the validated finding and intended as a positive eval for this bug family."
+  - "Trust boundary: submitted transaction or validator response -> execution/effects pipeline"

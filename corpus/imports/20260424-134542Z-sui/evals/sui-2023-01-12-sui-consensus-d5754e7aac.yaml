@@ -1,0 +1,22 @@
+id: "sui-2023-01-12-sui-consensus-d5754e7aac"
+source_record: "sui-2023-01-12-sui-consensus-d5754e7aac.yaml"
+project: "sui"
+
+expected_bug_family: "signature_binding_and_signer_scope"
+expected_bug_class: "missing-signature-commitment"
+expected_missing_property: "signature-verification"
+
+expected_impact_band: "checkpoint-auditability_or_historical-integrity"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+  - "The alternative encoding cannot be produced by an untrusted party or is normalized before verification."
+  - "The value is only advisory and is recomputed from canonical local consensus state before use."
+notes:
+  - "Enriched from the validated finding and intended as a positive eval for this bug family."
+  - "Trust boundary: validator-or-peer message -> consensus state machine"

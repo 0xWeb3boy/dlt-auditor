@@ -1,0 +1,69 @@
+id: "sui-2022-11-30-sui-consensus-ba69502635"
+source_finding: "2022-11-30-sui-consensus-ba69502635.md"
+project: "sui"
+date: "2022-11-30"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-liveness-dos"
+subsystem: "consensus"
+architecture_tags:
+  - "committee-based"
+  - "consensus"
+  - "object-centric-ledger"
+  - "resource-control"
+  - "validator-based"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "resource-accounting"
+violated_invariant: "Untrusted work must be bounded, attributed, and charged or throttled before it can consume shared validator resources."
+trust_boundary: "validator-or-peer message -> consensus state machine"
+entrypoint_type: "consensus-message-handler"
+sensitive_sink: "consuming validator CPU, memory, network, or execution budget"
+
+attacker_capabilities:
+  - "Participate as, compromise, or emulate a protocol peer/validator input source."
+  - "Repeat the input enough times to exercise shared resource limits or attribution paths."
+exploit_preconditions:
+  - "The affected path is reachable before the patched validation or accounting guard runs."
+  - "The input is processed during consensus, checkpoint, or epoch handling for the relevant protocol version."
+  - "The attacker can generate enough repeated or expensive requests to matter operationally."
+blast_radius: "validator-set or chain-wide consensus path"
+
+impact_types:
+  - "denial-of-service"
+  - "availability"
+  - "consensus-liveness-failure"
+severity_guess: "medium"
+severity_rationale: "The primary risk is availability or resource amplification; severity depends on reachable volume, default exposure, and whether throttling exists elsewhere."
+
+code_shape_summary: "This is a confirmed availability/liveness security fix in the checkpoint-consensus path. The commit describes a malicious client delivery pattern where a validator can receive and retain a certificate but never submit it because only a randomized subset of validators was responsible for submission."
+search_motifs:
+  - "resource-accounting enforced after parsing but before consensus state mutation"
+  - "consensus handler accepts externally supplied protocol data"
+  - "unbounded loop/cache/retry path driven by remote input"
+  - "missing per-client or per-digest resource attribution"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+  - "A separate hard cap, authenticated quota, or upstream rate limit makes repeated work impossible."
+  - "The value is only advisory and is recomputed from canonical local consensus state before use."
+patch_pattern: "Replace exclusive randomized submitter responsibility with deterministic staggered eventual responsibility: validators may delay submission to reduce duplicate load, but every validator retains an eventual local submission fallback."
+
+source_refs:
+  - "git:ba695026354adc0d206488c991601ff9eedd2afd"
+  - "crates/sui-types/src/base_types.rs:484"
+  - "crates/sui-core/src/consensus_adapter.rs:386"
+  - "crates/sui-core/src/consensus_adapter.rs:265"
+  - "crates/sui-core/src/consensus_adapter.rs:511"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-fix with verdict confirmed; preserve claim boundaries from the raw finding."

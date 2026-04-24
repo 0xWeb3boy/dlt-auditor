@@ -1,0 +1,61 @@
+id: "sui-2023-04-08-sui-storage-e0c1591d99"
+source_finding: "2023-04-08-sui-storage-e0c1591d99.md"
+project: "sui"
+date: "2023-04-08"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "rpc-object-digest-validation"
+subsystem: "storage"
+architecture_tags:
+  - "authenticated-storage"
+  - "checkpointing"
+  - "object-centric-ledger"
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "input-validation"
+violated_invariant: "Malformed or adversarial inputs must be rejected before they reach parsing, execution, or state-commit logic that assumes well-formed data."
+trust_boundary: "executed effects or checkpoint data -> authenticated persistent state"
+entrypoint_type: "state-transition-storage-update"
+sensitive_sink: "persisting or serving authenticated ledger state"
+
+attacker_capabilities:
+  - "Influence checkpoint, object, or effects data that is later persisted or served."
+exploit_preconditions:
+  - "The deployment exposes the affected path and lacks an equivalent compensating check before the patched code."
+blast_radius: "validator-local to chain-wide state depending on quorum propagation"
+
+impact_types:
+  - "rpc-reporting-integrity"
+  - "client-view-divergence"
+severity_guess: "low-medium"
+severity_rationale: "The finding is security relevant, but the validated evidence is bounded and should be weighted by reachability and compensating checks."
+
+code_shape_summary: "The patch hardens Sui JSON-RPC `balanceChanges` construction by carrying object digests into the coin-fetching path and asserting that locally fetched coin objects match those digests before their contents are used. The evidence supports an RPC reporting integrity fix for stale or inconsistent local object reads."
+search_motifs:
+  - "input-validation enforced after parsing but before storage state mutation"
+  - "storage handler accepts externally supplied protocol data"
+  - "validation split across helper and sink"
+  - "error path treats malformed data as ordinary state"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+patch_pattern: "Thread authenticated object identity material through derived RPC reporting code and validate local-store reads against it before using object contents for derived balance reporting."
+
+source_refs:
+  - "git:e0c1591d998cc11ee47fa0d974a6a6907745b00d"
+  - "crates/sui-json-rpc/src/balance_changes.rs:105"
+  - "crates/sui-json-rpc/src/read_api.rs:300"
+  - "crates/sui-json-rpc/src/transaction_execution_api.rs:87"
+  - "crates/sui-json-rpc/src/balance_changes.rs:41"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

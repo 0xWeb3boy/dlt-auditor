@@ -1,0 +1,63 @@
+id: "sui-2023-03-18-sui-transaction-processing-9dc84e6399"
+source_finding: "2023-03-18-sui-transaction-processing-9dc84e6399.md"
+project: "sui"
+date: "2023-03-18"
+language_tags:
+  - "rust"
+
+bug_family: "authz_and_role_gates"
+bug_class: "object-access-authentication-invariant"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "mempool-or-quorum-driver"
+  - "object-centric-ledger"
+  - "transaction-execution"
+  - "validator-based"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "authorization"
+violated_invariant: "A request crossing a trust boundary must prove the required authority before it can influence privileged protocol state."
+trust_boundary: "submitted transaction or validator response -> execution/effects pipeline"
+entrypoint_type: "transaction-handler"
+sensitive_sink: "authorizing object access or privileged state mutation"
+
+attacker_capabilities:
+  - "Submit crafted transactions or API requests to a validator/fullnode."
+  - "Control at least one syntactically valid credential or signed object for the target path."
+exploit_preconditions:
+  - "The affected path is reachable before the patched validation or accounting guard runs."
+blast_radius: "validator-local to chain-wide state depending on quorum propagation"
+
+impact_types:
+  - "unauthorized-object-read"
+severity_guess: "high"
+severity_rationale: "The affected property protects authorization, accounting, or signature trust; likely hardening is kept below high unless exploitability is proven."
+
+code_shape_summary: "The patch adds debug-only invariant checking for authenticated object access after transaction execution and before effects are produced. This is security-relevant hardening, but the provided evidence does not establish a concrete production vulnerability or production enforcement change."
+search_motifs:
+  - "authorization enforced after parsing but before transaction-processing state mutation"
+  - "transaction-processing handler accepts externally supplied protocol data"
+  - "object authority derived from request fields"
+  - "privileged mutation reachable before ownership check"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+  - "A later mandatory ownership or capability check rejects the request before any state change."
+patch_pattern: "Add a post-execution invariant assertion at a security-sensitive boundary, deriving authentication roots from transaction context and validating accessed objects against those roots."
+
+source_refs:
+  - "git:9dc84e6399731873408c8b4793b40f07822527e0"
+  - "crates/sui-adapter/src/execution_engine.rs:114"
+  - "crates/sui-types/src/lib.rs:83"
+  - "crates/sui-types/src/temporary_store.rs:691"
+  - "crates/sui-types/src/lib.rs:109"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict confirmed; preserve claim boundaries from the raw finding."

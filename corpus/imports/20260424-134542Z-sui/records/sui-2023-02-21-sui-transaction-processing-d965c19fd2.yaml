@@ -1,0 +1,60 @@
+id: "sui-2023-02-21-sui-transaction-processing-d965c19fd2"
+source_finding: "2023-02-21-sui-transaction-processing-d965c19fd2.md"
+project: "sui"
+date: "2023-02-21"
+language_tags:
+  - "rust"
+
+bug_family: "checked_arithmetic_and_parameter_bounds"
+bug_class: "integer-overflow"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "mempool-or-quorum-driver"
+  - "object-centric-ledger"
+  - "transaction-execution"
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "arithmetic-bounds"
+violated_invariant: "Protocol arithmetic must reject values outside the valid range before they can wrap, truncate, or distort state."
+trust_boundary: "submitted transaction or validator response -> execution/effects pipeline"
+entrypoint_type: "transaction-handler"
+sensitive_sink: "committing security-sensitive protocol state"
+
+attacker_capabilities:
+  - "Submit crafted transactions or API requests to a validator/fullnode."
+exploit_preconditions:
+  - "The deployment exposes the affected path and lacks an equivalent compensating check before the patched code."
+blast_radius: "validator-local to chain-wide state depending on quorum propagation"
+
+impact_types:
+  - "asset-integrity"
+severity_guess: "medium"
+severity_rationale: "The affected property protects authorization, accounting, or signature trust; likely hardening is kept below high unless exploitability is proven."
+
+code_shape_summary: "The patch fixes unchecked aggregation of pay transaction recipient amounts. Previously, check_total_coins() summed u64 amounts with amounts.iter().sum() before comparing the result to available coin value. The patch uses checked_add and returns TotalAmountOverflow if the aggregate exceeds u64."
+search_motifs:
+  - "arithmetic-bounds enforced after parsing but before transaction-processing state mutation"
+  - "transaction-processing handler accepts externally supplied protocol data"
+  - "unchecked arithmetic on protocol-controlled values"
+  - "conversion or aggregation before range validation"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+patch_pattern: "Replace unchecked monetary aggregation with checked accumulation and reject overflow as a validation error before balance comparison or state mutation."
+
+source_refs:
+  - "git:d965c19fd228b1282278a334bb3e526700ebab3d"
+  - "crates/sui-adapter/src/execution_engine.rs:541"
+  - "crates/sui-adapter/src/execution_engine.rs:850"
+  - "crates/sui-adapter/src/execution_engine.rs:634"
+  - "crates/sui-types/src/messages.rs:2054"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

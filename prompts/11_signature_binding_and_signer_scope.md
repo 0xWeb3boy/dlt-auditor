@@ -43,6 +43,9 @@ Search patterns:
 - signed objects whose payload schema can be confused with a different transaction, manifest, validation, proposal, state object, or descriptor type. Include object type and protocol domain in the signed bytes
 - code that checks signer public key equality but not signer membership in the active authorized role set
 - multisig validation that accepts "a signer" instead of "the required signers"
+- aggregate, batch, certificate, or checkpoint signatures where an empty item list, duplicate signer, stale committee, or missing inner-user signature can still produce a syntactically valid wrapper. Verify that the wrapper proves every required inner authorization, not just committee approval of a container
+- epoch or committee-scoped signatures where the data is signed by the previous, current, or next committee. Check that the verifier names the exact epoch relation required by the protocol and rejects off-by-one or default-epoch authentication
+- signed or certified objects that can be mutated, reconstructed, or compared after verification. Ensure equality, ordering, hashing, and storage keys use the authenticated identity and not an incidental representation
 - startup or constructor paths that can build a consumer without successfully constructing the verifier, signer-scope, or chain-context object that later code assumes exists
 - live paths wired to placeholder, trusting, noop, or development verifiers or signers while tests or helper code use stronger verification
 - protocol pipelines where emission and ingestion use different commitment, sequence, or signing rules, such as a sender producing one representation while the receiver verifies another or verifies nothing at all

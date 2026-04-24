@@ -1,0 +1,63 @@
+id: "sui-2023-03-06-sui-consensus-e4c9e8c80c"
+source_finding: "2023-03-06-sui-consensus-e4c9e8c80c.md"
+project: "sui"
+date: "2023-03-06"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "unverified-consensus-timestamp-source"
+subsystem: "consensus"
+architecture_tags:
+  - "committee-based"
+  - "consensus"
+  - "object-centric-ledger"
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "state-transition-invariant"
+violated_invariant: "Consensus and checkpoint state must advance only from inputs bound to the correct epoch, quorum, ordering, and finalized state."
+trust_boundary: "validator-or-peer message -> consensus state machine"
+entrypoint_type: "consensus-message-handler"
+sensitive_sink: "advancing consensus, checkpoint, epoch, or finalized state"
+
+attacker_capabilities:
+  - "Participate as, compromise, or emulate a protocol peer/validator input source."
+exploit_preconditions:
+  - "The deployment exposes the affected path and lacks an equivalent compensating check before the patched code."
+  - "The input is processed during consensus, checkpoint, or epoch handling for the relevant protocol version."
+blast_radius: "validator-set or chain-wide consensus path"
+
+impact_types:
+  - "integrity-risk"
+  - "consensus-timestamp-integrity"
+severity_guess: "low-medium"
+severity_rationale: "The finding is security relevant, but the validated evidence is bounded and should be weighted by reachability and compensating checks."
+
+code_shape_summary: "The patch likely fixes a security-relevant consensus timestamp-source bug. The consensus handler previously passed `consensus_output.sub_dag.leader.metadata.created_at` into the consensus commit prologue. The commit message states that certificate metadata timestamps are not verified and could lead to security issues."
+search_motifs:
+  - "state-transition-invariant enforced after parsing but before consensus state mutation"
+  - "consensus handler accepts externally supplied protocol data"
+  - "state transition lacks epoch/checkpoint/quorum binding"
+  - "consensus output consumed without local invariant recheck"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+  - "The value is only advisory and is recomputed from canonical local consensus state before use."
+patch_pattern: "Replace use of an unverified metadata timestamp with a timestamp field documented as having consensus-enforced invariants, and pass the selected primitive value explicitly through downstream commit-boundary APIs."
+
+source_refs:
+  - "git:e4c9e8c80cfc426e3a0483e17d041864393087c1"
+  - "crates/sui-core/src/consensus_handler.rs:101"
+  - "crates/sui-core/src/consensus_handler.rs:196"
+  - "crates/sui-core/src/authority/authority_per_epoch_store.rs:1742"
+  - "narwhal/types/src/consensus.rs:61"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

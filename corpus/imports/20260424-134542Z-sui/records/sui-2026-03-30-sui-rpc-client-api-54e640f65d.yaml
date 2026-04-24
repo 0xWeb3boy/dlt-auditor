@@ -1,0 +1,65 @@
+id: "sui-2026-03-30-sui-rpc-client-api-54e640f65d"
+source_finding: "2026-03-30-sui-rpc-client-api-54e640f65d.md"
+project: "sui"
+date: "2026-03-30"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "missing-traffic-control-accounting"
+subsystem: "rpc-client-api"
+architecture_tags:
+  - "client-boundary"
+  - "object-centric-ledger"
+  - "resource-control"
+  - "rpc-api"
+  - "validator-based"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "resource-accounting"
+violated_invariant: "Every state transition that consumes resources or changes balances must update the corresponding accounting state exactly once and within protocol bounds."
+trust_boundary: "remote client/proxy request or response -> node API trust decision"
+entrypoint_type: "rpc-handler"
+sensitive_sink: "consuming validator CPU, memory, network, or execution budget"
+
+attacker_capabilities:
+  - "Submit crafted transactions or API requests to a validator/fullnode."
+  - "Repeat the input enough times to exercise shared resource limits or attribution paths."
+exploit_preconditions:
+  - "The affected path is reachable before the patched validation or accounting guard runs."
+  - "The API surface is reachable by clients or by an upstream proxy whose identity is trusted."
+blast_radius: "node-local or validator-local availability"
+
+impact_types:
+  - "denial-of-service"
+  - "resource-exhaustion"
+severity_guess: "medium"
+severity_rationale: "The primary risk is availability or resource amplification; severity depends on reachable volume, default exposure, and whether throttling exists elsewhere."
+
+code_shape_summary: "The validator submit path previously returned zero traffic-control spam weight even when handling gasless transactions. The patch adds request-level spam-weight tracking, sets it to `Weight::one()` for transactions identified by `is_gasless_transaction()`, and returns the computed weight through the observed submit-response."
+search_motifs:
+  - "resource-accounting enforced after parsing but before rpc-client-api state mutation"
+  - "rpc-client-api handler accepts externally supplied protocol data"
+  - "validation split across helper and sink"
+  - "error path treats malformed data as ordinary state"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+patch_pattern: "Add explicit traffic-control accounting state for the request, update it when a gasless transaction is observed, and propagate the computed value through all relevant return paths instead of returning a constant zero."
+
+source_refs:
+  - "git:54e640f65d70ba7f1fa280c458671b381d687ec7"
+  - "crates/sui-core/src/authority_server.rs:740"
+  - "crates/sui-core/src/authority_server.rs:707"
+  - "crates/sui-core/src/authority_server.rs:924"
+  - "crates/sui-core/src/authority_server.rs:1028"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict confirmed; preserve claim boundaries from the raw finding."

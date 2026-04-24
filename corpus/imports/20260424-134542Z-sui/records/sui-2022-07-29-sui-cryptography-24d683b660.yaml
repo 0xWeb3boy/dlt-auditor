@@ -1,0 +1,61 @@
+id: "sui-2022-07-29-sui-cryptography-24d683b660"
+source_finding: "2022-07-29-sui-cryptography-24d683b660.md"
+project: "sui"
+date: "2022-07-29"
+language_tags:
+  - "rust"
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "signature-malleability"
+subsystem: "cryptography"
+architecture_tags:
+  - "certificate-validation"
+  - "object-centric-ledger"
+  - "signature-verification"
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "signature-canonicalization"
+violated_invariant: "A verifier must accept only the canonical signed representation that was bound to the intended signer, domain, and message semantics."
+trust_boundary: "signed payload or certificate bytes -> trust decision"
+entrypoint_type: "signature-verification-path"
+sensitive_sink: "accepting a signature, certificate, or signed digest as authoritative"
+
+attacker_capabilities:
+  - "Provide crafted signatures, certificates, digests, or signed payload bytes."
+  - "Control at least one syntactically valid credential or signed object for the target path."
+exploit_preconditions:
+  - "The deployment exposes the affected path and lacks an equivalent compensating check before the patched code."
+  - "The verifier receives alternate encodings, missing commitments, or signatures from an untrusted source."
+blast_radius: "affected validator subsystem"
+
+impact_types:
+  - "signature-malleability"
+severity_guess: "medium"
+severity_rationale: "The affected property protects authorization, accounting, or signature trust; likely hardening is kept below high unless exploitability is proven."
+
+code_shape_summary: "The patch fixes secp256k1 recoverable signature malleability in `narwhal/crypto/src/secp256k1.rs`. The old verifier converted the recoverable signature to a standard ECDSA signature with `to_standard()` and verified that value against the public key."
+search_motifs:
+  - "signature-canonicalization enforced after parsing but before cryptography state mutation"
+  - "cryptography handler accepts externally supplied protocol data"
+  - "alternate signed encodings accepted as equivalent"
+  - "missing epoch/domain/payload binding in verifier"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+  - "The alternative encoding cannot be produced by an untrusted party or is normalized before verification."
+patch_pattern: "Verify recoverable signatures by recovering the public key from the exact recoverable signature and message, then comparing that recovered key to the expected public key. Do not reduce the signature to a standard ECDSA form when recovery metadata is part of the accepted signature representation."
+
+source_refs:
+  - "git:24d683b66033127d5a53786ff9d84637ba64f931"
+  - "narwhal/crypto/src/secp256k1.rs:91"
+  - "narwhal/crypto/src/secp256k1.rs:380"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

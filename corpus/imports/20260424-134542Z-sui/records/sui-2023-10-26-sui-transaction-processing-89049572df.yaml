@@ -1,0 +1,64 @@
+id: "sui-2023-10-26-sui-transaction-processing-89049572df"
+source_finding: "2023-10-26-sui-transaction-processing-89049572df.md"
+project: "sui"
+date: "2023-10-26"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "resource-control-hardening"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "mempool-or-quorum-driver"
+  - "object-centric-ledger"
+  - "resource-control"
+  - "transaction-execution"
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "resource-accounting"
+violated_invariant: "Untrusted work must be bounded, attributed, and charged or throttled before it can consume shared validator resources."
+trust_boundary: "submitted transaction or validator response -> execution/effects pipeline"
+entrypoint_type: "transaction-handler"
+sensitive_sink: "consuming validator CPU, memory, network, or execution budget"
+
+attacker_capabilities:
+  - "Submit crafted transactions or API requests to a validator/fullnode."
+  - "Repeat the input enough times to exercise shared resource limits or attribution paths."
+exploit_preconditions:
+  - "The deployment exposes the affected path and lacks an equivalent compensating check before the patched code."
+  - "The attacker can generate enough repeated or expensive requests to matter operationally."
+blast_radius: "validator-local to chain-wide state depending on quorum propagation"
+
+impact_types:
+  - "denial-of-service"
+severity_guess: "low-medium"
+severity_rationale: "The primary risk is availability or resource amplification; severity depends on reachable volume, default exposure, and whether throttling exists elsewhere."
+
+code_shape_summary: "The patch adds cost-aware execution for selected Sui GraphQL RPC PostgreSQL-backed data-provider queries and improves SQL placeholder normalization used for cost estimation."
+search_motifs:
+  - "resource-accounting enforced after parsing but before transaction-processing state mutation"
+  - "transaction-processing handler accepts externally supplied protocol data"
+  - "unbounded loop/cache/retry path driven by remote input"
+  - "missing per-client or per-digest resource attribution"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+  - "A separate hard cap, authenticated quota, or upstream rate limit makes repeated work impossible."
+patch_pattern: "Route selected database-backed GraphQL RPC queries through a centralized cost-aware execution wrapper and make SQL placeholder normalization more context-sensitive for cost estimation."
+
+source_refs:
+  - "git:89049572df50093a23b84186c3eda5658956c16d"
+  - "crates/sui-graphql-rpc/src/context_data/db_data_provider.rs:570"
+  - "crates/sui-graphql-rpc/src/context_data/db_data_provider.rs:509"
+  - "crates/sui-graphql-rpc/src/context_data/db_query_cost.rs:46"
+  - "crates/sui-graphql-rpc/src/context_data/db_data_provider.rs:552"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

@@ -1,0 +1,63 @@
+id: "sui-2022-08-16-sui-cryptography-e65338451c"
+source_finding: "2022-08-16-sui-cryptography-e65338451c.md"
+project: "sui"
+date: "2022-08-16"
+language_tags:
+  - "rust"
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "empty-batch-signature-validation"
+subsystem: "cryptography"
+architecture_tags:
+  - "certificate-validation"
+  - "object-centric-ledger"
+  - "signature-verification"
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "signature-verification"
+violated_invariant: "A signed protocol object must be accepted only after every required signer, epoch, domain, and payload binding has been checked."
+trust_boundary: "signed payload or certificate bytes -> trust decision"
+entrypoint_type: "signature-verification-path"
+sensitive_sink: "accepting a signature, certificate, or signed digest as authoritative"
+
+attacker_capabilities:
+  - "Provide crafted signatures, certificates, digests, or signed payload bytes."
+  - "Control at least one syntactically valid credential or signed object for the target path."
+exploit_preconditions:
+  - "The deployment exposes the affected path and lacks an equivalent compensating check before the patched code."
+  - "The verifier receives alternate encodings, missing commitments, or signatures from an untrusted source."
+blast_radius: "affected validator subsystem"
+
+impact_types:
+  - "signature-verification-bypass"
+severity_guess: "medium"
+severity_rationale: "The affected property protects authorization, accounting, or signature trust; likely hardening is kept below high unless exploitability is proven."
+
+code_shape_summary: "The patch hardens Narwhal's batch signature verification paths by adding explicit rejection of empty signature batches in the generic `VerifyingKey` default and in Ed25519, BLS12-381, and BLS12-377 implementations."
+search_motifs:
+  - "signature-verification enforced after parsing but before cryptography state mutation"
+  - "cryptography handler accepts externally supplied protocol data"
+  - "alternate signed encodings accepted as equivalent"
+  - "missing epoch/domain/payload binding in verifier"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+  - "The alternative encoding cannot be produced by an untrusted party or is normalized before verification."
+patch_pattern: "Add an explicit non-empty-batch precondition at batch signature verification entry points, before curve-specific verification logic, while preserving key/signature count mismatch checks."
+
+source_refs:
+  - "git:e65338451cb82c05987bbe4b581129008b66d360"
+  - "narwhal/crypto/src/traits.rs:99"
+  - "narwhal/crypto/src/ed25519.rs:78"
+  - "narwhal/crypto/src/bls12381.rs:192"
+  - "narwhal/crypto/src/bls12377/mod.rs:267"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

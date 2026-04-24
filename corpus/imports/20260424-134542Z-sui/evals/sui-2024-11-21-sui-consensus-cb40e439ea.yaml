@@ -1,0 +1,21 @@
+id: "sui-2024-11-21-sui-consensus-cb40e439ea"
+source_record: "sui-2024-11-21-sui-consensus-cb40e439ea.yaml"
+project: "sui"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "consensus-limit-accounting"
+expected_missing_property: "resource-accounting"
+
+expected_impact_band: "invalid-block-production_or_consensus-liveness-risk"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+  - "The value is only advisory and is recomputed from canonical local consensus state before use."
+notes:
+  - "Enriched from the validated finding and intended as a positive eval for this bug family."
+  - "Trust boundary: validator-or-peer message -> consensus state machine"

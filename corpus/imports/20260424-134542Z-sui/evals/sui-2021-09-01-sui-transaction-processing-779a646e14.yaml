@@ -1,0 +1,21 @@
+id: "sui-2021-09-01-sui-transaction-processing-779a646e14"
+source_record: "sui-2021-09-01-sui-transaction-processing-779a646e14.yaml"
+project: "sui"
+
+expected_bug_family: "signature_binding_and_signer_scope"
+expected_bug_class: "signature-canonicalization-hardening"
+expected_missing_property: "signature-canonicalization"
+
+expected_impact_band: "cryptographic-integrity"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+  - "The alternative encoding cannot be produced by an untrusted party or is normalized before verification."
+notes:
+  - "Enriched from the validated finding and intended as a positive eval for this bug family."
+  - "Trust boundary: submitted transaction or validator response -> execution/effects pipeline"

@@ -1,0 +1,63 @@
+id: "sui-2024-05-21-sui-storage-d0ebedf217"
+source_finding: "2024-05-21-sui-storage-d0ebedf217.md"
+project: "sui"
+date: "2024-05-21"
+language_tags:
+  - "rust"
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "signature-threshold-api-hardening"
+subsystem: "storage"
+architecture_tags:
+  - "authenticated-storage"
+  - "checkpointing"
+  - "object-centric-ledger"
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "signature-verification"
+violated_invariant: "A signed protocol object must be accepted only after every required signer, epoch, domain, and payload binding has been checked."
+trust_boundary: "executed effects or checkpoint data -> authenticated persistent state"
+entrypoint_type: "state-transition-storage-update"
+sensitive_sink: "accepting a signature, certificate, or signed digest as authoritative"
+
+attacker_capabilities:
+  - "Influence checkpoint, object, or effects data that is later persisted or served."
+  - "Control at least one syntactically valid credential or signed object for the target path."
+exploit_preconditions:
+  - "The deployment exposes the affected path and lacks an equivalent compensating check before the patched code."
+  - "The verifier receives alternate encodings, missing commitments, or signatures from an untrusted source."
+blast_radius: "validator-local to chain-wide state depending on quorum propagation"
+
+impact_types:
+  - "signature-quorum-integrity"
+severity_guess: "medium"
+severity_rationale: "The affected property protects authorization, accounting, or signature trust; likely hardening is kept below high unless exploitability is proven."
+
+code_shape_summary: "The evidence supports a cleanup or hardening of the bridge committee signature API, not a validated vulnerability fix. Callers no longer pass an explicit threshold to `request_committee_signatures`; the aggregator derives `action.approval_threshold()` internally. Existing shown callers already passed `action."
+search_motifs:
+  - "signature-verification enforced after parsing but before storage state mutation"
+  - "storage handler accepts externally supplied protocol data"
+  - "alternate signed encodings accepted as equivalent"
+  - "missing epoch/domain/payload binding in verifier"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+  - "The alternative encoding cannot be produced by an untrusted party or is normalized before verification."
+patch_pattern: "Centralize a security-sensitive derived parameter inside the API that consumes it, instead of requiring each caller to pass the value separately."
+
+source_refs:
+  - "git:d0ebedf2176c3be18f6778475f92ce9e2ee39836"
+  - "crates/sui-bridge/src/sui_client.rs:254"
+  - "crates/sui-bridge-cli/src/main.rs:87"
+  - "crates/sui-bridge/src/action_executor.rs:257"
+  - "crates/sui-bridge/src/sui_client.rs:215"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

@@ -1,0 +1,63 @@
+id: "sui-2023-02-27-sui-cryptography-d009e82fa3"
+source_finding: "2023-02-27-sui-cryptography-d009e82fa3.md"
+project: "sui"
+date: "2023-02-27"
+language_tags:
+  - "rust"
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "missing-signature-domain-separation"
+subsystem: "cryptography"
+architecture_tags:
+  - "certificate-validation"
+  - "object-centric-ledger"
+  - "signature-verification"
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "signature-canonicalization"
+violated_invariant: "A signed protocol object must be accepted only after every required signer, epoch, domain, and payload binding has been checked."
+trust_boundary: "signed payload or certificate bytes -> trust decision"
+entrypoint_type: "signature-verification-path"
+sensitive_sink: "accepting a signature, certificate, or signed digest as authoritative"
+
+attacker_capabilities:
+  - "Provide crafted signatures, certificates, digests, or signed payload bytes."
+  - "Control at least one syntactically valid credential or signed object for the target path."
+exploit_preconditions:
+  - "The deployment exposes the affected path and lacks an equivalent compensating check before the patched code."
+  - "The verifier receives alternate encodings, missing commitments, or signatures from an untrusted source."
+blast_radius: "affected validator subsystem"
+
+impact_types:
+  - "signature-domain-confusion"
+severity_guess: "medium"
+severity_rationale: "The affected property protects authorization, accounting, or signature trust; likely hardening is kept below high unless exploitability is proven."
+
+code_shape_summary: "The patch changes authority signature construction, verification, and batch verification to include an explicit intent scope by signing/verifying serialized `IntentMessage<T>` values."
+search_motifs:
+  - "signature-canonicalization enforced after parsing but before cryptography state mutation"
+  - "cryptography handler accepts externally supplied protocol data"
+  - "alternate signed encodings accepted as equivalent"
+  - "missing epoch/domain/payload binding in verifier"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+  - "The alternative encoding cannot be produced by an untrusted party or is normalized before verification."
+patch_pattern: "Add cryptographic domain separation by signing a structured intent-scoped envelope instead of only the raw protocol payload bytes."
+
+source_refs:
+  - "git:d009e82fa35bda4f2b3e7a86a9529d36c32a8159"
+  - "crates/sui-types/src/crypto.rs:1539"
+  - "crates/sui-types/src/crypto.rs:435"
+  - "crates/sui-types/src/crypto.rs:475"
+  - "crates/sui-types/src/crypto.rs:454"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

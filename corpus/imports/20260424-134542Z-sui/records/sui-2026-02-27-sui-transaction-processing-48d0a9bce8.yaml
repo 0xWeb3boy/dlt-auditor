@@ -1,0 +1,61 @@
+id: "sui-2026-02-27-sui-transaction-processing-48d0a9bce8"
+source_finding: "2026-02-27-sui-transaction-processing-48d0a9bce8.md"
+project: "sui"
+date: "2026-02-27"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "malformed-transaction-panic"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "mempool-or-quorum-driver"
+  - "object-centric-ledger"
+  - "transaction-execution"
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-fix"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "input-validation"
+violated_invariant: "Malformed or adversarial inputs must be rejected before they reach parsing, execution, or state-commit logic that assumes well-formed data."
+trust_boundary: "submitted transaction or validator response -> execution/effects pipeline"
+entrypoint_type: "transaction-handler"
+sensitive_sink: "committing security-sensitive protocol state"
+
+attacker_capabilities:
+  - "Submit crafted transactions or API requests to a validator/fullnode."
+exploit_preconditions:
+  - "The deployment exposes the affected path and lacks an equivalent compensating check before the patched code."
+blast_radius: "validator-local to chain-wide state depending on quorum propagation"
+
+impact_types:
+  - "availability"
+severity_guess: "medium"
+severity_rationale: "The finding is security relevant, but the validated evidence is bounded and should be weighted by reachability and compensating checks."
+
+code_shape_summary: "Consolidate tx checking in signing and simulate (#25624) appears to strengthen state integrity in the transaction-processing path of sui. The strongest evidence spans `crates/sui-core/src/authority.rs` and `crates/sui-core/src/authority.rs`."
+search_motifs:
+  - "input-validation enforced after parsing but before transaction-processing state mutation"
+  - "transaction-processing handler accepts externally supplied protocol data"
+  - "validation split across helper and sink"
+  - "error path treats malformed data as ordinary state"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+patch_pattern: "The fix pattern is to tighten the sensitive transaction-processing control path so the key invariant is enforced before downstream work continues."
+
+source_refs:
+  - "git:48d0a9bce8d79caea13a8e6e899c5c538c32e18b"
+  - "crates/sui-core/src/authority.rs:2423"
+  - "crates/sui-core/src/authority.rs:2458"
+  - "crates/sui-core/src/authority.rs:985"
+  - "crates/sui-core/src/authority.rs:2494"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-fix with verdict likely; preserve claim boundaries from the raw finding."

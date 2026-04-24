@@ -1,0 +1,59 @@
+id: "sui-2024-07-16-sui-core-logic-4ba06ed746"
+source_finding: "2024-07-16-sui-core-logic-4ba06ed746.md"
+project: "sui"
+date: "2024-07-16"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "graphql-query-limit-hardening"
+subsystem: "core-logic"
+architecture_tags:
+  - "object-centric-ledger"
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "resource-accounting"
+violated_invariant: "Untrusted work must be bounded, attributed, and charged or throttled before it can consume shared validator resources."
+trust_boundary: "untrusted protocol input -> privileged core state"
+entrypoint_type: "state-transition"
+sensitive_sink: "consuming validator CPU, memory, network, or execution budget"
+
+attacker_capabilities:
+  - "Repeat the input enough times to exercise shared resource limits or attribution paths."
+exploit_preconditions:
+  - "The deployment exposes the affected path and lacks an equivalent compensating check before the patched code."
+  - "The attacker can generate enough repeated or expensive requests to matter operationally."
+blast_radius: "affected validator subsystem"
+
+impact_types:
+  - "denial-of-service-risk-reduction"
+severity_guess: "low-medium"
+severity_rationale: "The primary risk is availability or resource amplification; severity depends on reachable volume, default exposure, and whether throttling exists elsewhere."
+
+code_shape_summary: "The patch rewrites Sui GraphQL query limit accounting and tightens several limit-checking behaviors. The evidence supports a correctness and hardening change in a resource-limit guard, but it does not establish a concrete vulnerability, exploit path, or externally demonstrated denial of service."
+search_motifs:
+  - "resource-accounting enforced after parsing but before core-logic state mutation"
+  - "core-logic handler accepts externally supplied protocol data"
+  - "unbounded loop/cache/retry path driven by remote input"
+  - "missing per-client or per-digest resource attribution"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+patch_pattern: "Reimplement resource-limit accounting with explicit budgets, refine GraphQL introspection exemption logic, and improve traversal of GraphQL connection and fragment structures."
+
+source_refs:
+  - "git:4ba06ed7463743fa46f6b5879b7cd1f4b76da2dc"
+  - "crates/sui-graphql-rpc/src/extensions/query_limits_checker.rs:409"
+  - "crates/sui-graphql-rpc/src/extensions/query_limits_checker.rs:437"
+  - "crates/sui-graphql-rpc/src/server/builder.rs:949"
+  - "crates/sui-graphql-rpc/src/server/builder.rs:898"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

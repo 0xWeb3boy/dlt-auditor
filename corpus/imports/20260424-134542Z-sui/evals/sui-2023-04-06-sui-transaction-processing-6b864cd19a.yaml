@@ -1,0 +1,21 @@
+id: "sui-2023-04-06-sui-transaction-processing-6b864cd19a"
+source_record: "sui-2023-04-06-sui-transaction-processing-6b864cd19a.yaml"
+project: "sui"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "incomplete-ownership-validation"
+expected_missing_property: "authorization"
+
+expected_impact_band: "state-integrity"
+expected_severity_band: "high_or_medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+  - "A later mandatory ownership or capability check rejects the request before any state change."
+notes:
+  - "Enriched from the validated finding and intended as a positive eval for this bug family."
+  - "Trust boundary: submitted transaction or validator response -> execution/effects pipeline"

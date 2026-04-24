@@ -1,0 +1,61 @@
+id: "sui-2022-06-07-sui-rpc-client-api-8668510f5a"
+source_finding: "2022-06-07-sui-rpc-client-api-8668510f5a.md"
+project: "sui"
+date: "2022-06-07"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "checkpoint-integrity-hardening"
+subsystem: "rpc-client-api"
+architecture_tags:
+  - "client-boundary"
+  - "object-centric-ledger"
+  - "rpc-api"
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "state-transition-invariant"
+violated_invariant: "Consensus and checkpoint state must advance only from inputs bound to the correct epoch, quorum, ordering, and finalized state."
+trust_boundary: "remote client/proxy request or response -> node API trust decision"
+entrypoint_type: "rpc-handler"
+sensitive_sink: "advancing consensus, checkpoint, epoch, or finalized state"
+
+attacker_capabilities:
+  - "Submit crafted transactions or API requests to a validator/fullnode."
+exploit_preconditions:
+  - "The deployment exposes the affected path and lacks an equivalent compensating check before the patched code."
+  - "The API surface is reachable by clients or by an upstream proxy whose identity is trusted."
+blast_radius: "validator-local to chain-wide state depending on quorum propagation"
+
+impact_types:
+  - "state-integrity"
+severity_guess: "low-medium"
+severity_rationale: "The finding is security relevant, but the validated evidence is bounded and should be weighted by reachability and compensating checks."
+
+code_shape_summary: "The patch changes Sui checkpoint handling by adding a previous checkpoint digest to checkpoint summary/proposal construction paths and by comparing fetched checkpoint contents against content_digest instead of the whole checkpoint digest."
+search_motifs:
+  - "state-transition-invariant enforced after parsing but before rpc-client-api state mutation"
+  - "rpc-client-api handler accepts externally supplied protocol data"
+  - "state transition lacks epoch/checkpoint/quorum binding"
+  - "consensus output consumed without local invariant recheck"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+patch_pattern: "Carry the previous checkpoint digest through checkpoint creation/proposal paths and validate fetched detail data against the digest field that commits to that detail data."
+
+source_refs:
+  - "git:8668510f5a5b335c3c2a6219736d42693372d929"
+  - "crates/sui-core/src/checkpoints/mod.rs:139"
+  - "crates/sui-core/src/checkpoints/mod.rs:913"
+  - "crates/sui-core/src/authority_active/checkpoint_driver/mod.rs:554"
+  - "crates/sui-core/src/checkpoints/mod.rs:666"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

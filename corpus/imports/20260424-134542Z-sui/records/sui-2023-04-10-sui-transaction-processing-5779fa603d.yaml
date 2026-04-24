@@ -1,0 +1,60 @@
+id: "sui-2023-04-10-sui-transaction-processing-5779fa603d"
+source_finding: "2023-04-10-sui-transaction-processing-5779fa603d.md"
+project: "sui"
+date: "2023-04-10"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "monetary-accounting-invariant-hardening"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "mempool-or-quorum-driver"
+  - "object-centric-ledger"
+  - "transaction-execution"
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "resource-accounting"
+violated_invariant: "Every state transition that consumes resources or changes balances must update the corresponding accounting state exactly once and within protocol bounds."
+trust_boundary: "submitted transaction or validator response -> execution/effects pipeline"
+entrypoint_type: "transaction-handler"
+sensitive_sink: "committing fees, balances, or resource accounting state"
+
+attacker_capabilities:
+  - "Submit crafted transactions or API requests to a validator/fullnode."
+exploit_preconditions:
+  - "The deployment exposes the affected path and lacks an equivalent compensating check before the patched code."
+blast_radius: "validator-local to chain-wide state depending on quorum propagation"
+
+impact_types:
+  - "asset-integrity"
+severity_guess: "medium"
+severity_rationale: "The affected property protects authorization, accounting, or signature trust; likely hardening is kept below high unless exploitability is proven."
+
+code_shape_summary: "The patch adds configuration plumbing for an expensive deep per-transaction SUI conservation check in Sui transaction execution."
+search_motifs:
+  - "resource-accounting enforced after parsing but before transaction-processing state mutation"
+  - "transaction-processing handler accepts externally supplied protocol data"
+  - "validation split across helper and sink"
+  - "error path treats malformed data as ordinary state"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+patch_pattern: "Add an explicit opt-in expensive invariant guard to node configuration and thread the guard through the transaction execution path, while enabling it automatically in debug builds."
+
+source_refs:
+  - "git:5779fa603d9f0706ab91b947c61575dde9fb2ae0"
+  - "crates/sui-adapter/src/execution_engine.rs:312"
+  - "crates/sui-config/src/node.rs:275"
+  - "crates/sui-core/src/authority.rs:987"
+  - "crates/sui-config/src/node.rs:337"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

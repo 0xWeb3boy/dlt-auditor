@@ -44,6 +44,7 @@ Search patterns:
 - privileged admission paths that check current authorization in one layer, but dequeue, replay, or execution paths consult a cache, mirror, watch channel, or stale local summary instead of the same authoritative source
 - range, root, proof, log, or aggregate APIs that compute for `[start,end]` or another explicit target but validate cache freshness, reorg stability, or canonicality against current head, latest state, or a nearby proxy instead of the target block hash/root/range tuple
 - external consensus, checkpoint, milestone, or validator-set data selected by timestamp, latest state, local cache, or retry fallback where all validators must instead derive the same snapshot identity before local execution consumes it
+- helper APIs that answer "who owns this?" or "is this accessible?" from a cache, object ref, prior effects, or partial store view. Treat those answers as hints unless the sink rebinds them to current canonical state before mutation
 
 Questions to answer:
 1. What source is authoritative for this decision right now?

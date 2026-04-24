@@ -1,0 +1,60 @@
+id: "sui-2022-11-14-sui-cryptography-4935cdb5f8"
+source_finding: "2022-11-14-sui-cryptography-4935cdb5f8.md"
+project: "sui"
+date: "2022-11-14"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "missing-epoch-binding"
+subsystem: "cryptography"
+architecture_tags:
+  - "certificate-validation"
+  - "object-centric-ledger"
+  - "signature-verification"
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "state-transition-invariant"
+violated_invariant: "Consensus and checkpoint state must advance only from inputs bound to the correct epoch, quorum, ordering, and finalized state."
+trust_boundary: "epoch-scoped certificate material -> signature verifier"
+entrypoint_type: "signature-verification-path"
+sensitive_sink: "advancing consensus, checkpoint, epoch, or finalized state"
+
+attacker_capabilities:
+  - "Provide crafted signatures, certificates, digests, or signed payload bytes."
+exploit_preconditions:
+  - "The deployment exposes the affected path and lacks an equivalent compensating check before the patched code."
+blast_radius: "affected validator subsystem"
+
+impact_types:
+  - "cross-epoch-replay-risk"
+severity_guess: "low-medium"
+severity_rationale: "The finding is security relevant, but the validated evidence is bounded and should be weighted by reachability and compensating checks."
+
+code_shape_summary: "The patch changes Sui authority signatures from signing only the message value to signing the value plus EpochId, and updates checkpoint fragment verification to supply the current committee epoch."
+search_motifs:
+  - "state-transition-invariant enforced after parsing but before cryptography state mutation"
+  - "cryptography handler accepts externally supplied protocol data"
+  - "state transition lacks epoch/checkpoint/quorum binding"
+  - "consensus output consumed without local invariant recheck"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+patch_pattern: "Add protocol-domain binding to signed bytes by including the epoch in both signing and verification inputs."
+
+source_refs:
+  - "git:4935cdb5f81df649c70997f8d3f261f0db774708"
+  - "crates/sui-types/src/crypto.rs:1386"
+  - "crates/sui-core/src/authority.rs:2315"
+  - "crates/sui-types/src/crypto.rs:431"
+  - "crates/sui-types/src/crypto.rs:465"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

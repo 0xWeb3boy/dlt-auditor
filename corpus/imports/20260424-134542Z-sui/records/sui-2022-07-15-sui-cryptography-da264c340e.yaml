@@ -1,0 +1,60 @@
+id: "sui-2022-07-15-sui-cryptography-da264c340e"
+source_finding: "2022-07-15-sui-cryptography-da264c340e.md"
+project: "sui"
+date: "2022-07-15"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "checkpoint-response-verification"
+subsystem: "cryptography"
+architecture_tags:
+  - "certificate-validation"
+  - "object-centric-ledger"
+  - "signature-verification"
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "state-transition-invariant"
+violated_invariant: "Consensus and checkpoint state must advance only from inputs bound to the correct epoch, quorum, ordering, and finalized state."
+trust_boundary: "signed payload or certificate bytes -> trust decision"
+entrypoint_type: "signature-verification-path"
+sensitive_sink: "advancing consensus, checkpoint, epoch, or finalized state"
+
+attacker_capabilities:
+  - "Provide crafted signatures, certificates, digests, or signed payload bytes."
+exploit_preconditions:
+  - "The deployment exposes the affected path and lacks an equivalent compensating check before the patched code."
+blast_radius: "affected validator subsystem"
+
+impact_types:
+  - "checkpoint-integrity"
+severity_guess: "low-medium"
+severity_rationale: "The finding is security relevant, but the validated evidence is bounded and should be weighted by reachability and compensating checks."
+
+code_shape_summary: "The patch is best classified as checkpoint response verification hardening. It adds centralized `CheckpointResponse::verify(&Committee)` and calls it before request-specific validation in the safe client, and it adds a guard for missing requested detail on signed or certified past checkpoints."
+search_motifs:
+  - "state-transition-invariant enforced after parsing but before cryptography state mutation"
+  - "cryptography handler accepts externally supplied protocol data"
+  - "state transition lacks epoch/checkpoint/quorum binding"
+  - "consensus output consumed without local invariant recheck"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+patch_pattern: "Centralize response authentication at the remote-response trust boundary, then separately enforce request/response consistency and detail availability rules."
+
+source_refs:
+  - "git:da264c340ed6cd4695c22d04eea92dc3fc46ebe7"
+  - "crates/sui-core/src/safe_client.rs:440"
+  - "crates/sui-core/src/safe_client.rs:418"
+  - "crates/sui-types/src/messages_checkpoint.rs:120"
+  - "crates/sui-types/src/messages_checkpoint.rs:506"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

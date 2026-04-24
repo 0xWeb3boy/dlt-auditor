@@ -1,0 +1,60 @@
+id: "sui-2023-03-03-sui-storage-816b0144bc"
+source_finding: "2023-03-03-sui-storage-816b0144bc.md"
+project: "sui"
+date: "2023-03-03"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "accounting-invariant-hardening"
+subsystem: "storage"
+architecture_tags:
+  - "authenticated-storage"
+  - "checkpointing"
+  - "object-centric-ledger"
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "resource-accounting"
+violated_invariant: "Every state transition that consumes resources or changes balances must update the corresponding accounting state exactly once and within protocol bounds."
+trust_boundary: "executed effects or checkpoint data -> authenticated persistent state"
+entrypoint_type: "state-transition-storage-update"
+sensitive_sink: "committing fees, balances, or resource accounting state"
+
+attacker_capabilities:
+  - "Influence checkpoint, object, or effects data that is later persisted or served."
+exploit_preconditions:
+  - "The deployment exposes the affected path and lacks an equivalent compensating check before the patched code."
+blast_radius: "validator-local to chain-wide state depending on quorum propagation"
+
+impact_types:
+  - "state-integrity"
+severity_guess: "medium"
+severity_rationale: "The affected property protects authorization, accounting, or signature trust; likely hardening is kept below high unless exploitability is proven."
+
+code_shape_summary: "The patch is best characterized as SUI accounting hardening, not a proven vulnerability fix. The grounded evidence shows TemporaryStore::check_sui_conserved was adjusted to compute written-output SUI through TemporaryStore state instead of only the backing store, and supporting GetModule/ObjectStore trait implementations were."
+search_motifs:
+  - "resource-accounting enforced after parsing but before storage state mutation"
+  - "storage handler accepts externally supplied protocol data"
+  - "validation split across helper and sink"
+  - "error path treats malformed data as ordinary state"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+patch_pattern: "Run or enable invariant checking at the point where required gas/accounting state is available, and make the check resolve data through the execution-state abstraction rather than only persistent backing storage."
+
+source_refs:
+  - "git:816b0144bce9ae0bf2da2402d6a65d3dce21074a"
+  - "crates/sui-types/src/temporary_store.rs:1033"
+  - "crates/sui-core/src/authority/authority_store.rs:1422"
+  - "crates/sui-types/src/in_memory_storage.rs:83"
+  - "crates/sui-types/src/temporary_store.rs:906"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

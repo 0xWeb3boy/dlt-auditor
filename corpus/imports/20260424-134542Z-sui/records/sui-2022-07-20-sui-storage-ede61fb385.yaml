@@ -1,0 +1,63 @@
+id: "sui-2022-07-20-sui-storage-ede61fb385"
+source_finding: "2022-07-20-sui-storage-ede61fb385.md"
+project: "sui"
+date: "2022-07-20"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "authenticated-epoch-storage-hardening"
+subsystem: "storage"
+architecture_tags:
+  - "authenticated-storage"
+  - "checkpointing"
+  - "object-centric-ledger"
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "authorization"
+violated_invariant: "A request crossing a trust boundary must prove the required authority before it can influence privileged protocol state."
+trust_boundary: "executed effects or checkpoint data -> authenticated persistent state"
+entrypoint_type: "state-transition-storage-update"
+sensitive_sink: "authorizing object access or privileged state mutation"
+
+attacker_capabilities:
+  - "Influence checkpoint, object, or effects data that is later persisted or served."
+  - "Control at least one syntactically valid credential or signed object for the target path."
+exploit_preconditions:
+  - "The deployment exposes the affected path and lacks an equivalent compensating check before the patched code."
+blast_radius: "validator-set or chain-wide consensus path"
+
+impact_types:
+  - "consensus-integrity"
+  - "state-integrity"
+severity_guess: "medium"
+severity_rationale: "The affected property protects authorization, accounting, or signature trust; likely hardening is kept below high unless exploitability is proven."
+
+code_shape_summary: "The patch appears to add an authenticated/signed epoch storage path and adjust epoch reconfiguration bookkeeping, but the evidence does not establish a vulnerability."
+search_motifs:
+  - "authorization enforced after parsing but before storage state mutation"
+  - "storage handler accepts externally supplied protocol data"
+  - "state transition lacks epoch/checkpoint/quorum binding"
+  - "consensus output consumed without local invariant recheck"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+  - "A later mandatory ownership or capability check rejects the request before any state change."
+patch_pattern: "Replace plain local epoch metadata insertion with a signed/authenticated epoch persistence API, while threading checkpoint context through the transition path."
+
+source_refs:
+  - "git:ede61fb385d933e5e7eb11562efbac7393ffce6f"
+  - "crates/sui-core/src/epoch/reconfiguration.rs:64"
+  - "crates/sui-core/src/epoch/reconfiguration.rs:47"
+  - "crates/sui-core/src/authority.rs:1113"
+  - "crates/sui-core/src/authority/authority_store.rs:1452"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

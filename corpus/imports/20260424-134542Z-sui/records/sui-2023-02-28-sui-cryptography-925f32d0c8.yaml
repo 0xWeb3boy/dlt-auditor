@@ -1,0 +1,60 @@
+id: "sui-2023-02-28-sui-cryptography-925f32d0c8"
+source_finding: "2023-02-28-sui-cryptography-925f32d0c8.md"
+project: "sui"
+date: "2023-02-28"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "validator-metadata-validation"
+subsystem: "cryptography"
+architecture_tags:
+  - "certificate-validation"
+  - "object-centric-ledger"
+  - "signature-verification"
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "input-validation"
+violated_invariant: "Malformed or adversarial inputs must be rejected before they reach parsing, execution, or state-commit logic that assumes well-formed data."
+trust_boundary: "signed payload or certificate bytes -> trust decision"
+entrypoint_type: "signature-verification-path"
+sensitive_sink: "committing security-sensitive protocol state"
+
+attacker_capabilities:
+  - "Provide crafted signatures, certificates, digests, or signed payload bytes."
+exploit_preconditions:
+  - "The deployment exposes the affected path and lacks an equivalent compensating check before the patched code."
+blast_radius: "affected validator subsystem"
+
+impact_types:
+  - "consensus-configuration-integrity"
+severity_guess: "low-medium"
+severity_rationale: "The finding is security relevant, but the validated evidence is bounded and should be weighted by reachability and compensating checks."
+
+code_shape_summary: "The patch adds centralized validator metadata verification before active validator metadata is used to construct Narwhal committee and worker-cache configuration."
+search_motifs:
+  - "input-validation enforced after parsing but before cryptography state mutation"
+  - "cryptography handler accepts externally supplied protocol data"
+  - "validation split across helper and sink"
+  - "error path treats malformed data as ordinary state"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+patch_pattern: "Centralize validator metadata validation and require consensus-facing consumers to use the verified typed representation instead of raw metadata bytes."
+
+source_refs:
+  - "git:925f32d0c8b246810c43390c10a245f6dc6d8e20"
+  - "crates/sui-types/src/sui_system_state.rs:354"
+  - "crates/sui-types/src/sui_system_state.rs:325"
+  - "crates/sui-framework/src/natives/validator.rs:1"
+  - "crates/sui-types/src/sui_system_state.rs:63"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

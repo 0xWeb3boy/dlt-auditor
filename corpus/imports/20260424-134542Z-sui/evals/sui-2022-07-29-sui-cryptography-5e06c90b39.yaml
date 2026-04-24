@@ -1,0 +1,21 @@
+id: "sui-2022-07-29-sui-cryptography-5e06c90b39"
+source_record: "sui-2022-07-29-sui-cryptography-5e06c90b39.yaml"
+project: "sui"
+
+expected_bug_family: "authz_and_role_gates"
+expected_bug_class: "epoch-authentication-invariant"
+expected_missing_property: "authorization"
+
+expected_impact_band: "consensus-integrity_or_state-integrity"
+expected_severity_band: "high_or_medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+  - "A later mandatory ownership or capability check rejects the request before any state change."
+notes:
+  - "Enriched from the validated finding and intended as a positive eval for this bug family."
+  - "Trust boundary: epoch-scoped certificate material -> signature verifier"

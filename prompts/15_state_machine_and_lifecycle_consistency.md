@@ -47,6 +47,9 @@ Search patterns:
 - startup, constructor, and background-maintenance paths that initialize security-sensitive loops from persisted state. Oversized, stale, impossible, or fork-incompatible persisted values should be sanitized or rejected before they drive reorg, milestone, sync, verifier, or peer-churn decisions
 - finalization, replay, and recovery paths where internally generated protocol work must remain grouped with the parent block or operation; dropping, filtering, or failing the generated work should rewind or reject the whole group when that is the consensus rule
 - equivalent transition paths for the same range-based protocol object, such as direct message handling, side-vote handling, post-consensus handling, replay, recovery, bridge submission, and buffer flushing, where one path enforces exact successor continuity or fail-closed storage errors and another path only enforces freshness or overlap prevention
+- locally executed, speculatively executed, or peer-fetched work that is later excluded from the finalized checkpoint, block, batch, or epoch boundary. Finalization must rollback, quarantine, or prove isolation of those effects before durable state can be served or reused
+- in-memory consensus, batching, congestion, or timing state that is reconstructed by replay after restart. If replay reconstructs only a fixed window, check that the committed digest or snapshot covers exactly the state retained across live execution and recovery
+- epoch, checkpoint, or committee transitions where old-epoch messages can arrive while new-epoch state is being initialized. Verify that readiness, signer set, traffic counters, and pending work are fenced by one coherent transition state
 
 Questions to answer:
 1. What are the legal states and transitions?

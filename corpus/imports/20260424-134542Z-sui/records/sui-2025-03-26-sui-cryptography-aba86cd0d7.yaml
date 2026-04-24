@@ -1,0 +1,64 @@
+id: "sui-2025-03-26-sui-cryptography-aba86cd0d7"
+source_finding: "2025-03-26-sui-cryptography-aba86cd0d7.md"
+project: "sui"
+date: "2025-03-26"
+language_tags:
+  - "rust"
+
+bug_family: "authz_and_role_gates"
+bug_class: "missing-consensus-object-ownership-authentication"
+subsystem: "cryptography"
+architecture_tags:
+  - "certificate-validation"
+  - "object-centric-ledger"
+  - "signature-verification"
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "authorization"
+violated_invariant: "Object ownership and access checks must be enforced before a transaction can read, mutate, or consume object state."
+trust_boundary: "signed payload or certificate bytes -> trust decision"
+entrypoint_type: "signature-verification-path"
+sensitive_sink: "authorizing object access or privileged state mutation"
+
+attacker_capabilities:
+  - "Provide crafted signatures, certificates, digests, or signed payload bytes."
+  - "Control at least one syntactically valid credential or signed object for the target path."
+exploit_preconditions:
+  - "The deployment exposes the affected path and lacks an equivalent compensating check before the patched code."
+blast_radius: "affected validator subsystem"
+
+impact_types:
+  - "unauthorized-object-use"
+  - "transaction-input-authorization-bypass"
+severity_guess: "medium"
+severity_rationale: "The affected property protects authorization, accounting, or signature trust; likely hardening is kept below high unless exploitability is proven."
+
+code_shape_summary: "The evidence supports a likely security fix in Sui transaction input validation for ConsensusV2 objects. The commit message says object ownership is now verified at signing time, and the diff adds access to ConsensusV2 authenticator metadata while separating ConsensusV2 handling from ordinary shared-object version checks."
+search_motifs:
+  - "authorization enforced after parsing but before cryptography state mutation"
+  - "cryptography handler accepts externally supplied protocol data"
+  - "state transition lacks epoch/checkpoint/quorum binding"
+  - "consensus output consumed without local invariant recheck"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+  - "The value is only advisory and is recomputed from canonical local consensus state before use."
+  - "A later mandatory ownership or capability check rejects the request before any state change."
+patch_pattern: "Expose owner authenticator metadata and use a ConsensusV2-specific transaction input validation path instead of relying only on shared-object start-version checks."
+
+source_refs:
+  - "git:aba86cd0d7783798b7ba4004470e43330395634d"
+  - "crates/sui-types/src/object.rs:546"
+  - "crates/sui-transaction-checks/src/lib.rs:549"
+  - "crates/sui-types/src/programmable_transaction_builder.rs:233"
+  - "crates/sui-transaction-checks/src/lib.rs:473"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

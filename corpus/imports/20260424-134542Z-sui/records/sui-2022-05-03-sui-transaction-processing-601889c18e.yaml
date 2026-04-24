@@ -1,0 +1,64 @@
+id: "sui-2022-05-03-sui-transaction-processing-601889c18e"
+source_finding: "2022-05-03-sui-transaction-processing-601889c18e.md"
+project: "sui"
+date: "2022-05-03"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "resource-exhaustion"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "mempool-or-quorum-driver"
+  - "object-centric-ledger"
+  - "resource-control"
+  - "transaction-execution"
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "resource-accounting"
+violated_invariant: "Untrusted work must be bounded, attributed, and charged or throttled before it can consume shared validator resources."
+trust_boundary: "submitted transaction or validator response -> execution/effects pipeline"
+entrypoint_type: "transaction-handler"
+sensitive_sink: "consuming validator CPU, memory, network, or execution budget"
+
+attacker_capabilities:
+  - "Submit crafted transactions or API requests to a validator/fullnode."
+  - "Repeat the input enough times to exercise shared resource limits or attribution paths."
+exploit_preconditions:
+  - "The deployment exposes the affected path and lacks an equivalent compensating check before the patched code."
+  - "The attacker can generate enough repeated or expensive requests to matter operationally."
+blast_radius: "validator-local to chain-wide state depending on quorum propagation"
+
+impact_types:
+  - "denial-of-service"
+severity_guess: "low-medium"
+severity_rationale: "The primary risk is availability or resource amplification; severity depends on reachable volume, default exposure, and whether throttling exists elsewhere."
+
+code_shape_summary: "The evidence supports a conservative security-hardening finding for Sui authority follower batch streaming. The strongest grounded change is resource-control hardening: authority-side request bounds were added, and SafeClient now tracks streamed item count with an inline comment identifying the guard as protection against."
+search_motifs:
+  - "resource-accounting enforced after parsing but before transaction-processing state mutation"
+  - "transaction-processing handler accepts externally supplied protocol data"
+  - "unbounded loop/cache/retry path driven by remote input"
+  - "missing per-client or per-digest resource attribution"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+  - "A separate hard cap, authenticated quota, or upstream rate limit makes repeated work impossible."
+patch_pattern: "Add layered resource bounds to a streaming protocol: validate request ranges at the authority side, centralize stream range computation, and add a client-side consumption limit for overlong responses."
+
+source_refs:
+  - "git:601889c18eb6175f77b9ee489d308ceaf33155dc"
+  - "sui_core/src/authority_client.rs:345"
+  - "sui_core/src/safe_client.rs:383"
+  - "sui_core/src/authority_client.rs:389"
+  - "sui_core/src/authority.rs:536"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

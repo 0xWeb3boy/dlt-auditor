@@ -1,0 +1,60 @@
+id: "sui-2026-03-25-sui-core-logic-2265f3d6f8"
+source_finding: "2026-03-25-sui-core-logic-2265f3d6f8.md"
+project: "sui"
+date: "2026-03-25"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "vm-recursion-bound-hardening"
+subsystem: "core-logic"
+architecture_tags:
+  - "object-centric-ledger"
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "resource-accounting"
+violated_invariant: "Untrusted work must be bounded, attributed, and charged or throttled before it can consume shared validator resources."
+trust_boundary: "untrusted protocol input -> privileged core state"
+entrypoint_type: "state-transition"
+sensitive_sink: "consuming validator CPU, memory, network, or execution budget"
+
+attacker_capabilities:
+  - "Supply adversarial protocol input at the affected boundary."
+exploit_preconditions:
+  - "The deployment exposes the affected path and lacks an equivalent compensating check before the patched code."
+  - "The attacker can generate enough repeated or expensive requests to matter operationally."
+blast_radius: "affected validator subsystem"
+
+impact_types:
+  - "availability-hardening"
+  - "resource-exhaustion-risk-reduction"
+severity_guess: "low-medium"
+severity_rationale: "The primary risk is availability or resource amplification; severity depends on reachable volume, default exposure, and whether throttling exists elsewhere."
+
+code_shape_summary: "The patch is best classified as VM hardening, not a confirmed vulnerability fix. The evidence supports that recursive `TypeTag` loading and ability computation were changed to use `TypeSize::for_type_traversal()` and helper implementations, consistent with bounding recursive callsites."
+search_motifs:
+  - "resource-accounting enforced after parsing but before core-logic state mutation"
+  - "core-logic handler accepts externally supplied protocol data"
+  - "validation split across helper and sink"
+  - "error path treats malformed data as ordinary state"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+patch_pattern: "Route recursive VM type-processing through explicit traversal state and reject excessive nesting or size through existing VM limit machinery where applicable."
+
+source_refs:
+  - "git:2265f3d6f881912e018140c35c3ef7b94c746b78"
+  - "external-crates/move/crates/move-vm-runtime/src/execution/dispatch_tables.rs:975"
+  - "external-crates/move/crates/move-vm-runtime/src/execution/dispatch_tables.rs:424"
+  - "external-crates/move/crates/move-vm-runtime/src/execution/dispatch_tables.rs:325"
+  - "external-crates/move/crates/move-vm-runtime/src/execution/dispatch_tables.rs:1201"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

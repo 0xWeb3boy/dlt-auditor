@@ -1,0 +1,63 @@
+id: "sui-2022-08-26-sui-cryptography-3278bff6e3"
+source_finding: "2022-08-26-sui-cryptography-3278bff6e3.md"
+project: "sui"
+date: "2022-08-26"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-error-misclassification"
+subsystem: "cryptography"
+architecture_tags:
+  - "certificate-validation"
+  - "object-centric-ledger"
+  - "signature-verification"
+  - "validator-based"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "state-transition-invariant"
+violated_invariant: "Consensus and checkpoint state must advance only from inputs bound to the correct epoch, quorum, ordering, and finalized state."
+trust_boundary: "signed payload or certificate bytes -> trust decision"
+entrypoint_type: "signature-verification-path"
+sensitive_sink: "advancing consensus, checkpoint, epoch, or finalized state"
+
+attacker_capabilities:
+  - "Provide crafted signatures, certificates, digests, or signed payload bytes."
+exploit_preconditions:
+  - "The affected path is reachable before the patched validation or accounting guard runs."
+blast_radius: "validator-local to chain-wide state depending on quorum propagation"
+
+impact_types:
+  - "consensus-liveness"
+  - "state-integrity"
+severity_guess: "high"
+severity_rationale: "Confirmed integrity or authorization impact on a consensus/state path generally warrants high severity unless a narrow deployment condition reduces reachability."
+
+code_shape_summary: "The patch fixes security-relevant error misclassification in the Narwhal consensus handling path. The prior design used broad SuiError/FragmentInternalError classification to decide whether consensus execution should continue or stop."
+search_motifs:
+  - "state-transition-invariant enforced after parsing but before cryptography state mutation"
+  - "cryptography handler accepts externally supplied protocol data"
+  - "state transition lacks epoch/checkpoint/quorum binding"
+  - "consensus output consumed without local invariant recheck"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+  - "The value is only advisory and is recomputed from canonical local consensus state before use."
+patch_pattern: "Replace broad type-based error classification in consensus handling with explicit domain-specific error variants that encode whether a failure came from untrusted input verification or local node processing."
+
+source_refs:
+  - "git:3278bff6e3418d315272a728e8d03261f80c5ee5"
+  - "crates/sui-core/src/checkpoints/mod.rs:529"
+  - "crates/sui-core/src/authority.rs:1829"
+  - "crates/sui-types/src/error.rs:468"
+  - "crates/sui-core/src/checkpoints/mod.rs:80"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-fix with verdict confirmed; preserve claim boundaries from the raw finding."

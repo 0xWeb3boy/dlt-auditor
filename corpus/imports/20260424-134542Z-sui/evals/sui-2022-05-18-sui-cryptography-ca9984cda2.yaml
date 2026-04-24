@@ -1,0 +1,21 @@
+id: "sui-2022-05-18-sui-cryptography-ca9984cda2"
+source_record: "sui-2022-05-18-sui-cryptography-ca9984cda2.yaml"
+project: "sui"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "consensus-input-validation"
+expected_missing_property: "state-transition-invariant"
+
+expected_impact_band: "consensus-integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+  - "The value is only advisory and is recomputed from canonical local consensus state before use."
+notes:
+  - "Enriched from the validated finding and intended as a positive eval for this bug family."
+  - "Trust boundary: signed payload or certificate bytes -> trust decision"

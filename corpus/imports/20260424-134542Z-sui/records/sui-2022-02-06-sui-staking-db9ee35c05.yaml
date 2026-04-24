@@ -1,0 +1,63 @@
+id: "sui-2022-02-06-sui-staking-db9ee35c05"
+source_finding: "2022-02-06-sui-staking-db9ee35c05.md"
+project: "sui"
+date: "2022-02-06"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "byzantine-authority-robustness"
+subsystem: "staking"
+architecture_tags:
+  - "object-centric-ledger"
+  - "staking"
+  - "validator-based"
+  - "validator-registry"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "authorization"
+violated_invariant: "A request crossing a trust boundary must prove the required authority before it can influence privileged protocol state."
+trust_boundary: "staking transaction or validator metadata -> validator registry"
+entrypoint_type: "staking-registration-or-epoch-transition"
+sensitive_sink: "authorizing object access or privileged state mutation"
+
+attacker_capabilities:
+  - "Submit staking or validator metadata changes at an epoch boundary."
+  - "Control at least one syntactically valid credential or signed object for the target path."
+exploit_preconditions:
+  - "The deployment exposes the affected path and lacks an equivalent compensating check before the patched code."
+blast_radius: "validator-local to chain-wide state depending on quorum propagation"
+
+impact_types:
+  - "availability"
+  - "sync-integrity"
+severity_guess: "medium"
+severity_rationale: "The affected property protects authorization, accounting, or signature trust; likely hardening is kept below high unless exploitability is proven."
+
+code_shape_summary: "The draft's staking and confirmed vulnerability framing is unsupported. The patch is best described as a FastPay client-authority synchronization robustness and API semantics change: it adds generic authority map/reduce logic, changes ObjectInfoResponse semantics, records deleted-object state in parent_sync, and avoids."
+search_motifs:
+  - "authorization enforced after parsing but before staking state mutation"
+  - "staking handler accepts externally supplied protocol data"
+  - "object authority derived from request fields"
+  - "privileged mutation reachable before ownership check"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+  - "A later mandatory ownership or capability check rejects the request before any state change."
+patch_pattern: "Make synchronization semantics explicit and tolerate incomplete or failing per-authority responses instead of assuming every successful response has the same optional fields populated."
+
+source_refs:
+  - "git:db9ee35c05d3a5351151fb56f0d080b2ed3c46e2"
+  - "fastpay_core/src/authority_aggregator.rs:320"
+  - "fastpay_core/src/authority/authority_store.rs:420"
+  - "fastpay_core/src/authority_aggregator.rs:109"
+  - "fastx_types/src/messages.rs:164"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

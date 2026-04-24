@@ -1,0 +1,62 @@
+id: "sui-2026-01-10-sui-consensus-f40b60f3a9"
+source_finding: "2026-01-10-sui-consensus-f40b60f3a9.md"
+project: "sui"
+date: "2026-01-10"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-finalization-hardening"
+subsystem: "consensus"
+architecture_tags:
+  - "committee-based"
+  - "consensus"
+  - "object-centric-ledger"
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "state-transition-invariant"
+violated_invariant: "Consensus and checkpoint state must advance only from inputs bound to the correct epoch, quorum, ordering, and finalized state."
+trust_boundary: "validator-or-peer message -> consensus state machine"
+entrypoint_type: "consensus-message-handler"
+sensitive_sink: "advancing consensus, checkpoint, epoch, or finalized state"
+
+attacker_capabilities:
+  - "Participate as, compromise, or emulate a protocol peer/validator input source."
+exploit_preconditions:
+  - "The deployment exposes the affected path and lacks an equivalent compensating check before the patched code."
+  - "The input is processed during consensus, checkpoint, or epoch handling for the relevant protocol version."
+blast_radius: "validator-set or chain-wide consensus path"
+
+impact_types:
+  - "consensus-integrity"
+severity_guess: "low-medium"
+severity_rationale: "The finding is security relevant, but the validated evidence is bounded and should be weighted by reachability and compensating checks."
+
+code_shape_summary: "The patch changes consensus finalization logic so transactions in blocks below the leader-derived GC bound are not directly finalized based only on commit evidence."
+search_motifs:
+  - "state-transition-invariant enforced after parsing but before consensus state mutation"
+  - "consensus handler accepts externally supplied protocol data"
+  - "state transition lacks epoch/checkpoint/quorum binding"
+  - "consensus output consumed without local invariant recheck"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+  - "The value is only advisory and is recomputed from canonical local consensus state before use."
+patch_pattern: "Make finalization conservative when quorum-vote inference depends on transaction votes that may have been omitted due to garbage collection."
+
+source_refs:
+  - "git:f40b60f3a9d81bd177f1990902d41b71d5e86ffe"
+  - "consensus/core/src/commit_finalizer.rs:265"
+  - "crates/sui-protocol-config/src/lib.rs:4450"
+  - "consensus/core/src/commit_finalizer.rs:688"
+  - "crates/sui-protocol-config/src/lib.rs:936"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

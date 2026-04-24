@@ -1,0 +1,62 @@
+id: "sui-2025-11-26-sui-consensus-3b59b5be60"
+source_finding: "2025-11-26-sui-consensus-3b59b5be60.md"
+project: "sui"
+date: "2025-11-26"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-vote-accounting-hardening"
+subsystem: "consensus"
+architecture_tags:
+  - "committee-based"
+  - "consensus"
+  - "object-centric-ledger"
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "resource-accounting"
+violated_invariant: "Every state transition that consumes resources or changes balances must update the corresponding accounting state exactly once and within protocol bounds."
+trust_boundary: "validator-or-peer message -> consensus state machine"
+entrypoint_type: "consensus-message-handler"
+sensitive_sink: "committing fees, balances, or resource accounting state"
+
+attacker_capabilities:
+  - "Participate as, compromise, or emulate a protocol peer/validator input source."
+exploit_preconditions:
+  - "The deployment exposes the affected path and lacks an equivalent compensating check before the patched code."
+  - "The input is processed during consensus, checkpoint, or epoch handling for the relevant protocol version."
+blast_radius: "validator-set or chain-wide consensus path"
+
+impact_types:
+  - "consensus-integrity"
+severity_guess: "medium"
+severity_rationale: "The affected property protects authorization, accounting, or signature trust; likely hardening is kept below high unless exploitability is proven."
+
+code_shape_summary: "The patch is a consensus vote-accounting fix for Mysticeti fastpath finalization under garbage collection. It adds a guard that skips counting votes from a block when a same-author origin ancestor above the pending block round is missing from the retained block map and may have been GC'ed."
+search_motifs:
+  - "resource-accounting enforced after parsing but before consensus state mutation"
+  - "consensus handler accepts externally supplied protocol data"
+  - "state transition lacks epoch/checkpoint/quorum binding"
+  - "consensus output consumed without local invariant recheck"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+  - "The value is only advisory and is recomputed from canonical local consensus state before use."
+patch_pattern: "Add a conservative GC-aware vote-accounting guard before aggregating accept votes when retained ancestry is incomplete."
+
+source_refs:
+  - "git:3b59b5be6023589d039b815ab0f2f40d50faf70c"
+  - "consensus/core/src/commit_finalizer.rs:609"
+  - "crates/sui-protocol-config/src/lib.rs:4716"
+  - "crates/sui-protocol-config/src/lib.rs:2162"
+  - "consensus/core/src/metrics.rs:912"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

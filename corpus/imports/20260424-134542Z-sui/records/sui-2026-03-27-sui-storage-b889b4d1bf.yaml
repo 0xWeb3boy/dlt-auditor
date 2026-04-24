@@ -1,0 +1,64 @@
+id: "sui-2026-03-27-sui-storage-b889b4d1bf"
+source_finding: "2026-03-27-sui-storage-b889b4d1bf.md"
+project: "sui"
+date: "2026-03-27"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "resource-amplification-control"
+subsystem: "storage"
+architecture_tags:
+  - "authenticated-storage"
+  - "checkpointing"
+  - "object-centric-ledger"
+  - "resource-control"
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "resource-accounting"
+violated_invariant: "Untrusted work must be bounded, attributed, and charged or throttled before it can consume shared validator resources."
+trust_boundary: "executed effects or checkpoint data -> authenticated persistent state"
+entrypoint_type: "state-transition-storage-update"
+sensitive_sink: "consuming validator CPU, memory, network, or execution budget"
+
+attacker_capabilities:
+  - "Influence checkpoint, object, or effects data that is later persisted or served."
+  - "Repeat the input enough times to exercise shared resource limits or attribution paths."
+exploit_preconditions:
+  - "The deployment exposes the affected path and lacks an equivalent compensating check before the patched code."
+  - "The attacker can generate enough repeated or expensive requests to matter operationally."
+blast_radius: "validator-local to chain-wide state depending on quorum propagation"
+
+impact_types:
+  - "resource-exhaustion"
+severity_guess: "low-medium"
+severity_rationale: "The primary risk is availability or resource amplification; severity depends on reachable volume, default exposure, and whether throttling exists elsewhere."
+
+code_shape_summary: "The patch re-enables `defer_unpaid_amplification` for protocol version 120 on non-mainnet chains and restores capped benchmark traffic that exercises amplified submissions."
+search_motifs:
+  - "resource-accounting enforced after parsing but before storage state mutation"
+  - "storage handler accepts externally supplied protocol data"
+  - "unbounded loop/cache/retry path driven by remote input"
+  - "missing per-client or per-digest resource attribution"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+  - "A separate hard cap, authenticated quota, or upstream rate limit makes repeated work impossible."
+patch_pattern: "Enable an existing protocol-gated resource-control feature for selected non-mainnet networks and add bounded benchmark traffic to exercise it."
+
+source_refs:
+  - "git:b889b4d1bf1cdf15b6899eea6ce94ad3ca9985c7"
+  - "crates/sui-protocol-config/src/lib.rs:4770"
+  - "crates/sui-benchmark/src/lib.rs:487"
+  - "crates/sui-benchmark/src/drivers/bench_driver.rs:1135"
+  - "crates/sui-protocol-config/src/lib.rs:306"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

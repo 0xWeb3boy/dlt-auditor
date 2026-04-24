@@ -1,0 +1,60 @@
+id: "sui-2022-07-23-sui-cryptography-87d5950c06"
+source_finding: "2022-07-23-sui-cryptography-87d5950c06.md"
+project: "sui"
+date: "2022-07-23"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "signing-type-registration-hardening"
+subsystem: "cryptography"
+architecture_tags:
+  - "certificate-validation"
+  - "object-centric-ledger"
+  - "signature-verification"
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "input-validation"
+violated_invariant: "The input-validation property must be enforced before untrusted protocol data reaches a security-sensitive sink."
+trust_boundary: "signed payload or certificate bytes -> trust decision"
+entrypoint_type: "signature-verification-path"
+sensitive_sink: "committing security-sensitive protocol state"
+
+attacker_capabilities:
+  - "Provide crafted signatures, certificates, digests, or signed payload bytes."
+exploit_preconditions:
+  - "The deployment exposes the affected path and lacks an equivalent compensating check before the patched code."
+blast_radius: "affected validator subsystem"
+
+impact_types:
+  - "signature-integrity"
+severity_guess: "low-medium"
+severity_rationale: "The finding is security relevant, but the validated evidence is bounded and should be weighted by reachability and compensating checks."
+
+code_shape_summary: "The patch centralizes and seals BcsSignable registration for types that use BCS-based signing helpers. This is security-adjacent hardening of a sensitive signing serialization boundary, but the provided evidence does not establish a concrete vulnerability, exploit path, or prior unsafe behavior beyond distributed trait."
+search_motifs:
+  - "input-validation enforced after parsing but before cryptography state mutation"
+  - "cryptography handler accepts externally supplied protocol data"
+  - "validation split across helper and sink"
+  - "error path treats malformed data as ordinary state"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+patch_pattern: "Replace a broadly implementable public marker trait on a signing helper boundary with a sealed, centralized registration surface."
+
+source_refs:
+  - "git:87d5950c06dfc8cd8931ffe89ebcce4cd8c9060d"
+  - "crates/sui-types/src/crypto.rs:601"
+  - "crates/sui-types/src/crypto.rs:643"
+  - "crates/sui-types/src/messages_checkpoint.rs:385"
+  - "crates/sui-types/src/messages_checkpoint.rs:436"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

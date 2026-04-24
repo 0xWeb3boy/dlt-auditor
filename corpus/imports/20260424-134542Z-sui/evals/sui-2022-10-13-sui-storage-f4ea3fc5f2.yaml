@@ -1,0 +1,20 @@
+id: "sui-2022-10-13-sui-storage-f4ea3fc5f2"
+source_record: "sui-2022-10-13-sui-storage-f4ea3fc5f2.yaml"
+project: "sui"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "epoch-state-confusion"
+expected_missing_property: "state-transition-invariant"
+
+expected_impact_band: "consensus-integrity_or_state-integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+notes:
+  - "Enriched from the validated finding and intended as a positive eval for this bug family."
+  - "Trust boundary: executed effects or checkpoint data -> authenticated persistent state"

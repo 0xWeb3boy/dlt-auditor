@@ -1,0 +1,60 @@
+id: "sui-2023-09-02-sui-cryptography-980b1496e0"
+source_finding: "2023-09-02-sui-cryptography-980b1496e0.md"
+project: "sui"
+date: "2023-09-02"
+language_tags:
+  - "typescript"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "multisig-input-validation"
+subsystem: "cryptography"
+architecture_tags:
+  - "certificate-validation"
+  - "object-centric-ledger"
+  - "signature-verification"
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "signature-verification"
+violated_invariant: "Malformed or adversarial inputs must be rejected before they reach parsing, execution, or state-commit logic that assumes well-formed data."
+trust_boundary: "signed payload or certificate bytes -> trust decision"
+entrypoint_type: "signature-verification-path"
+sensitive_sink: "committing security-sensitive protocol state"
+
+attacker_capabilities:
+  - "Provide crafted signatures, certificates, digests, or signed payload bytes."
+exploit_preconditions:
+  - "The deployment exposes the affected path and lacks an equivalent compensating check before the patched code."
+blast_radius: "affected validator subsystem"
+
+impact_types:
+  - "sdk-cryptographic-integrity-hardening"
+severity_guess: "low-medium"
+severity_rationale: "The finding is security relevant, but the validated evidence is bounded and should be weighted by reachability and compensating checks."
+
+code_shape_summary: "The patch hardens TypeScript SDK multisig handling by adding validation around `MultiSigPublicKey` construction and partial-signature combination."
+search_motifs:
+  - "signature-verification enforced after parsing but before cryptography state mutation"
+  - "cryptography handler accepts externally supplied protocol data"
+  - "validation split across helper and sink"
+  - "error path treats malformed data as ordinary state"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+patch_pattern: "Add explicit validation at SDK construction and signature-combination boundaries for multisig threshold validity, signer uniqueness, reachable aggregate weight, signer count bounds, and partial signature count bounds."
+
+source_refs:
+  - "git:980b1496e01b4e1bf1934ebd378c8bd77f504faf"
+  - "sdk/typescript/src/multisig/publickey.ts:196"
+  - "sdk/typescript/src/multisig/publickey.ts:84"
+  - "sdk/typescript/src/multisig/publickey.ts:109"
+  - "sdk/typescript/src/multisig/publickey.ts:226"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

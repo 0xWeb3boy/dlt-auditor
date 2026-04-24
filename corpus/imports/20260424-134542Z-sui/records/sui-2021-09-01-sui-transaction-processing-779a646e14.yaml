@@ -1,0 +1,63 @@
+id: "sui-2021-09-01-sui-transaction-processing-779a646e14"
+source_finding: "2021-09-01-sui-transaction-processing-779a646e14.md"
+project: "sui"
+date: "2021-09-01"
+language_tags:
+  - "rust"
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "signature-canonicalization-hardening"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "mempool-or-quorum-driver"
+  - "object-centric-ledger"
+  - "transaction-execution"
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "signature-canonicalization"
+violated_invariant: "A verifier must accept only the canonical signed representation that was bound to the intended signer, domain, and message semantics."
+trust_boundary: "submitted transaction or validator response -> execution/effects pipeline"
+entrypoint_type: "transaction-handler"
+sensitive_sink: "accepting a signature, certificate, or signed digest as authoritative"
+
+attacker_capabilities:
+  - "Submit crafted transactions or API requests to a validator/fullnode."
+  - "Control at least one syntactically valid credential or signed object for the target path."
+exploit_preconditions:
+  - "The deployment exposes the affected path and lacks an equivalent compensating check before the patched code."
+  - "The verifier receives alternate encodings, missing commitments, or signatures from an untrusted source."
+blast_radius: "validator-local to chain-wide state depending on quorum propagation"
+
+impact_types:
+  - "cryptographic-integrity"
+severity_guess: "medium"
+severity_rationale: "The affected property protects authorization, accounting, or signature trust; likely hardening is kept below high unless exploitability is proven."
+
+code_shape_summary: "Commit 779a646e14 changes FastPay signature material from a hand-written Digestible/Sha512 path for Transfer to a Signable/BcsSignable path described as serde plus BCS canonical bytes. It also updates observed signature creation paths to sign value.transfer or certificate.value.transfer."
+search_motifs:
+  - "signature-canonicalization enforced after parsing but before transaction-processing state mutation"
+  - "transaction-processing handler accepts externally supplied protocol data"
+  - "alternate signed encodings accepted as equivalent"
+  - "missing epoch/domain/payload binding in verifier"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+  - "The alternative encoding cannot be produced by an untrusted party or is normalized before verification."
+patch_pattern: "Replace ad hoc signature digest construction with a canonical serialization-backed signing interface and align signature creation call sites on the intended Transfer payload."
+
+source_refs:
+  - "git:779a646e14f451b5f1d2790413501ad702a52e30"
+  - "fastpay_core/src/base_types.rs:269"
+  - "fastpay_core/src/messages.rs:162"
+  - "fastpay_core/src/messages.rs:291"
+  - "fastpay/src/client.rs:146"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

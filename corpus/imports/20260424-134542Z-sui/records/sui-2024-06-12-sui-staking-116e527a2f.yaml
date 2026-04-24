@@ -1,0 +1,61 @@
+id: "sui-2024-06-12-sui-staking-116e527a2f"
+source_finding: "2024-06-12-sui-staking-116e527a2f.md"
+project: "sui"
+date: "2024-06-12"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "proxy-client-attribution-hardening"
+subsystem: "staking"
+architecture_tags:
+  - "object-centric-ledger"
+  - "staking"
+  - "validator-based"
+  - "validator-registry"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "input-validation"
+violated_invariant: "The input-validation property must be enforced before untrusted protocol data reaches a security-sensitive sink."
+trust_boundary: "staking transaction or validator metadata -> validator registry"
+entrypoint_type: "staking-registration-or-epoch-transition"
+sensitive_sink: "committing security-sensitive protocol state"
+
+attacker_capabilities:
+  - "Submit staking or validator metadata changes at an epoch boundary."
+exploit_preconditions:
+  - "The deployment exposes the affected path and lacks an equivalent compensating check before the patched code."
+blast_radius: "validator-local to chain-wide state depending on quorum propagation"
+
+impact_types:
+  - "availability"
+  - "dos-mitigation"
+severity_guess: "low-medium"
+severity_rationale: "The finding is security relevant, but the validated evidence is bounded and should be weighted by reachability and compensating checks."
+
+code_shape_summary: "The patch is best described as proxy-aware traffic-control cleanup and hardening, not a confirmed vulnerability fix. The evidence supports that Sui traffic control previously had ambiguous client attribution around socket addresses, connection IP fields, and X-Forwarded-For handling in proxy deployments."
+search_motifs:
+  - "input-validation enforced after parsing but before staking state mutation"
+  - "staking handler accepts externally supplied protocol data"
+  - "validation split across helper and sink"
+  - "error path treats malformed data as ordinary state"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+patch_pattern: "Make the traffic-control client identity source explicit, pass an optional normalized client identity into checks, avoid acting on unsupported JSON-RPC forwarded-header data, and update policy accounting to use the normalized direct client field when available."
+
+source_refs:
+  - "git:116e527a2ff41849dff4a4937d2a57546da4e263"
+  - "crates/sui-json-rpc/src/axum_router.rs:145"
+  - "crates/sui-core/src/traffic_controller/policies.rs:345"
+  - "crates/sui-core/src/authority_server.rs:265"
+  - "crates/sui-json-rpc/src/axum_router.rs:186"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

@@ -1,0 +1,63 @@
+id: "sui-2022-06-30-sui-consensus-992af87ebf"
+source_finding: "2022-06-30-sui-consensus-992af87ebf.md"
+project: "sui"
+date: "2022-06-30"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "byzantine-availability-hardening"
+subsystem: "consensus"
+architecture_tags:
+  - "committee-based"
+  - "consensus"
+  - "object-centric-ledger"
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "input-validation"
+violated_invariant: "The input-validation property must be enforced before untrusted protocol data reaches a security-sensitive sink."
+trust_boundary: "validator-or-peer message -> consensus state machine"
+entrypoint_type: "consensus-message-handler"
+sensitive_sink: "committing security-sensitive protocol state"
+
+attacker_capabilities:
+  - "Participate as, compromise, or emulate a protocol peer/validator input source."
+exploit_preconditions:
+  - "The deployment exposes the affected path and lacks an equivalent compensating check before the patched code."
+  - "The input is processed during consensus, checkpoint, or epoch handling for the relevant protocol version."
+blast_radius: "validator-set or chain-wide consensus path"
+
+impact_types:
+  - "availability-degradation"
+  - "liveness-degradation"
+severity_guess: "low-medium"
+severity_rationale: "The finding is security relevant, but the validated evidence is bounded and should be weighted by reachability and compensating checks."
+
+code_shape_summary: "The patch is best characterized as Byzantine-availability hardening for Sui gossip node sync. It changes transaction/effects download from a direct request to the gossip peer into an AuthorityAggregator-mediated request that can accept one successful authenticated response with timeout handling."
+search_motifs:
+  - "input-validation enforced after parsing but before consensus state mutation"
+  - "consensus handler accepts externally supplied protocol data"
+  - "validation split across helper and sink"
+  - "error path treats malformed data as ordinary state"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+  - "The value is only advisory and is recomputed from canonical local consensus state before use."
+patch_pattern: "Replace a single-authority request for authenticated data with an aggregator-mediated multi-authority query that accepts one valid successful response and applies timeout handling."
+
+source_refs:
+  - "git:992af87ebf2f0826c6aa33fe05a7791afa092096"
+  - "crates/sui-core/src/authority_aggregator.rs:525"
+  - "crates/sui-core/src/authority_aggregator.rs:1458"
+  - "crates/sui-core/src/authority_active/gossip/node_sync.rs:364"
+  - "crates/sui-types/src/error.rs:368"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

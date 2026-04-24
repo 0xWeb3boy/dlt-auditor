@@ -50,6 +50,9 @@ Search patterns:
 - background verification, sync-maintenance, pruning, and repair loops that derive their work window from current head minus a checkpoint, milestone, or finalized boundary. Check that the trusted boundary is fresh, the window is capped before materializing work, and missing boundary data disables or defers the loop instead of scanning an unbounded range
 - transaction types that auto-create trust lines, holdings, directories, tickets, delegate objects, shares, receipts, or other state entries as a side effect. Check that reserve, owner-count, spam-cost, and quota accounting is enforced before the auto-created object reaches durable state
 - failed protocol handshakes, upgrades, peer sessions, or admission attempts where resource or session accounting is allocated before verification. Rejection paths must release or charge the same resource state as successful handoff paths
+- traffic-control, rate-limit, spam-weight, or peer-penalty systems where only successful submissions are attributed. Invalid, duplicate, rejected, timeout, already-known, and consensus-output paths should update resource or accounting state symmetrically when they consume comparable work
+- transaction or message resubmission caches where the key is a digest, object ID, sender, peer, or client address. Check that all ingress paths propagate the same attribution key and that paths without attribution cannot bypass the limiter
+- consensus proposal builders and consensus verifiers that enforce related limits independently. Count, byte, per-item, aggregate-byte, recursion-depth, and per-author limits must match between production and validation, with any-limit-exceeded rejection rather than partial enforcement
 
 Questions to answer:
 1. What resource is the protocol trying to meter: gas, fees, bytes, weight, queue slots, proving budget, bridge capacity, committee size, or sender concurrency?

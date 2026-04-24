@@ -1,0 +1,66 @@
+id: "sui-2023-01-12-sui-consensus-d5754e7aac"
+source_finding: "2023-01-12-sui-consensus-d5754e7aac.md"
+project: "sui"
+date: "2023-01-12"
+language_tags:
+  - "rust"
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "missing-signature-commitment"
+subsystem: "consensus"
+architecture_tags:
+  - "committee-based"
+  - "consensus"
+  - "object-centric-ledger"
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "signature-verification"
+violated_invariant: "A signed protocol object must be accepted only after every required signer, epoch, domain, and payload binding has been checked."
+trust_boundary: "validator-or-peer message -> consensus state machine"
+entrypoint_type: "consensus-message-handler"
+sensitive_sink: "accepting a signature, certificate, or signed digest as authoritative"
+
+attacker_capabilities:
+  - "Participate as, compromise, or emulate a protocol peer/validator input source."
+  - "Control at least one syntactically valid credential or signed object for the target path."
+exploit_preconditions:
+  - "The deployment exposes the affected path and lacks an equivalent compensating check before the patched code."
+  - "The input is processed during consensus, checkpoint, or epoch handling for the relevant protocol version."
+  - "The verifier receives alternate encodings, missing commitments, or signatures from an untrusted source."
+blast_radius: "validator-set or chain-wide consensus path"
+
+impact_types:
+  - "checkpoint-auditability"
+  - "historical-integrity"
+severity_guess: "medium"
+severity_rationale: "The affected property protects authorization, accounting, or signature trust; likely hardening is kept below high unless exploitability is proven."
+
+code_shape_summary: "The patch is best treated as checkpoint integrity hardening. It adds user signatures to checkpoint contents because the commit message states checkpoint history otherwise had no record of submitted user signatures after transaction signatures were removed from the TransactionDigest commitment."
+search_motifs:
+  - "signature-verification enforced after parsing but before consensus state mutation"
+  - "consensus handler accepts externally supplied protocol data"
+  - "alternate signed encodings accepted as equivalent"
+  - "missing epoch/domain/payload binding in verifier"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+  - "The alternative encoding cannot be produced by an untrusted party or is normalized before verification."
+  - "The value is only advisory and is recomputed from canonical local consensus state before use."
+patch_pattern: "Persist the missing cryptographic authorization material in the checkpoint data model and populate it from consensus-processed certificate state."
+
+source_refs:
+  - "git:d5754e7aac4a5d3d2e96e87a43a7379a219c3fda"
+  - "crates/sui-core/src/checkpoints/mod.rs:1174"
+  - "crates/sui-core/src/authority/authority_per_epoch_store.rs:941"
+  - "crates/sui-core/src/authority/authority_per_epoch_store.rs:718"
+  - "crates/sui-types/src/messages_checkpoint.rs:413"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

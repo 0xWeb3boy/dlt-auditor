@@ -1,0 +1,20 @@
+id: "sui-2022-05-04-sui-storage-b2d12b3963"
+source_record: "sui-2022-05-04-sui-storage-b2d12b3963.yaml"
+project: "sui"
+
+expected_bug_family: "resource_accounting_and_limits"
+expected_bug_class: "gas-metering-inconsistency"
+expected_missing_property: "resource-accounting"
+
+expected_impact_band: "resource-accounting_or_economic-integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+notes:
+  - "Enriched from the validated finding and intended as a positive eval for this bug family."
+  - "Trust boundary: executed effects or checkpoint data -> authenticated persistent state"

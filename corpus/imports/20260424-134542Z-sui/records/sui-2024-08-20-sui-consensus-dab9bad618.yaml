@@ -1,0 +1,67 @@
+id: "sui-2024-08-20-sui-consensus-dab9bad618"
+source_finding: "2024-08-20-sui-consensus-dab9bad618.md"
+project: "sui"
+date: "2024-08-20"
+language_tags:
+  - "rust"
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "consensus-resource-limit-hardening"
+subsystem: "consensus"
+architecture_tags:
+  - "committee-based"
+  - "consensus"
+  - "object-centric-ledger"
+  - "resource-control"
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "resource-accounting"
+violated_invariant: "Untrusted work must be bounded, attributed, and charged or throttled before it can consume shared validator resources."
+trust_boundary: "validator-or-peer message -> consensus state machine"
+entrypoint_type: "consensus-message-handler"
+sensitive_sink: "consuming validator CPU, memory, network, or execution budget"
+
+attacker_capabilities:
+  - "Participate as, compromise, or emulate a protocol peer/validator input source."
+  - "Repeat the input enough times to exercise shared resource limits or attribution paths."
+exploit_preconditions:
+  - "The deployment exposes the affected path and lacks an equivalent compensating check before the patched code."
+  - "The input is processed during consensus, checkpoint, or epoch handling for the relevant protocol version."
+  - "The attacker can generate enough repeated or expensive requests to matter operationally."
+blast_radius: "validator-set or chain-wide consensus path"
+
+impact_types:
+  - "resource-exhaustion"
+  - "denial-of-service"
+severity_guess: "low-medium"
+severity_rationale: "The primary risk is availability or resource amplification; severity depends on reachable volume, default exposure, and whether throttling exists elsewhere."
+
+code_shape_summary: "The patch is security-relevant consensus resource-control work, but the provided evidence does not establish a concrete vulnerability or exploit path."
+search_motifs:
+  - "resource-accounting enforced after parsing but before consensus state mutation"
+  - "consensus handler accepts externally supplied protocol data"
+  - "unbounded loop/cache/retry path driven by remote input"
+  - "missing per-client or per-digest resource attribution"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+  - "A separate hard cap, authenticated quota, or upstream rate limit makes repeated work impossible."
+  - "The value is only advisory and is recomputed from canonical local consensus state before use."
+patch_pattern: "Enforce protocol-configured resource limits at the signed block verification boundary and return explicit verifier errors for limit violations."
+
+source_refs:
+  - "git:dab9bad6187e0ba342aa6fca4586e6f276583db9"
+  - "consensus/core/src/block_verifier.rs:143"
+  - "consensus/core/src/block_verifier.rs:481"
+  - "crates/sui-protocol-config/src/lib.rs:2666"
+  - "consensus/core/src/error.rs:25"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

@@ -1,0 +1,66 @@
+id: "sui-2023-01-05-sui-consensus-3e5e0566fd"
+source_finding: "2023-01-05-sui-consensus-3e5e0566fd.md"
+project: "sui"
+date: "2023-01-05"
+language_tags:
+  - "rust"
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "missing-user-signature-verification"
+subsystem: "consensus"
+architecture_tags:
+  - "committee-based"
+  - "consensus"
+  - "object-centric-ledger"
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-fix"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "signature-verification"
+violated_invariant: "A signed protocol object must be accepted only after every required signer, epoch, domain, and payload binding has been checked."
+trust_boundary: "validator-or-peer message -> consensus state machine"
+entrypoint_type: "consensus-message-handler"
+sensitive_sink: "accepting a signature, certificate, or signed digest as authoritative"
+
+attacker_capabilities:
+  - "Participate as, compromise, or emulate a protocol peer/validator input source."
+  - "Control at least one syntactically valid credential or signed object for the target path."
+exploit_preconditions:
+  - "The deployment exposes the affected path and lacks an equivalent compensating check before the patched code."
+  - "The input is processed during consensus, checkpoint, or epoch handling for the relevant protocol version."
+  - "The verifier receives alternate encodings, missing commitments, or signatures from an untrusted source."
+blast_radius: "validator-set or chain-wide consensus path"
+
+impact_types:
+  - "invalid-certificate-acceptance"
+severity_guess: "medium"
+severity_rationale: "The affected property protects authorization, accounting, or signature trust; likely hardening is kept below high unless exploitability is proven."
+
+code_shape_summary: "The patch is likely a security fix for Sui consensus certificate validation. The commit message explicitly says an unresolved deferred guard after unpinning user signatures allowed validators to submit certificates with incorrect user signatures. The supplied code evidence shows new regression support that corrupts `cert."
+search_motifs:
+  - "signature-verification enforced after parsing but before consensus state mutation"
+  - "consensus handler accepts externally supplied protocol data"
+  - "alternate signed encodings accepted as equivalent"
+  - "missing epoch/domain/payload binding in verifier"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+  - "The alternative encoding cannot be produced by an untrusted party or is normalized before verification."
+  - "The value is only advisory and is recomputed from canonical local consensus state before use."
+patch_pattern: "Verify embedded user transaction signatures during consensus certificate-message validation, and add regression coverage that submits otherwise well-formed certificates with deliberately corrupted user signatures."
+
+source_refs:
+  - "git:3e5e0566fd4c0e9a840fc961cf25344c66ed19c6"
+  - "crates/sui-types/src/crypto.rs:689"
+  - "crates/sui-core/src/consensus_validator.rs:174"
+  - "crates/sui-types/src/message_envelope.rs:292"
+  - "crates/sui-types/src/crypto.rs:824"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-fix with verdict likely; preserve claim boundaries from the raw finding."

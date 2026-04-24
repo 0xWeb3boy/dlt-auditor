@@ -1,0 +1,60 @@
+id: "sui-2025-10-02-sui-cryptography-553e16bfa4"
+source_finding: "2025-10-02-sui-cryptography-553e16bfa4.md"
+project: "sui"
+date: "2025-10-02"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "input-validation"
+subsystem: "cryptography"
+architecture_tags:
+  - "certificate-validation"
+  - "object-centric-ledger"
+  - "signature-verification"
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "input-validation"
+violated_invariant: "Malformed or adversarial inputs must be rejected before they reach parsing, execution, or state-commit logic that assumes well-formed data."
+trust_boundary: "signed payload or certificate bytes -> trust decision"
+entrypoint_type: "signature-verification-path"
+sensitive_sink: "committing security-sensitive protocol state"
+
+attacker_capabilities:
+  - "Provide crafted signatures, certificates, digests, or signed payload bytes."
+exploit_preconditions:
+  - "The deployment exposes the affected path and lacks an equivalent compensating check before the patched code."
+blast_radius: "affected validator subsystem"
+
+impact_types:
+  - "availability"
+severity_guess: "low-medium"
+severity_rationale: "The finding is security relevant, but the validated evidence is bounded and should be weighted by reachability and compensating checks."
+
+code_shape_summary: "The patch is best treated as bridge node API input-validation and availability hardening. The strongest evidence is the new `validate_list_size` helper in `server/mod.rs`, whose comment explicitly says it prevents DoS during u8 conversion in encoding."
+search_motifs:
+  - "input-validation enforced after parsing but before cryptography state mutation"
+  - "cryptography handler accepts externally supplied protocol data"
+  - "validation split across helper and sink"
+  - "error path treats malformed data as ordinary state"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+patch_pattern: "Add explicit bounds checks at the bridge API input boundary and propagate encoding failures through fallible conversion APIs."
+
+source_refs:
+  - "git:553e16bfa447f9f21337d0926a8ca4dc37558283"
+  - "crates/sui-bridge/src/server/mod.rs:162"
+  - "crates/sui-bridge/src/abi.rs:204"
+  - "crates/sui-bridge/src/crypto.rs:119"
+  - "crates/sui-bridge/src/types.rs:384"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

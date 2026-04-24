@@ -1,0 +1,621 @@
+{
+  "repo": "/testing/sui",
+  "repo_slug": "sui",
+  "kept_dir": "/testing/sui/validated-findings/kept",
+  "created_at_utc": "20260424-134542Z",
+  "finding_count": 68,
+  "findings": [
+    {
+      "id": "sui-2021-09-01-sui-transaction-processing-779a646e14",
+      "source": "/testing/sui/validated-findings/kept/2021-09-01-sui-transaction-processing-779a646e14.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "signature-canonicalization-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "sui-2022-01-25-sui-transaction-processing-f95e29b749",
+      "source": "/testing/sui/validated-findings/kept/2022-01-25-sui-transaction-processing-f95e29b749.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "unsafe-certificate-comparison-semantics",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2022-02-06-sui-staking-db9ee35c05",
+      "source": "/testing/sui/validated-findings/kept/2022-02-06-sui-staking-db9ee35c05.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "byzantine-authority-robustness",
+      "subsystem": "staking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2022-05-03-sui-transaction-processing-601889c18e",
+      "source": "/testing/sui/validated-findings/kept/2022-05-03-sui-transaction-processing-601889c18e.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "resource-exhaustion",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2022-05-04-sui-storage-b2d12b3963",
+      "source": "/testing/sui/validated-findings/kept/2022-05-04-sui-storage-b2d12b3963.md",
+      "bug_family": "resource_accounting_and_limits",
+      "bug_class": "gas-metering-inconsistency",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "resource-accounting"
+    },
+    {
+      "id": "sui-2022-05-18-sui-cryptography-ca9984cda2",
+      "source": "/testing/sui/validated-findings/kept/2022-05-18-sui-cryptography-ca9984cda2.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-input-validation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2022-06-07-sui-rpc-client-api-8668510f5a",
+      "source": "/testing/sui/validated-findings/kept/2022-06-07-sui-rpc-client-api-8668510f5a.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "checkpoint-integrity-hardening",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2022-06-21-sui-storage-99543bd61a",
+      "source": "/testing/sui/validated-findings/kept/2022-06-21-sui-storage-99543bd61a.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "non-finalized-state-retention",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2022-06-24-sui-transaction-processing-8a3d0789ca",
+      "source": "/testing/sui/validated-findings/kept/2022-06-24-sui-transaction-processing-8a3d0789ca.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "checkpoint-execution-invariant",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2022-06-30-sui-consensus-992af87ebf",
+      "source": "/testing/sui/validated-findings/kept/2022-06-30-sui-consensus-992af87ebf.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "byzantine-availability-hardening",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2022-07-04-sui-transaction-processing-362bc47867",
+      "source": "/testing/sui/validated-findings/kept/2022-07-04-sui-transaction-processing-362bc47867.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "validator-response-handling",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2022-07-15-sui-cryptography-da264c340e",
+      "source": "/testing/sui/validated-findings/kept/2022-07-15-sui-cryptography-da264c340e.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "checkpoint-response-verification",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2022-07-20-sui-storage-ede61fb385",
+      "source": "/testing/sui/validated-findings/kept/2022-07-20-sui-storage-ede61fb385.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "authenticated-epoch-storage-hardening",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2022-07-23-sui-cryptography-87d5950c06",
+      "source": "/testing/sui/validated-findings/kept/2022-07-23-sui-cryptography-87d5950c06.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "signing-type-registration-hardening",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2022-07-29-sui-cryptography-24d683b660",
+      "source": "/testing/sui/validated-findings/kept/2022-07-29-sui-cryptography-24d683b660.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "signature-malleability",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "sui-2022-07-29-sui-cryptography-5e06c90b39",
+      "source": "/testing/sui/validated-findings/kept/2022-07-29-sui-cryptography-5e06c90b39.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "epoch-authentication-invariant",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "sui-2022-08-16-sui-cryptography-e65338451c",
+      "source": "/testing/sui/validated-findings/kept/2022-08-16-sui-cryptography-e65338451c.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "empty-batch-signature-validation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "sui-2022-08-17-sui-storage-e739a9035c",
+      "source": "/testing/sui/validated-findings/kept/2022-08-17-sui-storage-e739a9035c.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "unbounded-retry-resource-control",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2022-08-26-sui-cryptography-3278bff6e3",
+      "source": "/testing/sui/validated-findings/kept/2022-08-26-sui-cryptography-3278bff6e3.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-error-misclassification",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2022-10-04-sui-storage-93f796a5cc",
+      "source": "/testing/sui/validated-findings/kept/2022-10-04-sui-storage-93f796a5cc.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-resource-control-hardening",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2022-10-13-sui-storage-f4ea3fc5f2",
+      "source": "/testing/sui/validated-findings/kept/2022-10-13-sui-storage-f4ea3fc5f2.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "epoch-state-confusion",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2022-11-08-sui-storage-d8fef9cd19",
+      "source": "/testing/sui/validated-findings/kept/2022-11-08-sui-storage-d8fef9cd19.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "ownership-invariant-enforcement",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2022-11-14-sui-cryptography-4935cdb5f8",
+      "source": "/testing/sui/validated-findings/kept/2022-11-14-sui-cryptography-4935cdb5f8.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-epoch-binding",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2022-11-30-sui-consensus-ba69502635",
+      "source": "/testing/sui/validated-findings/kept/2022-11-30-sui-consensus-ba69502635.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-liveness-dos",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2022-12-20-sui-consensus-6c3e2bba3f",
+      "source": "/testing/sui/validated-findings/kept/2022-12-20-sui-consensus-6c3e2bba3f.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-epoch-invariant-hardening",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2022-12-21-sui-consensus-bd9fbd18d3",
+      "source": "/testing/sui/validated-findings/kept/2022-12-21-sui-consensus-bd9fbd18d3.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "epoch-boundary-reconfiguration-race",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2022-12-29-sui-storage-b376f812b5",
+      "source": "/testing/sui/validated-findings/kept/2022-12-29-sui-storage-b376f812b5.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "epoch-transition-race",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2023-01-05-sui-consensus-3e5e0566fd",
+      "source": "/testing/sui/validated-findings/kept/2023-01-05-sui-consensus-3e5e0566fd.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "missing-user-signature-verification",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "sui-2023-01-09-sui-consensus-4c780d87db",
+      "source": "/testing/sui/validated-findings/kept/2023-01-09-sui-consensus-4c780d87db.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "finality-rollback",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2023-01-12-sui-consensus-d5754e7aac",
+      "source": "/testing/sui/validated-findings/kept/2023-01-12-sui-consensus-d5754e7aac.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "missing-signature-commitment",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "sui-2023-02-02-sui-cryptography-7ec4bccdd4",
+      "source": "/testing/sui/validated-findings/kept/2023-02-02-sui-cryptography-7ec4bccdd4.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-quorum-hardening",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2023-02-21-sui-transaction-processing-d965c19fd2",
+      "source": "/testing/sui/validated-findings/kept/2023-02-21-sui-transaction-processing-d965c19fd2.md",
+      "bug_family": "checked_arithmetic_and_parameter_bounds",
+      "bug_class": "integer-overflow",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "arithmetic-bounds"
+    },
+    {
+      "id": "sui-2023-02-23-sui-storage-98869a246a",
+      "source": "/testing/sui/validated-findings/kept/2023-02-23-sui-storage-98869a246a.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-equivocation-handling",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2023-02-27-sui-cryptography-d009e82fa3",
+      "source": "/testing/sui/validated-findings/kept/2023-02-27-sui-cryptography-d009e82fa3.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "missing-signature-domain-separation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "sui-2023-02-27-sui-transaction-processing-f88a9a6cb6",
+      "source": "/testing/sui/validated-findings/kept/2023-02-27-sui-transaction-processing-f88a9a6cb6.md",
+      "bug_family": "checked_arithmetic_and_parameter_bounds",
+      "bug_class": "integer-overflow",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "arithmetic-bounds"
+    },
+    {
+      "id": "sui-2023-02-28-sui-cryptography-925f32d0c8",
+      "source": "/testing/sui/validated-findings/kept/2023-02-28-sui-cryptography-925f32d0c8.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "validator-metadata-validation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2023-03-01-sui-transaction-processing-7b60006a26",
+      "source": "/testing/sui/validated-findings/kept/2023-03-01-sui-transaction-processing-7b60006a26.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "resource-exhaustion",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2023-03-03-sui-storage-816b0144bc",
+      "source": "/testing/sui/validated-findings/kept/2023-03-03-sui-storage-816b0144bc.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "accounting-invariant-hardening",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2023-03-06-sui-consensus-e4c9e8c80c",
+      "source": "/testing/sui/validated-findings/kept/2023-03-06-sui-consensus-e4c9e8c80c.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "unverified-consensus-timestamp-source",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2023-03-18-sui-transaction-processing-9dc84e6399",
+      "source": "/testing/sui/validated-findings/kept/2023-03-18-sui-transaction-processing-9dc84e6399.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "object-access-authentication-invariant",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "sui-2023-04-06-sui-transaction-processing-6b864cd19a",
+      "source": "/testing/sui/validated-findings/kept/2023-04-06-sui-transaction-processing-6b864cd19a.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "incomplete-ownership-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2023-04-08-sui-storage-e0c1591d99",
+      "source": "/testing/sui/validated-findings/kept/2023-04-08-sui-storage-e0c1591d99.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "rpc-object-digest-validation",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2023-04-10-sui-transaction-processing-5779fa603d",
+      "source": "/testing/sui/validated-findings/kept/2023-04-10-sui-transaction-processing-5779fa603d.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "monetary-accounting-invariant-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2023-04-21-sui-storage-b149ca0b9b",
+      "source": "/testing/sui/validated-findings/kept/2023-04-21-sui-storage-b149ca0b9b.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "wallet-content-script-message-validation",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2023-09-02-sui-cryptography-980b1496e0",
+      "source": "/testing/sui/validated-findings/kept/2023-09-02-sui-cryptography-980b1496e0.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "multisig-input-validation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2023-10-26-sui-transaction-processing-89049572df",
+      "source": "/testing/sui/validated-findings/kept/2023-10-26-sui-transaction-processing-89049572df.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "resource-control-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2024-03-19-sui-rpc-client-api-f553732753",
+      "source": "/testing/sui/validated-findings/kept/2024-03-19-sui-rpc-client-api-f553732753.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-rpc-epoch-filter-hardening",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2024-05-21-sui-storage-d0ebedf217",
+      "source": "/testing/sui/validated-findings/kept/2024-05-21-sui-storage-d0ebedf217.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "signature-threshold-api-hardening",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "sui-2024-06-12-sui-staking-116e527a2f",
+      "source": "/testing/sui/validated-findings/kept/2024-06-12-sui-staking-116e527a2f.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "proxy-client-attribution-hardening",
+      "subsystem": "staking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2024-06-26-sui-rpc-client-api-a025ca0517",
+      "source": "/testing/sui/validated-findings/kept/2024-06-26-sui-rpc-client-api-a025ca0517.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "traffic-control-accounting-gap",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2024-07-16-sui-core-logic-4ba06ed746",
+      "source": "/testing/sui/validated-findings/kept/2024-07-16-sui-core-logic-4ba06ed746.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "graphql-query-limit-hardening",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2024-08-20-sui-consensus-dab9bad618",
+      "source": "/testing/sui/validated-findings/kept/2024-08-20-sui-consensus-dab9bad618.md",
+      "bug_family": "resource_accounting_and_limits",
+      "bug_class": "consensus-resource-limit-hardening",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "resource-accounting"
+    },
+    {
+      "id": "sui-2024-08-31-sui-transaction-processing-fdc8325abf",
+      "source": "/testing/sui/validated-findings/kept/2024-08-31-sui-transaction-processing-fdc8325abf.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "resource-exhaustion",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2024-11-21-sui-consensus-cb40e439ea",
+      "source": "/testing/sui/validated-findings/kept/2024-11-21-sui-consensus-cb40e439ea.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-limit-accounting",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2024-12-13-sui-consensus-769f14529c",
+      "source": "/testing/sui/validated-findings/kept/2024-12-13-sui-consensus-769f14529c.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "resource-control-hardening",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2025-03-26-sui-cryptography-aba86cd0d7",
+      "source": "/testing/sui/validated-findings/kept/2025-03-26-sui-cryptography-aba86cd0d7.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "missing-consensus-object-ownership-authentication",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "sui-2025-05-21-sui-rpc-client-api-9006185009",
+      "source": "/testing/sui/validated-findings/kept/2025-05-21-sui-rpc-client-api-9006185009.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "dos-protection-default-hardening",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2025-06-18-sui-rpc-client-api-633ebf9757",
+      "source": "/testing/sui/validated-findings/kept/2025-06-18-sui-rpc-client-api-633ebf9757.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "transport-security-hardening",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2025-07-18-sui-cryptography-5dce17a946",
+      "source": "/testing/sui/validated-findings/kept/2025-07-18-sui-cryptography-5dce17a946.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-state-commitment-gap",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2025-09-10-sui-consensus-606de5ea65",
+      "source": "/testing/sui/validated-findings/kept/2025-09-10-sui-consensus-606de5ea65.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "resource-exhaustion-dos-hardening",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2025-10-02-sui-cryptography-553e16bfa4",
+      "source": "/testing/sui/validated-findings/kept/2025-10-02-sui-cryptography-553e16bfa4.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "input-validation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2025-11-26-sui-consensus-3b59b5be60",
+      "source": "/testing/sui/validated-findings/kept/2025-11-26-sui-consensus-3b59b5be60.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-vote-accounting-hardening",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2026-01-10-sui-consensus-f40b60f3a9",
+      "source": "/testing/sui/validated-findings/kept/2026-01-10-sui-consensus-f40b60f3a9.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-finalization-hardening",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2026-02-27-sui-transaction-processing-48d0a9bce8",
+      "source": "/testing/sui/validated-findings/kept/2026-02-27-sui-transaction-processing-48d0a9bce8.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "malformed-transaction-panic",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2026-03-23-sui-storage-7c7e923e6b",
+      "source": "/testing/sui/validated-findings/kept/2026-03-23-sui-storage-7c7e923e6b.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "incorrect-owner-resolution",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2026-03-25-sui-core-logic-2265f3d6f8",
+      "source": "/testing/sui/validated-findings/kept/2026-03-25-sui-core-logic-2265f3d6f8.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "vm-recursion-bound-hardening",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2026-03-27-sui-storage-b889b4d1bf",
+      "source": "/testing/sui/validated-findings/kept/2026-03-27-sui-storage-b889b4d1bf.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "resource-amplification-control",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sui-2026-03-30-sui-rpc-client-api-54e640f65d",
+      "source": "/testing/sui/validated-findings/kept/2026-03-30-sui-rpc-client-api-54e640f65d.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-traffic-control-accounting",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    }
+  ]
+}

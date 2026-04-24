@@ -1,0 +1,21 @@
+id: "sui-2022-08-17-sui-storage-e739a9035c"
+source_record: "sui-2022-08-17-sui-storage-e739a9035c.yaml"
+project: "sui"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "unbounded-retry-resource-control"
+expected_missing_property: "resource-accounting"
+
+expected_impact_band: "availability"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+  - "A separate hard cap, authenticated quota, or upstream rate limit makes repeated work impossible."
+notes:
+  - "Enriched from the validated finding and intended as a positive eval for this bug family."
+  - "Trust boundary: executed effects or checkpoint data -> authenticated persistent state"

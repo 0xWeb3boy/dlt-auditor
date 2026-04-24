@@ -1,0 +1,20 @@
+id: "sui-2026-03-25-sui-core-logic-2265f3d6f8"
+source_record: "sui-2026-03-25-sui-core-logic-2265f3d6f8.yaml"
+project: "sui"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "vm-recursion-bound-hardening"
+expected_missing_property: "resource-accounting"
+
+expected_impact_band: "availability-hardening_or_resource-exhaustion-risk-reduction"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+notes:
+  - "Enriched from the validated finding and intended as a positive eval for this bug family."
+  - "Trust boundary: untrusted protocol input -> privileged core state"

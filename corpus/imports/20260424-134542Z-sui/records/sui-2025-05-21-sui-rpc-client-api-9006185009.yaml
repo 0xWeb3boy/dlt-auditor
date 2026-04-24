@@ -1,0 +1,67 @@
+id: "sui-2025-05-21-sui-rpc-client-api-9006185009"
+source_finding: "2025-05-21-sui-rpc-client-api-9006185009.md"
+project: "sui"
+date: "2025-05-21"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "dos-protection-default-hardening"
+subsystem: "rpc-client-api"
+architecture_tags:
+  - "client-boundary"
+  - "object-centric-ledger"
+  - "resource-control"
+  - "rpc-api"
+  - "validator-based"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "resource-accounting"
+violated_invariant: "Untrusted work must be bounded, attributed, and charged or throttled before it can consume shared validator resources."
+trust_boundary: "remote client/proxy request or response -> node API trust decision"
+entrypoint_type: "rpc-handler"
+sensitive_sink: "consuming validator CPU, memory, network, or execution budget"
+
+attacker_capabilities:
+  - "Submit crafted transactions or API requests to a validator/fullnode."
+  - "Repeat the input enough times to exercise shared resource limits or attribution paths."
+exploit_preconditions:
+  - "The affected path is reachable before the patched validation or accounting guard runs."
+  - "The API surface is reachable by clients or by an upstream proxy whose identity is trusted."
+  - "The attacker can generate enough repeated or expensive requests to matter operationally."
+blast_radius: "client-facing node/API boundary"
+
+impact_types:
+  - "dos-resilience"
+  - "abuse-detection"
+severity_guess: "medium"
+severity_rationale: "The primary risk is availability or resource amplification; severity depends on reachable volume, default exposure, and whether throttling exists elsewhere."
+
+code_shape_summary: "The patch enables Sui validator traffic-control policy configuration by default in dry-run mode and adds x-forwarded-for hop-count observability. This is security-relevant operational hardening for DoS readiness, but the evidence does not establish an exploitable vulnerability or active default enforcement."
+search_motifs:
+  - "resource-accounting enforced after parsing but before rpc-client-api state mutation"
+  - "rpc-client-api handler accepts externally supplied protocol data"
+  - "unbounded loop/cache/retry path driven by remote input"
+  - "missing per-client or per-digest resource attribution"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+  - "A separate hard cap, authenticated quota, or upstream rate limit makes repeated work impossible."
+patch_pattern: "Add security-relevant default configuration for an existing traffic-control subsystem while keeping enforcement non-disruptive through dry-run mode, and add metrics for deployment visibility."
+
+source_refs:
+  - "git:9006185009afa2fe239fec771a7d067437814a42"
+  - "crates/sui-core/src/authority_server.rs:1435"
+  - "crates/sui-core/src/authority_server.rs:372"
+  - "crates/sui-config/src/node.rs:173"
+  - "crates/sui-types/src/traffic_control.rs:288"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict confirmed; preserve claim boundaries from the raw finding."

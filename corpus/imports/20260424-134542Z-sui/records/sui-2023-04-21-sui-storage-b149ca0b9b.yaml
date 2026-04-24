@@ -1,0 +1,59 @@
+id: "sui-2023-04-21-sui-storage-b149ca0b9b"
+source_finding: "2023-04-21-sui-storage-b149ca0b9b.md"
+project: "sui"
+date: "2023-04-21"
+language_tags:
+  - "typescript"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "wallet-content-script-message-validation"
+subsystem: "storage"
+architecture_tags:
+  - "authenticated-storage"
+  - "checkpointing"
+  - "object-centric-ledger"
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "input-validation"
+violated_invariant: "Malformed or adversarial inputs must be rejected before they reach parsing, execution, or state-commit logic that assumes well-formed data."
+trust_boundary: "executed effects or checkpoint data -> authenticated persistent state"
+entrypoint_type: "state-transition-storage-update"
+sensitive_sink: "persisting or serving authenticated ledger state"
+
+attacker_capabilities:
+  - "Influence checkpoint, object, or effects data that is later persisted or served."
+exploit_preconditions:
+  - "The deployment exposes the affected path and lacks an equivalent compensating check before the patched code."
+blast_radius: "validator-local to chain-wide state depending on quorum propagation"
+
+impact_types:
+  - "unauthorized-wallet-data-access-prevention"
+  - "message-boundary-hardening"
+severity_guess: "low-medium"
+severity_rationale: "The finding is security relevant, but the validated evidence is bounded and should be weighted by reachability and compensating checks."
+
+code_shape_summary: "Wallet-ext: test site-cs messaging (#9444) looks like a focused hardening change in the storage path of sui. The strongest evidence spans `apps/wallet/src/background/connections/ContentScriptConnection.ts` and `apps/wallet/playwright.config.ts`. The affected state likely includes `command`, `port`, and `process`."
+search_motifs:
+  - "input-validation enforced after parsing but before storage state mutation"
+  - "storage handler accepts externally supplied protocol data"
+  - "validation split across helper and sink"
+  - "error path treats malformed data as ordinary state"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+patch_pattern: "The fix pattern is to tighten the sensitive storage control path so the key invariant is enforced before downstream work continues."
+
+source_refs:
+  - "git:b149ca0b9bcf57c3fdd68a827982f226796c7d22"
+  - "apps/wallet/src/background/connections/ContentScriptConnection.ts:169"
+  - "apps/wallet/playwright.config.ts:50"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

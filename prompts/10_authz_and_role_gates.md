@@ -47,6 +47,8 @@ Search patterns:
 - sensitive sinks that accept a caller-supplied destination, recipient, authority, fee recipient, aggregator, controller, or round value when the sink can derive that value from authoritative state.
 - privileged queues where admission checks authorization, owner, policy, or round freshness but dequeue, replay, retry, or execution uses cached state or a weaker predicate.
 - signing or approval middleware where validation warnings, policy failures, or UI-mediated prompts default to continue instead of requiring explicit approval under a clearly unsafe mode.
+- object-, resource-, or capability-based ledgers where the executed object set is derived through object references, dynamic fields, consensus-created objects, or helper summaries. Check that the final sink revalidates current ownership or capability for every mutable, deletable, wrapped, or indirectly loaded object
+- paths that authorize based on a transaction sender, object ID, cached owner, or declared owner before resolving the authoritative current owner. The authorization decision should consume the same owner state that the write, delete, or transfer sink will mutate
 
 Questions to answer:
 1. Who is supposed to be allowed to call this path?

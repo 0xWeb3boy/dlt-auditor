@@ -1,0 +1,62 @@
+id: "sui-2023-04-06-sui-transaction-processing-6b864cd19a"
+source_finding: "2023-04-06-sui-transaction-processing-6b864cd19a.md"
+project: "sui"
+date: "2023-04-06"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "incomplete-ownership-validation"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "mempool-or-quorum-driver"
+  - "object-centric-ledger"
+  - "transaction-execution"
+  - "validator-based"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "authorization"
+violated_invariant: "Object ownership and access checks must be enforced before a transaction can read, mutate, or consume object state."
+trust_boundary: "submitted transaction or validator response -> execution/effects pipeline"
+entrypoint_type: "transaction-handler"
+sensitive_sink: "authorizing object access or privileged state mutation"
+
+attacker_capabilities:
+  - "Submit crafted transactions or API requests to a validator/fullnode."
+exploit_preconditions:
+  - "The affected path is reachable before the patched validation or accounting guard runs."
+blast_radius: "validator-local to chain-wide state depending on quorum propagation"
+
+impact_types:
+  - "state-integrity"
+severity_guess: "high"
+severity_rationale: "Confirmed integrity or authorization impact on a consensus/state path generally warrants high severity unless a narrow deployment condition reduces reachability."
+
+code_shape_summary: "The patch fixes an incomplete gas-object ownership check in Sui transaction validation. Previously, only the primary gas object was required to have `Owner::AddressOwner`; additional gas objects in `more_gas_objs` were not checked by the same validation."
+search_motifs:
+  - "authorization enforced after parsing but before transaction-processing state mutation"
+  - "transaction-processing handler accepts externally supplied protocol data"
+  - "object authority derived from request fields"
+  - "privileged mutation reachable before ownership check"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+  - "A later mandatory ownership or capability check rejects the request before any state change."
+patch_pattern: "Apply the gas-object ownership invariant uniformly to every gas object accepted by transaction validation, then add downstream invariant checks so deletion of immutable objects is detected if it reaches later execution paths."
+
+source_refs:
+  - "git:6b864cd19a444d4c9b3ef4a0b4d7bf05864a2325"
+  - "crates/sui-types/src/gas_model/gas_v2.rs:420"
+  - "crates/sui-types/src/storage.rs:698"
+  - "crates/sui-adapter/src/programmable_transactions/context.rs:714"
+  - "crates/sui-types/src/temporary_store.rs:509"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-fix with verdict confirmed; preserve claim boundaries from the raw finding."

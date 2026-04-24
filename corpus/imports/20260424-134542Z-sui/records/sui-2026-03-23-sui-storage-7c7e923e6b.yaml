@@ -1,0 +1,62 @@
+id: "sui-2026-03-23-sui-storage-7c7e923e6b"
+source_finding: "2026-03-23-sui-storage-7c7e923e6b.md"
+project: "sui"
+date: "2026-03-23"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "incorrect-owner-resolution"
+subsystem: "storage"
+architecture_tags:
+  - "authenticated-storage"
+  - "checkpointing"
+  - "object-centric-ledger"
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "authorization"
+violated_invariant: "Object ownership and access checks must be enforced before a transaction can read, mutate, or consume object state."
+trust_boundary: "executed effects or checkpoint data -> authenticated persistent state"
+entrypoint_type: "state-transition-storage-update"
+sensitive_sink: "authorizing object access or privileged state mutation"
+
+attacker_capabilities:
+  - "Influence checkpoint, object, or effects data that is later persisted or served."
+exploit_preconditions:
+  - "The deployment exposes the affected path and lacks an equivalent compensating check before the patched code."
+blast_radius: "validator-local to chain-wide state depending on quorum propagation"
+
+impact_types:
+  - "policy-enforcement"
+  - "access-control"
+severity_guess: "medium"
+severity_rationale: "The affected property protects authorization, accounting, or signature trust; likely hardening is kept below high unless exploitability is proven."
+
+code_shape_summary: "The patch changes coin deny-list v2 owner extraction for written coin objects so that, under a new `use_coin_party_owner` protocol flag, it uses `object.owner.get_owner_address()` instead of always using `get_address_owner_address()`."
+search_motifs:
+  - "authorization enforced after parsing but before storage state mutation"
+  - "storage handler accepts externally supplied protocol data"
+  - "object authority derived from request fields"
+  - "privileged mutation reachable before ownership check"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+  - "A later mandatory ownership or capability check rejects the request before any state change."
+patch_pattern: "Introduce a protocol-gated behavior change and use the party-owner-aware owner accessor only when the new protocol feature flag is enabled."
+
+source_refs:
+  - "git:7c7e923e6b547bc4caea2e7ab4d0b2518048f0f8"
+  - "sui-execution/v3/sui-adapter/src/programmable_transactions/context.rs:1575"
+  - "crates/sui-protocol-config/src/lib.rs:1031"
+  - "crates/sui-protocol-config/src/lib.rs:4698"
+  - "crates/sui-protocol-config/src/lib.rs:2680"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

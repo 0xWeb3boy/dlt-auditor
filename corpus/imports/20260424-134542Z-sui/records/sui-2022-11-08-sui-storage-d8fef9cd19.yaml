@@ -1,0 +1,61 @@
+id: "sui-2022-11-08-sui-storage-d8fef9cd19"
+source_finding: "2022-11-08-sui-storage-d8fef9cd19.md"
+project: "sui"
+date: "2022-11-08"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "ownership-invariant-enforcement"
+subsystem: "storage"
+architecture_tags:
+  - "authenticated-storage"
+  - "checkpointing"
+  - "object-centric-ledger"
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "authorization"
+violated_invariant: "Object ownership and access checks must be enforced before a transaction can read, mutate, or consume object state."
+trust_boundary: "executed effects or checkpoint data -> authenticated persistent state"
+entrypoint_type: "state-transition-storage-update"
+sensitive_sink: "authorizing object access or privileged state mutation"
+
+attacker_capabilities:
+  - "Influence checkpoint, object, or effects data that is later persisted or served."
+exploit_preconditions:
+  - "The deployment exposes the affected path and lacks an equivalent compensating check before the patched code."
+blast_radius: "validator-local to chain-wide state depending on quorum propagation"
+
+impact_types:
+  - "state-integrity"
+severity_guess: "medium"
+severity_rationale: "The affected property protects authorization, accounting, or signature trust; likely hardening is kept below high unless exploitability is proven."
+
+code_shape_summary: "The patch changes Sui's native shared-object transfer path from an unconditional successful transfer record into a classified transfer result. `share_object` now rejects `OwnerChanged` with `E_SHARED_NON_NEW_OBJECT`, enforcing that non-new objects are not converted into shared ownership."
+search_motifs:
+  - "authorization enforced after parsing but before storage state mutation"
+  - "storage handler accepts externally supplied protocol data"
+  - "object authority derived from request fields"
+  - "privileged mutation reachable before ownership check"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+  - "A later mandatory ownership or capability check rejects the request before any state change."
+patch_pattern: "Return structured classification from the lower-level transfer routine and enforce the ownership invariant at the native shared-object API boundary."
+
+source_refs:
+  - "git:d8fef9cd19a5bfe2efbbbeb078d6dda2966e0302"
+  - "crates/sui-framework/src/natives/object_runtime/mod.rs:130"
+  - "crates/sui-framework/src/natives/transfer.rs:91"
+  - "crates/sui-framework/src/natives/transfer.rs:106"
+  - "crates/sui-framework/src/natives/object_runtime/mod.rs:83"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

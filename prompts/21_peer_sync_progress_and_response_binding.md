@@ -25,6 +25,7 @@ Prioritize:
 - tx announcements and tx fetch scheduling
 - discovery ping or pong and bonding
 - peer scoring, bad-peer marking, retry, and eviction logic
+- validator, authority, committee, sequencer, or relayer fanout where a client/node gathers certificates, effects, votes, checkpoint data, or execution results from multiple remote authorities
 
 Search patterns:
 - pending callbacks that accept any reply of a given type or from a given peer
@@ -39,6 +40,8 @@ Search patterns:
 - spoofable or unauthenticated discovery requests that can trigger larger responses, table lookups, peer-table mutation, or recursive lookup work before bonding, reachability, nonce, or token validation
 - queue insertion, response-processing, or hash/body/state delivery APIs that return only success/failure when callers need to know whether the peer contributed new work, made zero progress, returned duplicate data, or revealed an unknown parent
 - transaction, block, or state announcements where metadata validation, known-object checks, type support, and size bounds happen after the fetch request is already scheduled
+- aggregation code that treats one authority response as enough to decide retry, liveness, or error classification before checking whether another authorized peer can provide the missing certificate, effects, proof, or vote
+- response handlers that collapse Byzantine, malformed, empty, already-known, unavailable, timeout, and wrong-ledger responses into one generic error, preventing retry, bad-peer feedback, or invalid-data handling from taking the correct branch
 
 Questions to answer:
 1. What exact request is this response supposed to satisfy?

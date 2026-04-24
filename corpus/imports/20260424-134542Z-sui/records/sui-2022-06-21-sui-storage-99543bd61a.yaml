@@ -1,0 +1,59 @@
+id: "sui-2022-06-21-sui-storage-99543bd61a"
+source_finding: "2022-06-21-sui-storage-99543bd61a.md"
+project: "sui"
+date: "2022-06-21"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "non-finalized-state-retention"
+subsystem: "storage"
+architecture_tags:
+  - "authenticated-storage"
+  - "checkpointing"
+  - "object-centric-ledger"
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "input-validation"
+violated_invariant: "Persisted ledger state must remain authenticated, epoch-scoped, and consistent with the executed transition that produced it."
+trust_boundary: "executed effects or checkpoint data -> authenticated persistent state"
+entrypoint_type: "state-transition-storage-update"
+sensitive_sink: "persisting or serving authenticated ledger state"
+
+attacker_capabilities:
+  - "Influence checkpoint, object, or effects data that is later persisted or served."
+exploit_preconditions:
+  - "The deployment exposes the affected path and lacks an equivalent compensating check before the patched code."
+blast_radius: "validator-local to chain-wide state depending on quorum propagation"
+
+impact_types:
+  - "state-integrity"
+severity_guess: "low-medium"
+severity_rationale: "The finding is security relevant, but the validated evidence is bounded and should be weighted by reachability and compensating checks."
+
+code_shape_summary: "The patch fixes a missing rollback in Sui epoch finalization. Before the change, `finish_epoch_change` detected non-empty `checkpoints.extra_transactions` but only had a deferred guard for reverting them."
+search_motifs:
+  - "input-validation enforced after parsing but before storage state mutation"
+  - "storage handler accepts externally supplied protocol data"
+  - "validation split across helper and sink"
+  - "error path treats malformed data as ordinary state"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+patch_pattern: "Replace detection-only handling of non-finalized epoch state with explicit rollback of each recorded extra transaction before completing epoch finalization."
+
+source_refs:
+  - "git:99543bd61aae0a36d62537f7fac4f69a4aa2d0d0"
+  - "crates/sui-core/src/epoch/reconfiguration.rs:72"
+  - "crates/sui-core/src/authority/authority_store.rs:968"
+  - "crates/sui-core/src/authority/authority_store.rs:1"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

@@ -1,0 +1,64 @@
+id: "sui-2022-07-29-sui-cryptography-5e06c90b39"
+source_finding: "2022-07-29-sui-cryptography-5e06c90b39.md"
+project: "sui"
+date: "2022-07-29"
+language_tags:
+  - "rust"
+
+bug_family: "authz_and_role_gates"
+bug_class: "epoch-authentication-invariant"
+subsystem: "cryptography"
+architecture_tags:
+  - "certificate-validation"
+  - "object-centric-ledger"
+  - "signature-verification"
+  - "validator-based"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "authorization"
+violated_invariant: "A request crossing a trust boundary must prove the required authority before it can influence privileged protocol state."
+trust_boundary: "epoch-scoped certificate material -> signature verifier"
+entrypoint_type: "signature-verification-path"
+sensitive_sink: "authorizing object access or privileged state mutation"
+
+attacker_capabilities:
+  - "Provide crafted signatures, certificates, digests, or signed payload bytes."
+  - "Control at least one syntactically valid credential or signed object for the target path."
+exploit_preconditions:
+  - "The affected path is reachable before the patched validation or accounting guard runs."
+blast_radius: "validator-set or chain-wide consensus path"
+
+impact_types:
+  - "consensus-integrity"
+  - "state-integrity"
+severity_guess: "high"
+severity_rationale: "Confirmed integrity or authorization impact on a consensus/state path generally warrants high severity unless a narrow deployment condition reduces reachability."
+
+code_shape_summary: "The patch strengthens Sui epoch authentication checks by making signed and certified epoch verification reject records whose authentication epoch is not exactly the immediately previous epoch."
+search_motifs:
+  - "authorization enforced after parsing but before cryptography state mutation"
+  - "cryptography handler accepts externally supplied protocol data"
+  - "state transition lacks epoch/checkpoint/quorum binding"
+  - "consensus output consumed without local invariant recheck"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+  - "A later mandatory ownership or capability check rejects the request before any state change."
+patch_pattern: "Make the cross-epoch authentication invariant explicit in verification and data modeling: store epoch-local committee data directly and reject signed or certified epoch records whose authentication epoch does not match the immediately previous epoch."
+
+source_refs:
+  - "git:5e06c90b3975c43f33d4665b242bf02102891eb6"
+  - "crates/sui-core/src/authority.rs:1032"
+  - "crates/sui-types/src/messages.rs:1884"
+  - "crates/sui-core/src/epoch/reconfiguration.rs:67"
+  - "crates/sui-types/src/messages.rs:1799"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict confirmed; preserve claim boundaries from the raw finding."

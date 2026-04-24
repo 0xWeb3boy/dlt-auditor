@@ -1,0 +1,21 @@
+id: "sui-2022-02-06-sui-staking-db9ee35c05"
+source_record: "sui-2022-02-06-sui-staking-db9ee35c05.yaml"
+project: "sui"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "byzantine-authority-robustness"
+expected_missing_property: "authorization"
+
+expected_impact_band: "availability_or_sync-integrity"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+  - "A later mandatory ownership or capability check rejects the request before any state change."
+notes:
+  - "Enriched from the validated finding and intended as a positive eval for this bug family."
+  - "Trust boundary: staking transaction or validator metadata -> validator registry"

@@ -1,0 +1,61 @@
+id: "sui-2022-10-13-sui-storage-f4ea3fc5f2"
+source_finding: "2022-10-13-sui-storage-f4ea3fc5f2.md"
+project: "sui"
+date: "2022-10-13"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "epoch-state-confusion"
+subsystem: "storage"
+architecture_tags:
+  - "authenticated-storage"
+  - "checkpointing"
+  - "object-centric-ledger"
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "state-transition-invariant"
+violated_invariant: "Consensus and checkpoint state must advance only from inputs bound to the correct epoch, quorum, ordering, and finalized state."
+trust_boundary: "executed effects or checkpoint data -> authenticated persistent state"
+entrypoint_type: "state-transition-storage-update"
+sensitive_sink: "advancing consensus, checkpoint, epoch, or finalized state"
+
+attacker_capabilities:
+  - "Influence checkpoint, object, or effects data that is later persisted or served."
+exploit_preconditions:
+  - "The deployment exposes the affected path and lacks an equivalent compensating check before the patched code."
+blast_radius: "validator-set or chain-wide consensus path"
+
+impact_types:
+  - "state-integrity"
+  - "consensus-integrity"
+severity_guess: "low-medium"
+severity_rationale: "The finding is security relevant, but the validated evidence is bounded and should be weighted by reachability and compensating checks."
+
+code_shape_summary: "The patch addresses a stale-epoch certificate handling bug in Sui authority/node-sync storage. The supplied evidence supports a correctness and state-integrity fix around epoch transitions, but does not establish an exploitable vulnerability or a concrete protocol security failure."
+search_motifs:
+  - "state-transition-invariant enforced after parsing but before storage state mutation"
+  - "storage handler accepts externally supplied protocol data"
+  - "state transition lacks epoch/checkpoint/quorum binding"
+  - "consensus output consumed without local invariant recheck"
+negative_signals:
+  - "Equivalent validation, charging, or authorization is already enforced on every path before the shown sink."
+  - "The changed path handles only local test fixtures, telemetry, or unreachable migration code."
+patch_pattern: "Separate epoch-scoped state from perpetual state, use epoch-aware certificate lookup, and place consensus certificates into the pending-execution path instead of relying on certificate persistence alone."
+
+source_refs:
+  - "git:f4ea3fc5f2e8a506c045a30bc59bf79c3c317f54"
+  - "crates/sui-core/src/node_sync/node_state.rs:510"
+  - "crates/sui-core/src/authority.rs:2196"
+  - "crates/sui-tool/src/db_tool/db_dump.rs:116"
+  - "crates/sui-tool/src/db_tool/db_dump.rs:60"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."
