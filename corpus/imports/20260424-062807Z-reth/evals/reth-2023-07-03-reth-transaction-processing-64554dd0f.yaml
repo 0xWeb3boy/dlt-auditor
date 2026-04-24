@@ -1,0 +1,20 @@
+id: "reth-2023-07-03-reth-transaction-processing-64554dd0f"
+source_record: "reth-2023-07-03-reth-transaction-processing-64554dd0f.yaml"
+project: "reth"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "input-validation"
+expected_missing_property: "protocol-rule-enforcement"
+
+expected_impact_band: "consensus_or_protocol_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: 
+  - "The full implementation of ensure_valid_body_response is not shown, so the exact validation scope is only partially established"
+  - "The snippets do not show whether later pipeline stages would also reject the malformed block body"
+  - "No test, incident, advisory, or exploit evidence is provided to show concrete security impact from the pre-patch behavior"
+notes: 
+  - "Eval should expect a security-hardening classification unless end-to-end exploitability is independently shown."

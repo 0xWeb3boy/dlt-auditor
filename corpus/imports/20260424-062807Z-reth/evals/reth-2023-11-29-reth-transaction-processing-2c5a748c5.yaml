@@ -1,0 +1,20 @@
+id: "reth-2023-11-29-reth-transaction-processing-2c5a748c5"
+source_record: "reth-2023-11-29-reth-transaction-processing-2c5a748c5.yaml"
+project: "reth"
+
+expected_bug_family: "signature_binding_and_signer_scope"
+expected_bug_class: "signature-malleability"
+expected_missing_property: "canonical-signature-enforcement"
+
+expected_impact_band: "signature_or_transaction_authenticity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: 
+  - "No caller-side diff is shown proving validation paths were switched to the checked API"
+  - "No evidence shows previously accepted high-s signatures could reach canonical processing after EIP-2 rules should apply"
+  - "No proof of a concrete exploit, replay, consensus failure, or externally reachable vulnerability is provided"
+notes: 
+  - "Eval should expect a security-hardening classification unless end-to-end exploitability is independently shown."

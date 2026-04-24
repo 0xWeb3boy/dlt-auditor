@@ -1,0 +1,20 @@
+id: "reth-2026-01-29-reth-storage-edf75de4d"
+source_record: "reth-2026-01-29-reth-storage-edf75de4d.yaml"
+project: "reth"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "atomicity-violation"
+expected_missing_property: "state-update-atomicity"
+
+expected_impact_band: "state_or_proof_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: 
+  - "No proof that an external attacker can reliably trigger the blinded-node failure path"
+  - "No evidence of acceptance of invalid state, consensus split, replay issue, or cross-node security impact"
+  - "No reproducer, exploit scenario, or test demonstrating security consequences beyond local inconsistency/corruption risk"
+notes: 
+  - "Eval should expect a security-hardening classification unless end-to-end exploitability is independently shown."

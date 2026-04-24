@@ -1,0 +1,20 @@
+id: "reth-2024-02-03-reth-transaction-processing-d4dffa2ee"
+source_record: "reth-2024-02-03-reth-transaction-processing-d4dffa2ee.yaml"
+project: "reth"
+
+expected_bug_family: "resource_accounting_and_limits"
+expected_bug_class: "improper-resource-limit-enforcement"
+expected_missing_property: "resource-limit-accounting"
+
+expected_impact_band: "availability_or_resource_exhaustion"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: 
+  - "No advisory, CVE, or bug report states this was exploited or considered a vulnerability"
+  - "No patch evidence quantifies memory growth, blob-store growth, or node instability caused by the bug"
+  - "No evidence shows default deployments were remotely exhaustible in practice"
+notes: 
+  - "Eval should expect a security-hardening classification unless end-to-end exploitability is independently shown."

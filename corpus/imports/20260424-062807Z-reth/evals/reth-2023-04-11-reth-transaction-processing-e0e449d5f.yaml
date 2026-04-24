@@ -1,0 +1,20 @@
+id: "reth-2023-04-11-reth-transaction-processing-e0e449d5f"
+source_record: "reth-2023-04-11-reth-transaction-processing-e0e449d5f.yaml"
+project: "reth"
+
+expected_bug_family: "signature_binding_and_signer_scope"
+expected_bug_class: "signature-input-validation"
+expected_missing_property: "signature-field-validation"
+
+expected_impact_band: "signature_or_transaction_authenticity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: 
+  - "No proof that malformed legacy v values were accepted into execution or consensus-critical flows"
+  - "No test or report showing signature forgery, replay, chain split, or sender-recovery abuse"
+  - "No downstream evidence that noncanonical values changed authorization or transaction acceptance semantics"
+notes: 
+  - "Eval should expect a security-hardening classification unless end-to-end exploitability is independently shown."

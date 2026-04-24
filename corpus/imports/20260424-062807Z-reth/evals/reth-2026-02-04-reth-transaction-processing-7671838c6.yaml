@@ -1,0 +1,20 @@
+id: "reth-2026-02-04-reth-transaction-processing-7671838c6"
+source_record: "reth-2026-02-04-reth-transaction-processing-7671838c6.yaml"
+project: "reth"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "consensus-safety"
+expected_missing_property: "protocol-rule-enforcement"
+
+expected_impact_band: "consensus_or_protocol_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: 
+  - "No failing test, reproducer, or execution trace is provided showing concrete invalid acceptance or rejection before the fix"
+  - "No advisory, commit text, or patch evidence states attacker exploitability or an observed chain split"
+  - "The excerpt does not prove whether the bug could be triggered by adversarial blocks in practice versus causing compatibility issues at fork activation"
+notes: 
+  - "Eval should expect a security-hardening classification unless end-to-end exploitability is independently shown."

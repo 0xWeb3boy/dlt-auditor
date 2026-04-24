@@ -1,0 +1,68 @@
+id: "reth-2026-03-06-reth-storage-a1600ef0c"
+source_finding: "2026-03-06-reth-storage-a1600ef0c.md"
+project: "reth"
+date: "2026-03-06"
+language_tags: 
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "proof-integrity"
+subsystem: "storage"
+architecture_tags: 
+  - "execution-client"
+  - "state-storage"
+  - "authenticated-data-structure"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: 
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "authenticated-state-proof-integrity"
+violated_invariant: "When masking trie branches for downstream proof or state-root work, a branch must not retain a cached child hash if masking leaves only one hashed child; the remaining child must be revealed so the branch can collapse into a structurally valid form."
+trust_boundary: "state database/proof request -> authenticated trie output"
+entrypoint_type: "trie-update/proof-generation-path"
+sensitive_sink: "state root, proof, or trie node persistence"
+
+attacker_capabilities: 
+  - "drive the node into the affected state-provider, trie, or persistence path through normal sync/execution inputs"
+  - "supply or trigger forked, partial, stale, or boundary-condition state"
+exploit_preconditions: 
+  - "the affected path must be reachable in the deployed configuration"
+  - "no independent validation layer may enforce the same invariant before the sensitive sink"
+  - "the supplied evidence does not prove end-to-end exploitability, so impact depends on reachability"
+blast_radius: "node-local-to-chain-wide"
+
+impact_types: 
+  - "proof-integrity"
+  - "state-integrity"
+severity_guess: "low"
+severity_rationale: "The issue is in a consensus/state-sensitive path, but the evidence supports hardening rather than a demonstrated invalid-state acceptance exploit."
+
+code_shape_summary: "An overly narrow condition tied cleanup of the final surviving hashed child to the old `state_mask == hash_mask` case instead of the actual invariant: once masking leaves only one hashed child, that cached hash is no longer valid because the branch should collapse."
+search_motifs: 
+  - "cached execution or state object reused after parent hash, fork, or call context changes"
+  - "cached execution or state object reused after parent hash, fork, or call context changes"
+  - "trie proof/update path drops empty-root, revealed-node, or rollback state needed for authenticated output"
+  - "search for `MaskedTrieCursor::mask_node` call sites that derive, cache, or validate security-sensitive state"
+  - "search for `state_mask` call sites that derive, cache, or validate security-sensitive state"
+negative_signals: 
+  - "No evidence shows untrusted input or attacker-controlled reachability to this path"
+  - "No downstream verification or consensus failure is demonstrated in the patch itself"
+  - "No concrete exploit scenario, privilege impact, or acceptance of forged state is shown"
+  - "A similar patch is lower risk if an earlier mandatory validator already rejects the malformed input before this path."
+  - "Treat as provenance-only if the affected code is test-only, debug-only, or unreachable from peer/RPC/engine/sync inputs."
+patch_pattern: "Remove a special-case guard and enforce the structural post-update invariant directly in the masking logic."
+
+source_refs: 
+  - "git:a1600ef0c6b12944853dd48b68a4eaa53520859a"
+  - "crates/trie/trie/src/trie_cursor/masked.rs:614"
+  - "crates/trie/trie/src/trie_cursor/masked.rs:124"
+  - "crates/trie/trie/src/trie_cursor/masked.rs:414"
+  - "crates/trie/trie/src/trie_cursor/masked.rs:589"
+  - "/testing/reth/validated-findings/kept/2026-03-06-reth-storage-a1600ef0c.md"
+notes: 
+  - "Enriched from raw finding root-cause, fix-pattern, and validation evidence."
+  - "Evidence supports security hardening; exploitability should not be overstated."

@@ -1,0 +1,20 @@
+id: "reth-2026-03-21-reth-transaction-processing-b78f74f52"
+source_record: "reth-2026-03-21-reth-transaction-processing-b78f74f52.yaml"
+project: "reth"
+
+expected_bug_family: "authz_and_role_gates"
+expected_bug_class: "validation-bypass"
+expected_missing_property: "validation-gate-enforcement"
+
+expected_impact_band: "state_or_proof_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: 
+  - "No proof that untrusted production inputs could trigger the old bypasses"
+  - "No evidence of a demonstrated exploit, consensus split, or accepted malformed block before the patch"
+  - "No direct patch evidence showing the exact runtime exposure of benchmark or replay-related paths"
+notes: 
+  - "Eval should expect a security-hardening classification unless end-to-end exploitability is independently shown."

@@ -1,0 +1,20 @@
+id: "reth-2023-08-02-reth-p2p-networking-94dfeb3ad"
+source_record: "reth-2023-08-02-reth-p2p-networking-94dfeb3ad.yaml"
+project: "reth"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "insufficient-input-validation"
+expected_missing_property: "protocol-rule-enforcement"
+
+expected_impact_band: "consensus_or_protocol_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: 
+  - "No supplied snippet shows validate_header_range being invoked in the downloader path"
+  - "No failing test, exploit narrative, or bug report is included"
+  - "No evidence shows malformed headers previously reached persistence or canonical chain state"
+notes: 
+  - "Eval should expect a security-hardening classification unless end-to-end exploitability is independently shown."

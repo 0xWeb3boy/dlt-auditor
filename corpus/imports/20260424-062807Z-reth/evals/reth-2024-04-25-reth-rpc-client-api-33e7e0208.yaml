@@ -1,0 +1,20 @@
+id: "reth-2024-04-25-reth-rpc-client-api-33e7e0208"
+source_record: "reth-2024-04-25-reth-rpc-client-api-33e7e0208.yaml"
+project: "reth"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "insufficient-bad-peer-penalization"
+expected_missing_property: "peer-policy-gating"
+
+expected_impact_band: "consensus_or_protocol_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: 
+  - "No proof that the pre-patch behavior enabled a concrete exploit or attacker-triggered denial of service"
+  - "No quantitative evidence of resource exhaustion, queue growth, or network-wide availability impact"
+  - "No evidence that empty bodies responses are always malicious rather than benign protocol edge cases"
+notes: 
+  - "Eval should expect a security-hardening classification unless end-to-end exploitability is independently shown."

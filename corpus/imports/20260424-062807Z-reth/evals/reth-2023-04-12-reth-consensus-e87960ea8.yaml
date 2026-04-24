@@ -1,0 +1,20 @@
+id: "reth-2023-04-12-reth-consensus-e87960ea8"
+source_record: "reth-2023-04-12-reth-consensus-e87960ea8.yaml"
+project: "reth"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "forkchoice-input-validation"
+expected_missing_property: "fork-state-consistency"
+
+expected_impact_band: "consensus_or_protocol_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: 
+  - "The patch does not prove that prior behavior accepted an invalid chain head or corrupted canonical state"
+  - "There is no evidence of attacker-controlled exploitation beyond normal engine/forkchoice inputs"
+  - "The commit message and diff do not describe a security incident, exploit, or concrete boundary violation"
+notes: 
+  - "Eval should expect a security-hardening classification unless end-to-end exploitability is independently shown."

@@ -1,0 +1,20 @@
+id: "reth-2026-04-20-reth-storage-d577814eb"
+source_record: "reth-2026-04-20-reth-storage-d577814eb.yaml"
+project: "reth"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "protocol-validation"
+expected_missing_property: "protocol-rule-enforcement"
+
+expected_impact_band: "state_or_proof_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: 
+  - "No test, trace, advisory, or issue text shows malformed payloads were previously accepted in practice"
+  - "No evidence shows chain-state corruption, consensus split, remote exploitation, or attacker-controlled impact"
+  - "The provided snippets do not show the full call flow from RPC input to block execution or state commitment"
+notes: 
+  - "Eval should expect a security-hardening classification unless end-to-end exploitability is independently shown."

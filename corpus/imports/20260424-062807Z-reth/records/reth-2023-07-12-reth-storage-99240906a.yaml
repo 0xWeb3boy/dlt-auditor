@@ -1,0 +1,66 @@
+id: "reth-2023-07-12-reth-storage-99240906a"
+source_finding: "2023-07-12-reth-storage-99240906a.md"
+project: "reth"
+date: "2023-07-12"
+language_tags: 
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "insufficient-state-validation"
+subsystem: "storage"
+architecture_tags: 
+  - "execution-client"
+  - "state-storage"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: 
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "protocol-rule-enforcement"
+violated_invariant: "A forkchoice update should only be acknowledged as VALID, or used to start payload building, when the supplied forkchoice state is consistent with the engine's canonical view of head, safe, and finalized state."
+trust_boundary: "execution/engine state transition -> persistent storage"
+entrypoint_type: "state-storage-update-path"
+sensitive_sink: "canonical database, trie updates, or state provider output"
+
+attacker_capabilities: 
+  - "drive the node into the affected state-provider, trie, or persistence path through normal sync/execution inputs"
+  - "supply or trigger forked, partial, stale, or boundary-condition state"
+exploit_preconditions: 
+  - "the affected path must be reachable in the deployed configuration"
+  - "no independent validation layer may enforce the same invariant before the sensitive sink"
+  - "the supplied evidence does not prove end-to-end exploitability, so impact depends on reachability"
+blast_radius: "node-local-to-chain-wide"
+
+impact_types: 
+  - "invalid-state-acceptance"
+  - "consensus-integrity-risk"
+  - "consensus-integrity"
+  - "state-integrity"
+severity_guess: "low"
+severity_rationale: "The issue is in a consensus/state-sensitive path, but the evidence supports hardening rather than a demonstrated invalid-state acceptance exploit."
+
+code_shape_summary: "Consistency validation for forkchoice state was not enforced at all of the relevant return and side-effect points. In particular, the payload-attributes path could bypass the new checks, and a computed status could be returned without confirming the forkchoice state matched canonical engine state."
+search_motifs: 
+  - "fork-specific consensus rule selected from incomplete boundary inputs or generic validator"
+  - "insufficient-state-validation fixes that add fail-closed validation before persistence, propagation, or canonicalization"
+negative_signals: 
+  - "No proof that an external attacker or untrusted peer could trigger the inconsistent state condition"
+  - "No reproducer, test, or incident report showing a real consensus split, finalized-state violation, or chain safety failure"
+  - "No evidence of authentication, cryptographic, memory-safety, or privilege-boundary impact"
+  - "A similar patch is lower risk if an earlier mandatory validator already rejects the malformed input before this path."
+  - "Treat as provenance-only if the affected code is test-only, debug-only, or unreachable from peer/RPC/engine/sync inputs."
+patch_pattern: "Add explicit invariant checks at the boundary before side effects and before returning success, using canonical-state queries to validate the supplied forkchoice state."
+
+source_refs: 
+  - "git:99240906a844ae7a8b6b6032fc3b0f64dce22f25"
+  - "crates/consensus/beacon/src/engine/mod.rs:671"
+  - "crates/consensus/beacon/src/engine/mod.rs:638"
+  - "crates/consensus/beacon/src/engine/mod.rs:769"
+  - "crates/blockchain-tree/src/shareable.rs:159"
+  - "/testing/reth/validated-findings/kept/2023-07-12-reth-storage-99240906a.md"
+notes: 
+  - "Enriched from raw finding root-cause, fix-pattern, and validation evidence."
+  - "Evidence supports security hardening; exploitability should not be overstated."

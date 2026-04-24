@@ -1,0 +1,66 @@
+id: "reth-2023-04-11-reth-transaction-processing-e0e449d5f"
+source_finding: "2023-04-11-reth-transaction-processing-e0e449d5f.md"
+project: "reth"
+date: "2023-04-11"
+language_tags: 
+  - "rust"
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "signature-input-validation"
+subsystem: "transaction-processing"
+architecture_tags: 
+  - "execution-client"
+  - "transaction-pool"
+  - "execution-layer"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: 
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "signature-field-validation"
+violated_invariant: "Ethereum signature decoding should preserve the canonical `v` encoding used by the scheme: EIP-155 values use `35 + 2*chain_id + parity`, and legacy values use only `27` or `28`. The decoder should reject other legacy `v` values rather than coercing them into a parity bit."
+trust_boundary: "externally supplied transaction bytes -> signer recovery"
+entrypoint_type: "transaction-signature-decoder"
+sensitive_sink: "authenticated transaction sender identity"
+
+attacker_capabilities: 
+  - "submit crafted transactions, sidecars, or transaction-derived requests"
+  - "choose fields that exercise fork, signature, size, or policy edge cases"
+exploit_preconditions: 
+  - "the affected path must be reachable in the deployed configuration"
+  - "no independent validation layer may enforce the same invariant before the sensitive sink"
+  - "the supplied evidence does not prove end-to-end exploitability, so impact depends on reachability"
+blast_radius: "node-local"
+
+impact_types: 
+  - "acceptance-of-malformed-input"
+  - "signature-validation-bypass"
+severity_guess: "low"
+severity_rationale: "The evidence supports a correctness or hardening fix without a demonstrated attacker-controlled impact."
+
+code_shape_summary: "The legacy signature decode path derived `odd_y_parity` from the raw `v` value without first enforcing the Ethereum legacy constraint that `v` must be exactly `27` or `28`. That allowed non-canonical legacy-branch inputs to be normalized instead of rejected at parse time."
+search_motifs: 
+  - "signature recovery accepts non-canonical v/s values or exposes unchecked recovery in validation paths"
+  - "search for `27` call sites that derive, cache, or validate security-sensitive state"
+  - "search for `28` call sites that derive, cache, or validate security-sensitive state"
+  - "search for `odd_y_parity` call sites that derive, cache, or validate security-sensitive state"
+  - "signature-input-validation fixes that add fail-closed validation before persistence, propagation, or canonicalization"
+negative_signals: 
+  - "No proof that malformed legacy v values were accepted into execution or consensus-critical flows"
+  - "No test or report showing signature forgery, replay, chain split, or sender-recovery abuse"
+  - "No downstream evidence that noncanonical values changed authorization or transaction acceptance semantics"
+  - "A similar patch is lower risk if an earlier mandatory validator already rejects the malformed input before this path."
+  - "Treat as provenance-only if the affected code is test-only, debug-only, or unreachable from peer/RPC/engine/sync inputs."
+patch_pattern: "Add explicit canonical-value validation at the decode boundary for signature metadata and fail closed on malformed encodings instead of normalizing them."
+
+source_refs: 
+  - "git:e0e449d5fffd816b3a5e11df33322e56c017d41d"
+  - "crates/primitives/src/transaction/signature.rs:61"
+  - "crates/primitives/src/transaction/signature.rs:48"
+  - "/testing/reth/validated-findings/kept/2023-04-11-reth-transaction-processing-e0e449d5f.md"
+notes: 
+  - "Enriched from raw finding root-cause, fix-pattern, and validation evidence."
+  - "Evidence supports security hardening; exploitability should not be overstated."

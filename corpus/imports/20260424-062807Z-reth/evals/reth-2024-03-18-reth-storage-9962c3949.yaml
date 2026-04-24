@@ -1,0 +1,20 @@
+id: "reth-2024-03-18-reth-storage-9962c3949"
+source_record: "reth-2024-03-18-reth-storage-9962c3949.yaml"
+project: "reth"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "ignored-error-result"
+expected_missing_property: "input-invariant-enforcement"
+
+expected_impact_band: "consensus_or_protocol_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: 
+  - "The patch does not show that invalid or attacker-controlled blocks were previously accepted as canonical"
+  - "No exploit scenario, attacker trigger, or external attack path is demonstrated in the provided evidence"
+  - "The downloaded-block path logs unexpected failures, but the evidence does not show complete rejection or rollback semantics for all failures"
+notes: 
+  - "Eval should expect a security-hardening classification unless end-to-end exploitability is independently shown."

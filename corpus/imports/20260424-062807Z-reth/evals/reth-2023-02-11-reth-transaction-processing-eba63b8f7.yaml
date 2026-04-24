@@ -1,0 +1,20 @@
+id: "reth-2023-02-11-reth-transaction-processing-eba63b8f7"
+source_record: "reth-2023-02-11-reth-transaction-processing-eba63b8f7.yaml"
+project: "reth"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "consensus-transition-check"
+expected_missing_property: "protocol-rule-enforcement"
+
+expected_impact_band: "consensus_or_protocol_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: 
+  - "No test, reproducer, or failing scenario shows acceptance of invalid blocks or rejection of valid ones before the patch"
+  - "No evidence demonstrates a concrete attacker-controlled exploit path or remote trigger beyond transition-boundary correctness"
+  - "No proof is provided of chain split, consensus bypass, or production impact on specific networks"
+notes: 
+  - "Eval should expect a security-hardening classification unless end-to-end exploitability is independently shown."

@@ -1,0 +1,65 @@
+id: "reth-2026-02-04-reth-transaction-processing-7671838c6"
+source_finding: "2026-02-04-reth-transaction-processing-7671838c6.md"
+project: "reth"
+date: "2026-02-04"
+language_tags: 
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-safety"
+subsystem: "transaction-processing"
+architecture_tags: 
+  - "execution-client"
+  - "transaction-pool"
+  - "execution-layer"
+  - "consensus-engine"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: 
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "protocol-rule-enforcement"
+violated_invariant: "After EIP-7778/Amsterdam, block validation must keep two gas-accounting meanings separate: block-header gas_used must be checked against execution-result gas_used, while receipt cumulative_gas_used must remain the receipt-format value. Validation and receipt construction must not treat those values as interchangeable."
+trust_boundary: "transaction execution/precompile call -> gas accounting state"
+entrypoint_type: "state-transition/precompile-execution"
+sensitive_sink: "gas reservoir, receipt, and execution accounting"
+
+attacker_capabilities: 
+  - "submit crafted transactions, sidecars, or transaction-derived requests"
+  - "choose fields that exercise fork, signature, size, or policy edge cases"
+exploit_preconditions: 
+  - "the affected path must be reachable in the deployed configuration"
+  - "no independent validation layer may enforce the same invariant before the sensitive sink"
+  - "the supplied evidence does not prove end-to-end exploitability, so impact depends on reachability"
+blast_radius: "node-local-to-chain-wide"
+
+impact_types: 
+  - "consensus-integrity"
+severity_guess: "low"
+severity_rationale: "The issue is in a consensus/state-sensitive path, but the evidence supports hardening rather than a demonstrated invalid-state acceptance exploit."
+
+code_shape_summary: "The root cause was inconsistent handling of two different gas-accounting values after EIP-7778/Amsterdam. Receipt construction and block validation were not clearly carrying and using the protocol-correct value for each purpose, creating a risk that header validation would compare against the wrong gas source."
+search_motifs: 
+  - "fork-specific consensus rule selected from incomplete boundary inputs or generic validator"
+  - "consensus-safety fixes that add fail-closed validation before persistence, propagation, or canonicalization"
+negative_signals: 
+  - "No failing test, reproducer, or execution trace is provided showing concrete invalid acceptance or rejection before the fix"
+  - "No advisory, commit text, or patch evidence states attacker exploitability or an observed chain split"
+  - "The excerpt does not prove whether the bug could be triggered by adversarial blocks in practice versus causing compatibility issues at fork activation"
+  - "A similar patch is lower risk if an earlier mandatory validator already rejects the malformed input before this path."
+  - "Treat as provenance-only if the affected code is test-only, debug-only, or unreachable from peer/RPC/engine/sync inputs."
+patch_pattern: "Separate protocol meanings that were previously conflated, then thread the correct value through each validation boundary instead of reusing a nearby but semantically different field."
+
+source_refs: 
+  - "git:7671838c61f0fc180a1363ecdb7be4a2934e842e"
+  - "crates/ethereum/evm/src/receipt.rs:16"
+  - "crates/stateless/src/validation.rs:238"
+  - "crates/ethereum/consensus/src/validation.rs:16"
+  - "crates/ethereum/consensus/src/validation.rs:34"
+  - "/testing/reth/validated-findings/kept/2026-02-04-reth-transaction-processing-7671838c6.md"
+notes: 
+  - "Enriched from raw finding root-cause, fix-pattern, and validation evidence."
+  - "Evidence supports security hardening; exploitability should not be overstated."

@@ -1,0 +1,63 @@
+id: "reth-2026-04-21-reth-storage-d92ad5aa3"
+source_finding: "2026-04-21-reth-storage-d92ad5aa3.md"
+project: "reth"
+date: "2026-04-21"
+language_tags: 
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "improper-state-binding"
+subsystem: "storage"
+architecture_tags: 
+  - "execution-client"
+  - "state-storage"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: 
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "state-coordinate-consistency"
+violated_invariant: "Overlay-backed state views should be resolved, reverted, and cached against the exact anchor block hash when fork identity matters; block height alone is not a sufficient identity."
+trust_boundary: "forkchoice or sidechain state -> persistent storage provider"
+entrypoint_type: "blockchain-tree/state-provider-path"
+sensitive_sink: "canonical state view, fork ancestry, or persisted trie updates"
+
+attacker_capabilities: 
+  - "drive the node into the affected state-provider, trie, or persistence path through normal sync/execution inputs"
+  - "supply or trigger forked, partial, stale, or boundary-condition state"
+exploit_preconditions: 
+  - "the affected path must be reachable in the deployed configuration"
+  - "no independent validation layer may enforce the same invariant before the sensitive sink"
+  - "the supplied evidence does not prove end-to-end exploitability, so impact depends on reachability"
+blast_radius: "node-local-to-chain-wide"
+
+impact_types: 
+  - "state-integrity"
+severity_guess: "low"
+severity_rationale: "The issue is in a consensus/state-sensitive path, but the evidence supports hardening rather than a demonstrated invalid-state acceptance exploit."
+
+code_shape_summary: "Overlay resolution, revert selection, and cache lookup were not consistently tied to the same fork identity. The pre-patch code mixed optional anchor state with block-number-based decisions, which is weaker than explicit hash-based binding when different branches can share the same height."
+search_motifs: 
+  - "block-number or optional-anchor checks used where hash identity is required"
+  - "improper-state-binding fixes that add fail-closed validation before persistence, propagation, or canonicalization"
+negative_signals: 
+  - "No reproducer, advisory, or test demonstrates attacker-triggerable impact"
+  - "No patch evidence shows invalid block acceptance, consensus split, or proof forgery"
+  - "The touched lazy_overlay.rs file is not shown line-by-line, so its exact security effect is not proven"
+  - "A similar patch is lower risk if an earlier mandatory validator already rejects the malformed input before this path."
+  - "Treat as provenance-only if the affected code is test-only, debug-only, or unreachable from peer/RPC/engine/sync inputs."
+patch_pattern: "Replace implicit or number-based state selection with explicit hash-threading and hash-based identity checks in overlay resolution, revert calculation, and cache keying."
+
+source_refs: 
+  - "git:d92ad5aa3483be6f478f5ee964b9fd651883eb87"
+  - "crates/storage/provider/src/providers/state/overlay.rs:198"
+  - "crates/storage/provider/src/providers/state/overlay.rs:252"
+  - "crates/storage/provider/src/providers/state/overlay.rs:412"
+  - "crates/storage/provider/src/providers/state/overlay.rs:79"
+  - "/testing/reth/validated-findings/kept/2026-04-21-reth-storage-d92ad5aa3.md"
+notes: 
+  - "Enriched from raw finding root-cause, fix-pattern, and validation evidence."
+  - "Evidence supports security hardening; exploitability should not be overstated."

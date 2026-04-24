@@ -1,0 +1,66 @@
+id: "reth-2023-08-29-reth-p2p-networking-03afe376b"
+source_finding: "2023-08-29-reth-p2p-networking-03afe376b.md"
+project: "reth"
+date: "2023-08-29"
+language_tags: 
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "listener-filter-bypass"
+subsystem: "p2p-networking"
+architecture_tags: 
+  - "execution-client"
+  - "p2p-network"
+  - "peer-scoring"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: 
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "peer-policy-gating"
+violated_invariant: "`PropagateOnly` listeners should not receive transaction events for entries marked `propagate = false`. The diff shows this rule was enforced for related iterator paths and was added to the full transaction event stream in this patch."
+trust_boundary: "transaction pool policy -> network listener stream"
+entrypoint_type: "txpool-event-listener"
+sensitive_sink: "transaction propagation stream"
+
+attacker_capabilities: 
+  - "submit crafted transactions, sidecars, or transaction-derived requests"
+  - "choose fields that exercise fork, signature, size, or policy edge cases"
+exploit_preconditions: 
+  - "the affected path must be reachable in the deployed configuration"
+  - "no independent validation layer may enforce the same invariant before the sensitive sink"
+  - "the supplied evidence does not prove end-to-end exploitability, so impact depends on reachability"
+blast_radius: "node-local"
+
+impact_types: 
+  - "policy-bypass"
+  - "network-policy-bypass"
+severity_guess: "low"
+severity_rationale: "The evidence supports a correctness or hardening fix without a demonstrated attacker-controlled impact."
+
+code_shape_summary: "A missing filter at the full transaction event fan-out point allowed the full-stream path to ignore listener-kind propagation restrictions that were already described elsewhere in the subsystem."
+search_motifs: 
+  - "Result-returning consensus/storage operation called without propagating errors"
+  - "search for `PropagateOnly` call sites that derive, cache, or validate security-sensitive state"
+  - "listener-filter-bypass fixes that add fail-closed validation before persistence, propagation, or canonicalization"
+negative_signals: 
+  - "No proof that non-propagable transactions were actually broadcast to remote peers"
+  - "No proof of attacker control over the affected listener path or a practical exploit chain"
+  - "No evidence of confidentiality breach, consensus failure, or state corruption from this bug"
+  - "A similar patch is lower risk if an earlier mandatory validator already rejects the malformed input before this path."
+  - "Treat as provenance-only if the affected code is test-only, debug-only, or unreachable from peer/RPC/engine/sync inputs."
+patch_pattern: "Add an explicit eligibility check at event dispatch time so restricted listeners do not receive events outside their declared scope, then align related types and API documentation to the same rule."
+
+source_refs: 
+  - "git:03afe376b85cb424270a48eb3e5a97db8c5f2af4"
+  - "crates/transaction-pool/src/pool/mod.rs:517"
+  - "crates/transaction-pool/src/pool/mod.rs:749"
+  - "crates/transaction-pool/src/pool/mod.rs:891"
+  - "crates/transaction-pool/src/pool/mod.rs:775"
+  - "/testing/reth/validated-findings/kept/2023-08-29-reth-p2p-networking-03afe376b.md"
+notes: 
+  - "Enriched from raw finding root-cause, fix-pattern, and validation evidence."
+  - "Evidence supports security hardening; exploitability should not be overstated."

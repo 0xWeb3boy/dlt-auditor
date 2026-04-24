@@ -1,0 +1,69 @@
+id: "reth-2023-01-20-reth-p2p-networking-eb11da8ad"
+source_finding: "2023-01-20-reth-p2p-networking-eb11da8ad.md"
+project: "reth"
+date: "2023-01-20"
+language_tags: 
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "p2p-handshake-state-inconsistency"
+subsystem: "p2p-networking"
+architecture_tags: 
+  - "execution-client"
+  - "p2p-network"
+  - "peer-scoring"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: 
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "state-coordinate-consistency"
+violated_invariant: "The relevant invariant is protocol consistency: the outbound ETH `Status` fields and the `ForkFilter` used during peer compatibility checks should be derived from the same `ChainSpec` and local head. The patch enforces that consistency, but the provided evidence does not establish a repaired security boundary or exploit path."
+trust_boundary: "remote peer -> pending session admission"
+entrypoint_type: "p2p-session-setup"
+sensitive_sink: "authenticated peer session table"
+
+attacker_capabilities: 
+  - "operate or influence a peer that sends protocol messages or responses"
+  - "shape timing, payload contents, or peer quality signals reaching the node"
+exploit_preconditions: 
+  - "the affected path must be reachable in the deployed configuration"
+  - "no independent validation layer may enforce the same invariant before the sensitive sink"
+  - "the supplied evidence does not prove end-to-end exploitability, so impact depends on reachability"
+blast_radius: "node-local-to-chain-wide"
+
+impact_types: 
+  - "peer-authentication-risk"
+  - "state-integrity"
+  - "network-policy-bypass"
+severity_guess: "low"
+severity_rationale: "The issue is in a consensus/state-sensitive path, but the evidence supports hardening rather than a demonstrated invalid-state acceptance exploit."
+
+code_shape_summary: "Handshake metadata was assembled from separate optional builder inputs and partially independent defaults instead of being derived together from one authoritative source. That structure allowed `Status` setup and fork-filter setup to drift from the same `ChainSpec` and head context."
+search_motifs: 
+  - "peer admission, listener notification, or response scheduling bypasses fork/status/policy checks"
+  - "search for `Status` call sites that derive, cache, or validate security-sensitive state"
+  - "search for `ForkFilter` call sites that derive, cache, or validate security-sensitive state"
+  - "search for `ChainSpec` call sites that derive, cache, or validate security-sensitive state"
+  - "p2p-handshake-state-inconsistency fixes that add fail-closed validation before persistence, propagation, or canonicalization"
+negative_signals: 
+  - "No proof that the old code accepted malicious or wrong-chain peers in practice"
+  - "No test, advisory, or commit message explicitly describing a vulnerability or attack scenario"
+  - "No evidence of consensus compromise, authentication bypass, or replay exploitation from the prior behavior alone"
+  - "A similar patch is lower risk if an earlier mandatory validator already rejects the malformed input before this path."
+  - "Treat as provenance-only if the affected code is test-only, debug-only, or unreachable from peer/RPC/engine/sync inputs."
+patch_pattern: "Replace separately carried or partially defaulted handshake fields with a single derivation path that computes all related protocol metadata from shared authoritative inputs at build time."
+
+source_refs: 
+  - "git:eb11da8adffc522e07490da89d9a295410dc1436"
+  - "crates/net/eth-wire/src/types/status.rs:83"
+  - "crates/net/network/src/config.rs:292"
+  - "crates/net/network/src/config.rs:147"
+  - "crates/net/network/src/config.rs:170"
+  - "/testing/reth/validated-findings/kept/2023-01-20-reth-p2p-networking-eb11da8ad.md"
+notes: 
+  - "Enriched from raw finding root-cause, fix-pattern, and validation evidence."
+  - "Evidence supports security hardening; exploitability should not be overstated."

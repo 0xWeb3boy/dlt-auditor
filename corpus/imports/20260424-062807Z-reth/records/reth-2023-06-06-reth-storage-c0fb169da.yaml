@@ -1,0 +1,66 @@
+id: "reth-2023-06-06-reth-storage-c0fb169da"
+source_finding: "2023-06-06-reth-storage-c0fb169da.md"
+project: "reth"
+date: "2023-06-06"
+language_tags: 
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-error-handling"
+subsystem: "storage"
+architecture_tags: 
+  - "execution-client"
+  - "state-storage"
+  - "consensus-engine"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: 
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "protocol-rule-enforcement"
+violated_invariant: "Consensus-related failures should be represented as validation failures with enough block context for the pipeline to reject or recover consistently."
+trust_boundary: "execution/engine state transition -> persistent storage"
+entrypoint_type: "state-storage-update-path"
+sensitive_sink: "canonical database, trie updates, or state provider output"
+
+attacker_capabilities: 
+  - "drive the node into the affected state-provider, trie, or persistence path through normal sync/execution inputs"
+  - "supply or trigger forked, partial, stale, or boundary-condition state"
+exploit_preconditions: 
+  - "the affected path must be reachable in the deployed configuration"
+  - "no independent validation layer may enforce the same invariant before the sensitive sink"
+  - "the supplied evidence does not prove end-to-end exploitability, so impact depends on reachability"
+blast_radius: "node-local-to-chain-wide"
+
+impact_types: 
+  - "consensus-integrity-risk"
+  - "consensus-integrity"
+  - "state-integrity"
+severity_guess: "low"
+severity_rationale: "The issue is in a consensus/state-sensitive path, but the evidence supports hardening rather than a demonstrated invalid-state acceptance exploit."
+
+code_shape_summary: "The visible root cause is inconsistent error typing and missing context on some failure paths. The pre-patch code detected failures, but the shown snippets did not preserve validation-oriented semantics or block context in a uniform way."
+search_motifs: 
+  - "fork-specific consensus rule selected from incomplete boundary inputs or generic validator"
+  - "consensus-error-handling fixes that add fail-closed validation before persistence, propagation, or canonicalization"
+negative_signals: 
+  - "No downstream pipeline snippet proves the old error types actually skipped unwind handling"
+  - "No proof that invalid state was previously committed or made durable"
+  - "No evidence of attacker control, exploitability, or a real consensus split"
+  - "A similar patch is lower risk if an earlier mandatory validator already rejects the malformed input before this path."
+  - "Treat as provenance-only if the affected code is test-only, debug-only, or unreachable from peer/RPC/engine/sync inputs."
+patch_pattern: "Reclassify detected invalid-data conditions as validation errors and attach block context to sender-recovery failures."
+
+source_refs: 
+  - "git:c0fb169da497aff4e44a234fa041c1bba484751d"
+  - "crates/stages/src/stages/sender_recovery.rs:149"
+  - "crates/blockchain-tree/src/blockchain_tree.rs:870"
+  - "crates/revm/src/executor.rs:540"
+  - "crates/revm/src/executor.rs:530"
+  - "/testing/reth/validated-findings/kept/2023-06-06-reth-storage-c0fb169da.md"
+notes: 
+  - "Enriched from raw finding root-cause, fix-pattern, and validation evidence."
+  - "Evidence supports security hardening; exploitability should not be overstated."

@@ -1,0 +1,20 @@
+id: "reth-2023-01-20-reth-p2p-networking-eb11da8ad"
+source_record: "reth-2023-01-20-reth-p2p-networking-eb11da8ad.yaml"
+project: "reth"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "p2p-handshake-state-inconsistency"
+expected_missing_property: "state-coordinate-consistency"
+
+expected_impact_band: "auth_or_access_control"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: 
+  - "No proof that the old code accepted malicious or wrong-chain peers in practice"
+  - "No test, advisory, or commit message explicitly describing a vulnerability or attack scenario"
+  - "No evidence of consensus compromise, authentication bypass, or replay exploitation from the prior behavior alone"
+notes: 
+  - "Eval should expect a security-hardening classification unless end-to-end exploitability is independently shown."

@@ -1,0 +1,63 @@
+id: "reth-2023-05-02-reth-storage-be87dcc68"
+source_finding: "2023-05-02-reth-storage-be87dcc68.md"
+project: "reth"
+date: "2023-05-02"
+language_tags: 
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "checkpoint-target-mismatch"
+subsystem: "storage"
+architecture_tags: 
+  - "execution-client"
+  - "state-storage"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: 
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "checkpoint-target-binding"
+violated_invariant: "If the Merkle stage resumes a multi-step trie rebuild from persisted progress, that checkpoint must correspond to the same `to_block` as the rebuild currently being executed; otherwise persisted progress and the rebuild target can diverge."
+trust_boundary: "execution/engine state transition -> persistent storage"
+entrypoint_type: "state-storage-update-path"
+sensitive_sink: "canonical database, trie updates, or state provider output"
+
+attacker_capabilities: 
+  - "drive the node into the affected state-provider, trie, or persistence path through normal sync/execution inputs"
+  - "supply or trigger forked, partial, stale, or boundary-condition state"
+exploit_preconditions: 
+  - "the affected path must be reachable in the deployed configuration"
+  - "no independent validation layer may enforce the same invariant before the sensitive sink"
+  - "the supplied evidence does not prove end-to-end exploitability, so impact depends on reachability"
+blast_radius: "node-local-to-chain-wide"
+
+impact_types: 
+  - "state-integrity"
+severity_guess: "low"
+severity_rationale: "The issue is in a consensus/state-sensitive path, but the evidence supports hardening rather than a demonstrated invalid-state acceptance exploit."
+
+code_shape_summary: "Persisted Merkle rebuild progress was not strictly bound to the current rebuild target at the resume/save boundary, and stale checkpoint metadata was not explicitly invalidated before a fresh rebuild."
+search_motifs: 
+  - "cached execution or state object reused after parent hash, fork, or call context changes"
+  - "checkpoint-target-mismatch fixes that add fail-closed validation before persistence, propagation, or canonicalization"
+negative_signals: 
+  - "No proof that a remote peer or attacker could intentionally trigger the stale-checkpoint condition"
+  - "No test, incident report, or reproduction showing invalid state roots, bad block acceptance, or consensus divergence before the fix"
+  - "No evidence that the pre-fix behavior led to more than incorrect resume behavior, wasted work, or local rebuild inconsistency"
+  - "A similar patch is lower risk if an earlier mandatory validator already rejects the malformed input before this path."
+  - "Treat as provenance-only if the affected code is test-only, debug-only, or unreachable from peer/RPC/engine/sync inputs."
+patch_pattern: "Validate persisted resume state against the current execution target, invalidate stale checkpoint metadata before restarting, and persist future checkpoints with explicit target context."
+
+source_refs: 
+  - "git:be87dcc68221eecc19be814297806a25c859192b"
+  - "crates/stages/src/stages/merkle.rs:169"
+  - "crates/stages/src/stages/merkle.rs:199"
+  - "crates/stages/src/stages/merkle.rs:183"
+  - "crates/trie/src/progress.rs:28"
+  - "/testing/reth/validated-findings/kept/2023-05-02-reth-storage-be87dcc68.md"
+notes: 
+  - "Enriched from raw finding root-cause, fix-pattern, and validation evidence."
+  - "Evidence supports security hardening; exploitability should not be overstated."

@@ -1,0 +1,20 @@
+id: "reth-2022-12-15-reth-transaction-processing-9208f2fd9"
+source_record: "reth-2022-12-15-reth-transaction-processing-9208f2fd9.yaml"
+project: "reth"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "fork-selection-logic"
+expected_missing_property: "fork-state-consistency"
+
+expected_impact_band: "consensus_or_protocol_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: 
+  - "No evidence shows the buggy spec selection was exploitable by an attacker in deployed configurations"
+  - "No observed consensus split, chain acceptance failure, or state divergence is documented in the provided material"
+  - "No security advisory, vulnerability report, or exploit narrative ties this commit to a concrete security incident"
+notes: 
+  - "Eval should expect a security-hardening classification unless end-to-end exploitability is independently shown."

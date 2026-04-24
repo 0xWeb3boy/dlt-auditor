@@ -1,0 +1,20 @@
+id: "reth-2024-02-15-reth-transaction-processing-945031900"
+source_record: "reth-2024-02-15-reth-transaction-processing-945031900.yaml"
+project: "reth"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "missing-protocol-validation"
+expected_missing_property: "cryptographic-data-binding"
+
+expected_impact_band: "protocol_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: 
+  - "No proof that this validator guarded every block-import, mempool, or consensus-relevant path"
+  - "No test or reproducer showing that malformed transactions were actually accepted before the patch"
+  - "No evidence of real exploitability, chain split, fund loss, or peer-driven impact"
+notes: 
+  - "Eval should expect a security-hardening classification unless end-to-end exploitability is independently shown."

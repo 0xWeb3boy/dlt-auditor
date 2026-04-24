@@ -1,0 +1,66 @@
+id: "reth-2023-09-21-reth-transaction-processing-6a601755c"
+source_finding: "2023-09-21-reth-transaction-processing-6a601755c.md"
+project: "reth"
+date: "2023-09-21"
+language_tags: 
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "numeric-range-validation"
+subsystem: "transaction-processing"
+architecture_tags: 
+  - "execution-client"
+  - "transaction-pool"
+  - "execution-layer"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: 
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "numeric-bound-validation"
+violated_invariant: "Transaction fields supplied through the ETH RPC request path must fit the destination primitive transaction field widths before conversion. If `nonce`, `gas_limit`, or `value` exceed the supported bounds, conversion should fail rather than constructing a primitive transaction anyway."
+trust_boundary: "transaction execution/precompile call -> gas accounting state"
+entrypoint_type: "state-transition/precompile-execution"
+sensitive_sink: "gas reservoir, receipt, and execution accounting"
+
+attacker_capabilities: 
+  - "submit crafted transactions, sidecars, or transaction-derived requests"
+  - "choose fields that exercise fork, signature, size, or policy edge cases"
+exploit_preconditions: 
+  - "the affected path must be reachable in the deployed configuration"
+  - "no independent validation layer may enforce the same invariant before the sensitive sink"
+  - "the supplied evidence does not prove end-to-end exploitability, so impact depends on reachability"
+blast_radius: "node-local"
+
+impact_types: 
+  - "invalid-input-rejection"
+severity_guess: "low"
+severity_rationale: "The evidence supports a correctness or hardening fix without a demonstrated attacker-controlled impact."
+
+code_shape_summary: "The root cause supported by the diff is an infallible conversion boundary from RPC-shaped transaction requests into narrower primitive transaction fields without an explicit checked failure path for oversized values."
+search_motifs: 
+  - "search for `TypedTransactionRequest::into_transaction` call sites that derive, cache, or validate security-sensitive state"
+  - "search for `nonce` call sites that derive, cache, or validate security-sensitive state"
+  - "search for `gas_limit` call sites that derive, cache, or validate security-sensitive state"
+  - "numeric-range-validation fixes that add fail-closed validation before persistence, propagation, or canonicalization"
+negative_signals: 
+  - "No proof that the old behavior caused a panic, crash, or request-amplified denial of service"
+  - "No proof of silent truncation or construction of a materially different transaction before the fix"
+  - "No exploit narrative, attacker model, or test demonstrating abusive RPC reachability and impact"
+  - "A similar patch is lower risk if an earlier mandatory validator already rejects the malformed input before this path."
+  - "Treat as provenance-only if the affected code is test-only, debug-only, or unreachable from peer/RPC/engine/sync inputs."
+patch_pattern: "Replace infallible cross-type conversion with checked, fallible conversion at the boundary where wider RPC numeric fields are mapped into narrower primitive transaction fields."
+
+source_refs: 
+  - "git:6a601755c9270dbb0390f3fb603aaffe397cd7a8"
+  - "crates/rpc/rpc-types/src/eth/transaction/typed.rs:24"
+  - "crates/rpc/rpc/src/eth/api/transactions.rs:447"
+  - "crates/rpc/rpc-types/src/eth/transaction/request.rs:97"
+  - "crates/rpc/rpc-types/src/eth/transaction/request.rs:80"
+  - "/testing/reth/validated-findings/kept/2023-09-21-reth-transaction-processing-6a601755c.md"
+notes: 
+  - "Enriched from raw finding root-cause, fix-pattern, and validation evidence."
+  - "Evidence supports security hardening; exploitability should not be overstated."

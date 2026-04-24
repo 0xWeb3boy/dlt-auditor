@@ -1,0 +1,67 @@
+id: "reth-2026-04-01-reth-storage-7c1a43bac"
+source_finding: "2026-04-01-reth-storage-7c1a43bac.md"
+project: "reth"
+date: "2026-04-01"
+language_tags: 
+  - "rust"
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "gas-accounting-state-reuse"
+subsystem: "storage"
+architecture_tags: 
+  - "execution-client"
+  - "state-storage"
+  - "resource-accounting"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: 
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "per-call-resource-accounting"
+violated_invariant: "A precompile cache hit must preserve the current caller frame's gas accounting. Cached entries may reuse output bytes and regular gas usage, but must not replay a stale GasTracker carrying another call's reservoir or other live accounting state."
+trust_boundary: "execution/engine state transition -> persistent storage"
+entrypoint_type: "state-storage-update-path"
+sensitive_sink: "canonical database, trie updates, or state provider output"
+
+attacker_capabilities: 
+  - "drive the node into the affected state-provider, trie, or persistence path through normal sync/execution inputs"
+  - "supply or trigger forked, partial, stale, or boundary-condition state"
+exploit_preconditions: 
+  - "the affected path must be reachable in the deployed configuration"
+  - "no independent validation layer may enforce the same invariant before the sensitive sink"
+  - "the supplied evidence does not prove end-to-end exploitability, so impact depends on reachability"
+blast_radius: "node-local-to-chain-wide"
+
+impact_types: 
+  - "resource-accounting"
+  - "execution-integrity"
+  - "denial-of-service"
+  - "state-integrity"
+severity_guess: "medium"
+severity_rationale: "The bug weakens resource bounding or session cleanup in a remotely influenced path; concrete exploitability is not proven."
+
+code_shape_summary: "The cache stored and replayed a composite output object that embedded per-invocation gas state. On cache hits, the code treated that full object as reusable instead of reconstructing caller-specific accounting fields."
+search_motifs: 
+  - "limit check accounts for item count but omits byte size, gas state, or remaining range"
+  - "gas-accounting-state-reuse fixes that add fail-closed validation before persistence, propagation, or canonicalization"
+negative_signals: 
+  - "No proof that an external attacker can reliably trigger the faulty cache-hit path in a harmful way"
+  - "No demonstrated impact such as consensus split, invalid block acceptance/rejection, denial of service, or economic exploit"
+  - "No evidence quantifying whether the bug was reachable across trust boundaries or only affected internal correctness"
+  - "A similar patch is lower risk if an earlier mandatory validator already rejects the malformed input before this path."
+  - "Treat as provenance-only if the affected code is test-only, debug-only, or unreachable from peer/RPC/engine/sync inputs."
+patch_pattern: "When caching execution results, do not reuse embedded live accounting objects across invocations. Reconstruct invocation-specific state from current inputs and replay only stable cached data."
+
+source_refs: 
+  - "git:7c1a43bac59268c92990aea67e4fc38cf1049b7d"
+  - "crates/engine/tree/src/tree/precompile_cache.rs:375"
+  - "crates/engine/tree/src/tree/precompile_cache.rs:184"
+  - "crates/engine/tree/src/tree/precompile_cache.rs:88"
+  - "crates/engine/tree/src/tree/precompile_cache.rs:10"
+  - "/testing/reth/validated-findings/kept/2026-04-01-reth-storage-7c1a43bac.md"
+notes: 
+  - "Enriched from raw finding root-cause, fix-pattern, and validation evidence."
+  - "Evidence supports security hardening; exploitability should not be overstated."

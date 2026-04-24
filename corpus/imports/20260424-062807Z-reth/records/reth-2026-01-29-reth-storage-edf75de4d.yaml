@@ -1,0 +1,63 @@
+id: "reth-2026-01-29-reth-storage-edf75de4d"
+source_finding: "2026-01-29-reth-storage-edf75de4d.md"
+project: "reth"
+date: "2026-01-29"
+language_tags: 
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "atomicity-violation"
+subsystem: "storage"
+architecture_tags: 
+  - "execution-client"
+  - "state-storage"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: 
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "state-update-atomicity"
+violated_invariant: "Sparse trie updates should not mutate structure unless all required reveal steps for the affected path are available, and a failed update should restore prior state to the same subtrie location it came from."
+trust_boundary: "execution/engine state transition -> persistent storage"
+entrypoint_type: "state-storage-update-path"
+sensitive_sink: "canonical database, trie updates, or state provider output"
+
+attacker_capabilities: 
+  - "drive the node into the affected state-provider, trie, or persistence path through normal sync/execution inputs"
+  - "supply or trigger forked, partial, stale, or boundary-condition state"
+exploit_preconditions: 
+  - "the affected path must be reachable in the deployed configuration"
+  - "no independent validation layer may enforce the same invariant before the sensitive sink"
+  - "the supplied evidence does not prove end-to-end exploitability, so impact depends on reachability"
+blast_radius: "node-local-to-chain-wide"
+
+impact_types: 
+  - "state-integrity"
+severity_guess: "low"
+severity_rationale: "The issue is in a consensus/state-sensitive path, but the evidence supports hardening rather than a demonstrated invalid-state acceptance exploit."
+
+code_shape_summary: "The code allowed mutation to begin before all reveal dependencies for branch collapse were known to be available, and its rollback bookkeeping did not preserve enough location metadata to restore the previous state exactly after a blinded-node error."
+search_motifs: 
+  - "trie proof/update path drops empty-root, revealed-node, or rollback state needed for authenticated output"
+  - "atomicity-violation fixes that add fail-closed validation before persistence, propagation, or canonicalization"
+negative_signals: 
+  - "No proof that an external attacker can reliably trigger the blinded-node failure path"
+  - "No evidence of acceptance of invalid state, consensus split, replay issue, or cross-node security impact"
+  - "No reproducer, exploit scenario, or test demonstrating security consequences beyond local inconsistency/corruption risk"
+  - "A similar patch is lower risk if an earlier mandatory validator already rejects the malformed input before this path."
+  - "Treat as provenance-only if the affected code is test-only, debug-only, or unreachable from peer/RPC/engine/sync inputs."
+patch_pattern: "Move prerequisite validation ahead of mutation, and capture enough immutable origin metadata to perform exact rollback on retriable errors."
+
+source_refs: 
+  - "git:edf75de4d63a6bc02e157805fbd507a86cb7cf7c"
+  - "crates/trie/sparse-parallel/src/trie.rs:639"
+  - "crates/trie/sparse-parallel/src/trie.rs:1310"
+  - "crates/trie/sparse-parallel/src/trie.rs:1705"
+  - "crates/trie/sparse-parallel/src/trie.rs:609"
+  - "/testing/reth/validated-findings/kept/2026-01-29-reth-storage-edf75de4d.md"
+notes: 
+  - "Enriched from raw finding root-cause, fix-pattern, and validation evidence."
+  - "Evidence supports security hardening; exploitability should not be overstated."

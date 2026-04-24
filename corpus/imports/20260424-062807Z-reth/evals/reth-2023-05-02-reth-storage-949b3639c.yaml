@@ -1,0 +1,20 @@
+id: "reth-2023-05-02-reth-storage-949b3639c"
+source_record: "reth-2023-05-02-reth-storage-949b3639c.yaml"
+project: "reth"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "invalid-ancestor-handling"
+expected_missing_property: "parent-and-ancestor-validation"
+
+expected_impact_band: "consensus_or_protocol_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: 
+  - "No proof that the pre-patch behavior let an attacker make the node accept an invalid block as canonical"
+  - "No evidence of a demonstrated consensus split, slashing event, fund impact, or remote exploit path"
+  - "No test or commit text is provided showing the exact failure mode observed in production"
+notes: 
+  - "Eval should expect a security-hardening classification unless end-to-end exploitability is independently shown."

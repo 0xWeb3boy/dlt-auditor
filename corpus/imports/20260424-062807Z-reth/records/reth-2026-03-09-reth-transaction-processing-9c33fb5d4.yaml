@@ -1,0 +1,65 @@
+id: "reth-2026-03-09-reth-transaction-processing-9c33fb5d4"
+source_finding: "2026-03-09-reth-transaction-processing-9c33fb5d4.md"
+project: "reth"
+date: "2026-03-09"
+language_tags: 
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "cache-state-isolation"
+subsystem: "transaction-processing"
+architecture_tags: 
+  - "execution-client"
+  - "transaction-pool"
+  - "execution-layer"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: 
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "cache-state-isolation"
+violated_invariant: "An execution cache entry must remain correctly bound to the parent or executed-block hash it represents. If a cache slot is reused for a different parent hash, both its contents and its stored hash must be updated together before reuse so later lookups do not treat fork-derived cache state as valid for the old chain context."
+trust_boundary: "block or transaction input -> execution-layer validator"
+entrypoint_type: "transaction/block-validation-path"
+sensitive_sink: "transaction acceptance or consensus rule application"
+
+attacker_capabilities: 
+  - "submit crafted transactions, sidecars, or transaction-derived requests"
+  - "choose fields that exercise fork, signature, size, or policy edge cases"
+exploit_preconditions: 
+  - "the affected path must be reachable in the deployed configuration"
+  - "no independent validation layer may enforce the same invariant before the sensitive sink"
+  - "the supplied evidence does not prove end-to-end exploitability, so impact depends on reachability"
+blast_radius: "node-local-to-chain-wide"
+
+impact_types: 
+  - "state-integrity"
+severity_guess: "low"
+severity_rationale: "The issue is in a consensus/state-sensitive path, but the evidence supports hardening rather than a demonstrated invalid-state acceptance exploit."
+
+code_shape_summary: "When reusing an available cache slot for a different parent hash, the code cleared cached contents but did not update the stored cache hash before reuse. That allowed the slot's identity to remain stale even after fork-related reuse."
+search_motifs: 
+  - "cached execution or state object reused after parent hash, fork, or call context changes"
+  - "cached execution or state object reused after parent hash, fork, or call context changes"
+  - "cache-state-isolation fixes that add fail-closed validation before persistence, propagation, or canonicalization"
+negative_signals: 
+  - "No proof that stale cache reuse led to invalid block acceptance or consensus divergence"
+  - "No evidence of attacker control, remote triggerability, or practical exploit steps"
+  - "No demonstration that the bug crossed from cache pollution into externally visible incorrect execution results"
+  - "A similar patch is lower risk if an earlier mandatory validator already rejects the malformed input before this path."
+  - "Treat as provenance-only if the affected code is test-only, debug-only, or unreachable from peer/RPC/engine/sync inputs."
+patch_pattern: "When reusing a keyed cache across divergent parents or branches, clear-and-rebind the cache key on the shared slot before cloning or handing it out, and add regression tests for failed fork-side reuse."
+
+source_refs: 
+  - "git:9c33fb5d455aba92f8a0042bede9897d862b6335"
+  - "crates/engine/tree/src/tree/payload_processor/mod.rs:1144"
+  - "crates/engine/tree/src/tree/payload_processor/mod.rs:956"
+  - "crates/engine/tree/src/tree/payload_processor/mod.rs:1379"
+  - "crates/engine/tree/src/tree/payload_processor/mod.rs:445"
+  - "/testing/reth/validated-findings/kept/2026-03-09-reth-transaction-processing-9c33fb5d4.md"
+notes: 
+  - "Enriched from raw finding root-cause, fix-pattern, and validation evidence."
+  - "Evidence supports security hardening; exploitability should not be overstated."

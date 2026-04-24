@@ -1,0 +1,20 @@
+id: "reth-2023-11-16-reth-transaction-processing-2b4eb8438"
+source_record: "reth-2023-11-16-reth-transaction-processing-2b4eb8438.yaml"
+project: "reth"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "incomplete-blob-transaction-validation-context"
+expected_missing_property: "cryptographic-data-binding"
+
+expected_impact_band: "network_policy_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: 
+  - "No proof that an attacker could exploit the pre-patch behavior remotely"
+  - "No evidence of authentication, authorization, or signature bypass"
+  - "No evidence of consensus failure, fund loss, or privilege escalation"
+notes: 
+  - "Eval should expect a security-hardening classification unless end-to-end exploitability is independently shown."

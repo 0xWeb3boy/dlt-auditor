@@ -1,0 +1,20 @@
+id: "reth-2023-07-12-reth-storage-99240906a"
+source_record: "reth-2023-07-12-reth-storage-99240906a.yaml"
+project: "reth"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "insufficient-state-validation"
+expected_missing_property: "protocol-rule-enforcement"
+
+expected_impact_band: "consensus_or_protocol_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: 
+  - "No proof that an external attacker or untrusted peer could trigger the inconsistent state condition"
+  - "No reproducer, test, or incident report showing a real consensus split, finalized-state violation, or chain safety failure"
+  - "No evidence of authentication, cryptographic, memory-safety, or privilege-boundary impact"
+notes: 
+  - "Eval should expect a security-hardening classification unless end-to-end exploitability is independently shown."

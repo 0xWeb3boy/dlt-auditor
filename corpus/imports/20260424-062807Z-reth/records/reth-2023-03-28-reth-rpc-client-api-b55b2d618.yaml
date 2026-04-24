@@ -1,0 +1,65 @@
+id: "reth-2023-03-28-reth-rpc-client-api-b55b2d618"
+source_finding: "2023-03-28-reth-rpc-client-api-b55b2d618.md"
+project: "reth"
+date: "2023-03-28"
+language_tags: 
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "peer-penalty-misclassification"
+subsystem: "rpc-client-api"
+architecture_tags: 
+  - "execution-client"
+  - "rpc-api"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: 
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "peer-policy-gating"
+violated_invariant: "Transaction-import handling should distinguish intrinsically invalid transactions from rejections caused by pool state or policy, and only the intrinsically invalid class should be treated as a bad transaction for sender/import accounting."
+trust_boundary: "remote peer response -> fetch scheduler"
+entrypoint_type: "peer-response-handler"
+sensitive_sink: "peer selection and retry scheduling"
+
+attacker_capabilities: 
+  - "operate or influence a peer that sends protocol messages or responses"
+  - "shape timing, payload contents, or peer quality signals reaching the node"
+exploit_preconditions: 
+  - "the affected path must be reachable in the deployed configuration"
+  - "no independent validation layer may enforce the same invariant before the sensitive sink"
+  - "the supplied evidence does not prove end-to-end exploitability, so impact depends on reachability"
+blast_radius: "node-local"
+
+impact_types: 
+  - "false-peer-penalty"
+  - "network-abuse-hardening"
+  - "network-policy-bypass"
+severity_guess: "low"
+severity_rationale: "The evidence supports a correctness or hardening fix without a demonstrated attacker-controlled impact."
+
+code_shape_summary: "Different txpool rejection reasons were collapsed into a generic bad-import path. That conflated permanently invalid transaction composition with rejections caused by pool policy or state, leading downstream import handling to treat all failures the same."
+search_motifs: 
+  - "peer admission, listener notification, or response scheduling bypasses fork/status/policy checks"
+  - "peer-penalty-misclassification fixes that add fail-closed validation before persistence, propagation, or canonicalization"
+negative_signals: 
+  - "The patch excerpts do not show what on_bad_import and on_good_import actually do downstream"
+  - "No evidence shows concrete peer disconnects, bans, or reputation score changes caused by the old behavior"
+  - "No exploit narrative or test demonstrates that an attacker could reliably trigger security-impacting misclassification"
+  - "A similar patch is lower risk if an earlier mandatory validator already rejects the malformed input before this path."
+  - "Treat as provenance-only if the affected code is test-only, debug-only, or unreachable from peer/RPC/engine/sync inputs."
+patch_pattern: "Introduce an explicit error classifier at the txpool-to-network boundary and use it to gate bad-import handling instead of treating every import failure as equivalent."
+
+source_refs: 
+  - "git:b55b2d61823c91c8a9bd9c9d9e2f5bb6ef54503f"
+  - "crates/transaction-pool/src/error.rs:45"
+  - "crates/net/network/src/transactions.rs:526"
+  - "crates/transaction-pool/src/pool/txpool.rs:847"
+  - "crates/transaction-pool/src/pool/txpool.rs:248"
+  - "/testing/reth/validated-findings/kept/2023-03-28-reth-rpc-client-api-b55b2d618.md"
+notes: 
+  - "Enriched from raw finding root-cause, fix-pattern, and validation evidence."
+  - "Evidence supports security hardening; exploitability should not be overstated."

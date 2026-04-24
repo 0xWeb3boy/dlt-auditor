@@ -1,0 +1,20 @@
+id: "reth-2024-04-16-reth-storage-33b195af3"
+source_record: "reth-2024-04-16-reth-storage-33b195af3.yaml"
+project: "reth"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "fork-hash-reconstruction"
+expected_missing_property: "fork-state-consistency"
+
+expected_impact_band: "consensus_or_protocol_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: 
+  - "No proof that malformed or adversarial network input could reliably trigger a security impact"
+  - "No demonstration of incorrect block acceptance, rejection, or state-root divergence"
+  - "No explicit advisory, CVE, or commit text framing this as a security bug"
+notes: 
+  - "Eval should expect a security-hardening classification unless end-to-end exploitability is independently shown."

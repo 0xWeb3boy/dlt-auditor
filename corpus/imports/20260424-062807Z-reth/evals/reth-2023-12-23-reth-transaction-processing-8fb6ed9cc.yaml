@@ -1,0 +1,20 @@
+id: "reth-2023-12-23-reth-transaction-processing-8fb6ed9cc"
+source_record: "reth-2023-12-23-reth-transaction-processing-8fb6ed9cc.yaml"
+project: "reth"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "incorrect-fork-gating"
+expected_missing_property: "fork-state-consistency"
+
+expected_impact_band: "protocol_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: 
+  - "No proof that this function is the sole enforcement point for EIP-1559 enablement"
+  - "No evidence of an observed exploit, chain split, or invalid block acceptance"
+  - "No test or runtime evidence showing the exact impact on mainnet or production deployments"
+notes: 
+  - "Eval should expect a security-hardening classification unless end-to-end exploitability is independently shown."

@@ -1,0 +1,20 @@
+id: "reth-2024-05-21-reth-transaction-processing-5100ddd28"
+source_record: "reth-2024-05-21-reth-transaction-processing-5100ddd28.yaml"
+project: "reth"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "input-validation"
+expected_missing_property: "cryptographic-data-binding"
+
+expected_impact_band: "protocol_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: 
+  - "No provided diff from the consensus or transaction-pool validation files shows the exact rejection path"
+  - "No test or runtime evidence shows invalid EIP-4844 CREATE transactions were previously accepted end-to-end"
+  - "No evidence demonstrates exploitability, remote triggerability, denial of service, consensus impact, or fund impact"
+notes: 
+  - "Eval should expect a security-hardening classification unless end-to-end exploitability is independently shown."

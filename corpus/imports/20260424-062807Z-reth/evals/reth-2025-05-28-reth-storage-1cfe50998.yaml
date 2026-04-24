@@ -1,0 +1,20 @@
+id: "reth-2025-05-28-reth-storage-1cfe50998"
+source_record: "reth-2025-05-28-reth-storage-1cfe50998.yaml"
+project: "reth"
+
+expected_bug_family: "state_machine_and_lifecycle_consistency"
+expected_bug_class: "state-integrity-hardening"
+expected_missing_property: "state-coordinate-consistency"
+
+expected_impact_band: "state_or_proof_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: 
+  - "No proof that an attacker could remotely trigger the bad state through network-delivered blocks"
+  - "No demonstration that the prior behavior accepted invalid blocks or caused a real chain split"
+  - "No tests, incident report, CVE, or exploit narrative tying the bug to an actual security failure"
+notes: 
+  - "Eval should expect a security-hardening classification unless end-to-end exploitability is independently shown."

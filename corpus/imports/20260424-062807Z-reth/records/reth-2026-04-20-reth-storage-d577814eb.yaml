@@ -1,0 +1,66 @@
+id: "reth-2026-04-20-reth-storage-d577814eb"
+source_finding: "2026-04-20-reth-storage-d577814eb.md"
+project: "reth"
+date: "2026-04-20"
+language_tags: 
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "protocol-validation"
+subsystem: "storage"
+architecture_tags: 
+  - "execution-client"
+  - "state-storage"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: 
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "protocol-rule-enforcement"
+violated_invariant: "Engine API validation must decide whether Amsterdam-era fields are allowed or required using the active fork timestamp, the exact engine method version, and the message kind, rather than a coarse version cutoff alone."
+trust_boundary: "execution/engine state transition -> persistent storage"
+entrypoint_type: "state-storage-update-path"
+sensitive_sink: "canonical database, trie updates, or state provider output"
+
+attacker_capabilities: 
+  - "drive the node into the affected state-provider, trie, or persistence path through normal sync/execution inputs"
+  - "supply or trigger forked, partial, stale, or boundary-condition state"
+exploit_preconditions: 
+  - "the affected path must be reachable in the deployed configuration"
+  - "no independent validation layer may enforce the same invariant before the sensitive sink"
+  - "the supplied evidence does not prove end-to-end exploitability, so impact depends on reachability"
+blast_radius: "node-local-to-chain-wide"
+
+impact_types: 
+  - "protocol-integrity"
+  - "state-integrity"
+severity_guess: "low"
+severity_rationale: "The issue is in a consensus/state-sensitive path, but the evidence supports hardening rather than a demonstrated invalid-state acceptance exploit."
+
+code_shape_summary: "The visible root cause is overly coarse validation logic: Amsterdam-specific field handling was modeled with a broad version cutoff and grouped `V5` with older versions, instead of validating against the exact engine method version, message kind, and Amsterdam activation state."
+search_motifs: 
+  - "fork-specific consensus rule selected from incomplete boundary inputs or generic validator"
+  - "search for `EngineApiMessageVersion::V5` call sites that derive, cache, or validate security-sensitive state"
+  - "search for `V5` call sites that derive, cache, or validate security-sensitive state"
+  - "protocol-validation fixes that add fail-closed validation before persistence, propagation, or canonicalization"
+negative_signals: 
+  - "No test, trace, advisory, or issue text shows malformed payloads were previously accepted in practice"
+  - "No evidence shows chain-state corruption, consensus split, remote exploitation, or attacker-controlled impact"
+  - "The provided snippets do not show the full call flow from RPC input to block execution or state commitment"
+  - "A similar patch is lower risk if an earlier mandatory validator already rejects the malformed input before this path."
+  - "Treat as provenance-only if the affected code is test-only, debug-only, or unreachable from peer/RPC/engine/sync inputs."
+patch_pattern: "Replace coarse version-threshold validation with explicit per-endpoint branching and fork-aware checks, then align error reporting with the exact method-version rules."
+
+source_refs: 
+  - "git:d577814eb1c3bbf6393448dcabd0d152ce45ccc4"
+  - "crates/payload/primitives/src/lib.rs:200"
+  - "crates/payload/primitives/src/error.rs:127"
+  - "crates/payload/primitives/src/error.rs:138"
+  - "crates/payload/primitives/src/lib.rs:63"
+  - "/testing/reth/validated-findings/kept/2026-04-20-reth-storage-d577814eb.md"
+notes: 
+  - "Enriched from raw finding root-cause, fix-pattern, and validation evidence."
+  - "Evidence supports security hardening; exploitability should not be overstated."

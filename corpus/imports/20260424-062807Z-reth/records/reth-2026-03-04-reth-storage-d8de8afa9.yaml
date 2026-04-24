@@ -1,0 +1,65 @@
+id: "reth-2026-03-04-reth-storage-d8de8afa9"
+source_finding: "2026-03-04-reth-storage-d8de8afa9.md"
+project: "reth"
+date: "2026-03-04"
+language_tags: 
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "resource-exhaustion"
+subsystem: "storage"
+architecture_tags: 
+  - "execution-client"
+  - "state-storage"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: 
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "input-invariant-enforcement"
+violated_invariant: "Account and storage hashing stages should preserve the intended hashed-state result while selecting a mode that keeps memory use bounded across the full remaining catch-up range, not just the next scheduled batch."
+trust_boundary: "large state range -> hashing stage resource planner"
+entrypoint_type: "database-stage-runner"
+sensitive_sink: "memory budget and stage progress"
+
+attacker_capabilities: 
+  - "send inputs that reach the affected protocol handler"
+  - "choose edge-case values relevant to the missing invariant"
+exploit_preconditions: 
+  - "the affected path must be reachable in the deployed configuration"
+  - "no independent validation layer may enforce the same invariant before the sensitive sink"
+  - "the supplied evidence does not prove end-to-end exploitability, so impact depends on reachability"
+blast_radius: "node-local-to-chain-wide"
+
+impact_types: 
+  - "availability"
+  - "denial-of-service"
+  - "state-integrity"
+severity_guess: "low"
+severity_rationale: "The issue is in a consensus/state-sensitive path, but the evidence supports hardening rather than a demonstrated invalid-state acceptance exploit."
+
+code_shape_summary: "The selection heuristic for clean versus incremental hashing was tied to the next scheduled block window rather than the full remaining work. As a result, a large backlog could still be processed as many small incremental windows, undermining the intended memory bound for the stage."
+search_motifs: 
+  - "authenticated trie/proof path drops empty-root, revealed-node, or rollback state needed for valid output"
+  - "resource-exhaustion fixes that add fail-closed validation before persistence, propagation, or canonicalization"
+negative_signals: 
+  - "No evidence shows that an external attacker or peer can directly force this condition in a default deployment"
+  - "No crash, OOM, advisory, test, or bug report is provided to prove a concrete denial-of-service vulnerability"
+  - "No evidence shows consensus divergence, state corruption, or any integrity impact"
+  - "A similar patch is lower risk if an earlier mandatory validator already rejects the malformed input before this path."
+  - "Treat as provenance-only if the affected code is test-only, debug-only, or unreachable from peer/RPC/engine/sync inputs."
+patch_pattern: "Use total outstanding work, rather than the next scheduler window, when a threshold is meant to bound memory or work across an entire catch-up operation."
+
+source_refs: 
+  - "git:d8de8afa95aed287ad5fcab7d49cbf92e4131ade"
+  - "crates/stages/stages/src/stages/hashing_storage.rs:100"
+  - "crates/stages/stages/src/stages/hashing_account.rs:170"
+  - "crates/stages/stages/src/stages/hashing_account.rs:14"
+  - "crates/stages/stages/src/stages/hashing_storage.rs:13"
+  - "/testing/reth/validated-findings/kept/2026-03-04-reth-storage-d8de8afa9.md"
+notes: 
+  - "Enriched from raw finding root-cause, fix-pattern, and validation evidence."
+  - "Evidence supports security hardening; exploitability should not be overstated."

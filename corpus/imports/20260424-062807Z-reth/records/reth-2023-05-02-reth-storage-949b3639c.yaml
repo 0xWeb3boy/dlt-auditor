@@ -1,0 +1,64 @@
+id: "reth-2023-05-02-reth-storage-949b3639c"
+source_finding: "2023-05-02-reth-storage-949b3639c.md"
+project: "reth"
+date: "2023-05-02"
+language_tags: 
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "invalid-ancestor-handling"
+subsystem: "storage"
+architecture_tags: 
+  - "execution-client"
+  - "state-storage"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: 
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "parent-and-ancestor-validation"
+violated_invariant: "Forkchoice handling should distinguish a head that is already known invalid, or descends from known invalid ancestry, from a head that merely cannot yet be canonicalized due to sync state. Responses on that path should preserve invalid ancestry information instead of treating every canonicalization failure as generic recovery."
+trust_boundary: "forkchoice or sidechain state -> persistent storage provider"
+entrypoint_type: "blockchain-tree/state-provider-path"
+sensitive_sink: "canonical state view, fork ancestry, or persisted trie updates"
+
+attacker_capabilities: 
+  - "drive the node into the affected state-provider, trie, or persistence path through normal sync/execution inputs"
+  - "supply or trigger forked, partial, stale, or boundary-condition state"
+exploit_preconditions: 
+  - "the affected path must be reachable in the deployed configuration"
+  - "no independent validation layer may enforce the same invariant before the sensitive sink"
+  - "the supplied evidence does not prove end-to-end exploitability, so impact depends on reachability"
+blast_radius: "node-local-to-chain-wide"
+
+impact_types: 
+  - "consensus-integrity"
+  - "state-integrity"
+severity_guess: "low"
+severity_rationale: "The issue is in a consensus/state-sensitive path, but the evidence supports hardening rather than a demonstrated invalid-state acceptance exploit."
+
+code_shape_summary: "The pre-fix forkchoice failure path treated canonicalization errors too generically. Based on the added invalid-header cache and ancestor check, the missing behavior was retention and reuse of invalid ancestry information when later forkchoice updates referenced the same invalid head or its descendants."
+search_motifs: 
+  - "block accepted or scheduled before parent-relative header/ancestor consistency checks"
+  - "invalid-ancestor-handling fixes that add fail-closed validation before persistence, propagation, or canonicalization"
+negative_signals: 
+  - "No proof that the pre-patch behavior let an attacker make the node accept an invalid block as canonical"
+  - "No evidence of a demonstrated consensus split, slashing event, fund impact, or remote exploit path"
+  - "No test or commit text is provided showing the exact failure mode observed in production"
+  - "A similar patch is lower risk if an earlier mandatory validator already rejects the malformed input before this path."
+  - "Treat as provenance-only if the affected code is test-only, debug-only, or unreachable from peer/RPC/engine/sync inputs."
+patch_pattern: "Separate known-invalid state from generic error recovery by caching invalid items and consulting that cache at the failure boundary."
+
+source_refs: 
+  - "git:949b3639c3bed719be886e3aea0869c187afceac"
+  - "crates/consensus/beacon/src/engine/mod.rs:378"
+  - "crates/consensus/beacon/src/engine/mod.rs:365"
+  - "crates/consensus/beacon/src/engine/mod.rs:287"
+  - "crates/consensus/beacon/src/engine/mod.rs:765"
+  - "/testing/reth/validated-findings/kept/2023-05-02-reth-storage-949b3639c.md"
+notes: 
+  - "Enriched from raw finding root-cause, fix-pattern, and validation evidence."
+  - "Evidence supports security hardening; exploitability should not be overstated."

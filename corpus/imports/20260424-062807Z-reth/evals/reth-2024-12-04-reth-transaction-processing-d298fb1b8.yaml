@@ -1,0 +1,20 @@
+id: "reth-2024-12-04-reth-transaction-processing-d298fb1b8"
+source_record: "reth-2024-12-04-reth-transaction-processing-d298fb1b8.yaml"
+project: "reth"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "consensus-validation"
+expected_missing_property: "protocol-rule-enforcement"
+
+expected_impact_band: "consensus_or_protocol_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: 
+  - "No test, exploit, or incident evidence shows that invalid Holocene headers were accepted before the patch"
+  - "The provided snippet does not show the full new validation branch, so exact mismatch checks and full rejection conditions are not all visible"
+  - "Nothing in the supplied evidence proves replay, signer-authentication, or cryptographic validation issues"
+notes: 
+  - "Eval should expect a security-hardening classification unless end-to-end exploitability is independently shown."

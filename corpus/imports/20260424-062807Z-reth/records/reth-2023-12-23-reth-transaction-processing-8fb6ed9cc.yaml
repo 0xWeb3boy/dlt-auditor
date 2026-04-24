@@ -1,0 +1,65 @@
+id: "reth-2023-12-23-reth-transaction-processing-8fb6ed9cc"
+source_finding: "2023-12-23-reth-transaction-processing-8fb6ed9cc.md"
+project: "reth"
+date: "2023-12-23"
+language_tags: 
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "incorrect-fork-gating"
+subsystem: "transaction-processing"
+architecture_tags: 
+  - "execution-client"
+  - "transaction-pool"
+  - "execution-layer"
+  - "consensus-engine"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: 
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "fork-state-consistency"
+violated_invariant: "A typed transaction should only be accepted once the hardfork that enables that transaction type is active at the block being validated."
+trust_boundary: "block or transaction input -> execution-layer validator"
+entrypoint_type: "transaction/block-validation-path"
+sensitive_sink: "transaction acceptance or consensus rule application"
+
+attacker_capabilities: 
+  - "submit crafted transactions, sidecars, or transaction-derived requests"
+  - "choose fields that exercise fork, signature, size, or policy edge cases"
+exploit_preconditions: 
+  - "the affected path must be reachable in the deployed configuration"
+  - "no independent validation layer may enforce the same invariant before the sensitive sink"
+  - "the supplied evidence does not prove end-to-end exploitability, so impact depends on reachability"
+blast_radius: "node-local"
+
+impact_types: 
+  - "improper-transaction-validation"
+severity_guess: "low"
+severity_rationale: "The evidence supports a correctness or hardening fix without a demonstrated attacker-controlled impact."
+
+code_shape_summary: "A validator branch for `Transaction::Eip1559` referenced the wrong hardfork constant, using `Hardfork::Berlin` instead of `Hardfork::London` when deciding whether the transaction type was enabled."
+search_motifs: 
+  - "authenticated trie/proof path drops empty-root, revealed-node, or rollback state needed for valid output"
+  - "fork-specific consensus rule selected from incomplete boundary inputs or generic validator"
+  - "search for `Transaction::Eip1559` call sites that derive, cache, or validate security-sensitive state"
+  - "search for `Berlin` call sites that derive, cache, or validate security-sensitive state"
+  - "search for `London` call sites that derive, cache, or validate security-sensitive state"
+negative_signals: 
+  - "No proof that this function is the sole enforcement point for EIP-1559 enablement"
+  - "No evidence of an observed exploit, chain split, or invalid block acceptance"
+  - "No test or runtime evidence showing the exact impact on mainnet or production deployments"
+  - "A similar patch is lower risk if an earlier mandatory validator already rejects the malformed input before this path."
+  - "Treat as provenance-only if the affected code is test-only, debug-only, or unreachable from peer/RPC/engine/sync inputs."
+patch_pattern: "Replace an incorrect protocol-version gate with the hardfork condition that matches the transaction type being validated."
+
+source_refs: 
+  - "git:8fb6ed9cc5c1f4fbad48036aa018676f2c32cb84"
+  - "crates/consensus/common/src/validation.rs:93"
+  - "/testing/reth/validated-findings/kept/2023-12-23-reth-transaction-processing-8fb6ed9cc.md"
+notes: 
+  - "Enriched from raw finding root-cause, fix-pattern, and validation evidence."
+  - "Evidence supports security hardening; exploitability should not be overstated."

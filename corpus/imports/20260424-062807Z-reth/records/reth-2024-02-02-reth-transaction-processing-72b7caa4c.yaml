@@ -1,0 +1,66 @@
+id: "reth-2024-02-02-reth-transaction-processing-72b7caa4c"
+source_finding: "2024-02-02-reth-transaction-processing-72b7caa4c.md"
+project: "reth"
+date: "2024-02-02"
+language_tags: 
+  - "rust"
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "resource-limit-enforcement"
+subsystem: "transaction-processing"
+architecture_tags: 
+  - "execution-client"
+  - "transaction-pool"
+  - "execution-layer"
+  - "resource-accounting"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: 
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "resource-limit-accounting"
+violated_invariant: "When truncating the parked subpool, the implementation should enforce the configured pool limit across all tracked dimensions used by `SubPoolLimit`, including transaction count and aggregate size, rather than count alone."
+trust_boundary: "external transaction source -> mempool policy engine"
+entrypoint_type: "transaction-pool-handler"
+sensitive_sink: "mempool admission, eviction, or propagation decision"
+
+attacker_capabilities: 
+  - "submit crafted transactions, sidecars, or transaction-derived requests"
+  - "choose fields that exercise fork, signature, size, or policy edge cases"
+exploit_preconditions: 
+  - "the affected path must be reachable in the deployed configuration"
+  - "no independent validation layer may enforce the same invariant before the sensitive sink"
+  - "the supplied evidence does not prove end-to-end exploitability, so impact depends on reachability"
+blast_radius: "node-local"
+
+impact_types: 
+  - "resource-exhaustion"
+  - "denial-of-service"
+severity_guess: "medium"
+severity_rationale: "The bug weakens resource bounding or session cleanup in a remotely influenced path; concrete exploitability is not proven."
+
+code_shape_summary: "The truncation logic in the parked subpool enforced only the count component of the configured limit. Because removals were computed from `queued - limit.max_txs` and the loop stopped once count overflow was cleared, pools with relatively few but large transactions could remain above the size limit."
+search_motifs: 
+  - "limit check accounts for item count but omits byte size, gas state, or remaining range"
+  - "resource-limit-enforcement fixes that add fail-closed validation before persistence, propagation, or canonicalization"
+negative_signals: 
+  - "No proof that an external attacker could reliably trigger harmful memory growth or denial of service"
+  - "No evidence of an actual crash, panic, consensus failure, or privilege/security-boundary bypass"
+  - "No commit message or patch text explicitly describes a vulnerability, exploitability, or security incident"
+  - "A similar patch is lower risk if an earlier mandatory validator already rejects the malformed input before this path."
+  - "Treat as provenance-only if the affected code is test-only, debug-only, or unreachable from peer/RPC/engine/sync inputs."
+patch_pattern: "Replace partial limit checks with a single authoritative predicate that covers all tracked resource dimensions, and update tests so mocks faithfully exercise the constrained resource."
+
+source_refs: 
+  - "git:72b7caa4c4847d63e25058794c32a587cd0d3ede"
+  - "crates/transaction-pool/src/pool/parked.rs:157"
+  - "crates/transaction-pool/src/pool/parked.rs:150"
+  - "crates/transaction-pool/src/test_utils/mock.rs:1371"
+  - "crates/transaction-pool/src/test_utils/mock.rs:787"
+  - "/testing/reth/validated-findings/kept/2024-02-02-reth-transaction-processing-72b7caa4c.md"
+notes: 
+  - "Enriched from raw finding root-cause, fix-pattern, and validation evidence."
+  - "Evidence supports security hardening; exploitability should not be overstated."

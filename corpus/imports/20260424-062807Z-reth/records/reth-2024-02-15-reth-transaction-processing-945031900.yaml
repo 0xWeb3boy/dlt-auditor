@@ -1,0 +1,66 @@
+id: "reth-2024-02-15-reth-transaction-processing-945031900"
+source_finding: "2024-02-15-reth-transaction-processing-945031900.md"
+project: "reth"
+date: "2024-02-15"
+language_tags: 
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "missing-protocol-validation"
+subsystem: "transaction-processing"
+architecture_tags: 
+  - "execution-client"
+  - "transaction-pool"
+  - "execution-layer"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: 
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "cryptographic-data-binding"
+violated_invariant: "For an EIP-4844 blob transaction, each blob versioned hash declared in the transaction must match the versioned hash derived from the corresponding KZG commitment in the supplied blob sidecar. Proof validity alone is not sufficient if that binding check is missing."
+trust_boundary: "blob transaction and sidecar -> transaction validator"
+entrypoint_type: "blob-transaction-validator"
+sensitive_sink: "blob transaction acceptance and propagation"
+
+attacker_capabilities: 
+  - "submit crafted transactions, sidecars, or transaction-derived requests"
+  - "choose fields that exercise fork, signature, size, or policy edge cases"
+exploit_preconditions: 
+  - "the affected path must be reachable in the deployed configuration"
+  - "no independent validation layer may enforce the same invariant before the sensitive sink"
+  - "the supplied evidence does not prove end-to-end exploitability, so impact depends on reachability"
+blast_radius: "node-local"
+
+impact_types: 
+  - "protocol-integrity"
+  - "transaction-validation-bypass"
+severity_guess: "low"
+severity_rationale: "The evidence supports a correctness or hardening fix without a demonstrated attacker-controlled impact."
+
+code_shape_summary: "A required protocol check was missing: the validator computed the canonical versioned hash from each supplied KZG commitment but did not enforce that it matched the transaction metadata carrying the claimed blob versioned hashes."
+search_motifs: 
+  - "derived blob, commitment, or fork fields are computed but not compared against declared protocol values"
+  - "blob sidecar metadata validated for count/proof but not bound to declared versioned hashes or fork rules"
+  - "missing-protocol-validation fixes that add fail-closed validation before persistence, propagation, or canonicalization"
+negative_signals: 
+  - "No proof that this validator guarded every block-import, mempool, or consensus-relevant path"
+  - "No test or reproducer showing that malformed transactions were actually accepted before the patch"
+  - "No evidence of real exploitability, chain split, fund loss, or peer-driven impact"
+  - "A similar patch is lower risk if an earlier mandatory validator already rejects the malformed input before this path."
+  - "Treat as provenance-only if the affected code is test-only, debug-only, or unreachable from peer/RPC/engine/sync inputs."
+patch_pattern: "Add an explicit protocol-invariant check that compares canonical data derived from cryptographic inputs against the transaction-declared value, and fail closed with a specific validation error on mismatch."
+
+source_refs: 
+  - "git:94503190022f12fb316d3ab66889df689ebda58e"
+  - "crates/primitives/src/transaction/eip4844.rs:140"
+  - "crates/primitives/src/transaction/sidecar.rs:36"
+  - "crates/transaction-pool/src/error.rs:144"
+  - "crates/primitives/src/transaction/sidecar.rs:12"
+  - "/testing/reth/validated-findings/kept/2024-02-15-reth-transaction-processing-945031900.md"
+notes: 
+  - "Enriched from raw finding root-cause, fix-pattern, and validation evidence."
+  - "Evidence supports security hardening; exploitability should not be overstated."

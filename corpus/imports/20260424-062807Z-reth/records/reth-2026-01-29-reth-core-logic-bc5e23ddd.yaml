@@ -1,0 +1,64 @@
+id: "reth-2026-01-29-reth-core-logic-bc5e23ddd"
+source_finding: "2026-01-29-reth-core-logic-bc5e23ddd.md"
+project: "reth"
+date: "2026-01-29"
+language_tags: 
+  - "rust"
+
+bug_family: "state_machine_and_lifecycle_consistency"
+bug_class: "state-integrity-hardening"
+subsystem: "core-logic"
+architecture_tags: 
+  - "execution-client"
+  - "state-storage"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: 
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "state-coordinate-consistency"
+violated_invariant: "Trie update operations should be atomic: if a leaf removal would require revealing blinded descendants during branch collapse, that reveal chain must be validated before mutation, and any failed update must restore values to their original subtrie so the trie is unchanged after error return."
+trust_boundary: "execution/engine state transition -> persistent storage"
+entrypoint_type: "state-storage-update-path"
+sensitive_sink: "canonical database, trie updates, or state provider output"
+
+attacker_capabilities: 
+  - "drive the node into the affected state-provider, trie, or persistence path through normal sync/execution inputs"
+  - "supply or trigger forked, partial, stale, or boundary-condition state"
+exploit_preconditions: 
+  - "the affected path must be reachable in the deployed configuration"
+  - "no independent validation layer may enforce the same invariant before the sensitive sink"
+  - "the supplied evidence does not prove end-to-end exploitability, so impact depends on reachability"
+blast_radius: "node-local-to-chain-wide"
+
+impact_types: 
+  - "state-integrity"
+  - "state-corruption"
+severity_guess: "low"
+severity_rationale: "The issue is in a consensus/state-sensitive path, but the evidence supports hardening rather than a demonstrated invalid-state acceptance exploit."
+
+code_shape_summary: "Failure handling in trie updates was not fully atomic. The code could begin structural mutation before proving that all required blinded-node reveals for branch collapse were available, and rollback bookkeeping could use the wrong subtrie location when restoring values after error."
+search_motifs: 
+  - "trie proof/update path drops empty-root, revealed-node, or rollback state needed for authenticated output"
+  - "state-integrity-hardening fixes that add fail-closed validation before persistence, propagation, or canonicalization"
+negative_signals: 
+  - "No proof that untrusted or network-reachable input can trigger the failing path"
+  - "No evidence that the corruption causes consensus divergence, state-root forgery, or fund impact"
+  - "No concrete exploit scenario or security advisory is provided"
+  - "A similar patch is lower risk if an earlier mandatory validator already rejects the malformed input before this path."
+  - "Treat as provenance-only if the affected code is test-only, debug-only, or unreachable from peer/RPC/engine/sync inputs."
+patch_pattern: "Validate all error-prone structural prerequisites before mutating trie state, and record immutable original ownership/location so rollback restores state to the exact prior placement."
+
+source_refs: 
+  - "git:bc5e23ddd0cfafb23055c31803e40dd26be0dfc0"
+  - "crates/trie/sparse-parallel/src/trie.rs:568"
+  - "crates/trie/sparse-parallel/src/trie.rs:1551"
+  - "crates/trie/sparse-parallel/src/trie.rs:557"
+  - "crates/trie/sparse-parallel/src/trie.rs:495"
+  - "/testing/reth/validated-findings/kept/2026-01-29-reth-core-logic-bc5e23ddd.md"
+notes: 
+  - "Enriched from raw finding root-cause, fix-pattern, and validation evidence."
+  - "Evidence supports security hardening; exploitability should not be overstated."

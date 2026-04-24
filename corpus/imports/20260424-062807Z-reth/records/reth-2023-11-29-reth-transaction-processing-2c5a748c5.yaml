@@ -1,0 +1,68 @@
+id: "reth-2023-11-29-reth-transaction-processing-2c5a748c5"
+source_finding: "2023-11-29-reth-transaction-processing-2c5a748c5.md"
+project: "reth"
+date: "2023-11-29"
+language_tags: 
+  - "rust"
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "signature-malleability"
+subsystem: "transaction-processing"
+architecture_tags: 
+  - "execution-client"
+  - "transaction-pool"
+  - "execution-layer"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: 
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "canonical-signature-enforcement"
+violated_invariant: "When signer recovery is used for normal Ethereum transaction validation, the EIP-2 low-s rule must be enforced so high-s signatures are not treated as canonical; any compatibility path for historical signatures must stay explicitly separate from that checked path."
+trust_boundary: "externally supplied transaction bytes -> signer recovery"
+entrypoint_type: "transaction-signature-decoder"
+sensitive_sink: "authenticated transaction sender identity"
+
+attacker_capabilities: 
+  - "submit crafted transactions, sidecars, or transaction-derived requests"
+  - "choose fields that exercise fork, signature, size, or policy edge cases"
+exploit_preconditions: 
+  - "the affected path must be reachable in the deployed configuration"
+  - "no independent validation layer may enforce the same invariant before the sensitive sink"
+  - "the supplied evidence does not prove end-to-end exploitability, so impact depends on reachability"
+blast_radius: "node-local"
+
+impact_types: 
+  - "non-canonical-signature-acceptance"
+  - "signature-validation-bypass"
+severity_guess: "low"
+severity_rationale: "The evidence supports a correctness or hardening fix without a demonstrated attacker-controlled impact."
+
+code_shape_summary: "The `Signature` API did not explicitly separate EIP-2-compliant signer recovery from legacy-compatible recovery, leaving the low-s invariant implicit rather than enforced at a clearly named checked boundary."
+search_motifs: 
+  - "signature recovery accepts non-canonical v/s values or exposes unchecked recovery in validation paths"
+  - "search for `recover_signer` call sites that derive, cache, or validate security-sensitive state"
+  - "search for `recover_signer_unchecked` call sites that derive, cache, or validate security-sensitive state"
+  - "search for `Signature` call sites that derive, cache, or validate security-sensitive state"
+  - "signature-malleability fixes that add fail-closed validation before persistence, propagation, or canonicalization"
+negative_signals: 
+  - "No caller-side diff is shown proving validation paths were switched to the checked API"
+  - "No evidence shows previously accepted high-s signatures could reach canonical processing after EIP-2 rules should apply"
+  - "No proof of a concrete exploit, replay, consensus failure, or externally reachable vulnerability is provided"
+  - "A similar patch is lower risk if an earlier mandatory validator already rejects the malformed input before this path."
+  - "Treat as provenance-only if the affected code is test-only, debug-only, or unreachable from peer/RPC/engine/sync inputs."
+patch_pattern: "Split a compatibility-oriented helper from the validation-oriented API, and make the validation path enforce the protocol invariant explicitly with a local guard and regression test."
+
+source_refs: 
+  - "git:2c5a748c55906d38076147fc4070748cba8a0204"
+  - "crates/primitives/src/transaction/signature.rs:151"
+  - "crates/primitives/src/transaction/signature.rs:136"
+  - "crates/primitives/src/transaction/signature.rs:108"
+  - "crates/primitives/src/transaction/signature.rs:313"
+  - "/testing/reth/validated-findings/kept/2023-11-29-reth-transaction-processing-2c5a748c5.md"
+notes: 
+  - "Enriched from raw finding root-cause, fix-pattern, and validation evidence."
+  - "Evidence supports security hardening; exploitability should not be overstated."

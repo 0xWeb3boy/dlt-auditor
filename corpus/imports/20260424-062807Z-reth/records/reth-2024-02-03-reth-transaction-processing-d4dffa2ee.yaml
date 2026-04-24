@@ -1,0 +1,69 @@
+id: "reth-2024-02-03-reth-transaction-processing-d4dffa2ee"
+source_finding: "2024-02-03-reth-transaction-processing-d4dffa2ee.md"
+project: "reth"
+date: "2024-02-03"
+language_tags: 
+  - "rust"
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "improper-resource-limit-enforcement"
+subsystem: "transaction-processing"
+architecture_tags: 
+  - "execution-client"
+  - "transaction-pool"
+  - "execution-layer"
+  - "resource-accounting"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: 
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "resource-limit-accounting"
+violated_invariant: "The blob subpool should evict transactions whenever any configured capacity bound is exceeded, so that both the transaction-count limit and tracked-size limit are enforced."
+trust_boundary: "external transaction source -> mempool policy engine"
+entrypoint_type: "transaction-pool-handler"
+sensitive_sink: "mempool admission, eviction, or propagation decision"
+
+attacker_capabilities: 
+  - "submit crafted transactions, sidecars, or transaction-derived requests"
+  - "choose fields that exercise fork, signature, size, or policy edge cases"
+exploit_preconditions: 
+  - "the affected path must be reachable in the deployed configuration"
+  - "no independent validation layer may enforce the same invariant before the sensitive sink"
+  - "the supplied evidence does not prove end-to-end exploitability, so impact depends on reachability"
+blast_radius: "node-local"
+
+impact_types: 
+  - "resource-exhaustion"
+  - "denial-of-service"
+severity_guess: "medium"
+severity_rationale: "The bug weakens resource bounding or session cleanup in a remotely influenced path; concrete exploitability is not proven."
+
+code_shape_summary: "A local eviction condition in `blob.rs` used conjunctive logic (`&&`) instead of the subsystem's shared exceeded-limit semantics, so single-axis overflow cases could remain unevicted."
+search_motifs: 
+  - "blob sidecar metadata validated for count/proof but not bound to declared versioned hashes or fork rules"
+  - "limit check accounts for item count but omits byte size, gas state, or remaining range"
+  - "search for `blob.rs` call sites that derive, cache, or validate security-sensitive state"
+  - "search for `&&` call sites that derive, cache, or validate security-sensitive state"
+  - "improper-resource-limit-enforcement fixes that add fail-closed validation before persistence, propagation, or canonicalization"
+negative_signals: 
+  - "No advisory, CVE, or bug report states this was exploited or considered a vulnerability"
+  - "No patch evidence quantifies memory growth, blob-store growth, or node instability caused by the bug"
+  - "No evidence shows default deployments were remotely exhaustible in practice"
+  - "A similar patch is lower risk if an earlier mandatory validator already rejects the malformed input before this path."
+  - "Treat as provenance-only if the affected code is test-only, debug-only, or unreachable from peer/RPC/engine/sync inputs."
+patch_pattern: "Replace ad hoc capacity checks in eviction code with the subsystem's shared limit predicate, then add a regression test for the single-axis overflow case that was previously skipped."
+
+source_refs: 
+  - "git:d4dffa2ee4182b81210d9f7f92c9adb4233f302f"
+  - "crates/transaction-pool/src/pool/blob.rs:190"
+  - "crates/transaction-pool/src/pool/txpool.rs:2709"
+  - "crates/transaction-pool/src/test_utils/mock.rs:547"
+  - "crates/transaction-pool/src/config.rs:70"
+  - "/testing/reth/validated-findings/kept/2024-02-03-reth-transaction-processing-d4dffa2ee.md"
+notes: 
+  - "Enriched from raw finding root-cause, fix-pattern, and validation evidence."
+  - "Evidence supports security hardening; exploitability should not be overstated."

@@ -1,0 +1,68 @@
+id: "reth-2026-04-01-reth-transaction-processing-c4517d4c3"
+source_finding: "2026-04-01-reth-transaction-processing-c4517d4c3.md"
+project: "reth"
+date: "2026-04-01"
+language_tags: 
+  - "rust"
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "gas-accounting-corruption"
+subsystem: "transaction-processing"
+architecture_tags: 
+  - "execution-client"
+  - "transaction-pool"
+  - "execution-layer"
+  - "resource-accounting"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses: 
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+  - "eval_positive"
+
+missing_property: "per-call-resource-accounting"
+violated_invariant: "A precompile cache hit must not reuse caller-scoped gas-accounting state from an earlier execution. Cached entries may replay deterministic output bytes, reverted status, and regular gas cost, but the current call's gas limit and reservoir must remain authoritative."
+trust_boundary: "transaction execution/precompile call -> gas accounting state"
+entrypoint_type: "state-transition/precompile-execution"
+sensitive_sink: "gas reservoir, receipt, and execution accounting"
+
+attacker_capabilities: 
+  - "submit crafted transactions, sidecars, or transaction-derived requests"
+  - "choose fields that exercise fork, signature, size, or policy edge cases"
+exploit_preconditions: 
+  - "the affected path must be reachable in the deployed configuration"
+  - "no independent validation layer may enforce the same invariant before the sensitive sink"
+blast_radius: "node-local"
+
+impact_types: 
+  - "gas-accounting-integrity"
+  - "denial-of-service"
+severity_guess: "medium"
+severity_rationale: "Confirmed security-hardening evidence in a consensus or execution-sensitive path, but the corpus source does not establish asset theft or a critical network-wide exploit."
+
+code_shape_summary: "The cache stored and replayed execution-stateful gas metadata from a prior precompile execution. On a later cache hit, returning that stored object reused stale gas-accounting state instead of deriving the result from the current caller context."
+search_motifs: 
+  - "cached execution or state object reused after parent hash, fork, or call context changes"
+  - "limit check accounts for item count but omits byte size, gas state, or remaining range"
+  - "search for `PrecompileOutputExt` call sites that derive, cache, or validate security-sensitive state"
+  - "search for `GasTracker` call sites that derive, cache, or validate security-sensitive state"
+  - "gas-accounting-corruption fixes that add fail-closed validation before persistence, propagation, or canonicalization"
+negative_signals: 
+  - "No proof that an attacker can reliably trigger the vulnerable cache-hit pattern for security impact"
+  - "No demonstrated outcome such as gas undercharge, overcharge, consensus divergence, or denial of service"
+  - "No evidence quantifying whether the bug crosses a trust boundary or is remotely exploitable"
+  - "A similar patch is lower risk if an earlier mandatory validator already rejects the malformed input before this path."
+  - "Treat as provenance-only if the affected code is test-only, debug-only, or unreachable from peer/RPC/engine/sync inputs."
+patch_pattern: "Do not cache and replay mutable per-call accounting state. Cache only replay-safe result components, and reconstruct caller-scoped execution metadata from the live invocation when serving a cache hit."
+
+source_refs: 
+  - "git:c4517d4c3ef92b97052f47fbc670c47169c6e69b"
+  - "crates/engine/tree/src/tree/precompile_cache.rs:375"
+  - "crates/engine/tree/src/tree/precompile_cache.rs:184"
+  - "crates/engine/tree/src/tree/precompile_cache.rs:88"
+  - "crates/engine/tree/src/tree/precompile_cache.rs:10"
+  - "/testing/reth/validated-findings/kept/2026-04-01-reth-transaction-processing-c4517d4c3.md"
+notes: 
+  - "Enriched from raw finding root-cause, fix-pattern, and validation evidence."

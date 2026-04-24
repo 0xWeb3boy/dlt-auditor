@@ -1,0 +1,66 @@
+id: "reth-2024-09-02-reth-consensus-d59854f1d"
+source_finding: "2024-09-02-reth-consensus-d59854f1d.md"
+project: "reth"
+date: "2024-09-02"
+language_tags: 
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "missing-runtime-bound-check"
+subsystem: "consensus"
+architecture_tags: 
+  - "execution-client"
+  - "consensus-engine"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: 
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "numeric-bound-validation"
+violated_invariant: "In `TreeState::remove_until`, the effective finalized bound used for pruning should not exceed the caller's `upper_bound`. If `finalized_num` is higher, removal should behave as though the finalized bound were `upper_bound`, rather than trusting the caller-provided value."
+trust_boundary: "consensus layer signal -> execution client forkchoice/block state"
+entrypoint_type: "engine-api/forkchoice-handler"
+sensitive_sink: "canonical head, payload status, or pipeline scheduling"
+
+attacker_capabilities: 
+  - "provide or relay forkchoice, payload, or block data through the Engine API path"
+  - "cause the node to evaluate competing heads or transition-boundary inputs"
+exploit_preconditions: 
+  - "the affected path must be reachable in the deployed configuration"
+  - "no independent validation layer may enforce the same invariant before the sensitive sink"
+  - "the supplied evidence does not prove end-to-end exploitability, so impact depends on reachability"
+blast_radius: "node-local-to-chain-wide"
+
+impact_types: 
+  - "incorrect-state-pruning"
+  - "consensus-integrity"
+severity_guess: "low"
+severity_rationale: "The issue is in a consensus/state-sensitive path, but the evidence supports hardening rather than a demonstrated invalid-state acceptance exploit."
+
+code_shape_summary: "The shown root cause is reliance on a debug-only precondition for an input relationship that the function actually needed at runtime. The helper trusted callers to keep `finalized_num` within `upper_bound` instead of enforcing that bound inside the removal logic."
+search_motifs: 
+  - "search for `remove_until` call sites that derive, cache, or validate security-sensitive state"
+  - "search for `min(upper_bound)` call sites that derive, cache, or validate security-sensitive state"
+  - "search for `finalized_num` call sites that derive, cache, or validate security-sensitive state"
+  - "missing-runtime-bound-check fixes that add fail-closed validation before persistence, propagation, or canonicalization"
+negative_signals: 
+  - "No evidence shows that untrusted peers or external inputs can force finalized_num > upper_bound"
+  - "No reproducer or test demonstrates harmful pre-patch behavior in release builds"
+  - "No proof is provided of consensus divergence, chain split, persistence corruption, or validator compromise"
+  - "A similar patch is lower risk if an earlier mandatory validator already rejects the malformed input before this path."
+  - "Treat as provenance-only if the affected code is test-only, debug-only, or unreachable from peer/RPC/engine/sync inputs."
+patch_pattern: "Replace a debug-only invariant check with runtime input normalization at the state-transition boundary, and document the resulting edge-case behavior explicitly."
+
+source_refs: 
+  - "git:d59854f1dcd66caef32f0eea23440c2532c29611"
+  - "crates/engine/tree/src/tree/mod.rs:230"
+  - "crates/engine/tree/src/tree/mod.rs:222"
+  - "crates/engine/tree/src/tree/mod.rs:1260"
+  - "crates/engine/tree/src/persistence.rs:102"
+  - "/testing/reth/validated-findings/kept/2024-09-02-reth-consensus-d59854f1d.md"
+notes: 
+  - "Enriched from raw finding root-cause, fix-pattern, and validation evidence."
+  - "Evidence supports security hardening; exploitability should not be overstated."

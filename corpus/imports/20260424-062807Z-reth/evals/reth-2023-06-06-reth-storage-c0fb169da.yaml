@@ -1,0 +1,20 @@
+id: "reth-2023-06-06-reth-storage-c0fb169da"
+source_record: "reth-2023-06-06-reth-storage-c0fb169da.yaml"
+project: "reth"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "consensus-error-handling"
+expected_missing_property: "protocol-rule-enforcement"
+
+expected_impact_band: "consensus_or_protocol_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: 
+  - "No downstream pipeline snippet proves the old error types actually skipped unwind handling"
+  - "No proof that invalid state was previously committed or made durable"
+  - "No evidence of attacker control, exploitability, or a real consensus split"
+notes: 
+  - "Eval should expect a security-hardening classification unless end-to-end exploitability is independently shown."

@@ -1,0 +1,20 @@
+id: "reth-2026-04-21-reth-storage-d92ad5aa3"
+source_record: "reth-2026-04-21-reth-storage-d92ad5aa3.yaml"
+project: "reth"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "improper-state-binding"
+expected_missing_property: "state-coordinate-consistency"
+
+expected_impact_band: "state_or_proof_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: 
+  - "No reproducer, advisory, or test demonstrates attacker-triggerable impact"
+  - "No patch evidence shows invalid block acceptance, consensus split, or proof forgery"
+  - "The touched lazy_overlay.rs file is not shown line-by-line, so its exact security effect is not proven"
+notes: 
+  - "Eval should expect a security-hardening classification unless end-to-end exploitability is independently shown."

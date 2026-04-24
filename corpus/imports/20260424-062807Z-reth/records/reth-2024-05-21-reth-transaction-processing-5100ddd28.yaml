@@ -1,0 +1,67 @@
+id: "reth-2024-05-21-reth-transaction-processing-5100ddd28"
+source_finding: "2024-05-21-reth-transaction-processing-5100ddd28.md"
+project: "reth"
+date: "2024-05-21"
+language_tags: 
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "input-validation"
+subsystem: "transaction-processing"
+architecture_tags: 
+  - "execution-client"
+  - "transaction-pool"
+  - "execution-layer"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: 
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "cryptographic-data-binding"
+violated_invariant: "EIP-4844 transactions should use a concrete recipient address in this codepath, not a generic call-or-create destination that can express CREATE semantics."
+trust_boundary: "blob transaction and sidecar -> transaction validator"
+entrypoint_type: "blob-transaction-validator"
+sensitive_sink: "blob transaction acceptance and propagation"
+
+attacker_capabilities: 
+  - "submit crafted transactions, sidecars, or transaction-derived requests"
+  - "choose fields that exercise fork, signature, size, or policy edge cases"
+exploit_preconditions: 
+  - "the affected path must be reachable in the deployed configuration"
+  - "no independent validation layer may enforce the same invariant before the sensitive sink"
+  - "the supplied evidence does not prove end-to-end exploitability, so impact depends on reachability"
+blast_radius: "node-local"
+
+impact_types: 
+  - "invalid-transaction-processing"
+severity_guess: "low"
+severity_rationale: "The evidence supports a correctness or hardening fix without a demonstrated attacker-controlled impact."
+
+code_shape_summary: "EIP-4844-specific rules were not encoded directly in the relevant representation and conversion layers. A generic destination type (`TxKind`) and a generic RPC default (`Create`) were reused in a context that appears to require an address-only recipient model."
+search_motifs: 
+  - "blob sidecar metadata validated for count/proof but not bound to declared versioned hashes or fork rules"
+  - "search for `TxKind` call sites that derive, cache, or validate security-sensitive state"
+  - "search for `to` call sites that derive, cache, or validate security-sensitive state"
+  - "search for `Create` call sites that derive, cache, or validate security-sensitive state"
+  - "input-validation fixes that add fail-closed validation before persistence, propagation, or canonicalization"
+negative_signals: 
+  - "No provided diff from the consensus or transaction-pool validation files shows the exact rejection path"
+  - "No test or runtime evidence shows invalid EIP-4844 CREATE transactions were previously accepted end-to-end"
+  - "No evidence demonstrates exploitability, remote triggerability, denial of service, consensus impact, or fund impact"
+  - "A similar patch is lower risk if an earlier mandatory validator already rejects the malformed input before this path."
+  - "Treat as provenance-only if the affected code is test-only, debug-only, or unreachable from peer/RPC/engine/sync inputs."
+patch_pattern: "Encode the protocol-specific shape in the data model and remove generic conversion defaults that can synthesize invalid variants for that protocol."
+
+source_refs: 
+  - "git:5100ddd28e3ae0396aa97633d6f700d77aefb50f"
+  - "crates/primitives/src/transaction/mod.rs:1463"
+  - "crates/rpc/rpc/src/eth/api/transactions.rs:980"
+  - "crates/rpc/rpc-types-compat/src/transaction/mod.rs:43"
+  - "crates/primitives/src/transaction/eip4844.rs:47"
+  - "/testing/reth/validated-findings/kept/2024-05-21-reth-transaction-processing-5100ddd28.md"
+notes: 
+  - "Enriched from raw finding root-cause, fix-pattern, and validation evidence."
+  - "Evidence supports security hardening; exploitability should not be overstated."

@@ -1,0 +1,20 @@
+id: "reth-2023-09-26-reth-storage-eb6dc5197"
+source_record: "reth-2023-09-26-reth-storage-eb6dc5197.yaml"
+project: "reth"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "consensus-rule-validation"
+expected_missing_property: "protocol-rule-enforcement"
+
+expected_impact_band: "consensus_or_protocol_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: 
+  - "No pre-patch execution trace proves such payloads were previously accepted through to canonical processing"
+  - "No test or runtime evidence shows a consensus split, chain halt, or remotely triggerable exploit"
+  - "The excerpts do not show downstream state transition effects from the old behavior"
+notes: 
+  - "Eval should expect a security-hardening classification unless end-to-end exploitability is independently shown."

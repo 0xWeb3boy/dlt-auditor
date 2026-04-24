@@ -1,0 +1,66 @@
+id: "reth-2023-08-03-reth-transaction-processing-3f63a0887"
+source_finding: "2023-08-03-reth-transaction-processing-3f63a0887.md"
+project: "reth"
+date: "2023-08-03"
+language_tags: 
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "policy-enforcement"
+subsystem: "transaction-processing"
+architecture_tags: 
+  - "execution-client"
+  - "transaction-pool"
+  - "execution-layer"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: 
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "peer-policy-gating"
+violated_invariant: "Pending-transaction notifications that feed propagation-sensitive listeners should preserve and honor each transaction's `propagate` policy instead of treating every pending transaction as equally propagatable."
+trust_boundary: "external transaction source -> mempool policy engine"
+entrypoint_type: "transaction-pool-handler"
+sensitive_sink: "mempool admission, eviction, or propagation decision"
+
+attacker_capabilities: 
+  - "submit crafted transactions, sidecars, or transaction-derived requests"
+  - "choose fields that exercise fork, signature, size, or policy edge cases"
+exploit_preconditions: 
+  - "the affected path must be reachable in the deployed configuration"
+  - "no independent validation layer may enforce the same invariant before the sensitive sink"
+  - "the supplied evidence does not prove end-to-end exploitability, so impact depends on reachability"
+blast_radius: "node-local"
+
+impact_types: 
+  - "network-policy-bypass"
+severity_guess: "low"
+severity_rationale: "The evidence supports a correctness or hardening fix without a demonstrated attacker-controlled impact."
+
+code_shape_summary: "The notification API collapsed an added pending transaction into a bare hash too early, which removed propagation-policy metadata before the listener handoff. That made the listener path unable, or at least not obviously able, to distinguish transactions that should be propagated from those that should not."
+search_motifs: 
+  - "authenticated trie/proof path drops empty-root, revealed-node, or rollback state needed for valid output"
+  - "search for `AddedTransaction` call sites that derive, cache, or validate security-sensitive state"
+  - "search for `propagate_allowed` call sites that derive, cache, or validate security-sensitive state"
+  - "policy-enforcement fixes that add fail-closed validation before persistence, propagation, or canonicalization"
+negative_signals: 
+  - "The provided excerpt does not show the rest of on_new_pending_transaction, so actual enforcement using propagate_allowed is not visible"
+  - "No regression test is shown proving that non-propagatable transactions were previously delivered to ordinary propagation-facing listeners"
+  - "The evidence does not prove that these listeners directly drove external peer propagation rather than purely local subscribers"
+  - "A similar patch is lower risk if an earlier mandatory validator already rejects the malformed input before this path."
+  - "Treat as provenance-only if the affected code is test-only, debug-only, or unreachable from peer/RPC/engine/sync inputs."
+patch_pattern: "Preserve security- or policy-relevant metadata across an internal API boundary instead of reducing an object to an identifier before downstream filtering decisions are made."
+
+source_refs: 
+  - "git:3f63a0887a2f52b2fc7541a3e4903ace94c2da91"
+  - "crates/transaction-pool/src/pool/mod.rs:392"
+  - "crates/transaction-pool/src/pool/mod.rs:623"
+  - "crates/transaction-pool/src/pool/mod.rs:635"
+  - "crates/transaction-pool/src/pool/mod.rs:323"
+  - "/testing/reth/validated-findings/kept/2023-08-03-reth-transaction-processing-3f63a0887.md"
+notes: 
+  - "Enriched from raw finding root-cause, fix-pattern, and validation evidence."
+  - "Evidence supports security hardening; exploitability should not be overstated."

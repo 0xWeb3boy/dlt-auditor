@@ -1,0 +1,20 @@
+id: "reth-2022-12-02-reth-p2p-networking-debc87177"
+source_record: "reth-2022-12-02-reth-p2p-networking-debc87177.yaml"
+project: "reth"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "protocol-input-validation"
+expected_missing_property: "protocol-rule-enforcement"
+
+expected_impact_band: "network_policy_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: 
+  - "No provided diff proves that the pre-patch bug enabled memory corruption, code execution, auth bypass, or consensus compromise"
+  - "The disconnect-specific implementation changes are described mostly in the commit message rather than shown directly in the patch excerpts"
+  - "The evidence does not quantify whether the wrong size check could be reached with otherwise unbounded input or whether lower layers already enforced limits"
+notes: 
+  - "Eval should expect a security-hardening classification unless end-to-end exploitability is independently shown."
