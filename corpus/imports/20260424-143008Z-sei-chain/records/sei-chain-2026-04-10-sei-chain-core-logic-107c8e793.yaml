@@ -1,0 +1,59 @@
+id: "sei-chain-2026-04-10-sei-chain-core-logic-107c8e793"
+source_finding: "2026-04-10-sei-chain-core-logic-107c8e793.md"
+project: "sei-chain"
+date: "2026-04-10"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "protocol-validation-hardening"
+subsystem: "core-logic"
+architecture_tags:
+  - "p2p-networking"
+  - "protocol-state-machine"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "protocol-discriminator-consistency"
+violated_invariant: "Protocol stream discriminator fields must be explicit on creation and consistent with stored stream state on reuse."
+trust_boundary: "remote p2p mux header -> local stream state and resource limits"
+entrypoint_type: "p2p-mux-header-handler"
+sensitive_sink: "creating or accepting multiplexed inbound streams"
+
+attacker_capabilities:
+  - "Open or reuse p2p mux streams with missing or mismatched kind fields."
+exploit_preconditions:
+  - "Missing kind defaults are accepted for new streams."
+  - "Existing stream lookup ignores kind disagreement."
+blast_radius: "availability-or-resource-control"
+
+impact_types:
+  - "resource-limit-enforcement"
+  - "protocol-state-integrity"
+severity_guess: "medium"
+severity_rationale: "Stream-kind validation protects resource accounting and protocol state, but no exploit is demonstrated."
+
+code_shape_summary: "The patch tightens p2p mux stream-kind validation: missing kind on new inbound stream creation is rejected, and explicit kind mismatch on an existing stream now returns an error."
+search_motifs:
+  - "new inbound stream accepts missing kind"
+  - "existing stream does not compare kind"
+  - "accept limit keyed by stream kind can be bypassed or confused"
+negative_signals:
+  - "The transport authenticates and fixes stream kind before mux handling."
+  - "Kind is informational and not used for limits or routing."
+patch_pattern: "Require explicit stream kind at creation and reject kind mismatches against stored stream state."
+
+source_refs:
+  - "git:107c8e79396b1cdd735bd7e18946b0cd55f92537"
+  - "sei-tendermint/internal/p2p/mux/mux.go:125"
+  - "sei-tendermint/internal/p2p/mux/mux_test.go:632"
+  - "sei-tendermint/internal/p2p/mux/stream_state.go:62"
+  - "sei-tendermint/internal/p2p/mux/stream_state.go:78"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

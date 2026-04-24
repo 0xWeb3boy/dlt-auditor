@@ -1,0 +1,58 @@
+id: "sei-chain-2025-07-23-sei-chain-transaction-processing-0332c4a9d"
+source_finding: "2025-07-23-sei-chain-transaction-processing-0332c4a9d.md"
+project: "sei-chain"
+date: "2025-07-23"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "entrypoint-scope-enforcement"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "transaction-execution"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "entrypoint-scope-and-message-type-check"
+violated_invariant: "Generic and scoped claim/transfer entrypoints must reject messages whose concrete type or caller runtime is outside that entrypoint scope."
+trust_boundary: "EVM/CosmWasm caller -> precompile value-transfer entrypoint"
+entrypoint_type: "precompile-claim-handler"
+sensitive_sink: "transferring all balances or scoped assets"
+
+attacker_capabilities:
+  - "Call precompile claim methods with crafted claim messages or from a disallowed runtime."
+exploit_preconditions:
+  - "The generic path discards the validated concrete message type."
+  - "The path can transfer balances after validation returns a different claim shape."
+blast_radius: "authorization-or-identity-integrity"
+
+impact_types:
+  - "authorization-scope"
+  - "cross-runtime-access-control"
+severity_guess: "medium"
+severity_rationale: "Scope confusion before value transfer is security relevant, but the record remains likely because the raw evidence does not prove live exploitation."
+
+code_shape_summary: "The supported finding is security hardening in the Sei EVM Solo precompile. The strongest evidence is that the generic Claim entrypoint previously discarded the concrete validated claim message and then transferred all balances from the sender, while the patch keeps the message and rejects MsgClaimSpecific."
+search_motifs:
+  - "validated message returned but discarded"
+  - "generic Claim path accepts MsgClaimSpecific"
+  - "precompile lacks caller-runtime guard before transfer"
+negative_signals:
+  - "The validator guarantees only the expected concrete message reaches the generic path."
+  - "The transfer amount is zero or independently scoped downstream."
+patch_pattern: "Preserve and inspect the concrete validated message, reject out-of-scope message types and disallowed caller runtimes before transfer."
+
+source_refs:
+  - "git:0332c4a9d7fd9d367cacf5b6fc66e5b5e02b5e31"
+  - "x/evm/types/tx.pb.go:3957"
+  - "precompiles/solo/solo.go:139"
+  - "x/evm/keeper/evm.go:82"
+  - "precompiles/solo/solo.go:166"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

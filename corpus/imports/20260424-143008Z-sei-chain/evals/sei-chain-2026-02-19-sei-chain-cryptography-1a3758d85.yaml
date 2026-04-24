@@ -1,0 +1,20 @@
+id: "sei-chain-2026-02-19-sei-chain-cryptography-1a3758d85"
+source_record: "sei-chain-2026-02-19-sei-chain-cryptography-1a3758d85.yaml"
+project: "sei-chain"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "consensus-proposal-validation-hardening"
+expected_missing_property: "proposal-role-and-range-validation"
+
+expected_impact_band: "protocol-state-integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The constructor is private and all callers already validate these invariants."
+  - "The verifier rejects the malformed proposal before consensus state mutation."
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Expected result should preserve likely confidence rather than overclaiming exploitability."

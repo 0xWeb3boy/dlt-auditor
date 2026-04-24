@@ -1,0 +1,57 @@
+id: "sei-chain-2025-06-06-sei-chain-transaction-processing-beccf236c"
+source_finding: "2025-06-06-sei-chain-transaction-processing-beccf236c.md"
+project: "sei-chain"
+date: "2025-06-06"
+language_tags:
+  - "go"
+
+bug_family: "authz_and_role_gates"
+bug_class: "validation-bypass-hardening"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "transaction-execution"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "canonical-message-validation"
+violated_invariant: "Alternate runtime entrypoints must execute through the same message validation and dispatch path as native transactions."
+trust_boundary: "EVM precompile caller -> Cosmos governance module state"
+entrypoint_type: "precompile-transaction-handler"
+sensitive_sink: "depositing, voting, or mutating governance state"
+
+attacker_capabilities:
+  - "Call governance precompile methods with crafted arguments."
+exploit_preconditions:
+  - "The precompile calls keeper methods directly."
+  - "Canonical Msg ValidateBasic or MsgServer checks are bypassable on that path."
+blast_radius: "protocol-state-integrity"
+
+impact_types:
+  - "governance-validation-divergence"
+severity_guess: "medium"
+severity_rationale: "Governance precompile paths are privileged state transitions; retained as likely hardening because no concrete invalid payload was demonstrated."
+
+code_shape_summary: "The patch changes gov precompile vote and deposit handling to construct Cosmos SDK governance messages, call ValidateBasic, and dispatch through the gov MsgServer instead of calling keeper methods directly."
+search_motifs:
+  - "precompile calls keeper directly instead of MsgServer"
+  - "ValidateBasic absent before governance mutation"
+  - "native and EVM paths duplicate validation logic"
+negative_signals:
+  - "The direct keeper method performs exactly the same validation."
+  - "The precompile method is read-only or disabled."
+patch_pattern: "Construct canonical SDK messages, run basic validation, and dispatch through the standard MsgServer."
+
+source_refs:
+  - "git:beccf236cc3e5a4d636db09bb48098d55451aa72"
+  - "precompiles/gov/gov.go:128"
+  - "precompiles/gov/gov.go:214"
+  - "precompiles/gov/gov.go:81"
+  - "precompiles/gov/gov_test.go:231"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

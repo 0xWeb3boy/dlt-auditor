@@ -1,0 +1,20 @@
+id: "sei-chain-2024-04-15-sei-chain-rpc-client-api-78eb1d663"
+source_record: "sei-chain-2024-04-15-sei-chain-rpc-client-api-78eb1d663.yaml"
+project: "sei-chain"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "missing-address-association-check"
+expected_missing_property: "address-association-check"
+
+expected_impact_band: "authorization-or-identity-integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The generated payload is never used for privileged execution."
+  - "Every downstream precompile revalidates the address association."
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Expected result should preserve likely confidence rather than overclaiming exploitability."

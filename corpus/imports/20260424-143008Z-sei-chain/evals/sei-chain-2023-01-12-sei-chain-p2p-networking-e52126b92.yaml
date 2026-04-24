@@ -1,0 +1,20 @@
+id: "sei-chain-2023-01-12-sei-chain-p2p-networking-e52126b92"
+source_record: "sei-chain-2023-01-12-sei-chain-p2p-networking-e52126b92.yaml"
+project: "sei-chain"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "mempool-invalid-tx-peer-abuse-hardening"
+expected_missing_property: "peer-abuse-enforcement"
+
+expected_impact_band: "availability-or-resource-control"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Invalid submissions are already rate-limited or disconnected at the transport layer."
+  - "Failures are ordinary user transaction errors that should not punish relaying peers."
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Expected result should preserve likely confidence rather than overclaiming exploitability."

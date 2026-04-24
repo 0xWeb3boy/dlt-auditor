@@ -1,0 +1,20 @@
+id: "sei-chain-2024-05-09-sei-chain-transaction-processing-b36bfe41b"
+source_record: "sei-chain-2024-05-09-sei-chain-transaction-processing-b36bfe41b.yaml"
+project: "sei-chain"
+
+expected_bug_family: "signature_binding_and_signer_scope"
+expected_bug_class: "replay-or-signature-validation"
+expected_missing_property: "replay-domain-validation"
+
+expected_impact_band: "authorization-or-identity-integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "A later signer implementation rejects mismatched chain IDs before state changes."
+  - "The path is simulation-only and cannot broadcast transactions."
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Expected result should preserve likely confidence rather than overclaiming exploitability."

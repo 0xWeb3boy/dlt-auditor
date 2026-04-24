@@ -1,0 +1,58 @@
+id: "sei-chain-2022-12-19-sei-chain-transaction-processing-e3373eba5"
+source_finding: "2022-12-19-sei-chain-transaction-processing-e3373eba5.md"
+project: "sei-chain"
+date: "2022-12-19"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "liveness-failure"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "transaction-execution"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "execution-resource-metering"
+violated_invariant: "Lifecycle-triggered contract execution must remain bounded by the parent block or transaction resource meter."
+trust_boundary: "module lifecycle hook -> Wasm contract execution engine"
+entrypoint_type: "beginblock-or-endblock-contract-callback"
+sensitive_sink: "executing contract sudo logic during block processing"
+
+attacker_capabilities:
+  - "Deploy or configure contract logic reached by lifecycle sudo execution."
+exploit_preconditions:
+  - "The lifecycle path runs contract code with an infinite or detached meter."
+  - "A contract can loop or consume resources before control returns."
+blast_radius: "availability-or-resource-control"
+
+impact_types:
+  - "liveness"
+  - "resource-exhaustion"
+severity_guess: "medium"
+severity_rationale: "Unbounded contract execution can threaten block production liveness; the evidence supports resource hardening rather than a demonstrated chain halt."
+
+code_shape_summary: "The supported security-relevant change is in x/dex/keeper/utils/wasm.go. The patch replaces an infinite temporary gas meter used for Wasm sudo execution with a gas meter derived from the parent context limit, and wraps the sudo call to recover sdk.ErrorOutOfGas panics while re-panicking other panics. This supports a likely liveness/resource-exhaustion hardening classification."
+search_motifs:
+  - "NewInfiniteGasMeter in BeginBlock or EndBlock path"
+  - "temporary gas meter does not inherit parent limit"
+  - "recover only out-of-gas panic at contract boundary"
+negative_signals:
+  - "The contract callback is unreachable from configured production state."
+  - "A lower execution engine enforces an independent hard limit before looping."
+patch_pattern: "Derive temporary meters from the parent limit and recover expected out-of-gas at the contract boundary while preserving unexpected panics."
+
+source_refs:
+  - "git:e3373eba5afd2146395210eaea43df4fb9d8f35f"
+  - "x/dex/keeper/utils/wasm.go:40"
+  - "x/dex/keeper/utils/wasm.go:55"
+  - "x/oracle/simulation/operations.go:66"
+  - "x/oracle/simulation/operations.go:123"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

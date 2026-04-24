@@ -1,0 +1,60 @@
+id: "sei-chain-2023-02-03-sei-chain-consensus-562746653"
+source_finding: "2023-02-03-sei-chain-consensus-562746653.md"
+project: "sei-chain"
+date: "2023-02-03"
+language_tags:
+  - "go"
+
+bug_family: "staking_registry_and_accountability"
+bug_class: "oracle-validator-slashing-enforcement-bypass"
+subsystem: "consensus"
+architecture_tags:
+  - "consensus-state-machine"
+  - "validator-based"
+  - "staking-or-validator-accountability"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "validator-participation-accounting"
+violated_invariant: "All protocol-defined invalid participation categories must count toward validator accountability and slashing thresholds."
+trust_boundary: "validator oracle vote behavior -> staking/slashing accountability state"
+entrypoint_type: "oracle-slashing-endblocker"
+sensitive_sink: "calculating valid-vote rate and applying slash/jail penalties"
+
+attacker_capabilities:
+  - "Operate or influence a validator that submits abstentions instead of valid oracle votes."
+exploit_preconditions:
+  - "Abstentions are tracked separately from misses."
+  - "The slashing formula excludes abstentions from invalid participation."
+blast_radius: "economic-or-ledger-integrity"
+
+impact_types:
+  - "economic-enforcement-bypass"
+  - "validator-accountability-bypass"
+severity_guess: "medium"
+severity_rationale: "Slashing bypass weakens oracle accountability and economic security; impact is bounded to the configured oracle/slashing mechanism."
+
+code_shape_summary: "The patch changes oracle slashing so abstentions count against a validator's valid-vote rate. Previously, `SlashAndResetCounters` computed the rate using only `MissCount`, allowing excessive abstentions to avoid the configured slash and jail consequences."
+search_motifs:
+  - "valid rate subtracts MissCount but not AbstainCount"
+  - "oracle abstain counter exists outside slashing numerator"
+  - "tests expect jailing only for misses"
+negative_signals:
+  - "Abstentions are intentionally exempt by protocol design and documented governance parameters."
+  - "Another path separately penalizes abstentions before validator reset."
+patch_pattern: "Include all invalid participation counters in the same threshold calculation and regression-test slash/jail outcomes."
+
+source_refs:
+  - "git:5627466530ed59cc768e78eb4860cf99a30eb18f"
+  - "x/oracle/keeper/slash_test.go:65"
+  - "x/oracle/keeper/slash_test.go:56"
+  - "x/oracle/keeper/slash.go:24"
+  - "x/oracle/abci_test.go:289"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

@@ -1,0 +1,20 @@
+id: "sei-chain-2024-03-19-sei-chain-transaction-processing-d63321d8e"
+source_record: "sei-chain-2024-03-19-sei-chain-transaction-processing-d63321d8e.yaml"
+project: "sei-chain"
+
+expected_bug_family: "signature_binding_and_signer_scope"
+expected_bug_class: "weak-signature-message-binding"
+expected_missing_property: "signed-message-binding"
+
+expected_impact_band: "protocol-state-integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "A later authorization check binds the same signature to the intended message."
+  - "The association operation is disabled or only accepts locally generated txs."
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Expected result should preserve likely confidence rather than overclaiming exploitability."

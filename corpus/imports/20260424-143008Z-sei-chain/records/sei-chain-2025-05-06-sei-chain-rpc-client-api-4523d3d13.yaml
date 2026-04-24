@@ -1,0 +1,59 @@
+id: "sei-chain-2025-05-06-sei-chain-rpc-client-api-4523d3d13"
+source_finding: "2025-05-06-sei-chain-rpc-client-api-4523d3d13.md"
+project: "sei-chain"
+date: "2025-05-06"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "check-then-set-race"
+subsystem: "rpc-client-api"
+architecture_tags:
+  - "rpc-or-query-boundary"
+  - "staking-or-validator-accountability"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "atomic-counter-enforcement"
+violated_invariant: "Per-actor one-per-height or spam-prevention counters must be checked and updated atomically for the same actor key."
+trust_boundary: "concurrent transaction admission -> validator spam-prevention state"
+entrypoint_type: "ante-handler-counter-check"
+sensitive_sink: "recording per-validator vote or transaction counter"
+
+attacker_capabilities:
+  - "Submit concurrent transactions for the same validator/account."
+exploit_preconditions:
+  - "The check and set operations are split across calls."
+  - "Concurrent ante execution can observe stale counter state."
+blast_radius: "protocol-state-integrity"
+
+impact_types:
+  - "spam-prevention-bypass"
+  - "validator-invariant-hardening"
+severity_guess: "medium"
+severity_rationale: "Atomicity hardening protects per-height spam controls; the evidence does not prove concurrent exploitability in production."
+
+code_shape_summary: "The patch hardens oracle transaction spam prevention by replacing a split read-then-write counter check in the ante decorator with a keeper-level `CheckAndSetSpamPreventionCounter` method that locks per validator address, checks the current block height, and updates the counter while holding the lock."
+search_motifs:
+  - "Get counter then Set counter in separate ante calls"
+  - "per-validator lock absent around check/update"
+  - "same block height compared before write"
+negative_signals:
+  - "Ante handling for the actor is strictly serialized by the mempool/executor."
+  - "A database transaction enforces uniqueness for the counter key."
+patch_pattern: "Combine check-and-set in a keeper method guarded by an actor-scoped lock."
+
+source_refs:
+  - "git:4523d3d13ffcaf06743b3701e8310d8d7701e9bc"
+  - "x/oracle/keeper/keeper.go:580"
+  - "x/oracle/ante.go:100"
+  - "x/oracle/keeper/keeper_test.go:818"
+  - "x/oracle/keeper/keeper.go:601"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

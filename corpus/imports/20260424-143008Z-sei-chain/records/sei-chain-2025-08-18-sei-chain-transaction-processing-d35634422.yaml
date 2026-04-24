@@ -1,0 +1,58 @@
+id: "sei-chain-2025-08-18-sei-chain-transaction-processing-d35634422"
+source_finding: "2025-08-18-sei-chain-transaction-processing-d35634422.md"
+project: "sei-chain"
+date: "2025-08-18"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "unsafe-legacy-transaction-acceptance"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "transaction-execution"
+  - "cryptographic-verification"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "legacy-transaction-replay-rejection"
+violated_invariant: "Production transaction admission must reject legacy formats that lack required replay-domain protection."
+trust_boundary: "externally submitted EVM transaction -> signer derivation and execution admission"
+entrypoint_type: "evm-transaction-preprocess"
+sensitive_sink: "accepting unprotected legacy transaction for execution"
+
+attacker_capabilities:
+  - "Submit unprotected legacy Ethereum transactions."
+exploit_preconditions:
+  - "The preprocess path treats unprotected legacy transactions as acceptable."
+  - "Frontier signer hashing is used outside explicit test compatibility mode."
+blast_radius: "authorization-or-identity-integrity"
+
+impact_types:
+  - "replay-risk"
+severity_guess: "medium"
+severity_rationale: "Rejecting unprotected legacy transactions reduces replay risk; the raw evidence does not prove an actual replay incident."
+
+code_shape_summary: "The patch changes EVM transaction preprocessing so unprotected legacy Ethereum transactions are rejected during normal operation. Previously, when `ethTx.Protected()` was false, `Preprocess` still computed the transaction hash with `ethtypes.FrontierSigner{}.Hash(ethTx)` and continued to sender derivation. After the patch, that fallback is allowed only when `isBlockTest` is enabled;"
+search_motifs:
+  - "ethTx.Protected false branch continues in production"
+  - "FrontierSigner hash used as fallback"
+  - "isBlockTest or test mode exception missing"
+negative_signals:
+  - "The network intentionally supports unprotected legacy transactions and scopes them safely."
+  - "A later ante stage rejects the transaction before execution."
+patch_pattern: "Fail closed on unsafe legacy transaction formats in normal operation and isolate compatibility behavior behind test flags."
+
+source_refs:
+  - "git:d35634422ac8c7c18fb2cb3a72e8e67b21f27379"
+  - "x/evm/ante/preprocess.go:171"
+  - "x/evm/ante/preprocess.go:60"
+  - "app/app.go:1710"
+  - "aclmapping/evm/mappings.go:39"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

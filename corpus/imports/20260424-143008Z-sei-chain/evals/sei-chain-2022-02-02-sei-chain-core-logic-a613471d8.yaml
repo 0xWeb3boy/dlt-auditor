@@ -1,0 +1,20 @@
+id: "sei-chain-2022-02-02-sei-chain-core-logic-a613471d8"
+source_record: "sei-chain-2022-02-02-sei-chain-core-logic-a613471d8.yaml"
+project: "sei-chain"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "consensus-determinism"
+expected_missing_property: "deterministic-consensus-serialization"
+
+expected_impact_band: "consensus-integrity-or-liveness"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The error text is never committed or included in consensus results."
+  - "All possible error strings are protocol constants identical across versions."
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Expected result should preserve likely confidence rather than overclaiming exploitability."

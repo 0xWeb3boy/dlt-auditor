@@ -1,0 +1,20 @@
+id: "sei-chain-2026-01-12-sei-chain-cryptography-cbd47b343"
+source_record: "sei-chain-2026-01-12-sei-chain-cryptography-cbd47b343.yaml"
+project: "sei-chain"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "traffic-analysis-hardening"
+expected_missing_property: "encrypted-frame-size-obfuscation"
+
+expected_impact_band: "confidentiality-or-key-lifecycle-hardening"
+expected_severity_band: "low_or_informational"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The protocol does not attempt to hide message sizes."
+  - "Transport framing already pads or batches writes below this layer."
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Expected result should preserve likely confidence rather than overclaiming exploitability."

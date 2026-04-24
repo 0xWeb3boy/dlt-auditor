@@ -37,6 +37,9 @@ Search patterns:
 - proposal/validation consensus systems where agreement is over transaction sets, close times, trusted validator or committee validations, and prior-ledger identity rather than only block payloads. Check that proposal duplicate suppression, transaction-set ordering, wrong-ledger mode, and switch-ledger or catch-up mode bind proposal hash, prior state, sequence, signer, and active rules
 - amendment, fork, or feature activation votes where quorum or majority thresholds are computed by integer or rounded arithmetic. Test boundary values just below and above the policy threshold and ensure small validator sets cannot produce impossible or unsafe quorum requirements
 - consensus observability or misbehavior detectors that only watch trusted participants or only the happy path. Hardening should cover untrusted reports, laggards, censorship suspicion, invalid proposals, and desync or catch-up transitions without changing consensus rules
+- consensus-visible error, acknowledgement, receipt, precompile return, or result data built from raw errors or local diagnostics. These bytes must be deterministic protocol outputs if they can affect app hashes, results hashes, or replicated state
+- view, round, timeout, or commit transitions where a certificate carries a lock, proposal identity, part-set header, or latest quorum state into the next step. Verify that state clearing, reconstruction, timeout vote emission, and commit handling preserve the certified identity rather than falling back to empty or stale local state
+- verification predicates such as "needed", "current", "fresh", or "verified" must gate every later mutation derived from that object. Do not let stale or unnecessary certificates update ranges, headers, block matching, or emitted votes
 
 Questions to answer:
 1. Which protocol rule is authoritative for this block, payload, fork, method version, chain variant, and timestamp or height?

@@ -1,0 +1,61 @@
+id: "sei-chain-2021-05-27-sei-chain-rpc-client-api-46c2d2fbd"
+source_finding: "2021-05-27-sei-chain-rpc-client-api-46c2d2fbd.md"
+project: "sei-chain"
+date: "2021-05-27"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "ibc-client-recovery-hardening"
+subsystem: "rpc-client-api"
+architecture_tags:
+  - "consensus-state-machine"
+  - "validator-based"
+  - "rpc-or-query-boundary"
+  - "cross-chain-protocol"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "recovery-state-selection"
+violated_invariant: "Recovery or substitution flows must derive copied consensus state from verified live client state, not from proposal-supplied historical ranges."
+trust_boundary: "governance or recovery proposal -> light-client consensus state store"
+entrypoint_type: "governance-recovery-handler"
+sensitive_sink: "updating client recovery metadata and consensus states"
+
+attacker_capabilities:
+  - "Submit or influence recovery proposals that select client recovery parameters."
+exploit_preconditions:
+  - "The recovery path accepts caller-selected heights or ranges."
+  - "The substitute client has state that can be copied into the subject client."
+blast_radius: "protocol-state-integrity"
+
+impact_types:
+  - "consensus-client-integrity"
+  - "state-consistency"
+severity_guess: "medium"
+severity_rationale: "Client recovery affects trusted cross-chain consensus state; the evidence supports hardening of state selection rather than a demonstrated forged-client takeover."
+
+code_shape_summary: "The patch simplifies the IBC ClientUpdateProposal recovery path by removing the proposal-supplied InitialHeight flow, adding keeper-level checks that the substitute is active and ahead of the subject, and copying the substitute client's latest consensus state rather than iterating over a caller-influenced historical range."
+search_motifs:
+  - "proposal supplies initial height for client recovery"
+  - "range copy loop tolerates missing consensus states"
+  - "substitute client latest state is not checked before copy"
+negative_signals:
+  - "The proposal fields are already constrained by governance validation and cannot affect copied state."
+  - "The copied state is independently verified against the substitute client before storage."
+patch_pattern: "Remove caller-controlled range selection, enforce substitute-client suitability, and copy the canonical latest consensus state."
+
+source_refs:
+  - "git:46c2d2fbd5f38fa5c525581c18c8366ec5fb5052"
+  - "sei-ibc-go/modules/core/02-client/types/client.pb.go:1441"
+  - "sei-ibc-go/modules/light-clients/07-tendermint/types/proposal_handle.go:60"
+  - "sei-ibc-go/modules/light-clients/07-tendermint/types/proposal_handle.go:35"
+  - "sei-ibc-go/modules/core/02-client/keeper/proposal.go:40"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

@@ -49,6 +49,8 @@ Search patterns:
 - startup or constructor paths that can build a consumer without successfully constructing the verifier, signer-scope, or chain-context object that later code assumes exists
 - live paths wired to placeholder, trusting, noop, or development verifiers or signers while tests or helper code use stronger verification
 - protocol pipelines where emission and ingestion use different commitment, sequence, or signing rules, such as a sender producing one representation while the receiver verifies another or verifies nothing at all
+- account association, address binding, or identity-linking transactions where signer recovery uses a placeholder hash, empty message, legacy compatibility signer, or side-channel message field instead of the exact serialized message the user signed
+- replay-domain checks that differ between legacy and typed transaction formats. Verify that compatibility branches reject unsafe unprotected formats unless an explicit non-production or test mode is active
 
 Questions to answer:
 1. What exact bytes are authenticated?

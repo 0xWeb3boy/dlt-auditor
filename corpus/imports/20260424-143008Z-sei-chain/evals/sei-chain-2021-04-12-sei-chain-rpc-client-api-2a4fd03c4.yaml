@@ -1,0 +1,20 @@
+id: "sei-chain-2021-04-12-sei-chain-rpc-client-api-2a4fd03c4"
+source_record: "sei-chain-2021-04-12-sei-chain-rpc-client-api-2a4fd03c4.yaml"
+project: "sei-chain"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "failed-ack-state-rollback"
+expected_missing_property: "transactional-callback-commit"
+
+expected_impact_band: "protocol-state-integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The callback is read-only or all writes occur after acknowledgement success is checked."
+  - "A lower layer already wraps the whole receive path in a transactional context and discards failed acknowledgements."
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Expected result should preserve likely confidence rather than overclaiming exploitability."

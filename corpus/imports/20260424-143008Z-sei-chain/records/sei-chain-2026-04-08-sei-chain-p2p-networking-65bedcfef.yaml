@@ -1,0 +1,58 @@
+id: "sei-chain-2026-04-08-sei-chain-p2p-networking-65bedcfef"
+source_finding: "2026-04-08-sei-chain-p2p-networking-65bedcfef.md"
+project: "sei-chain"
+date: "2026-04-08"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "p2p-peer-abuse-accounting-hardening"
+subsystem: "p2p-networking"
+architecture_tags:
+  - "p2p-networking"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "peer-counter-lifecycle-ownership"
+violated_invariant: "Peer abuse counters must be owned by the component that observes peer identity and peer lifecycle events."
+trust_boundary: "p2p mempool sender identity -> peer penalty accounting state"
+entrypoint_type: "mempool-reactor-checktx-handler"
+sensitive_sink: "incrementing, cleaning, and applying peer failure counters"
+
+attacker_capabilities:
+  - "Send transactions that trigger counted CheckTx failures as a connected peer."
+exploit_preconditions:
+  - "Failure counters live outside the reactor that tracks peers."
+  - "Entries are not cleaned up when peers disconnect or lifecycle changes."
+blast_radius: "availability-or-resource-control"
+
+impact_types:
+  - "peer-abuse-mitigation"
+  - "liveness"
+severity_guess: "medium"
+severity_rationale: "Correct counter ownership improves anti-abuse enforcement and cleanup; no direct exploit is demonstrated."
+
+code_shape_summary: "The evidence supports a refactor and lifecycle correction for mempool CheckTx failure accounting: peer penalty state was moved from TxMempool into the mempool Reactor, and the commit message says failure-counter entries were previously never cleaned up."
+search_motifs:
+  - "TxMempool owns SenderNodeID failure map"
+  - "peer disconnect does not clean failure counter"
+  - "reactor knows peer lifecycle but accounting happens elsewhere"
+negative_signals:
+  - "Counters are purely diagnostic and never affect peer treatment."
+  - "A separate peer manager expires all counters reliably."
+patch_pattern: "Move failure accounting into the p2p reactor, filter counted error classes, and clean counters with peer lifecycle events."
+
+source_refs:
+  - "git:65bedcfef99da9928798d467326e5f677ed148a0"
+  - "sei-tendermint/internal/mempool/reactor_test.go:204"
+  - "sei-tendermint/internal/mempool/reactor.go:171"
+  - "sei-tendermint/internal/mempool/mempool.go:416"
+  - "sei-tendermint/internal/state/execution.go:451"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

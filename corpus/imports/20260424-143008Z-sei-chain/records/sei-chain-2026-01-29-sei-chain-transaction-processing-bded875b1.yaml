@@ -1,0 +1,58 @@
+id: "sei-chain-2026-01-29-sei-chain-transaction-processing-bded875b1"
+source_finding: "2026-01-29-sei-chain-transaction-processing-bded875b1.md"
+project: "sei-chain"
+date: "2026-01-29"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "mock-balance-mainnet-guard"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "transaction-execution"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "production-safety-guard"
+violated_invariant: "Testing-only state mutation helpers must be unreachable or fail closed on production networks, especially from read paths."
+trust_boundary: "build-tag or mock balance helper -> production ledger state"
+entrypoint_type: "mock-balance-read-or-mutation-helper"
+sensitive_sink: "minting, top-off, or mutating balances"
+
+attacker_capabilities:
+  - "Trigger mock balance helper paths if an unsafe build/configuration is deployed."
+exploit_preconditions:
+  - "Mock balance code is compiled or enabled in a production-like deployment."
+  - "Mutation/top-off is reachable from balance reads or insufficiently guarded helpers."
+blast_radius: "economic-or-ledger-integrity"
+
+impact_types:
+  - "misconfiguration-containment"
+  - "state-accounting"
+severity_guess: "low"
+severity_rationale: "Confirmed as security hardening for misconfiguration containment; exploitability depends on an unsafe build or network mode."
+
+code_shape_summary: "The evidence supports security hardening in the mock_balances build-tag implementation. The patch adds direct pacific-1 panic guards around mock balance mutation/top-off paths and removes lazy minting from GetBalance."
+search_motifs:
+  - "GetBalance lazily mints or tops off balances"
+  - "mock balance mutation lacks direct mainnet panic"
+  - "test helper state mutation reachable from read path"
+negative_signals:
+  - "The build tag cannot be enabled in production artifacts."
+  - "Every mutation path has a direct chain-ID or network guard."
+patch_pattern: "Remove lazy mutation from read paths and add direct production-network guards on mock funding helpers."
+
+source_refs:
+  - "git:bded875b14ee4d1126828e864f1894dfb9f25119"
+  - "x/evm/state/mock_balances.go:137"
+  - "giga/deps/xevm/state/mock_balances.go:135"
+  - "x/evm/state/mock_balances.go:176"
+  - "x/evm/state/mock_balances.go:49"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict confirmed; preserve claim boundaries from the raw finding."

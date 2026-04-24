@@ -1,0 +1,20 @@
+id: "sei-chain-2026-04-21-sei-chain-cryptography-9b9e33970"
+source_record: "sei-chain-2026-04-21-sei-chain-cryptography-9b9e33970.yaml"
+project: "sei-chain"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "secret-key-lifecycle-hardening"
+expected_missing_property: "secret-key-runtime-lifecycle"
+
+expected_impact_band: "confidentiality-or-key-lifecycle-hardening"
+expected_severity_band: "low_or_informational"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Secret keys are immutable byte slices with no cleanup finalizers or unsafe pointers."
+  - "The path handles only public keys or test keys."
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Expected result should preserve likely confidence rather than overclaiming exploitability."

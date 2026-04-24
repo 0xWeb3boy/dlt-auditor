@@ -1,0 +1,59 @@
+id: "sei-chain-2026-02-19-sei-chain-cryptography-1a3758d85"
+source_finding: "2026-02-19-sei-chain-cryptography-1a3758d85.md"
+project: "sei-chain"
+date: "2026-02-19"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-proposal-validation-hardening"
+subsystem: "cryptography"
+architecture_tags:
+  - "consensus-state-machine"
+  - "validator-based"
+  - "cryptographic-verification"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "proposal-role-and-range-validation"
+violated_invariant: "Consensus proposals must prove proposer role, committee lane range, signatures, and hash-linked certificate consistency at construction or verification boundaries."
+trust_boundary: "leader/proposer supplied proposal -> consensus proposal acceptance"
+entrypoint_type: "proposal-constructor-or-verifier"
+sensitive_sink: "accepting FullProposal or LaneQC data for consensus processing"
+
+attacker_capabilities:
+  - "Construct or relay malformed consensus proposals or proposal components."
+exploit_preconditions:
+  - "Leader identity, lane ranges, signature target, or header hashes are assumed rather than checked."
+  - "Malformed proposal data can reach verification or state processing."
+blast_radius: "protocol-state-integrity"
+
+impact_types:
+  - "consensus-integrity"
+severity_guess: "medium"
+severity_rationale: "Proposal validation gaps are consensus-sensitive, but the raw evidence only shows some checks directly and leaves other claimed checks contextual."
+
+code_shape_summary: "The patch appears to harden consensus proposal validation. The directly shown code adds proposal-level lane-range validation and rejects `NewProposal` calls made with a key that is not the view leader. The commit summary additionally claims `FullProposal."
+search_motifs:
+  - "NewProposal does not check key is view leader"
+  - "lane range not checked against committee"
+  - "FullProposal Verify omits actual proposer signature or LaneQC hash check"
+negative_signals:
+  - "The constructor is private and all callers already validate these invariants."
+  - "The verifier rejects the malformed proposal before consensus state mutation."
+patch_pattern: "Move role, range, signature, and hash-link checks into explicit proposal construction and verification paths."
+
+source_refs:
+  - "git:1a3758d85aaec7d38e871766c330c76e36a5dcf0"
+  - "sei-tendermint/internal/autobahn/types/proposal.go:170"
+  - "sei-tendermint/internal/autobahn/data/testonly.go:74"
+  - "sei-tendermint/internal/autobahn/avail/state_test.go:34"
+  - "sei-tendermint/internal/autobahn/types/proposal.go:228"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

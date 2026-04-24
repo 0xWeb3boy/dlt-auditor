@@ -1,0 +1,59 @@
+id: "sei-chain-2021-04-12-sei-chain-rpc-client-api-2a4fd03c4"
+source_finding: "2021-04-12-sei-chain-rpc-client-api-2a4fd03c4.md"
+project: "sei-chain"
+date: "2021-04-12"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "failed-ack-state-rollback"
+subsystem: "rpc-client-api"
+architecture_tags:
+  - "rpc-or-query-boundary"
+  - "cross-chain-protocol"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "transactional-callback-commit"
+violated_invariant: "Application callback state changes must commit only when the enclosing protocol operation accepts the result they correspond to."
+trust_boundary: "IBC packet data and module callback result -> core channel state transition"
+entrypoint_type: "cross-chain-packet-handler"
+sensitive_sink: "committing packet acknowledgement and application callback state"
+
+attacker_capabilities:
+  - "Submit or relay packets that drive application receive callbacks."
+exploit_preconditions:
+  - "The callback can mutate application state before returning an acknowledgement."
+  - "The core receive path lacks an equivalent cached-context rollback gate."
+blast_radius: "protocol-state-integrity"
+
+impact_types:
+  - "state-consistency"
+  - "protocol-invariant-enforcement"
+severity_guess: "medium"
+severity_rationale: "A failed packet receive path can leave committed callback effects inconsistent with the protocol acknowledgement, but the finding is retained as likely hardening because concrete exploitability is not proven."
+
+code_shape_summary: "The patch changes IBC packet receive handling so `OnRecvPacket` runs in a cached SDK context and its application-side state changes are written only when the acknowledgement is nil/asynchronous or successful. This is well supported as a protocol state-consistency and rollback fix."
+search_motifs:
+  - "callback mutates state before success acknowledgement is checked"
+  - "cached context write occurs unconditionally after module callback"
+  - "failed acknowledgement path shares state context with successful receive path"
+negative_signals:
+  - "The callback is read-only or all writes occur after acknowledgement success is checked."
+  - "A lower layer already wraps the whole receive path in a transactional context and discards failed acknowledgements."
+patch_pattern: "Run callbacks in a cached context and write the cache only after the protocol success/asynchronous acknowledgement condition is known."
+
+source_refs:
+  - "git:2a4fd03c45ce3da4c963645797f47d44be0e7ba9"
+  - "sei-ibc-go/modules/core/keeper/msg_server.go:444"
+  - "sei-ibc-go/modules/core/05-port/types/module.go:60"
+  - "sei-ibc-go/modules/apps/transfer/module.go:318"
+  - "sei-ibc-go/testing/mock/mock.go:175"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

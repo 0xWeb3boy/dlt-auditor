@@ -1,0 +1,57 @@
+id: "sei-chain-2026-03-06-sei-chain-consensus-f5844b5a6"
+source_finding: "2026-03-06-sei-chain-consensus-f5844b5a6.md"
+project: "sei-chain"
+date: "2026-03-06"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-safety"
+subsystem: "consensus"
+architecture_tags:
+  - "consensus-state-machine"
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-fix"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "consensus-lock-preservation"
+violated_invariant: "Timeout-driven view changes must preserve the latest consensus lock/certificate so later votes and proposals remain constrained by safety rules."
+trust_boundary: "timeout certificate from prior view -> timeout vote construction in new view"
+entrypoint_type: "consensus-timeout-vote-handler"
+sensitive_sink: "emitting TimeoutVotes/TimeoutQCs that influence later proposal eligibility"
+
+attacker_capabilities:
+  - "Participate in or trigger consecutive timeout-driven consensus views, for example through offline or slow leaders."
+exploit_preconditions:
+  - "A prior TimeoutQC carries a latest PrepareQC lock."
+  - "The current view has no new PrepareQC and vote construction drops the inherited lock."
+blast_radius: "consensus-integrity-or-liveness"
+
+impact_types:
+  - "consensus-failure"
+severity_guess: "high"
+severity_rationale: "Dropping a consensus lock can undermine safety and allow conflicting commit scenarios; confidence remains likely because the full proof path was not included."
+
+code_shape_summary: "Likely security fix in the Autobahn consensus timeout path. The production change in `State.voteTimeout` stops constructing TimeoutVotes solely from the current `i.PrepareQC`; when that value is absent, it inherits `i.TimeoutQC.LatestPrepareQC()`."
+search_motifs:
+  - "TimeoutVote built only from current PrepareQC"
+  - "view-change clears lock while TimeoutQC still carries it"
+  - "LatestPrepareQC not inherited across consecutive timeouts"
+negative_signals:
+  - "The protocol forbids entering the new view without separately restoring the lock."
+  - "Proposal verification independently rejects conflicts without relying on TimeoutVote PrepareQC."
+patch_pattern: "When current-view lock state is absent, inherit the lock from the justifying certificate before constructing timeout votes."
+
+source_refs:
+  - "git:f5844b5a64e59b3483c14b0aebe53ed830e029fe"
+  - "sei-tendermint/internal/autobahn/types/types_test.go:121"
+  - "sei-tendermint/internal/autobahn/consensus/inner.go:233"
+  - "sei-tendermint/internal/autobahn/consensus/state_test.go:1"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-fix with verdict likely; preserve claim boundaries from the raw finding."

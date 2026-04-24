@@ -1,0 +1,20 @@
+id: "sei-chain-2025-10-29-sei-chain-transaction-processing-48090d81b"
+source_record: "sei-chain-2025-10-29-sei-chain-transaction-processing-48090d81b.yaml"
+project: "sei-chain"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "mempool-nonce-bookkeeping"
+expected_missing_property: "admission-bound-bookkeeping"
+
+expected_impact_band: "protocol-state-integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The nonce tracker is advisory only and never affects promotion or block selection."
+  - "All post-insert rejection paths defer a guaranteed rollback."
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Expected result should preserve likely confidence rather than overclaiming exploitability."

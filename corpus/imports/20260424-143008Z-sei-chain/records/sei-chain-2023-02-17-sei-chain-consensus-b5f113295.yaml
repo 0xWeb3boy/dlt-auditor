@@ -1,0 +1,59 @@
+id: "sei-chain-2023-02-17-sei-chain-consensus-b5f113295"
+source_finding: "2023-02-17-sei-chain-consensus-b5f113295.md"
+project: "sei-chain"
+date: "2023-02-17"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-determinism-hardening"
+subsystem: "consensus"
+architecture_tags:
+  - "consensus-state-machine"
+  - "validator-based"
+  - "staking-or-validator-accountability"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "deterministic-state-transition-order"
+violated_invariant: "Consensus state transitions must not depend on language-level map iteration order or node-local ordering artifacts."
+trust_boundary: "validator-local in-memory collection -> consensus state transition"
+entrypoint_type: "beginblock-or-endblock-consensus-hook"
+sensitive_sink: "updating oracle, staking, or app-hash-relevant state"
+
+attacker_capabilities:
+  - "Influence the set of keys or ballots processed by a consensus hook."
+exploit_preconditions:
+  - "The hook iterates over an unordered map or iterator while mutating consensus-visible state."
+  - "No later canonical sorting normalizes the output."
+blast_radius: "protocol-state-integrity"
+
+impact_types:
+  - "consensus-nondeterminism-risk"
+severity_guess: "medium"
+severity_rationale: "Nondeterministic ordering in consensus paths can cause app-hash divergence, but this case is treated as likely hardening absent proof of divergent committed output."
+
+code_shape_summary: "The patch makes oracle MidBlocker processing order deterministic by replacing direct iteration over Go maps with sorted denom key traversal. It also stages validator addresses before performing staking keeper lookups, which supports the commit note about removing store operations from an iterator."
+search_motifs:
+  - "range over map in BeginBlocker or EndBlocker"
+  - "store lookup performed inside iterator loop"
+  - "ballot or denom processing lacks sorted key traversal"
+negative_signals:
+  - "The iteration only builds logs or metrics."
+  - "The final state is order-independent by construction."
+patch_pattern: "Collect unordered keys or iterator values first, sort or stage them, then perform deterministic state work."
+
+source_refs:
+  - "git:b5f11329585941d385c932a25d66e5a7f4ba5be6"
+  - "x/oracle/abci.go:93"
+  - "x/oracle/abci.go:68"
+  - "x/oracle/abci.go:29"
+  - "x/oracle/abci.go:2"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

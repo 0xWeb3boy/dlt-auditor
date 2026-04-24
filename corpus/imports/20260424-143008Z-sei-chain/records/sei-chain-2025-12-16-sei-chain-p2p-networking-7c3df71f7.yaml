@@ -1,0 +1,58 @@
+id: "sei-chain-2025-12-16-sei-chain-p2p-networking-7c3df71f7"
+source_finding: "2025-12-16-sei-chain-p2p-networking-7c3df71f7.md"
+project: "sei-chain"
+date: "2025-12-16"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "mempool-peer-resource-abuse-hardening"
+subsystem: "p2p-networking"
+architecture_tags:
+  - "p2p-networking"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "bounded-peer-penalty-scope"
+violated_invariant: "Peer blacklisting for transaction validation failures must count only clear abuse conditions and be enabled with safe default scope."
+trust_boundary: "remote mempool transaction sender -> peer eviction policy"
+entrypoint_type: "mempool-checktx-failure-handler"
+sensitive_sink: "blacklisting or evicting a peer for validation failures"
+
+attacker_capabilities:
+  - "Relay oversized or malformed transactions through p2p mempool gossip."
+exploit_preconditions:
+  - "The failure class is attributable to peer abuse."
+  - "The counter and default policy avoid punishing ordinary application-level invalid txs."
+blast_radius: "availability-or-resource-control"
+
+impact_types:
+  - "resource-exhaustion"
+  - "peer-abuse-mitigation"
+severity_guess: "medium"
+severity_rationale: "The change narrows and enables a resource-abuse defense; it is hardening rather than a confirmed vulnerability."
+
+code_shape_summary: "The supported finding is mempool peer-abuse hardening, not a confirmed vulnerability fix. The patch enables CheckTx error blacklisting by default, narrows the blacklist trigger away from all non-OK ABCI CheckTx results, and adds guarded peer eviction accounting."
+search_motifs:
+  - "blacklist trigger counts all non-OK CheckTx results"
+  - "oversized tx error class separated from ordinary invalid tx"
+  - "default peer blacklist flag disabled or too broad"
+negative_signals:
+  - "The failure code reflects user-level invalid transactions rather than peer abuse."
+  - "Eviction would let attackers disconnect honest peers by relaying bad user txs."
+patch_pattern: "Narrow peer-penalty triggers to bounded abuse cases, centralize guards, and enable the safer control by default."
+
+source_refs:
+  - "git:7c3df71f798891346a47a51650267404bf86a8f0"
+  - "sei-tendermint/internal/mempool/mempool.go:452"
+  - "sei-tendermint/internal/mempool/mempool.go:758"
+  - "sei-tendermint/internal/mempool/mempool_test.go:1133"
+  - "sei-tendermint/config/config.go:877"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

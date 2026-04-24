@@ -1,0 +1,60 @@
+id: "sei-chain-2025-11-13-sei-chain-p2p-networking-f6d7875ab"
+source_finding: "2025-11-13-sei-chain-p2p-networking-f6d7875ab.md"
+project: "sei-chain"
+date: "2025-11-13"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "p2p-invalid-peer-accountability"
+subsystem: "p2p-networking"
+architecture_tags:
+  - "consensus-state-machine"
+  - "validator-based"
+  - "p2p-networking"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "peer-accountability-for-invalid-input"
+violated_invariant: "Protocol handlers must attribute invalid peer input to the peer and disconnect or penalize when the input violates handler invariants."
+trust_boundary: "remote peer message -> local consensus/blocksync/statesync handler"
+entrypoint_type: "p2p-reactor-message-handler"
+sensitive_sink: "retaining peer connection after invalid protocol data"
+
+attacker_capabilities:
+  - "Send invalid blocks, votes, state-sync data, or handler messages as a connected peer."
+exploit_preconditions:
+  - "The handler detects an error associated with a peer."
+  - "The path reports the error but does not evict or penalize the peer."
+blast_radius: "protocol-state-integrity"
+
+impact_types:
+  - "protocol-abuse-mitigation"
+  - "peer-isolation"
+severity_guess: "medium"
+severity_rationale: "Peer eviction hardening improves abuse isolation; the evidence does not prove a concrete safety or liveness exploit."
+
+code_shape_summary: "The supported finding is security hardening in p2p reactor error handling. The visible patch replaces several passive error-reporting paths with peer eviction in blocksync, consensus state, consensus vote-set-bits, and statesync invalid light-block handling."
+search_motifs:
+  - "peer error logged but no peerManager.Evict"
+  - "invalid light block handled without disconnect"
+  - "handler has m.From or resp.peer available but only reports error"
+negative_signals:
+  - "The error can be caused by honest network races and eviction would be unsafe."
+  - "Another scoring layer immediately penalizes the same peer."
+patch_pattern: "Replace passive reporting with peer eviction or scoring on selected invalid-input paths where peer attribution is reliable."
+
+source_refs:
+  - "git:f6d7875ab046c006e6dede6f0fe33ec4bcbc61ef"
+  - "sei-tendermint/internal/blocksync/reactor.go:270"
+  - "sei-tendermint/internal/consensus/reactor.go:1243"
+  - "sei-tendermint/internal/statesync/reactor.go:590"
+  - "sei-tendermint/internal/consensus/reactor.go:1294"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

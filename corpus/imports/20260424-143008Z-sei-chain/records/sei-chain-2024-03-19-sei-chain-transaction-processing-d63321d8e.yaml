@@ -1,0 +1,58 @@
+id: "sei-chain-2024-03-19-sei-chain-transaction-processing-d63321d8e"
+source_finding: "2024-03-19-sei-chain-transaction-processing-d63321d8e.md"
+project: "sei-chain"
+date: "2024-03-19"
+language_tags:
+  - "go"
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "weak-signature-message-binding"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "transaction-execution"
+  - "cryptographic-verification"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "signed-message-binding"
+violated_invariant: "Signature recovery for account association must be bound to the exact message bytes and domain the signer intended."
+trust_boundary: "externally supplied association transaction -> account identity binding"
+entrypoint_type: "transaction-preprocess-or-ante-handler"
+sensitive_sink: "deriving or storing account association from recovered signer"
+
+attacker_capabilities:
+  - "Submit account-association transactions with chosen signature and message fields."
+exploit_preconditions:
+  - "The verifier recovers against a constant or wrong hash."
+  - "Association state trusts the recovered address."
+blast_radius: "protocol-state-integrity"
+
+impact_types:
+  - "authentication-integrity"
+severity_guess: "medium"
+severity_rationale: "The patch closes a signer-message binding gap in an identity path; exploitability is plausible but not demonstrated."
+
+code_shape_summary: "Likely security fix in the EVM account association path. The patch changes AssociateTx preprocessing from recovering addresses against common.Hash{} to recovering against Keccak256Hash([]byte(atx.CustomMessage)). It also adds CustomMessage to the AssociateTx model, protobuf serialization/deserialization, and tests."
+search_motifs:
+  - "signature recovery uses constant placeholder hash"
+  - "transaction model lacks signed message field"
+  - "preprocess derives signer before binding message bytes"
+negative_signals:
+  - "A later authorization check binds the same signature to the intended message."
+  - "The association operation is disabled or only accepts locally generated txs."
+patch_pattern: "Serialize the intended message and use its domain-separated hash for signer recovery."
+
+source_refs:
+  - "git:d63321d8ed8e15b94faf853fa020e08ce6ecc254"
+  - "x/evm/types/ethtx/tx.pb.go:1694"
+  - "x/evm/ante/preprocess_test.go:100"
+  - "x/evm/ante/preprocess.go:137"
+  - "x/evm/types/ethtx/tx.pb.go:521"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

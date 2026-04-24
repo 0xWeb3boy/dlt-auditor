@@ -1,0 +1,58 @@
+id: "sei-chain-2025-10-29-sei-chain-transaction-processing-48090d81b"
+source_finding: "2025-10-29-sei-chain-transaction-processing-48090d81b.md"
+project: "sei-chain"
+date: "2025-10-29"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "mempool-nonce-bookkeeping"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "p2p-networking"
+  - "transaction-execution"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "admission-bound-bookkeeping"
+violated_invariant: "Mempool nonce or ordering side effects must be recorded only at the same boundary where a transaction is actually admitted."
+trust_boundary: "CheckTx transaction candidate -> active/pending mempool state"
+entrypoint_type: "mempool-admission-handler"
+sensitive_sink: "updating pending nonce tracker used for promotion/block inclusion"
+
+attacker_capabilities:
+  - "Submit transactions that pass early signature/nonce checks but fail later mempool admission."
+exploit_preconditions:
+  - "Pending nonce is inserted before final admission."
+  - "Later rejection paths do not reliably roll the side effect back."
+blast_radius: "protocol-state-integrity"
+
+impact_types:
+  - "transaction-ordering-integrity"
+severity_guess: "medium"
+severity_rationale: "Stale nonce state can distort transaction ordering and inclusion; the impact is mempool integrity rather than direct fund loss."
+
+code_shape_summary: "This patch fixes stale EVM pending-nonce bookkeeping in the CheckTx/mempool admission path. Before the fix, a transaction nonce could be recorded in the pending-nonce tracker before the transaction was actually accepted into active or pending mempool, and some later rejection paths did not roll that nonce back. That stale nonce could make a higher-nonce transaction appear eligible for promotion and block inclusion."
+search_motifs:
+  - "pending nonce insert before mempool AddTx success"
+  - "rollback only on some rejection paths"
+  - "higher nonce promoted because rejected lower nonce remains tracked"
+negative_signals:
+  - "The nonce tracker is advisory only and never affects promotion or block selection."
+  - "All post-insert rejection paths defer a guaranteed rollback."
+patch_pattern: "Move nonce side effects to final admission or make rollback cover every later failure path."
+
+source_refs:
+  - "git:48090d81b8e158761f0161f1ac386007ed6e31ea"
+  - "x/evm/ante/sig.go:69"
+  - "sei-cosmos/baseapp/baseapp.go:910"
+  - "sei-cosmos/baseapp/baseapp.go:1012"
+  - "sei-cosmos/baseapp/baseapp.go:981"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

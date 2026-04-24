@@ -120,6 +120,27 @@ Your task:
   - which generated side effects or internal transactions are added by the variant,
   - which base-client caches, pools, signers, or state journals are reused by the variant,
   - where the variant's authoritative source of truth overrides or augments base-client assumptions.
+21. Map all cross-runtime adapter surfaces separately:
+  - precompiles,
+  - wasm or smart-contract query payload builders,
+  - EVM-to-native message dispatch,
+  - native-to-EVM receipt or accounting bridges,
+  - legacy compatibility adapters.
+  For each adapter, identify the canonical native path it should match, the exact identity or address-association source, the validation function or message-server path it should reuse, and the final value-transfer, governance, or accounting sink.
+22. Map consensus-visible result data separately from state writes:
+  - acknowledgements,
+  - ABCI or execution result data,
+  - precompile return bytes,
+  - error strings,
+  - receipts,
+  - app-hash or results-hash inputs,
+  - deterministic ordering assumptions such as map iteration.
+  For each, identify whether the bytes are deterministic protocol outputs or node-local diagnostics.
+23. For consensus certificates and view or round transitions, map:
+  - which certificate is authoritative,
+  - which locks, proposal identities, part-set headers, or latest quorum state it carries forward,
+  - where verification happens,
+  - where the verified certificate data is later used to mutate local state or emit votes.
 
 Output format:
 - System summary

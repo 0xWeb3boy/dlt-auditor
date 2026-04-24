@@ -1,0 +1,61 @@
+id: "sei-chain-2025-12-03-sei-chain-staking-b5f8936e8"
+source_finding: "2025-12-03-sei-chain-staking-b5f8936e8.md"
+project: "sei-chain"
+date: "2025-12-03"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-nondeterminism-hardening"
+subsystem: "staking"
+architecture_tags:
+  - "consensus-state-machine"
+  - "validator-based"
+  - "transaction-execution"
+  - "staking-or-validator-accountability"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "deterministic-consensus-error-data"
+violated_invariant: "Consensus-visible execution result data must not contain node-local diagnostics or nondeterministic error strings."
+trust_boundary: "precompile failure or VM error -> ABCI result data/results hash"
+entrypoint_type: "precompile-execution-handler"
+sensitive_sink: "returning execution data included in consensus result hashing"
+
+attacker_capabilities:
+  - "Trigger failing precompile calls through transactions."
+exploit_preconditions:
+  - "Failed calls return stringified errors as data."
+  - "Transaction result data is included in consensus hashing or app-hash-adjacent results."
+blast_radius: "consensus-integrity-or-liveness"
+
+impact_types:
+  - "consensus-divergence"
+  - "chain-halt"
+severity_guess: "high"
+severity_rationale: "Consensus-visible nondeterministic failure data can produce results-hash or app-hash divergence; retained as likely where the broader proof comes from commit context."
+
+code_shape_summary: "Likely security fix for consensus nondeterminism in Sei EVM precompile error handling. The provided test evidence shows failed staking, JSON, and IBC precompile paths changing from returning stringified error bytes to returning nil data while still signaling execution failure."
+search_motifs:
+  - "failed precompile returns []byte(err.Error())"
+  - "error data bubbles into ABCI result data"
+  - "stack path or local diagnostic string appears in consensus-visible bytes"
+negative_signals:
+  - "Failure data is omitted from committed results."
+  - "The VM error channel signals failure while return data is nil or fixed."
+patch_pattern: "Signal failure through deterministic error status and return nil or constant data on failed precompile execution."
+
+source_refs:
+  - "git:b5f8936e825af5265f2dc3bfd60ce007a39229e6"
+  - "precompiles/staking/staking_test.go:692"
+  - "precompiles/staking/staking_test.go:474"
+  - "precompiles/json/json_test.go:282"
+  - "precompiles/ibc/ibc_test.go:338"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

@@ -1,0 +1,20 @@
+id: "sei-chain-2025-08-18-sei-chain-transaction-processing-d35634422"
+source_record: "sei-chain-2025-08-18-sei-chain-transaction-processing-d35634422.yaml"
+project: "sei-chain"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "unsafe-legacy-transaction-acceptance"
+expected_missing_property: "legacy-transaction-replay-rejection"
+
+expected_impact_band: "authorization-or-identity-integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The network intentionally supports unprotected legacy transactions and scopes them safely."
+  - "A later ante stage rejects the transaction before execution."
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Expected result should preserve likely confidence rather than overclaiming exploitability."

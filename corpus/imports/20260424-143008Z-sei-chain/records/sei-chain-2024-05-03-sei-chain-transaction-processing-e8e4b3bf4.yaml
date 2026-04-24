@@ -1,0 +1,57 @@
+id: "sei-chain-2024-05-03-sei-chain-transaction-processing-e8e4b3bf4"
+source_finding: "2024-05-03-sei-chain-transaction-processing-e8e4b3bf4.md"
+project: "sei-chain"
+date: "2024-05-03"
+language_tags:
+  - "go"
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "missing-resource-limit"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "transaction-execution"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "subscription-resource-limit"
+violated_invariant: "Long-lived RPC subscriptions must be bounded before listener allocation or registration."
+trust_boundary: "remote RPC/WebSocket client -> node subscription resources"
+entrypoint_type: "rpc-subscription-handler"
+sensitive_sink: "allocating and retaining listener/subscription state"
+
+attacker_capabilities:
+  - "Open many WebSocket subscription requests to a public RPC node."
+exploit_preconditions:
+  - "No configured upper bound is enforced at registration."
+  - "Subscription state consumes memory or event fanout resources."
+blast_radius: "availability-or-resource-control"
+
+impact_types:
+  - "availability-hardening"
+severity_guess: "medium"
+severity_rationale: "Subscription exhaustion can degrade node availability; the retained evidence supports hardening without a demonstrated production outage."
+
+code_shape_summary: "The patch is best characterized as likely denial-of-service hardening for the EVM RPC websocket subscription path. It adds a configuration-backed limit for eth_newHeads subscriptions, passes that limit into SubscriptionAPI, and rejects new subscriptions once the tracked listener count reaches the configured maximum."
+search_motifs:
+  - "newHeads listeners map grows without limit"
+  - "config has subscription limit but server does not pass it"
+  - "count-and-insert not protected by same mutex"
+negative_signals:
+  - "The endpoint is admin-only or already fronted by strict rate limits."
+  - "A reverse proxy enforces a smaller authenticated subscription cap."
+patch_pattern: "Thread a configuration-backed limit to the allocation point and reject registrations under the same lock used for listener state."
+
+source_refs:
+  - "git:e8e4b3bf43a99e47ea2d7ca287089cd1fc0ff47e"
+  - "evmrpc/subscribe.go:90"
+  - "evmrpc/config.go:229"
+  - "evmrpc/config_test.go:90"
+  - "evmrpc/server.go:155"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

@@ -1,0 +1,59 @@
+id: "sei-chain-2024-04-15-sei-chain-rpc-client-api-a2aa14179"
+source_finding: "2024-04-15-sei-chain-rpc-client-api-a2aa14179.md"
+project: "sei-chain"
+date: "2024-04-15"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "missing-address-association-check"
+subsystem: "rpc-client-api"
+architecture_tags:
+  - "transaction-execution"
+  - "rpc-or-query-boundary"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "address-association-check"
+violated_invariant: "Cross-runtime address parameters must be mapped through explicit association state before they are used in EVM or precompile payloads."
+trust_boundary: "wasm query caller -> EVM address/precompile payload builder"
+entrypoint_type: "query-payload-builder"
+sensitive_sink: "constructing ABI call data for token or precompile operations"
+
+attacker_capabilities:
+  - "Call wasm/EVM helper queries with addresses lacking an association."
+exploit_preconditions:
+  - "The helper accepts default-derived EVM addresses."
+  - "The returned payload can influence downstream authorization or execution."
+blast_radius: "authorization-or-identity-integrity"
+
+impact_types:
+  - "identity-binding"
+  - "access-control"
+severity_guess: "medium"
+severity_rationale: "The issue is an identity-binding hardening case; impact depends on how generated payloads are consumed."
+
+code_shape_summary: "The patch replaces defaulting address-conversion helpers with explicit EVM address lookups plus `found` checks in several `x/evm/client/wasm/query.go` ERC20/ERC721 helper paths. Unassociated Bech32 addresses now cause an error before ABI payload/query data is packed."
+search_motifs:
+  - "explicit address lookup returns found but code ignores it"
+  - "default address helper used for participant parameter"
+  - "payload builder lacks fail-closed association error"
+negative_signals:
+  - "The generated payload is never used for privileged execution."
+  - "Every downstream precompile revalidates the address association."
+patch_pattern: "Require explicit association lookup success before constructing EVM/precompile payloads."
+
+source_refs:
+  - "git:a2aa1417909f14c78227ac7fa1873bc4d326a595"
+  - "x/evm/client/wasm/query.go:265"
+  - "x/evm/client/wasm/query.go:384"
+  - "x/evm/client/wasm/query.go:305"
+  - "x/evm/client/wasm/query.go:197"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

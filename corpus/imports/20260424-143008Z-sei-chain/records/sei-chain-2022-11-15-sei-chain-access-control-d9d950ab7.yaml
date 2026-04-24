@@ -1,0 +1,58 @@
+id: "sei-chain-2022-11-15-sei-chain-access-control-d9d950ab7"
+source_finding: "2022-11-15-sei-chain-access-control-d9d950ab7.md"
+project: "sei-chain"
+date: "2022-11-15"
+language_tags:
+  - "go"
+
+bug_family: "authz_and_role_gates"
+bug_class: "access-control"
+subsystem: "access-control"
+architecture_tags:
+  - "authorization-boundary"
+  - "message-server"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "ownership-authorization"
+violated_invariant: "State-changing registration or configuration must be authorized against canonical ownership metadata, not only request-declared identity."
+trust_boundary: "externally submitted module message -> privileged contract registration state"
+entrypoint_type: "message-server-handler"
+sensitive_sink: "registering a contract or changing module-scoped permissions"
+
+attacker_capabilities:
+  - "Submit registration messages naming a contract address."
+exploit_preconditions:
+  - "The contract exists and has canonical creator/owner metadata."
+  - "The handler previously accepted a requester without comparing it to that metadata."
+blast_radius: "protocol-state-integrity"
+
+impact_types:
+  - "privilege-misuse"
+severity_guess: "medium"
+severity_rationale: "Unauthorized registration can confer control over module behavior for another contract, but the retained evidence does not prove direct fund loss."
+
+code_shape_summary: "The patch adds a direct authorization gate to RegisterContract. The code now fetches wasm contract metadata for msg.Contract.ContractAddr and rejects the request with sdkerrors.ErrUnauthorized when contractInfo.Creator does not match msg.Creator. This supports a grounded missing-authorization finding for the DEX contract registration path."
+search_motifs:
+  - "Msg creator compared only to request fields"
+  - "contract registration lacks wasm creator lookup"
+  - "state mutation uses contract address before owner check"
+negative_signals:
+  - "A prior ante or router layer already proves the sender is the contract creator."
+  - "The registration has no privileged effect or is purely informational."
+patch_pattern: "Fetch canonical ownership metadata from the owning subsystem and reject mismatched callers before registration state changes."
+
+source_refs:
+  - "git:d9d950ab7ad8792b8d0cbc2c26f9a79f133d85f8"
+  - "x/dex/keeper/msgserver/msg_server_register_contract.go:22"
+  - "x/dex/keeper/msgserver/msg_server_contract_deposit_rent_test.go:96"
+  - "x/dex/keeper/msgserver/msg_server_update_tick_size_test.go:191"
+  - "x/dex/keeper/msgserver/msg_server_register_pairs_test.go:203"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

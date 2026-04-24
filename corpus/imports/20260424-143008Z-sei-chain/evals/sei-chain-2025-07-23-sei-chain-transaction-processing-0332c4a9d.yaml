@@ -1,0 +1,20 @@
+id: "sei-chain-2025-07-23-sei-chain-transaction-processing-0332c4a9d"
+source_record: "sei-chain-2025-07-23-sei-chain-transaction-processing-0332c4a9d.yaml"
+project: "sei-chain"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "entrypoint-scope-enforcement"
+expected_missing_property: "entrypoint-scope-and-message-type-check"
+
+expected_impact_band: "authorization-or-identity-integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The validator guarantees only the expected concrete message reaches the generic path."
+  - "The transfer amount is zero or independently scoped downstream."
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Expected result should preserve likely confidence rather than overclaiming exploitability."

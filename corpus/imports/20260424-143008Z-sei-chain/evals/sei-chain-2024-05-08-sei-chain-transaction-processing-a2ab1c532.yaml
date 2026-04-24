@@ -1,0 +1,20 @@
+id: "sei-chain-2024-05-08-sei-chain-transaction-processing-a2ab1c532"
+source_record: "sei-chain-2024-05-08-sei-chain-transaction-processing-a2ab1c532.yaml"
+project: "sei-chain"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "monetary-accounting-invariant"
+expected_missing_property: "ledger-accounting-consistency"
+
+expected_impact_band: "economic-or-ledger-integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The accounting path affects only diagnostics and not balances or supply."
+  - "A later invariant check aborts the block before committing mismatched state."
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Expected result should preserve likely confidence rather than overclaiming exploitability."

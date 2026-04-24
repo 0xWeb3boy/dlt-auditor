@@ -1,0 +1,20 @@
+id: "sei-chain-2025-12-03-sei-chain-staking-0156e75d7"
+source_record: "sei-chain-2025-12-03-sei-chain-staking-0156e75d7.yaml"
+project: "sei-chain"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "consensus-determinism-hardening"
+expected_missing_property: "deterministic-state-transition-order"
+
+expected_impact_band: "protocol-state-integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The iteration only builds logs or metrics."
+  - "The final state is order-independent by construction."
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Expected result should preserve likely confidence rather than overclaiming exploitability."

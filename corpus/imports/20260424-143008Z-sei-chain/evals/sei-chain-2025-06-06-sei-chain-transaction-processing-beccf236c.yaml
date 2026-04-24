@@ -1,0 +1,20 @@
+id: "sei-chain-2025-06-06-sei-chain-transaction-processing-beccf236c"
+source_record: "sei-chain-2025-06-06-sei-chain-transaction-processing-beccf236c.yaml"
+project: "sei-chain"
+
+expected_bug_family: "authz_and_role_gates"
+expected_bug_class: "validation-bypass-hardening"
+expected_missing_property: "canonical-message-validation"
+
+expected_impact_band: "protocol-state-integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The direct keeper method performs exactly the same validation."
+  - "The precompile method is read-only or disabled."
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Expected result should preserve likely confidence rather than overclaiming exploitability."

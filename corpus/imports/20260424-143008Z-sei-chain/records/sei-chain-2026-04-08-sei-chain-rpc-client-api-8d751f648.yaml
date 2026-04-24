@@ -1,0 +1,60 @@
+id: "sei-chain-2026-04-08-sei-chain-rpc-client-api-8d751f648"
+source_finding: "2026-04-08-sei-chain-rpc-client-api-8d751f648.md"
+project: "sei-chain"
+date: "2026-04-08"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-protobuf-input-validation"
+subsystem: "rpc-client-api"
+architecture_tags:
+  - "consensus-state-machine"
+  - "validator-based"
+  - "rpc-or-query-boundary"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "required-consensus-field-validation"
+violated_invariant: "Decoded consensus objects must reject missing or empty required fields before becoming domain objects."
+trust_boundary: "protobuf/wire decoded consensus message -> internal consensus type"
+entrypoint_type: "protobuf-to-domain-converter"
+sensitive_sink: "constructing TimeoutQC or proposal domain objects"
+
+attacker_capabilities:
+  - "Supply malformed encoded consensus objects through storage, tests, or network decode paths."
+exploit_preconditions:
+  - "The decoder accepts empty vote lists or missing required fields."
+  - "Constructed domain objects are later trusted by consensus logic."
+blast_radius: "protocol-state-integrity"
+
+impact_types:
+  - "malformed-input-rejection"
+  - "consensus-hardening"
+severity_guess: "medium"
+severity_rationale: "Malformed consensus object rejection is important hardening; remote exploitability and safety impact are not proven."
+
+code_shape_summary: "The patch adds defensive protobuf conversion coverage and rejects an empty decoded TimeoutQC vote list at the protobuf-to-domain boundary before consensus objects are accepted."
+search_motifs:
+  - "FromProto accepts empty TimeoutQC votes"
+  - "decode test expects no panic but no validation error"
+  - "proposal/domain object built before required field checks"
+negative_signals:
+  - "The malformed object can only be constructed in tests and never from network/storage input."
+  - "A later Verify call always rejects it before use."
+patch_pattern: "Add decode-boundary validation for required fields and regression tests for malformed protobuf inputs."
+
+source_refs:
+  - "git:8d751f648fbedcbad9a2500f556e87d00c9fd786"
+  - "sei-tendermint/internal/protoutils/testonly.go:24"
+  - "sei-tendermint/internal/autobahn/types/timeout.go:273"
+  - "sei-tendermint/internal/autobahn/types/types_test.go:146"
+  - "sei-tendermint/internal/autobahn/types/proposal.go:478"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

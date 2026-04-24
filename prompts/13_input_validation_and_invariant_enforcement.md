@@ -54,6 +54,8 @@ Search patterns:
 - protocol object IDs that can be burned, deleted, recreated, or recomputed from account, sequence, issuer, asset, domain, or fork-scoped fields. Check uniqueness against canonical identity and lifecycle state, not just current object existence
 - invariant scanners that visit many affected state entries but store only the last result, reset earlier detections, or treat absence or empty lists as success when the protocol requires explicit evidence
 - feature, amendment, or fork gates where a field is syntactically valid both before and after activation but has different semantic constraints after activation
+- protobuf, JSON, RLP, or domain-conversion code that turns empty lists, nil roots, absent required fields, or malformed nested structures into valid domain objects. Required consensus and proof fields should fail closed at the conversion boundary, not later through panics, nil sentinels, logs, or partial outputs
+- production safety guards for test, mock, simulation, or fixture-only state mutation helpers. A read path should not lazily mint, top off, or mutate state, and production-network guards should sit on every mutation sink rather than only on constructors
 
 Questions to answer:
 1. What structural invariants does the protocol require?

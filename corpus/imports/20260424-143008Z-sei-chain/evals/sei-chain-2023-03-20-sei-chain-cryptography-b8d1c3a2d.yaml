@@ -1,0 +1,20 @@
+id: "sei-chain-2023-03-20-sei-chain-cryptography-b8d1c3a2d"
+source_record: "sei-chain-2023-03-20-sei-chain-cryptography-b8d1c3a2d.yaml"
+project: "sei-chain"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "merkle-proof-structural-validation"
+expected_missing_property: "proof-structure-rejection"
+
+expected_impact_band: "protocol-state-integrity"
+expected_severity_band: "high_or_medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Callers already reject nil roots and malformed trees before verification."
+  - "The proof is generated locally and never crosses a trust boundary."
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Expected result should preserve confirmed confidence rather than overclaiming exploitability."

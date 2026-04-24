@@ -1,0 +1,59 @@
+id: "sei-chain-2024-03-19-sei-chain-transaction-processing-b6bdd9fc5"
+source_finding: "2024-03-19-sei-chain-transaction-processing-b6bdd9fc5.md"
+project: "sei-chain"
+date: "2024-03-19"
+language_tags:
+  - "go"
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "signature-message-binding"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "transaction-execution"
+  - "cryptographic-verification"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "signed-message-binding"
+violated_invariant: "Signature recovery for account association must be bound to the exact message bytes and domain the signer intended."
+trust_boundary: "externally supplied association transaction -> account identity binding"
+entrypoint_type: "transaction-preprocess-or-ante-handler"
+sensitive_sink: "deriving or storing account association from recovered signer"
+
+attacker_capabilities:
+  - "Submit account-association transactions with chosen signature and message fields."
+exploit_preconditions:
+  - "The verifier recovers against a constant or wrong hash."
+  - "Association state trusts the recovered address."
+blast_radius: "authorization-or-identity-integrity"
+
+impact_types:
+  - "authorization"
+  - "signature-verification"
+severity_guess: "medium"
+severity_rationale: "Weak message binding can undermine account association authorization, though the raw evidence stops short of proving a concrete replay or takeover."
+
+code_shape_summary: "The patch changes AssociateTx preprocessing from recovering addresses over common.Hash{} to recovering over Keccak256(CustomMessage). Supporting changes carry CustomMessage through AssociateTx construction and protobuf serialization, and tests now sign an Ethereum Signed Message-prefixed payload."
+search_motifs:
+  - "ecrecover over common.Hash{} or zero hash"
+  - "signed custom message not serialized with tx"
+  - "association preprocessing ignores Ethereum signed message prefix"
+negative_signals:
+  - "The signature is checked again over the correct message before association state changes."
+  - "The path is migration/test-only and not reachable by submitted transactions."
+patch_pattern: "Carry signed message bytes through transaction encoding and recover over the hash/domain expected by the signing flow."
+
+source_refs:
+  - "git:b6bdd9fc5de200f345beb3585f4a6aee8d584ddb"
+  - "x/evm/types/ethtx/tx.pb.go:1694"
+  - "x/evm/ante/preprocess_test.go:100"
+  - "x/evm/ante/preprocess.go:137"
+  - "x/evm/types/ethtx/tx.pb.go:521"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

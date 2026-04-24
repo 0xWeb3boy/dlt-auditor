@@ -42,6 +42,9 @@ Search patterns:
 - transaction, block, or state announcements where metadata validation, known-object checks, type support, and size bounds happen after the fetch request is already scheduled
 - aggregation code that treats one authority response as enough to decide retry, liveness, or error classification before checking whether another authorized peer can provide the missing certificate, effects, proof, or vote
 - response handlers that collapse Byzantine, malformed, empty, already-known, unavailable, timeout, and wrong-ledger responses into one generic error, preventing retry, bad-peer feedback, or invalid-data handling from taking the correct branch
+- peer-abuse counters whose ownership is split from peer lifecycle ownership. If the reactor owns peer identity, disconnect, and cleanup events, counters that drive eviction should live there or be explicitly cleaned up there
+- blacklist or eviction triggers attached to broad validation failures. Distinguish malformed, oversized, invalid-protocol, no-progress, and ordinary application-invalid inputs before penalizing a peer
+- p2p mux or stream discriminators where a missing kind, mismatched kind, or default kind can create or reuse a stream under the wrong resource bucket
 
 Questions to answer:
 1. What exact request is this response supposed to satisfy?

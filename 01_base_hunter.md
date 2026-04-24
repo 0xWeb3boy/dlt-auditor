@@ -39,6 +39,9 @@ Your task:
 21. For account-ledger systems, build a before/after accounting model for each transaction family: direct entries, generated entries, reserves, owner counts, fees, supply, shares, receipts, obligations, and invariant finalizers.
 22. For delegated, granular, or feature-scoped authorization systems, compare the permission object to the exact executed transaction shape, asset or domain, receiver policy, and every generated side effect.
 23. For proposal/validation consensus systems, map proposal identity, prior-ledger binding, transaction-set or payload ordering, validator or committee trust, quorum arithmetic, and wrong-ledger, catch-up, or round-transition modes before searching for missing checks.
+24. Compare adapter entrypoints against their canonical native entrypoints. For every precompile, cross-runtime query helper, legacy RPC adapter, or compatibility transaction path, ask whether it reuses the same validation, address association, chain or replay domain, message type, and final sink as the native path.
+25. Search for early side effects that are recorded before final admission or success: pending nonces, peer penalties, callback writes, accounting deltas, generated receipts, cached proposal blocks, and temporary store writes. Check whether every later rejection, timeout, panic, or failed acknowledgement rolls them back or avoids recording them until acceptance.
+26. In consensus and p2p lifecycles, compare the predicate that verifies an object with the predicate that later mutates state from it. A certificate, peer response, stream discriminator, or proposal that was not needed or verified for the current transition must not still drive stored state, emitted votes, or allocation.
 
 For each candidate include:
 - Title

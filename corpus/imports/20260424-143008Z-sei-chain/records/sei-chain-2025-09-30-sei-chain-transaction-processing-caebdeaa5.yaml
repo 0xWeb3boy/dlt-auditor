@@ -1,0 +1,59 @@
+id: "sei-chain-2025-09-30-sei-chain-transaction-processing-caebdeaa5"
+source_finding: "2025-09-30-sei-chain-transaction-processing-caebdeaa5.md"
+project: "sei-chain"
+date: "2025-09-30"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-panic-hardening"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "consensus-state-machine"
+  - "validator-based"
+  - "transaction-execution"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "panic-and-error-propagation"
+violated_invariant: "Consensus proposal and finalization paths must convert recoverable processing failures into explicit rejection or error results."
+trust_boundary: "submitted block proposal or transaction bytes -> consensus block processing"
+entrypoint_type: "process-proposal-or-finalizeblock"
+sensitive_sink: "accepting proposals or finalizing blocks after failed processing"
+
+attacker_capabilities:
+  - "Submit transactions or proposals that exercise panic/error paths."
+exploit_preconditions:
+  - "ProcessBlock errors or recovered panics are ignored by callers."
+  - "Gasless classification or optimistic processing can continue after failure."
+blast_radius: "availability-or-resource-control"
+
+impact_types:
+  - "liveness"
+severity_guess: "medium"
+severity_rationale: "Unhandled or ignored failures in consensus paths can threaten liveness, but no concrete malformed input exploit is proven."
+
+code_shape_summary: "The patch hardens sei-chain block proposal/finalization handling by recovering non-upgrade panics in ProcessBlock, checking ProcessBlock errors in optimistic proposal processing and FinalizeBlocker, and rejecting proposals when IsTxGasless reports a recovered panic."
+search_motifs:
+  - "ProcessBlock return error ignored"
+  - "recover panic but caller still accepts proposal"
+  - "IsTxGasless panic converted to false instead of rejection"
+negative_signals:
+  - "Panics are impossible for attacker-controlled input or are recovered at a higher consensus boundary."
+  - "The failed path is simulation-only and cannot affect proposal acceptance."
+patch_pattern: "Recover non-upgrade panics, propagate errors explicitly, and reject proposals or finalization steps when processing fails."
+
+source_refs:
+  - "git:caebdeaa5e06c7c1fe07b8556ef8637a7a4e204e"
+  - "app/app.go:2013"
+  - "app/app.go:1176"
+  - "app/app.go:1617"
+  - "app/app.go:1252"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

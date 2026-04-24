@@ -1,0 +1,59 @@
+id: "sei-chain-2024-04-15-sei-chain-rpc-client-api-56ce9a974"
+source_finding: "2024-04-15-sei-chain-rpc-client-api-56ce9a974.md"
+project: "sei-chain"
+date: "2024-04-15"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "identity-binding-hardening"
+subsystem: "rpc-client-api"
+architecture_tags:
+  - "transaction-execution"
+  - "rpc-or-query-boundary"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "address-association-check"
+violated_invariant: "Cross-address payload construction must require an explicit state-backed identity association before using either identity in a privileged call."
+trust_boundary: "wasm or RPC query parameter -> EVM/precompile call payload"
+entrypoint_type: "query-payload-builder"
+sensitive_sink: "ABI-packing token or precompile call data with participant addresses"
+
+attacker_capabilities:
+  - "Submit query requests with unassociated Bech32/Cosmos addresses."
+exploit_preconditions:
+  - "Default address derivation is accepted when no association exists."
+  - "Downstream payload consumers treat the packed address as authoritative."
+blast_radius: "authorization-or-identity-integrity"
+
+impact_types:
+  - "identity-confusion"
+  - "unauthorized-operation-prevention"
+severity_guess: "medium"
+severity_rationale: "Fail-closed association checks reduce identity confusion in precompile-facing payloads; the raw finding does not prove token theft."
+
+code_shape_summary: "The patch changes several wasm EVM query payload builders to reject unassociated Bech32 accounts before ABI packing. This is security-relevant identity-binding hardening, but the provided evidence only shows query/payload-construction paths and does not establish a concrete vulnerability or exploit impact."
+search_motifs:
+  - "GetEVMAddressOrDefault used before ABI pack"
+  - "missing found check from address association lookup"
+  - "unassociated Bech32 accepted in ERC20/ERC721 helper"
+negative_signals:
+  - "The payload is informational and cannot be submitted to a state-changing path."
+  - "Downstream execution independently rejects unassociated addresses."
+patch_pattern: "Replace default-derived address conversion with explicit lookup and reject absent associations before payload construction."
+
+source_refs:
+  - "git:56ce9a9741acdf61a6b83564ce0f7596c6e9ce6d"
+  - "x/evm/client/wasm/query.go:265"
+  - "x/evm/client/wasm/query.go:384"
+  - "x/evm/client/wasm/query.go:305"
+  - "x/evm/client/wasm/query.go:197"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

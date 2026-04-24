@@ -1,0 +1,60 @@
+id: "sei-chain-2022-02-02-sei-chain-core-logic-a613471d8"
+source_finding: "2022-02-02-sei-chain-core-logic-a613471d8.md"
+project: "sei-chain"
+date: "2022-02-02"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-determinism"
+subsystem: "core-logic"
+architecture_tags:
+  - "consensus-state-machine"
+  - "validator-based"
+  - "cross-chain-protocol"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "deterministic-consensus-serialization"
+violated_invariant: "Bytes committed into consensus results must be deterministic for the same logical outcome across all node builds and environments."
+trust_boundary: "module error path -> consensus-visible acknowledgement/result bytes"
+entrypoint_type: "packet-or-transaction-error-handler"
+sensitive_sink: "serializing acknowledgement or transaction result bytes into committed state"
+
+attacker_capabilities:
+  - "Trigger an error path whose acknowledgement or result is committed by validators."
+exploit_preconditions:
+  - "The committed bytes include raw error text or environment-dependent formatting."
+  - "Different nodes may produce different error strings for the same logical failure."
+blast_radius: "consensus-integrity-or-liveness"
+
+impact_types:
+  - "consensus-divergence"
+  - "state-consistency"
+severity_guess: "medium"
+severity_rationale: "Consensus-visible nondeterminism can be severe; this record stays medium/high bounded by the likely-hardening evidence."
+
+code_shape_summary: "Likely security fix for consensus determinism in IBC transfer error acknowledgements. The patch changes the transfer receive failure path from committing `err.Error()` directly into an acknowledgement to using a transfer-specific acknowledgement helper, and adds documentation warning that acknowledgement error strings are written into state and can cause app hash divergence across mixed patch versions."
+search_motifs:
+  - "err.Error() is written into acknowledgement data"
+  - "failure return bytes are included in app hash or results hash"
+  - "module-specific deterministic acknowledgement helper exists but is bypassed"
+negative_signals:
+  - "The error text is never committed or included in consensus results."
+  - "All possible error strings are protocol constants identical across versions."
+patch_pattern: "Replace raw error serialization with stable module acknowledgement/result constructors."
+
+source_refs:
+  - "git:a613471d88983aa1db304ac09e9dae6ae8ca97f0"
+  - "sei-ibc-go/modules/core/04-channel/types/acknowledgement.go:21"
+  - "sei-ibc-go/modules/apps/27-interchain-accounts/host/types/ack.go:15"
+  - "sei-ibc-go/modules/apps/transfer/ibc_module.go:182"
+  - "sei-ibc-go/modules/apps/transfer/types/ack_test.go:1"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

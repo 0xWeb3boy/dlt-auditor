@@ -1,0 +1,57 @@
+id: "sei-chain-2025-07-24-sei-chain-transaction-processing-9836e33a2"
+source_finding: "2025-07-24-sei-chain-transaction-processing-9836e33a2.md"
+project: "sei-chain"
+date: "2025-07-24"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "vulnerable-cryptographic-dependency"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "transaction-execution"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "cryptographic-dependency-freshness"
+violated_invariant: "Cryptographic parsing and signing call sites must use dependency versions and APIs that include known security fixes."
+trust_boundary: "untrusted public key or signature bytes -> cryptographic library verifier/parser"
+entrypoint_type: "crypto-parse-or-signature-verification-call"
+sensitive_sink: "accepting parsed public keys or verified signatures"
+
+attacker_capabilities:
+  - "Supply malformed keys/signatures to code paths using the vulnerable library."
+exploit_preconditions:
+  - "The deployed dependency version is affected by a relevant CVE."
+  - "Application call sites still use the vulnerable API contract."
+blast_radius: "protocol-state-integrity"
+
+impact_types:
+  - "unspecified-security-impact"
+severity_guess: "medium"
+severity_rationale: "The upstream CVEs make this security-relevant, but repo-specific exploitability is not established by the code snippets."
+
+code_shape_summary: "The grounded finding is a cryptographic dependency security update with required btcec API migration. The commit message explicitly says the btcec and x/crypto bumps fix CVE-2022-44797 and CVE-2024-45337. The supplied code evidence shows public-key parsing call sites changed from `btcec.ParsePubKey(bytes, btcec.S256())` to `btcec."
+search_motifs:
+  - "btcec ParsePubKey old API usage"
+  - "x/crypto or btcec CVE bump"
+  - "public key parse sites near ante or precompile verification"
+negative_signals:
+  - "The vulnerable function is not reachable with untrusted input."
+  - "A patched dependency is already vendored or replaced in production builds."
+patch_pattern: "Upgrade affected crypto dependencies and migrate call sites to the patched API while preserving error handling."
+
+source_refs:
+  - "git:9836e33a207bd64ee4e304118fdd733d8f2ec32c"
+  - "x/evm/ante/preprocess.go:302"
+  - "precompiles/addr/legacy/v610/addr.go:221"
+  - "precompiles/addr/legacy/v606/addr.go:221"
+  - "precompiles/addr/legacy/v605/addr.go:221"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

@@ -1,0 +1,369 @@
+{
+  "repo": "/testing/sei-chain",
+  "repo_slug": "sei-chain",
+  "kept_dir": "/testing/sei-chain/validated-findings/kept",
+  "created_at_utc": "20260424-143008Z",
+  "finding_count": 40,
+  "findings": [
+    {
+      "id": "sei-chain-2021-04-12-sei-chain-rpc-client-api-2a4fd03c4",
+      "source": "/testing/sei-chain/validated-findings/kept/2021-04-12-sei-chain-rpc-client-api-2a4fd03c4.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "failed-ack-state-rollback",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sei-chain-2021-05-27-sei-chain-rpc-client-api-46c2d2fbd",
+      "source": "/testing/sei-chain/validated-findings/kept/2021-05-27-sei-chain-rpc-client-api-46c2d2fbd.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "ibc-client-recovery-hardening",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sei-chain-2022-02-02-sei-chain-core-logic-a613471d8",
+      "source": "/testing/sei-chain/validated-findings/kept/2022-02-02-sei-chain-core-logic-a613471d8.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-determinism",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sei-chain-2022-11-15-sei-chain-access-control-d9d950ab7",
+      "source": "/testing/sei-chain/validated-findings/kept/2022-11-15-sei-chain-access-control-d9d950ab7.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "access-control",
+      "subsystem": "access-control",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "sei-chain-2022-12-19-sei-chain-transaction-processing-e3373eba5",
+      "source": "/testing/sei-chain/validated-findings/kept/2022-12-19-sei-chain-transaction-processing-e3373eba5.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "liveness-failure",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sei-chain-2023-01-12-sei-chain-p2p-networking-e52126b92",
+      "source": "/testing/sei-chain/validated-findings/kept/2023-01-12-sei-chain-p2p-networking-e52126b92.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "mempool-invalid-tx-peer-abuse-hardening",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sei-chain-2023-02-03-sei-chain-consensus-562746653",
+      "source": "/testing/sei-chain/validated-findings/kept/2023-02-03-sei-chain-consensus-562746653.md",
+      "bug_family": "staking_registry_and_accountability",
+      "bug_class": "oracle-validator-slashing-enforcement-bypass",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "accountability-enforcement"
+    },
+    {
+      "id": "sei-chain-2023-02-17-sei-chain-consensus-b5f113295",
+      "source": "/testing/sei-chain/validated-findings/kept/2023-02-17-sei-chain-consensus-b5f113295.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-determinism-hardening",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sei-chain-2023-03-20-sei-chain-cryptography-b8d1c3a2d",
+      "source": "/testing/sei-chain/validated-findings/kept/2023-03-20-sei-chain-cryptography-b8d1c3a2d.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "merkle-proof-structural-validation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sei-chain-2024-03-19-sei-chain-transaction-processing-b6bdd9fc5",
+      "source": "/testing/sei-chain/validated-findings/kept/2024-03-19-sei-chain-transaction-processing-b6bdd9fc5.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "signature-message-binding",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "sei-chain-2024-03-19-sei-chain-transaction-processing-d63321d8e",
+      "source": "/testing/sei-chain/validated-findings/kept/2024-03-19-sei-chain-transaction-processing-d63321d8e.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "weak-signature-message-binding",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "sei-chain-2024-04-15-sei-chain-rpc-client-api-56ce9a974",
+      "source": "/testing/sei-chain/validated-findings/kept/2024-04-15-sei-chain-rpc-client-api-56ce9a974.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "identity-binding-hardening",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sei-chain-2024-04-15-sei-chain-rpc-client-api-78eb1d663",
+      "source": "/testing/sei-chain/validated-findings/kept/2024-04-15-sei-chain-rpc-client-api-78eb1d663.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-address-association-check",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sei-chain-2024-04-15-sei-chain-rpc-client-api-a2aa14179",
+      "source": "/testing/sei-chain/validated-findings/kept/2024-04-15-sei-chain-rpc-client-api-a2aa14179.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-address-association-check",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sei-chain-2024-05-03-sei-chain-transaction-processing-e8e4b3bf4",
+      "source": "/testing/sei-chain/validated-findings/kept/2024-05-03-sei-chain-transaction-processing-e8e4b3bf4.md",
+      "bug_family": "resource_accounting_and_limits",
+      "bug_class": "missing-resource-limit",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "resource-accounting"
+    },
+    {
+      "id": "sei-chain-2024-05-08-sei-chain-transaction-processing-a2ab1c532",
+      "source": "/testing/sei-chain/validated-findings/kept/2024-05-08-sei-chain-transaction-processing-a2ab1c532.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "monetary-accounting-invariant",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sei-chain-2024-05-09-sei-chain-transaction-processing-b36bfe41b",
+      "source": "/testing/sei-chain/validated-findings/kept/2024-05-09-sei-chain-transaction-processing-b36bfe41b.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "replay-or-signature-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "sei-chain-2025-05-06-sei-chain-rpc-client-api-4523d3d13",
+      "source": "/testing/sei-chain/validated-findings/kept/2025-05-06-sei-chain-rpc-client-api-4523d3d13.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "check-then-set-race",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sei-chain-2025-06-06-sei-chain-transaction-processing-beccf236c",
+      "source": "/testing/sei-chain/validated-findings/kept/2025-06-06-sei-chain-transaction-processing-beccf236c.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "validation-bypass-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "sei-chain-2025-07-23-sei-chain-transaction-processing-0332c4a9d",
+      "source": "/testing/sei-chain/validated-findings/kept/2025-07-23-sei-chain-transaction-processing-0332c4a9d.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "entrypoint-scope-enforcement",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sei-chain-2025-07-24-sei-chain-transaction-processing-9836e33a2",
+      "source": "/testing/sei-chain/validated-findings/kept/2025-07-24-sei-chain-transaction-processing-9836e33a2.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "vulnerable-cryptographic-dependency",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sei-chain-2025-07-31-sei-chain-cryptography-1da04435c",
+      "source": "/testing/sei-chain/validated-findings/kept/2025-07-31-sei-chain-cryptography-1da04435c.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "resource-exhaustion",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sei-chain-2025-08-18-sei-chain-transaction-processing-d35634422",
+      "source": "/testing/sei-chain/validated-findings/kept/2025-08-18-sei-chain-transaction-processing-d35634422.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "unsafe-legacy-transaction-acceptance",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sei-chain-2025-09-30-sei-chain-transaction-processing-caebdeaa5",
+      "source": "/testing/sei-chain/validated-findings/kept/2025-09-30-sei-chain-transaction-processing-caebdeaa5.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-panic-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sei-chain-2025-10-29-sei-chain-transaction-processing-48090d81b",
+      "source": "/testing/sei-chain/validated-findings/kept/2025-10-29-sei-chain-transaction-processing-48090d81b.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "mempool-nonce-bookkeeping",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sei-chain-2025-11-13-sei-chain-p2p-networking-f6d7875ab",
+      "source": "/testing/sei-chain/validated-findings/kept/2025-11-13-sei-chain-p2p-networking-f6d7875ab.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "p2p-invalid-peer-accountability",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sei-chain-2025-12-03-sei-chain-staking-0156e75d7",
+      "source": "/testing/sei-chain/validated-findings/kept/2025-12-03-sei-chain-staking-0156e75d7.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-determinism-hardening",
+      "subsystem": "staking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sei-chain-2025-12-03-sei-chain-staking-b5f8936e8",
+      "source": "/testing/sei-chain/validated-findings/kept/2025-12-03-sei-chain-staking-b5f8936e8.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-nondeterminism-hardening",
+      "subsystem": "staking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sei-chain-2025-12-16-sei-chain-p2p-networking-7c3df71f7",
+      "source": "/testing/sei-chain/validated-findings/kept/2025-12-16-sei-chain-p2p-networking-7c3df71f7.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "mempool-peer-resource-abuse-hardening",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sei-chain-2026-01-12-sei-chain-cryptography-cbd47b343",
+      "source": "/testing/sei-chain/validated-findings/kept/2026-01-12-sei-chain-cryptography-cbd47b343.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "traffic-analysis-hardening",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sei-chain-2026-01-29-sei-chain-transaction-processing-bded875b1",
+      "source": "/testing/sei-chain/validated-findings/kept/2026-01-29-sei-chain-transaction-processing-bded875b1.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "mock-balance-mainnet-guard",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sei-chain-2026-02-09-sei-chain-transaction-processing-d9f1de1a4",
+      "source": "/testing/sei-chain/validated-findings/kept/2026-02-09-sei-chain-transaction-processing-d9f1de1a4.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "app-hash-state-accounting-inconsistency",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sei-chain-2026-02-12-sei-chain-rpc-client-api-f45028f01",
+      "source": "/testing/sei-chain/validated-findings/kept/2026-02-12-sei-chain-rpc-client-api-f45028f01.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-state-mismatch",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sei-chain-2026-02-19-sei-chain-consensus-4d45fcdc8",
+      "source": "/testing/sei-chain/validated-findings/kept/2026-02-19-sei-chain-consensus-4d45fcdc8.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "improper-consensus-state-validation",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sei-chain-2026-02-19-sei-chain-cryptography-1a3758d85",
+      "source": "/testing/sei-chain/validated-findings/kept/2026-02-19-sei-chain-cryptography-1a3758d85.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-proposal-validation-hardening",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sei-chain-2026-03-06-sei-chain-consensus-f5844b5a6",
+      "source": "/testing/sei-chain/validated-findings/kept/2026-03-06-sei-chain-consensus-f5844b5a6.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-safety",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sei-chain-2026-04-08-sei-chain-p2p-networking-65bedcfef",
+      "source": "/testing/sei-chain/validated-findings/kept/2026-04-08-sei-chain-p2p-networking-65bedcfef.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "p2p-peer-abuse-accounting-hardening",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sei-chain-2026-04-08-sei-chain-rpc-client-api-8d751f648",
+      "source": "/testing/sei-chain/validated-findings/kept/2026-04-08-sei-chain-rpc-client-api-8d751f648.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-protobuf-input-validation",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sei-chain-2026-04-10-sei-chain-core-logic-107c8e793",
+      "source": "/testing/sei-chain/validated-findings/kept/2026-04-10-sei-chain-core-logic-107c8e793.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "protocol-validation-hardening",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "sei-chain-2026-04-21-sei-chain-cryptography-9b9e33970",
+      "source": "/testing/sei-chain/validated-findings/kept/2026-04-21-sei-chain-cryptography-9b9e33970.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "secret-key-lifecycle-hardening",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    }
+  ]
+}

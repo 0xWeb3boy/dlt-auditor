@@ -1,0 +1,55 @@
+id: "sei-chain-2024-05-09-sei-chain-transaction-processing-b36bfe41b"
+source_finding: "2024-05-09-sei-chain-transaction-processing-b36bfe41b.md"
+project: "sei-chain"
+date: "2024-05-09"
+language_tags:
+  - "go"
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "replay-or-signature-validation"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "transaction-execution"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "replay-domain-validation"
+violated_invariant: "Transaction admission must reject signatures whose chain or replay domain does not match the configured execution domain."
+trust_boundary: "externally submitted EVM transaction -> ante signature verification"
+entrypoint_type: "transaction-ante-handler"
+sensitive_sink: "accepting transaction for execution under local chain state"
+
+attacker_capabilities:
+  - "Submit signed Ethereum-style transactions with chosen chain IDs or legacy format."
+exploit_preconditions:
+  - "Chain ID is missing or not checked in the ante path."
+  - "The transaction type permits replay-domain ambiguity."
+blast_radius: "authorization-or-identity-integrity"
+
+impact_types:
+  - "request-forgery-or-replay"
+severity_guess: "medium"
+severity_rationale: "Chain-ID validation prevents cross-chain or cross-domain replay; this case is likely hardening because exploitability was not proven."
+
+code_shape_summary: "The patch adds explicit chain ID checks in `x/evm/ante/sig.go` within `EVMSigVerifyDecorator.AnteHandle`. It reads the configured EVM chain ID from the keeper, reads `ethTx.ChainId()`, switches on the Ethereum transaction type, and for legacy transactions allows either chain ID zero or the configured chain ID while rejecting other nonzero chain IDs with `sdkerrors.ErrInvalidChainID`."
+search_motifs:
+  - "ethTx.ChainId not compared with configured chain ID"
+  - "legacy tx allows arbitrary nonzero chain ID"
+  - "sig verifier proceeds before replay-domain check"
+negative_signals:
+  - "A later signer implementation rejects mismatched chain IDs before state changes."
+  - "The path is simulation-only and cannot broadcast transactions."
+patch_pattern: "Validate replay-domain fields during admission, preserving explicit legacy compatibility only where intended."
+
+source_refs:
+  - "git:b36bfe41bb7dcf935d338bebf82e412589dfeec2"
+  - "x/evm/ante/sig.go:40"
+  - "x/evm/ante/sig.go:2"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

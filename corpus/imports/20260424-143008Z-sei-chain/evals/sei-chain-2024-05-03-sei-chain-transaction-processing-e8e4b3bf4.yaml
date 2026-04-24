@@ -1,0 +1,20 @@
+id: "sei-chain-2024-05-03-sei-chain-transaction-processing-e8e4b3bf4"
+source_record: "sei-chain-2024-05-03-sei-chain-transaction-processing-e8e4b3bf4.yaml"
+project: "sei-chain"
+
+expected_bug_family: "resource_accounting_and_limits"
+expected_bug_class: "missing-resource-limit"
+expected_missing_property: "subscription-resource-limit"
+
+expected_impact_band: "availability-or-resource-control"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The endpoint is admin-only or already fronted by strict rate limits."
+  - "A reverse proxy enforces a smaller authenticated subscription cap."
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Expected result should preserve likely confidence rather than overclaiming exploitability."

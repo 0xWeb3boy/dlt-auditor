@@ -1,0 +1,20 @@
+id: "sei-chain-2025-12-03-sei-chain-staking-b5f8936e8"
+source_record: "sei-chain-2025-12-03-sei-chain-staking-b5f8936e8.yaml"
+project: "sei-chain"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "consensus-nondeterminism-hardening"
+expected_missing_property: "deterministic-consensus-error-data"
+
+expected_impact_band: "consensus-integrity-or-liveness"
+expected_severity_band: "high_or_medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Failure data is omitted from committed results."
+  - "The VM error channel signals failure while return data is nil or fixed."
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Expected result should preserve likely confidence rather than overclaiming exploitability."

@@ -1,0 +1,58 @@
+id: "sei-chain-2026-02-19-sei-chain-consensus-4d45fcdc8"
+source_finding: "2026-02-19-sei-chain-consensus-4d45fcdc8.md"
+project: "sei-chain"
+date: "2026-02-19"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "improper-consensus-state-validation"
+subsystem: "consensus"
+architecture_tags:
+  - "consensus-state-machine"
+  - "validator-based"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "verified-certificate-gating"
+violated_invariant: "Consensus state mutation must use only quorum certificates that were needed and verified for the current transition."
+trust_boundary: "incoming consensus certificate/block metadata -> local Autobahn data state"
+entrypoint_type: "quorum-certificate-push-handler"
+sensitive_sink: "updating stored QC ranges, headers, and block-match state"
+
+attacker_capabilities:
+  - "Send stale or unnecessary quorum certificates with consensus messages."
+exploit_preconditions:
+  - "Verification is conditional but later mutation can still use the incoming QC."
+  - "Block matching trusts incoming headers instead of stored verified headers."
+blast_radius: "availability-or-resource-control"
+
+impact_types:
+  - "state-integrity"
+  - "local-availability"
+severity_guess: "medium"
+severity_rationale: "Using unverified or stale certificate metadata can corrupt local consensus state; broader safety impact is not proven."
+
+code_shape_summary: "The patch fixes a security-relevant state-integrity issue in the Autobahn consensus data path. Before the fix, PushQC could use a stale or unneeded incoming QC's range and headers during later mutation and block matching even though QC verification was only performed when needQC was true. The fix ties QC insertion and update signaling to needQC, and matches blocks against stored verified QC headers."
+search_motifs:
+  - "needQC controls verification but not insertion"
+  - "incoming QC range used after verification skipped"
+  - "block matched against unstored incoming header"
+negative_signals:
+  - "All incoming QCs are verified before this function regardless of needQC."
+  - "Later state mutation reads only canonical stored QC data."
+patch_pattern: "Apply the same needed-and-verified predicate to verification, insertion, update signaling, and dependent block matching."
+
+source_refs:
+  - "git:4d45fcdc8854e53e7cba3821851f591f704d6aa6"
+  - "sei-tendermint/internal/autobahn/data/state.go:145"
+  - "sei-tendermint/internal/autobahn/data/state_test.go:111"
+  - "sei-tendermint/internal/autobahn/data/state_test.go:7"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

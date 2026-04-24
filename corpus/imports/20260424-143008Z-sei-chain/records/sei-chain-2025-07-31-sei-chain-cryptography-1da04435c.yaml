@@ -1,0 +1,60 @@
+id: "sei-chain-2025-07-31-sei-chain-cryptography-1da04435c"
+source_finding: "2025-07-31-sei-chain-cryptography-1da04435c.md"
+project: "sei-chain"
+date: "2025-07-31"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "resource-exhaustion"
+subsystem: "cryptography"
+architecture_tags:
+  - "consensus-state-machine"
+  - "validator-based"
+  - "cryptographic-verification"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "allocation-size-bound"
+violated_invariant: "Peer- or proposal-supplied sizing fields must be bounded before they affect allocations or consensus state machines."
+trust_boundary: "remote consensus proposal or peer state -> local block-part allocation/state"
+entrypoint_type: "consensus-proposal-or-peer-state-handler"
+sensitive_sink: "allocating PartSet structures or updating proposal part state"
+
+attacker_capabilities:
+  - "Send proposals or peer-state messages with excessive part counts."
+exploit_preconditions:
+  - "The part count field is accepted before comparison with MaxBlockPartsCount."
+  - "The value controls allocation or peer/proposal state sizing."
+blast_radius: "availability-or-resource-control"
+
+impact_types:
+  - "availability"
+  - "resource-exhaustion"
+severity_guess: "medium"
+severity_rationale: "Oversized consensus metadata can exhaust memory or disrupt liveness; the finding does not support cryptographic or safety claims."
+
+code_shape_summary: "The patch adds bounds checks for excessive PartSetHeader.Total values in Tendermint consensus proposal and peer-state handling, plus a defensive fallback in NewPartSetFromHeader. The supported security thesis is resource-exhaustion prevention from oversized consensus block-part counts. The evidence does not support cryptographic, replay, signature-bypass, or consensus-safety claims beyond resource-control risk."
+search_motifs:
+  - "PartSetHeader.Total used before MaxBlockPartsCount check"
+  - "NewPartSetFromHeader called on remote header"
+  - "proposal receive path lacks part-count bound"
+negative_signals:
+  - "The field is already bounded by decoding or network framing before allocation."
+  - "The value is locally derived from a verified block."
+patch_pattern: "Check externally supplied size fields at every entrypoint and add defensive lower-layer guards for missed callers."
+
+source_refs:
+  - "git:1da04435c86e66d2f4c6736dbdbcaaee11c7a667"
+  - "sei-tendermint/types/part_set.go:203"
+  - "sei-tendermint/internal/consensus/state.go:2396"
+  - "sei-tendermint/internal/consensus/reactor_test.go:1033"
+  - "sei-tendermint/internal/consensus/peer_state.go:110"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

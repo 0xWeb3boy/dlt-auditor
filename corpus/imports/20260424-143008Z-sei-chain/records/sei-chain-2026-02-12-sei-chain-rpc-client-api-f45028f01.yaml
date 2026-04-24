@@ -1,0 +1,61 @@
+id: "sei-chain-2026-02-12-sei-chain-rpc-client-api-f45028f01"
+source_finding: "2026-02-12-sei-chain-rpc-client-api-f45028f01.md"
+project: "sei-chain"
+date: "2026-02-12"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-state-mismatch"
+subsystem: "rpc-client-api"
+architecture_tags:
+  - "consensus-state-machine"
+  - "validator-based"
+  - "rpc-or-query-boundary"
+  - "staking-or-validator-accountability"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "certified-proposal-state-binding"
+violated_invariant: "Commit-step block reconstruction must be bound to the block ID and part-set header certified by the commit evidence."
+trust_boundary: "peer proposal/block parts -> local commit-step consensus state"
+entrypoint_type: "consensus-commit-handler"
+sensitive_sink: "reconstructing or accepting ProposalBlock for commit processing"
+
+attacker_capabilities:
+  - "Influence proposal or block-part delivery timing around commit handling."
+exploit_preconditions:
+  - "Local proposal state can refer to a block different from the commit certificate."
+  - "Reconstruction can proceed over stale or mismatched ProposalBlock data."
+blast_radius: "availability-or-resource-control"
+
+impact_types:
+  - "consensus-liveness"
+  - "node-halt"
+severity_guess: "medium"
+severity_rationale: "Certified block mismatch can halt or desynchronize nodes; the finding is liveness/state-alignment rather than proven safety compromise."
+
+code_shape_summary: "The patch is a Tendermint consensus liveness/state-alignment fix for a halt described as caused by reconstructing a block from a bad proposal. It adds a commit-certificate-aware proposal mismatch check, centralizes proposal block reconstruction around current round state, avoids reconstructing over an existing ProposalBlock, and makes commit handling wait for block parts matching the certified PartSetHeader."
+search_motifs:
+  - "commit BlockID differs from ProposalBlock BlockID"
+  - "reconstruct block without checking PartSetHeader from commit"
+  - "proposal mismatch not rejected during commit step"
+negative_signals:
+  - "The consensus state machine already clears conflicting proposal data before commit."
+  - "Block parts are cryptographically bound and cannot be mixed across headers."
+patch_pattern: "Treat the commit certificate as authoritative, ignore conflicting proposals, and fetch/reconstruct only parts matching the certified header."
+
+source_refs:
+  - "git:f45028f01ac837ce8b6bce4c55246ceee08d8258"
+  - "sei-tendermint/internal/consensus/state.go:2108"
+  - "sei-tendermint/internal/consensus/state.go:2243"
+  - "sei-tendermint/internal/consensus/state.go:1418"
+  - "sei-tendermint/internal/consensus/state.go:1795"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

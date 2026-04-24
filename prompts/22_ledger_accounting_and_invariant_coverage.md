@@ -27,6 +27,8 @@ Search patterns:
 - Amendment, fork, feature, or mode gates that change state-object semantics. Both pre-activation and post-activation branches must preserve the same global invariants or fail closed.
 - Shared helpers and inline math that are meant to compute the same accounting relation but differ in rounding, fee selection, reserve source, owner-count behavior, or generated-object coverage.
 - final accounting checks that run before gas charging, rebates, storage refunds, generated objects, dynamic fields, or temporary-store writes are known. Re-run the conservation model at the actual finalization boundary and include all generated side effects.
+- alternate execution engines or fast paths that finalize state through different stores, caches, or deferred metadata. Check that finalized deltas, fee or surplus accounting, receipt data, and writes are propagated and flushed before canonical bank, end-block, or invariant code reads them
+- mempool or admission bookkeeping that affects future transaction ordering, nonce eligibility, or promotion. Record it only at final admission or prove every later rejection path rolls it back
 
 Questions to answer:
 1. What exact state entries can this transaction create, delete, or mutate directly and indirectly?

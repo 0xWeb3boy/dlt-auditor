@@ -49,6 +49,8 @@ Search patterns:
 - signing or approval middleware where validation warnings, policy failures, or UI-mediated prompts default to continue instead of requiring explicit approval under a clearly unsafe mode.
 - object-, resource-, or capability-based ledgers where the executed object set is derived through object references, dynamic fields, consensus-created objects, or helper summaries. Check that the final sink revalidates current ownership or capability for every mutable, deletable, wrapped, or indirectly loaded object
 - paths that authorize based on a transaction sender, object ID, cached owner, or declared owner before resolving the authoritative current owner. The authorization decision should consume the same owner state that the write, delete, or transfer sink will mutate
+- cross-runtime adapters, precompiles, and query payload builders that accept an identity in one address namespace and execute or construct payloads in another. Require explicit state-backed association at the adapter boundary and revalidate concrete message type, caller runtime, and destination before any value transfer or privileged state mutation
+- alternate entrypoints that call keepers, managers, or storage helpers directly instead of constructing the canonical message object and using the same validation or dispatch path as native transactions
 
 Questions to answer:
 1. Who is supposed to be allowed to call this path?

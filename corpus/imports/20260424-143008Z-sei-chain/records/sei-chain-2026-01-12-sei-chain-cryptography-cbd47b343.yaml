@@ -1,0 +1,58 @@
+id: "sei-chain-2026-01-12-sei-chain-cryptography-cbd47b343"
+source_finding: "2026-01-12-sei-chain-cryptography-cbd47b343.md"
+project: "sei-chain"
+date: "2026-01-12"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "traffic-analysis-hardening"
+subsystem: "cryptography"
+architecture_tags:
+  - "cryptographic-verification"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "encrypted-frame-size-obfuscation"
+violated_invariant: "Encrypted transports should avoid exposing application write boundaries or message lengths when the protocol promises fixed-size framing."
+trust_boundary: "application p2p writes -> encrypted transport frames visible to network observers"
+entrypoint_type: "encrypted-connection-write-path"
+sensitive_sink: "emitting ciphertext frames with observable sizes/timing"
+
+attacker_capabilities:
+  - "Observe encrypted p2p traffic metadata on the network path."
+exploit_preconditions:
+  - "Application write sizes influence ciphertext frame sizes."
+  - "Traffic analysis on message length is relevant to the threat model."
+blast_radius: "confidentiality-or-key-lifecycle-hardening"
+
+impact_types:
+  - "metadata-leakage-reduction"
+  - "traffic-analysis-mitigation"
+severity_guess: "low"
+severity_rationale: "This is privacy hardening against metadata analysis, with no demonstrated plaintext disclosure or authentication failure."
+
+code_shape_summary: "The supplied evidence supports a security-hardening interpretation around encrypted transport metadata leakage, specifically message length analysis. It does not establish a concrete vulnerability, exploit path, authentication failure, nonce-reuse bug, malformed transaction crash, or plaintext disclosure."
+search_motifs:
+  - "buffering occurs outside secret connection"
+  - "ciphertext frame size follows application write size"
+  - "evil secret connection test detects message length pattern"
+negative_signals:
+  - "The protocol does not attempt to hide message sizes."
+  - "Transport framing already pads or batches writes below this layer."
+patch_pattern: "Move buffering into the encrypted connection so frame emission follows transport framing rules rather than raw writes."
+
+source_refs:
+  - "git:cbd47b343fbdb583f5b4537f8739019c77321310"
+  - "sei-tendermint/internal/p2p/conn/evil_secret_connection_test.go:43"
+  - "sei-tendermint/internal/p2p/conn/secret_connection.go:168"
+  - "sei-tendermint/internal/p2p/conn/secret_connection.go:46"
+  - "sei-tendermint/internal/p2p/conn/evil_secret_connection_test.go:120"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

@@ -1,0 +1,58 @@
+id: "sei-chain-2024-05-08-sei-chain-transaction-processing-a2ab1c532"
+source_finding: "2024-05-08-sei-chain-transaction-processing-a2ab1c532.md"
+project: "sei-chain"
+date: "2024-05-08"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "monetary-accounting-invariant"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "transaction-execution"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "ledger-accounting-consistency"
+violated_invariant: "All execution paths that create, burn, defer, or repair balances must preserve the same ledger accounting invariant at block finalization."
+trust_boundary: "transaction execution accounting delta -> bank supply and end-block state"
+entrypoint_type: "ante-finalization-or-endblock-accounting"
+sensitive_sink: "updating balances, surplus, or total supply"
+
+attacker_capabilities:
+  - "Submit transactions that exercise EVM fee/surplus accounting edge cases."
+exploit_preconditions:
+  - "Related positive and negative accounting deltas are handled in different layers."
+  - "EndBlock aggregation reads incomplete or inconsistent surplus state."
+blast_radius: "economic-or-ledger-integrity"
+
+impact_types:
+  - "supply-integrity"
+  - "accounting-integrity"
+severity_guess: "medium"
+severity_rationale: "Supply/accounting mismatch is economically sensitive, but the evidence does not prove attacker-controlled minting or theft."
+
+code_shape_summary: "The patch likely fixes a security-relevant EVM surplus accounting bug. The strongest supported finding is that ante surplus was mishandled across ante processing, EndBlock aggregation, and total supply repair. The evidence supports a supply-accounting mismatch, not a crash, theft, replay, cryptographic validation, or proven attacker-controlled minting issue."
+search_motifs:
+  - "surplus recorded outside keeper state"
+  - "negative surplus rejected before netting with positive values"
+  - "migration repairs total supply drift"
+negative_signals:
+  - "The accounting path affects only diagnostics and not balances or supply."
+  - "A later invariant check aborts the block before committing mismatched state."
+patch_pattern: "Move deltas into canonical keeper state, aggregate them once, net related values, and migrate existing drift deliberately."
+
+source_refs:
+  - "git:a2ab1c5324a34a8055ef4a4416bf48e34cc20427"
+  - "x/evm/ante/fee.go:88"
+  - "x/evm/module.go:238"
+  - "x/evm/module.go:144"
+  - "x/evm/state/statedb.go:114"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

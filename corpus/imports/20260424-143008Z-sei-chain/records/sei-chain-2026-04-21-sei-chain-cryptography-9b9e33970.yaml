@@ -1,0 +1,58 @@
+id: "sei-chain-2026-04-21-sei-chain-cryptography-9b9e33970"
+source_finding: "2026-04-21-sei-chain-cryptography-9b9e33970.md"
+project: "sei-chain"
+date: "2026-04-21"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "secret-key-lifecycle-hardening"
+subsystem: "cryptography"
+architecture_tags:
+  - "cryptographic-verification"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "secret-key-runtime-lifecycle"
+violated_invariant: "Secret key memory must remain reachable during signing and must not be retained accidentally by cleanup hooks after intended disposal."
+trust_boundary: "application signing code -> cryptographic secret key memory/runtime cleanup"
+entrypoint_type: "secret-key-signing-method"
+sensitive_sink: "using and cleaning private key material"
+
+attacker_capabilities:
+  - "Exploit local memory disclosure or lifecycle bugs if secret material is mishandled."
+exploit_preconditions:
+  - "Secret key representation or cleanup callbacks have ambiguous reachability behavior."
+  - "Signing code may allow premature cleanup or retained references."
+blast_radius: "confidentiality-or-key-lifecycle-hardening"
+
+impact_types:
+  - "secret-key-exposure-risk-reduction"
+  - "memory-lifecycle-hardening"
+severity_guess: "low"
+severity_rationale: "This is cryptographic secret lifecycle hardening without evidence of attacker-triggered key disclosure."
+
+code_shape_summary: "The supported finding is Ed25519 secret-key lifecycle hardening, not a proven exploitable vulnerability. The evidence shows changes to SecretKey representation, runtime cleanup registration, and SignWithTag keepalive behavior. The tmhash removal is not tied to a concrete security invariant in the supplied evidence and should be treated as cleanup/API removal unless more context is provided."
+search_motifs:
+  - "runtime.SetFinalizer or cleanup captures the object being cleaned"
+  - "signing method lacks runtime.KeepAlive"
+  - "raw secret pointer exposed outside key type"
+negative_signals:
+  - "Secret keys are immutable byte slices with no cleanup finalizers or unsafe pointers."
+  - "The path handles only public keys or test keys."
+patch_pattern: "Make key reachability explicit, hide raw secret access, avoid self-retaining cleanup callbacks, and keep key objects alive through signing."
+
+source_refs:
+  - "git:9b9e33970f0412352885ae82dee529b699a1a29e"
+  - "sei-tendermint/crypto/ed25519/ed25519.go:66"
+  - "sei-tendermint/crypto/tmhash/hash.go:20"
+  - "sei-tendermint/crypto/ed25519/ed25519.go:153"
+  - "sei-tendermint/crypto/ed25519/ed25519.go:39"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

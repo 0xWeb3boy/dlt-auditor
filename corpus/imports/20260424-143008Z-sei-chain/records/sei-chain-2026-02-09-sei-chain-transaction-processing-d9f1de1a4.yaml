@@ -1,0 +1,60 @@
+id: "sei-chain-2026-02-09-sei-chain-transaction-processing-d9f1de1a4"
+source_finding: "2026-02-09-sei-chain-transaction-processing-d9f1de1a4.md"
+project: "sei-chain"
+date: "2026-02-09"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "app-hash-state-accounting-inconsistency"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "consensus-state-machine"
+  - "validator-based"
+  - "transaction-execution"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "alternate-execution-accounting-parity"
+violated_invariant: "Alternate execution engines must propagate the same finalized deltas and state visibility as the canonical block execution path."
+trust_boundary: "giga/alternate EVM execution -> canonical bank/endblock consensus state"
+entrypoint_type: "block-execution-finalization"
+sensitive_sink: "committing surplus, deferred metadata, and store writes used for app hash"
+
+attacker_capabilities:
+  - "Submit transactions that exercise the alternate EVM execution path and fee/surplus accounting."
+exploit_preconditions:
+  - "Finalized surplus or store writes are discarded or not flushed before downstream reads."
+  - "The alternate path feeds consensus-visible metadata."
+blast_radius: "economic-or-ledger-integrity"
+
+impact_types:
+  - "liveness"
+  - "state-accounting"
+severity_guess: "medium"
+severity_rationale: "State accounting inconsistencies in block execution can affect app hash and liveness; no direct asset theft is proven."
+
+code_shape_summary: "The evidence supports a likely security-relevant app-hash/state-accounting consistency fix in sei-chain's giga EVM execution path. The patch changes consensus-critical block-processing code to preserve `stateDB.Finalize()` surplus, pass that surplus into deferred EVM transaction info instead of hardcoding zero, and flush giga-store writes before later BankKeeper and EndBlock reads."
+search_motifs:
+  - "stateDB.Finalize surplus ignored"
+  - "deferred tx info hardcodes zero surplus"
+  - "alternate store not flushed before BankKeeper reads"
+negative_signals:
+  - "The alternate path is disabled in production."
+  - "Downstream reads use the same cached store and cannot observe stale data."
+patch_pattern: "Preserve finalized deltas, pass them through deferred metadata, and flush alternate store layers before canonical state reads."
+
+source_refs:
+  - "git:d9f1de1a4de7b131bac065f86113ae2d153f12fe"
+  - "giga/executor/executor.go:48"
+  - "app/app.go:1972"
+  - "app/app.go:2009"
+  - "app/app.go:1682"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."

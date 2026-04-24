@@ -1,0 +1,20 @@
+id: "sei-chain-2026-02-19-sei-chain-consensus-4d45fcdc8"
+source_record: "sei-chain-2026-02-19-sei-chain-consensus-4d45fcdc8.yaml"
+project: "sei-chain"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "improper-consensus-state-validation"
+expected_missing_property: "verified-certificate-gating"
+
+expected_impact_band: "availability-or-resource-control"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "All incoming QCs are verified before this function regardless of needQC."
+  - "Later state mutation reads only canonical stored QC data."
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Expected result should preserve likely confidence rather than overclaiming exploitability."

@@ -1,0 +1,20 @@
+id: "sei-chain-2021-05-27-sei-chain-rpc-client-api-46c2d2fbd"
+source_record: "sei-chain-2021-05-27-sei-chain-rpc-client-api-46c2d2fbd.yaml"
+project: "sei-chain"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "ibc-client-recovery-hardening"
+expected_missing_property: "recovery-state-selection"
+
+expected_impact_band: "protocol-state-integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The proposal fields are already constrained by governance validation and cannot affect copied state."
+  - "The copied state is independently verified against the substitute client before storage."
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Expected result should preserve likely confidence rather than overclaiming exploitability."

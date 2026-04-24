@@ -1,0 +1,58 @@
+id: "sei-chain-2023-03-20-sei-chain-cryptography-b8d1c3a2d"
+source_finding: "2023-03-20-sei-chain-cryptography-b8d1c3a2d.md"
+project: "sei-chain"
+date: "2023-03-20"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "merkle-proof-structural-validation"
+subsystem: "cryptography"
+architecture_tags:
+  - "cryptographic-verification"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "proof-structure-rejection"
+violated_invariant: "Cryptographic proof reconstruction must reject malformed proof shapes explicitly before any root or membership result is accepted."
+trust_boundary: "untrusted Merkle proof bytes -> trusted root or membership decision"
+entrypoint_type: "proof-verification-function"
+sensitive_sink: "accepting proof output or returning reconstructed root"
+
+attacker_capabilities:
+  - "Supply malformed Merkle proofs or proof components to verification callers."
+exploit_preconditions:
+  - "Malformed tree shape can reconstruct to nil or ambiguous output."
+  - "Callers treat nil/root output as successful or non-error result."
+blast_radius: "protocol-state-integrity"
+
+impact_types:
+  - "integrity"
+  - "proof-forgery-prevention"
+severity_guess: "high"
+severity_rationale: "Malformed proof acceptance can forge state inclusion/exclusion properties; this was validated as a confirmed security fix."
+
+code_shape_summary: "Security fix in the Tendermint Merkle proof path. The patch changes malformed proof reconstruction from ambiguous nil-root behavior into explicit errors, and updates verification/output callers to stop on those errors."
+search_motifs:
+  - "proof reconstruction returns nil instead of error"
+  - "Verify ignores malformed proof shape"
+  - "empty tree root path accepts non-empty proof"
+negative_signals:
+  - "Callers already reject nil roots and malformed trees before verification."
+  - "The proof is generated locally and never crosses a trust boundary."
+patch_pattern: "Return explicit errors for invalid proof structure and require all verification/output callers to propagate them."
+
+source_refs:
+  - "git:b8d1c3a2d9d8ffc96ad6a67cfaf052509458b5b4"
+  - "sei-tendermint/crypto/merkle/proof.go:161"
+  - "sei-tendermint/crypto/merkle/proof.go:61"
+  - "sei-tendermint/crypto/merkle/proof_value.go:93"
+  - "sei-tendermint/crypto/merkle/tree_test.go:180"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-fix with verdict confirmed; preserve claim boundaries from the raw finding."

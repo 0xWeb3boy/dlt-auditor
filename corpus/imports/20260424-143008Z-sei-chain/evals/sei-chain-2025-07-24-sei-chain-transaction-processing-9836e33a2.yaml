@@ -1,0 +1,20 @@
+id: "sei-chain-2025-07-24-sei-chain-transaction-processing-9836e33a2"
+source_record: "sei-chain-2025-07-24-sei-chain-transaction-processing-9836e33a2.yaml"
+project: "sei-chain"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "vulnerable-cryptographic-dependency"
+expected_missing_property: "cryptographic-dependency-freshness"
+
+expected_impact_band: "protocol-state-integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The vulnerable function is not reachable with untrusted input."
+  - "A patched dependency is already vendored or replaced in production builds."
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Expected result should preserve likely confidence rather than overclaiming exploitability."

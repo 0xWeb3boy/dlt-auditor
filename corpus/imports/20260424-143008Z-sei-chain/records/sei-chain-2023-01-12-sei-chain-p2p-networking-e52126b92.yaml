@@ -1,0 +1,58 @@
+id: "sei-chain-2023-01-12-sei-chain-p2p-networking-e52126b92"
+source_finding: "2023-01-12-sei-chain-p2p-networking-e52126b92.md"
+project: "sei-chain"
+date: "2023-01-12"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "mempool-invalid-tx-peer-abuse-hardening"
+subsystem: "p2p-networking"
+architecture_tags:
+  - "p2p-networking"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "peer-abuse-enforcement"
+violated_invariant: "Repeated malformed or policy-invalid transaction traffic must be attributable to a peer and bounded by an enforceable penalty threshold."
+trust_boundary: "remote p2p transaction sender -> local mempool admission resources"
+entrypoint_type: "mempool-checktx-handler"
+sensitive_sink: "retaining peer connection and spending validation resources"
+
+attacker_capabilities:
+  - "Send repeated invalid transactions through the p2p mempool path."
+exploit_preconditions:
+  - "Sender peer identity is available."
+  - "Failed validation counters are not tied to eviction or throttling."
+blast_radius: "availability-or-resource-control"
+
+impact_types:
+  - "resource-abuse-mitigation"
+  - "liveness"
+severity_guess: "medium"
+severity_rationale: "The defense limits peer-driven validation waste; no concrete chain-wide denial of service is proven."
+
+code_shape_summary: "The patch adds optional CheckTx-error blacklisting in the mempool: failed CheckTx results are still counted per SenderNodeID, and when the new config flag is enabled and the count exceeds the configured threshold, the peer manager is notified with an error that tests treat as eviction."
+search_motifs:
+  - "failed CheckTx count recorded but not enforced"
+  - "SenderNodeID available but peer manager not notified"
+  - "config flag controls mempool blacklist threshold"
+negative_signals:
+  - "Invalid submissions are already rate-limited or disconnected at the transport layer."
+  - "Failures are ordinary user transaction errors that should not punish relaying peers."
+patch_pattern: "Connect per-peer failed-validation counters to configured eviction or throttling thresholds."
+
+source_refs:
+  - "git:e52126b9235ec51e9496d4ab229e74e4a6c7b089"
+  - "sei-tendermint/config/config.go:831"
+  - "sei-tendermint/internal/mempool/mempool.go:553"
+  - "sei-tendermint/config/config.go:775"
+  - "sei-tendermint/internal/mempool/mempool_test.go:687"
+notes:
+  - "Enriched in place from the validated raw finding."
+  - "Validated as security-hardening with verdict likely; preserve claim boundaries from the raw finding."
