@@ -1,0 +1,50 @@
+id: "heimdall-v2-2024-09-06-heimdall-v2-rpc-client-api-4310d22a"
+source_finding: "2024-09-06-heimdall-v2-rpc-client-api-4310d22a.md"
+project: "heimdall-v2"
+date: "2024-09-06"
+language_tags: ["go"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-vote-extension-validation"
+subsystem: "consensus"
+architecture_tags: ["abci", "prepare-proposal", "process-proposal", "vote-extension", "validator-signature"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "centralized validation of proposal-embedded vote extensions"
+violated_invariant: "Proposal handlers must validate vote-extension signatures, validator context, and quorum properties before embedding or accepting vote-derived data."
+trust_boundary: "validator/proposer-provided vote-extension data crossing into proposal construction and proposal acceptance"
+entrypoint_type: "ABCI PrepareProposal and ProcessProposal handlers"
+sensitive_sink: "proposal acceptance decision and consensus-side vote-derived transaction approvals"
+
+attacker_capabilities:
+  - "Can act as or influence a proposer that includes ExtendedVoteInfo in a proposal."
+  - "Can contribute malformed, duplicate, unsigned, or insufficient-quorum vote-extension data as a validator."
+exploit_preconditions:
+  - "Proposal handlers perform only local structural checks such as unmarshalling or duplicate detection."
+  - "A shared validator/signature/quorum validation routine is absent or not called at the proposal boundary."
+blast_radius: "Potential acceptance or propagation of proposal data whose vote extensions are structurally valid but not fully validated; no confirmed forgery or liveness failure was proven."
+
+impact_types: ["consensus-integrity", "validator-attestation-integrity"]
+severity_guess: "medium"
+severity_rationale: "The path is consensus-critical and concerns validator attestations, but the source evidence supports hardening rather than a demonstrated remote exploit or chain halt."
+
+code_shape_summary: "Proposal handlers duplicated narrow per-vote unmarshalling and duplicate-response checks. The fix replaces those checks with a centralized ValidateVoteExtensions call that receives height, proposer address, round, vote info, and validator state, rejecting ProcessProposal failures and failing fast in PrepareProposal."
+search_motifs:
+  - "PrepareProposal or ProcessProposal loops over votes and only proto.Unmarshal checks payloads"
+  - "comments mention validating signatures or 2/3 majority added near proposal handlers"
+  - "proposal acceptance does not call shared ValidateVoteExtensions/VerifyCommit routine"
+  - "duplicate response checks exist without validator signature or quorum validation"
+negative_signals:
+  - "The same validation is already enforced by the consensus engine before proposal handling."
+  - "The new helper only wraps identical checks with no added context, signature, or quorum validation."
+  - "The affected code is simulation/test-only or unreachable in production handlers."
+  - "The patch only refactors switch statements without changing validation coverage."
+patch_pattern: "Replace ad hoc payload checks at consensus proposal boundaries with a shared context-aware validation helper, and reject or fail closed before proposal data is accepted."
+
+source_refs: ["/testing/heimdall-v2/validated-findings/kept/2024-09-06-heimdall-v2-rpc-client-api-4310d22a.md"]
+notes:
+  - "Treat the app test and switch-to-if refactors as supporting noise, not root-cause evidence."

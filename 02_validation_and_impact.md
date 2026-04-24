@@ -51,6 +51,9 @@ For the candidate under review:
    - deterministic external-consensus snapshot binding
    - explicit finalization error propagation
    - canonical numeric representability before narrowing
+   - attestation quorum/context binding
+   - exact range-continuity enforcement
+   - explicit registry key-existence validation
 4. Search for compensating controls elsewhere in the codebase.
 5. Decide whether the issue is:
    - confirmed
@@ -68,6 +71,8 @@ Then assess impact:
 7. If the bug is in authenticated state or proof code, distinguish proof-generation ambiguity, verifier acceptance, local state corruption, persistence correctness, and consensus-visible state-root impact.
 8. If the issue involves an external consensus client, checkpoint source, bridge oracle, or validator-set provider, distinguish stale local trust, nondeterministic data selection across honest nodes, fail-open unavailability, and direct forged-state acceptance.
 9. If the issue involves finalization or generated system work, distinguish unsupported-field rejection, generated-work mismatch, receipt/accounting mismatch, and state-root divergence.
+10. If the issue involves validator votes, vote extensions, side votes, or committee attestations, distinguish syntactic validity, signature validity, validator-set membership, voting-power quorum, freshness, and domain separation. Do not treat one property as proof of the others.
+11. If the issue involves ranges such as checkpoints, epochs, spans, batches, or proof windows, distinguish overlap prevention, exact continuity, gap tolerance by design, and downstream enforcement by another verifier or contract.
 
 Assign severity using this baseline:
 - Critical: direct consensus break, forged finalized state acceptance, bridge or settlement compromise, unauthorized mint or burn, or broad secret compromise.

@@ -1,0 +1,50 @@
+id: "heimdall-v2-2024-06-24-heimdall-v2-rpc-client-api-316e7e65"
+source_finding: "2024-06-24-heimdall-v2-rpc-client-api-316e7e65.md"
+project: "heimdall-v2"
+date: "2024-06-24"
+language_tags: ["go"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "validator-id-reuse-guard"
+subsystem: "staking"
+architecture_tags: ["cosmos-sdk", "keeper", "validator-registry", "state-machine"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "explicit state-existence check for validator ID uniqueness"
+violated_invariant: "A registration path must reject any validator identifier that is already bound in canonical state; uniqueness must be checked by key presence, not inferred from value lookup error semantics."
+trust_boundary: "externally submitted validator join message crossing into staking keeper state"
+entrypoint_type: "state-changing staking message handler"
+sensitive_sink: "validator ID to signer mapping and validator registration state"
+
+attacker_capabilities:
+  - "Can submit or relay a validator join message with a chosen validator ID and signer material."
+  - "Can target a validator ID that may already exist in staking state."
+exploit_preconditions:
+  - "The join path relies on a retrieval error or nil value to decide whether an ID is unused."
+  - "The same identifier namespace is security-sensitive for validator registration, signer binding, or validator lifecycle rules."
+blast_radius: "Potential corruption of validator registration state or weakening of validator ID reuse controls; no confirmed takeover or fund-loss path was proven."
+
+impact_types: ["state-integrity", "validator-registration-integrity"]
+severity_guess: "medium"
+severity_rationale: "Validator identity binding is protocol-sensitive, but the source evidence only proves hardening of a uniqueness guard and does not show an end-to-end takeover, slashing bypass, or consensus failure."
+
+code_shape_summary: "A validator registration handler used a signer lookup result to infer whether a validator ID had been used. The fix separates retrieval from existence testing by adding a direct store Has/key-presence check and rejecting reuse before mutating registration state."
+search_motifs:
+  - "registration handler calls GetByID/GetSigner and treats err or nil as uniqueness proof"
+  - "comments such as 'has been validator before' near retrieval-based guards"
+  - "new helper named Exists/Has/DoValIdExist added beside a getter"
+  - "identity, account, operator, validator, or signer mapping checked before create/join"
+negative_signals:
+  - "The lookup API explicitly returns a sentinel error only when the key already exists."
+  - "The affected path is test-only or unreachable from externally submitted registration messages."
+  - "A database uniqueness constraint or earlier canonical guard already rejects duplicate IDs."
+  - "The patch only changes return types or logging without changing the admission predicate."
+patch_pattern: "Introduce an explicit key-presence helper for the identity mapping, use it in the create/join guard, and keep value retrieval for later reads after uniqueness has been established."
+
+source_refs: ["/testing/heimdall-v2/validated-findings/kept/2024-06-24-heimdall-v2-rpc-client-api-316e7e65.md"]
+notes:
+  - "Keep as security hardening: the invariant is important, but exploitability was not demonstrated."

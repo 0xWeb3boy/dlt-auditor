@@ -1,0 +1,50 @@
+id: "heimdall-v2-2024-09-05-heimdall-v2-rpc-client-api-86680527"
+source_finding: "2024-09-05-heimdall-v2-rpc-client-api-86680527.md"
+project: "heimdall-v2"
+date: "2024-09-05"
+language_tags: ["go"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "missing-consensus-height-validation"
+subsystem: "consensus"
+architecture_tags: ["abci", "vote-extension", "validator-set", "side-transaction-tally"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "consensus-height binding for aggregated vote-extension payloads"
+violated_invariant: "Votes or attestations counted during a consensus step must be bound to the expected height or round before they influence aggregation results."
+trust_boundary: "validator-supplied vote-extension bytes crossing into local consensus tallying"
+entrypoint_type: "ABCI finalize/preblock vote-extension aggregation"
+sensitive_sink: "side-transaction approval tally and proposal-derived state transition inputs"
+
+attacker_capabilities:
+  - "Can produce or propagate a vote-extension payload with an embedded height value."
+  - "May be a faulty or malicious validator whose payload reaches aggregation."
+exploit_preconditions:
+  - "Aggregation decodes vote-extension content before comparing its embedded height with the authoritative consensus height."
+  - "The aggregated result can affect approval of side transactions or other consensus-sensitive data."
+blast_radius: "Potential counting of stale or mismatched-height attestations in a consensus-adjacent tally; no practical replay or chain halt was proven."
+
+impact_types: ["consensus-integrity", "replay-resistance"]
+severity_guess: "medium"
+severity_rationale: "Height binding protects consensus integrity, but the finding is hardening because the evidence does not prove that malformed-height extensions were exploitable in production."
+
+code_shape_summary: "A vote-extension aggregation path lacked the current block height at the lower-level tally function. The fix threads the authoritative request height into aggregation and rejects decoded vote extensions whose embedded height is not the expected previous height."
+search_motifs:
+  - "unmarshal vote extension or attestation payload without comparing embedded height"
+  - "open validation-gap comment near height, round, block hash, or domain checks"
+  - "tally/aggregate function lacks currentHeight/currentRound parameter"
+  - "accepting votes for side transactions, checkpoints, or state syncs before context checks"
+negative_signals:
+  - "The consensus engine already cryptographically binds the payload to height before application code sees it."
+  - "The embedded height is informational and is not used for tallying or state transitions."
+  - "A separate validation layer rejects mismatched height before aggregation."
+  - "The patch only updates comments or test fixtures."
+patch_pattern: "Thread authoritative consensus context into the vote aggregation routine, validate embedded height before counting, and fail closed on mismatch."
+
+source_refs: ["/testing/heimdall-v2/validated-findings/kept/2024-09-05-heimdall-v2-rpc-client-api-86680527.md"]
+notes:
+  - "Do not overclaim RPC exposure or a concrete replay exploit."

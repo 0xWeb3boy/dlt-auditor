@@ -32,6 +32,7 @@ Search patterns:
 - Finalization, post-execution, state-sync, deposit, withdrawal, or system-transaction paths that derive extra receipts, generated transactions, or state changes. Check that the block body, locally derived system work, receipts, and state root are cross-checked before success and that unsupported fields fail closed.
 - Fork-aware hashing, signing, opcode decoding, and header sanity paths where the canonical object shape changes by fork. Check that every verifier, signer, replay path, and helper includes exactly the fields active for that fork and rejects fields forbidden before or after the fork.
 - Consensus validation that depends on an external chain or consensus client. Check that time-based or latest queries are first pinned to a deterministic height/hash/finality boundary, and that all validators would query the same snapshot for the same local block.
+- ABCI, consensus API, proposal-building, or proposal-processing paths that embed or consume validator vote extensions, side votes, committee votes, or aggregate approvals. Check that every path validates signer identity, signature, duplicate votes, voting power, quorum, height, round, proposer, and block/domain context before proposal acceptance or tallying.
 
 Questions to answer:
 1. Which protocol rule is authoritative for this block, payload, fork, method version, chain variant, and timestamp or height?

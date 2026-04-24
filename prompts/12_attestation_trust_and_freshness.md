@@ -39,6 +39,8 @@ Search patterns:
 - code paths that accept well-formed test keys because they verify cryptographically
 - signer or policy interfaces shared across scopes without explicit domain binding
 - external consensus-client, bridge-client, checkpoint, milestone, or oracle reads that feed local consensus should be pinned to one deterministic snapshot boundary. Check whether time-based, latest, retry, or fallback queries are converted into an explicit height, hash, epoch, finalized checkpoint, or signer-set identity before the data affects block validity, finalization, or state derivation
+- attestation aggregation paths where payloads are syntactically valid but not yet bound to the exact height, round, block hash, chain/domain, signer-set snapshot, or voting-power quorum expected by the consuming consensus step
+- side-vote, checkpoint, bridge, or oracle handlers that can return an accept, yes, or trusted decision before trusted domain configuration is loaded and compared against the message-carried domain
 
 Questions to answer:
 1. What trust decision is being made here?

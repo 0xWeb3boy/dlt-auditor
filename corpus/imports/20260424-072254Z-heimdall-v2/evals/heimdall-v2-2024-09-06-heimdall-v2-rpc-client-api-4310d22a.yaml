@@ -1,0 +1,19 @@
+id: "heimdall-v2-2024-09-06-heimdall-v2-rpc-client-api-4310d22a"
+source_record: "heimdall-v2-2024-09-06-heimdall-v2-rpc-client-api-4310d22a.yaml"
+project: "heimdall-v2"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "consensus-vote-extension-validation"
+expected_missing_property: "centralized validation of proposal-embedded vote extensions"
+
+expected_impact_band: "consensus-integrity"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Pure helper extraction is not enough; expect added context-aware signature, quorum, validator-set, or proposal-boundary validation."
+  - "Do not elevate to confirmed exploit without evidence of forged, insufficient-quorum, or otherwise invalid vote extensions being accepted."
+notes:
+  - "Consensus-critical hardening at PrepareProposal and ProcessProposal boundaries."

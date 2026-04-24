@@ -1,0 +1,63 @@
+{
+  "repo": "/testing/heimdall-v2",
+  "repo_slug": "heimdall-v2",
+  "kept_dir": "/testing/heimdall-v2/validated-findings/kept",
+  "created_at_utc": "20260424-072254Z",
+  "finding_count": 6,
+  "findings": [
+    {
+      "id": "heimdall-v2-2024-06-24-heimdall-v2-rpc-client-api-316e7e65",
+      "source": "/testing/heimdall-v2/validated-findings/kept/2024-06-24-heimdall-v2-rpc-client-api-316e7e65.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "validator-id-reuse-guard",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "heimdall-v2-2024-09-05-heimdall-v2-rpc-client-api-86680527",
+      "source": "/testing/heimdall-v2/validated-findings/kept/2024-09-05-heimdall-v2-rpc-client-api-86680527.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-consensus-height-validation",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "heimdall-v2-2024-09-06-heimdall-v2-rpc-client-api-4310d22a",
+      "source": "/testing/heimdall-v2/validated-findings/kept/2024-09-06-heimdall-v2-rpc-client-api-4310d22a.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-vote-extension-validation",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "heimdall-v2-2025-05-08-heimdall-v2-transaction-processing-29c8c2e5",
+      "source": "/testing/heimdall-v2/validated-findings/kept/2025-05-08-heimdall-v2-transaction-processing-29c8c2e5.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "checkpoint-continuity-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "heimdall-v2-2025-05-08-heimdall-v2-transaction-processing-6f86ef9b",
+      "source": "/testing/heimdall-v2/validated-findings/kept/2025-05-08-heimdall-v2-transaction-processing-6f86ef9b.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "checkpoint-continuity-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "heimdall-v2-2025-08-13-heimdall-v2-storage-8b425ed5",
+      "source": "/testing/heimdall-v2/validated-findings/kept/2025-08-13-heimdall-v2-storage-8b425ed5.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "checkpoint-chain-id-validation",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    }
+  ]
+}

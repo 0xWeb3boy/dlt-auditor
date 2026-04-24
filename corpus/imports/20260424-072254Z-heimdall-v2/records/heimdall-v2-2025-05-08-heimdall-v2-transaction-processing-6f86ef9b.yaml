@@ -1,0 +1,50 @@
+id: "heimdall-v2-2025-05-08-heimdall-v2-transaction-processing-6f86ef9b"
+source_finding: "2025-05-08-heimdall-v2-transaction-processing-6f86ef9b.md"
+project: "heimdall-v2"
+date: "2025-05-08"
+language_tags: ["go"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "checkpoint-continuity-validation"
+subsystem: "checkpoint"
+architecture_tags: ["keeper", "checkpoint", "side-transaction", "state-machine"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "exact checkpoint continuity validation and fail-closed buffer handling"
+violated_invariant: "Checkpoint admission and post-handle code must reject skipped block ranges and must not continue with buffer-dependent logic after a buffer read failure."
+trust_boundary: "checkpoint message and side-transaction result crossing into persistent checkpoint state"
+entrypoint_type: "checkpoint transaction handler plus side-transaction post-handler"
+sensitive_sink: "checkpoint keeper state, checkpoint buffer, and downstream checkpoint submission flow"
+
+attacker_capabilities:
+  - "Can submit checkpoint data whose start block is not the immediate successor of the stored checkpoint."
+  - "Can trigger code paths that depend on checkpoint buffer existence or retrieval results."
+exploit_preconditions:
+  - "Checkpoint logic accepts non-overlapping starts without requiring exact continuity."
+  - "A buffer read error is treated like absence or is allowed to fall through."
+blast_radius: "Potential gap checkpoint acceptance or unsafe continuation after buffer read failure; concrete exploitability was not shown."
+
+impact_types: ["checkpoint-integrity", "state-integrity"]
+severity_guess: "medium"
+severity_rationale: "The affected subsystem is security-sensitive checkpoint state. The issue is bounded as hardening because the raw finding does not demonstrate a practical attacker path or downstream compromise."
+
+code_shape_summary: "The same checkpoint continuity hardening appears in both direct message handling and side-tx post-handling: the code now requires StartBlock to equal last EndBlock plus one and returns on buffer retrieval errors before processing existing buffer state."
+search_motifs:
+  - "same range-continuity predicate duplicated across direct and post-consensus handlers"
+  - "lastCheckpoint.EndBlock > msg.StartBlock used as the only freshness check"
+  - "GetCheckpointFromBuffer/GetBuffer returns err but code checks only existence flag"
+  - "handlers for checkpoints, epochs, spans, batches, or ranges accept start/end pairs"
+negative_signals:
+  - "Sparse ranges are part of the protocol and are explicitly proven elsewhere."
+  - "Only one of several duplicated handlers changed while the real admission path is elsewhere."
+  - "The patch is bridge plumbing and does not change checkpoint acceptance."
+  - "The error path is a benign not-found sentinel already represented by a separate existence flag."
+patch_pattern: "Apply identical exact-continuity checks in all checkpoint state-transition paths and separate not-found/existence handling from actual buffer read failures."
+
+source_refs: ["/testing/heimdall-v2/validated-findings/kept/2025-05-08-heimdall-v2-transaction-processing-6f86ef9b.md"]
+notes:
+  - "Closely related to 29c8c2e5; useful as a duplicate-path invariant exemplar."

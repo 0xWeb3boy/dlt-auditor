@@ -1,0 +1,19 @@
+id: "heimdall-v2-2024-06-24-heimdall-v2-rpc-client-api-316e7e65"
+source_record: "heimdall-v2-2024-06-24-heimdall-v2-rpc-client-api-316e7e65.yaml"
+project: "heimdall-v2"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "validator-id-reuse-guard"
+expected_missing_property: "explicit state-existence check for validator ID uniqueness"
+
+expected_impact_band: "state-integrity"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Getter-to-existence refactors are security-relevant only when the identity namespace is privileged or protocol-sensitive."
+  - "Do not expect confirmed validator takeover or funds loss unless the exploit path is separately shown."
+notes:
+  - "Likely security hardening for validator registration uniqueness."

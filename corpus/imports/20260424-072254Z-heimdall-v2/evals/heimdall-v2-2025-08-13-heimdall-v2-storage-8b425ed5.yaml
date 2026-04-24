@@ -1,0 +1,19 @@
+id: "heimdall-v2-2025-08-13-heimdall-v2-storage-8b425ed5"
+source_record: "heimdall-v2-2025-08-13-heimdall-v2-storage-8b425ed5.yaml"
+project: "heimdall-v2"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "checkpoint-chain-id-validation"
+expected_missing_property: "chain-domain validation at checkpoint side-vote boundary"
+
+expected_impact_band: "checkpoint-domain-separation"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Do not flag if chain/domain binding is already proven by the checkpoint proof, contract caller, or consensus envelope."
+  - "Ignore unrelated app event preservation or command rewiring when judging security relevance."
+notes:
+  - "Cross-chain domain-separation hardening at a validator side-vote boundary."

@@ -41,6 +41,8 @@ Search patterns:
 - validator, bridge, app, or node admission paths that do not check stake, bond, or deposit requirements
 - transfers to reserved addresses that use the normal transfer path
 - liveness accounting that is keyed by the wrong role or committee index space
+- validator, operator, signer, committee, relayer, or node registration paths where an ID-to-signer or ID-to-owner mapping is checked through a value lookup rather than an explicit presence or absence predicate on the canonical registry key
+- registry joins or reactivations that check signer uniqueness but not stable numeric ID, slot, operator ID, or historical participation identifiers that the protocol treats as non-reusable
 
 Questions to answer:
 1. What economic or accountability invariant is the protocol relying on?

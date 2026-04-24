@@ -46,6 +46,7 @@ Search patterns:
 - round, epoch, or session scoped privileged work queues where enqueue, wake-up, dequeue, and replay use different freshness or authorization sources
 - startup, constructor, and background-maintenance paths that initialize security-sensitive loops from persisted state. Oversized, stale, impossible, or fork-incompatible persisted values should be sanitized or rejected before they drive reorg, milestone, sync, verifier, or peer-churn decisions
 - finalization, replay, and recovery paths where internally generated protocol work must remain grouped with the parent block or operation; dropping, filtering, or failing the generated work should rewind or reject the whole group when that is the consensus rule
+- equivalent transition paths for the same range-based protocol object, such as direct message handling, side-vote handling, post-consensus handling, replay, recovery, bridge submission, and buffer flushing, where one path enforces exact successor continuity or fail-closed storage errors and another path only enforces freshness or overlap prevention
 
 Questions to answer:
 1. What are the legal states and transitions?

@@ -29,6 +29,12 @@ Your task:
 1. List the main trust boundaries.
 2. List all externally reachable, peer-reachable, operator-reachable, or governance-reachable entrypoints relevant to security.
 3. List the signed, authenticated, or proof-bearing artifacts and what they are supposed to bind.
+3a. For each attestation-like artifact, including vote extensions, side votes, checkpoint signatures, committee approvals, bridge validator votes, and oracle reports, map:
+  - who creates it,
+  - which height, round, block hash, chain/domain, signer set, and voting-power snapshot it is supposed to bind,
+  - where syntactic decoding happens,
+  - where validator/signature/quorum validation happens,
+  - where the attestation is finally counted, persisted, or used to accept a proposal/state transition.
 4. List the major lifecycle or state machines.
 5. List places where policy, version, fork, or feature gates are expected.
 6. List the authoritative sources of truth for policy, checkpoints, historical state, fork activation, and head/safe/finalized positions. Distinguish them from caches, local config, watch channels, mirrors, and derived summaries.

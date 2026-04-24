@@ -48,6 +48,8 @@ Search patterns:
 - peer-announced metadata, tx type hints, or object descriptors that are used to schedule expensive fetch or decode work before support, bounds, compatibility, or lineage checks run
 - consensus or protocol finalization helpers that signal invalid state indirectly through nil, empty collections, partial outputs, logs, or panics instead of returning an explicit validation error that every caller must handle
 - equivalent execution paths, such as serial, parallel, stateless, replay, simulation, or recovery processors, where one path validates receipt counts, generated system work, unsupported fields, or post-execution invariants and another path only trusts helper output
+- range, checkpoint, epoch, batch, span, or proof-window objects where the code rejects old or overlapping starts but does not require the next start to be the exact successor of the stored end when the protocol expects contiguous progression
+- create, join, register, or bind operations that infer uniqueness from getter failures instead of using an explicit canonical key-existence check before writing identity, signer, operator, validator, or committee state
 
 Questions to answer:
 1. What structural invariants does the protocol require?

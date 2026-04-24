@@ -1,0 +1,50 @@
+id: "heimdall-v2-2025-05-08-heimdall-v2-transaction-processing-29c8c2e5"
+source_finding: "2025-05-08-heimdall-v2-transaction-processing-29c8c2e5.md"
+project: "heimdall-v2"
+date: "2025-05-08"
+language_tags: ["go"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "checkpoint-continuity-validation"
+subsystem: "checkpoint"
+architecture_tags: ["keeper", "checkpoint", "side-transaction", "state-machine"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "exact checkpoint continuity validation"
+violated_invariant: "Checkpoint state transitions must advance contiguously; after a stored checkpoint ending at N, the next accepted checkpoint must start at N+1."
+trust_boundary: "submitted checkpoint message or approved side-transaction crossing into checkpoint keeper state"
+entrypoint_type: "checkpoint message handler and side-transaction post-handler"
+sensitive_sink: "stored checkpoint sequence, checkpoint buffer, and root-chain submission inputs"
+
+attacker_capabilities:
+  - "Can submit or influence a checkpoint message with chosen start and end block values."
+  - "May be able to trigger side-transaction post-handling for checkpoint data accepted by validators."
+exploit_preconditions:
+  - "The handler rejects only old or overlapping checkpoints and does not reject gaps."
+  - "Downstream checkpoint consumers assume the stored checkpoint range is contiguous."
+blast_radius: "Potential skipped checkpoint ranges or inconsistent checkpoint state; no concrete root-chain compromise, fund loss, or chain split was proven."
+
+impact_types: ["protocol-invariant-hardening", "checkpoint-integrity"]
+severity_guess: "medium"
+severity_rationale: "Checkpoint continuity is a protocol invariant, but the evidence lacks attacker control and concrete impact, so this remains medium-confidence hardening rather than a high-severity vulnerability."
+
+code_shape_summary: "Checkpoint handlers used a permissive greater-than comparison that rejected older starts but allowed starts after the expected next block. The fix changes the predicate to exact EndBlock+1 continuity and returns immediately on checkpoint-buffer read errors."
+search_motifs:
+  - "checkpoint or range handler checks previousEnd > newStart instead of previousEnd + 1 == newStart"
+  - "range acceptance logic rejects overlap but not gaps"
+  - "first range starts at zero but subsequent range continuity is loose"
+  - "buffer read error ignored when deciding whether buffered checkpoint exists"
+negative_signals:
+  - "The protocol intentionally allows sparse checkpoints and explicitly stores skipped ranges."
+  - "A later validation layer or root-chain contract enforces exact continuity."
+  - "The change is only a comment update or bridge submission refactor."
+  - "The buffer read error cannot occur or is handled by a typed not-found result."
+patch_pattern: "Replace loose ordering checks with exact range-continuity predicates at every checkpoint admission path, and fail closed before using unreadable buffer state."
+
+source_refs: ["/testing/heimdall-v2/validated-findings/kept/2025-05-08-heimdall-v2-transaction-processing-29c8c2e5.md"]
+notes:
+  - "This record is a hardening exemplar; do not claim proven exploitability."

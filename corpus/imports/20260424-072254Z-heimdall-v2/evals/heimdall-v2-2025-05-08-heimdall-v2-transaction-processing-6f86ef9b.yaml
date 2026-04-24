@@ -1,0 +1,19 @@
+id: "heimdall-v2-2025-05-08-heimdall-v2-transaction-processing-6f86ef9b"
+source_record: "heimdall-v2-2025-05-08-heimdall-v2-transaction-processing-6f86ef9b.yaml"
+project: "heimdall-v2"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "checkpoint-continuity-validation"
+expected_missing_property: "exact checkpoint continuity validation and fail-closed buffer handling"
+
+expected_impact_band: "checkpoint-integrity"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "A duplicate-path fix may be defense-in-depth if all externally reachable paths already enforce exact continuity."
+  - "Treat buffer error handling as security only when later logic depends on the buffer state for protocol decisions."
+notes:
+  - "Companion checkpoint continuity and buffer-fail-closed exemplar."

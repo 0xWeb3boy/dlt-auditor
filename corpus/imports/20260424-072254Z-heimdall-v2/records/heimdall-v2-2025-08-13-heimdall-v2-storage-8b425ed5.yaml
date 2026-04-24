@@ -1,0 +1,50 @@
+id: "heimdall-v2-2025-08-13-heimdall-v2-storage-8b425ed5"
+source_finding: "2025-08-13-heimdall-v2-storage-8b425ed5.md"
+project: "heimdall-v2"
+date: "2025-08-13"
+language_tags: ["go"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "checkpoint-chain-id-validation"
+subsystem: "checkpoint"
+architecture_tags: ["keeper", "checkpoint", "chain-domain", "side-transaction", "configuration"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "chain-domain validation at checkpoint side-vote boundary"
+violated_invariant: "A validator side-vote handler must only approve checkpoint data for the configured source chain/domain, and must fail closed when domain configuration cannot be read."
+trust_boundary: "checkpoint message carrying a chain identifier crossing into validator side-vote validation"
+entrypoint_type: "consensus side-message vote handler"
+sensitive_sink: "validator YES/NO vote for checkpoint validity"
+
+attacker_capabilities:
+  - "Can submit or propagate checkpoint messages containing a Bor/source-chain identifier."
+  - "Can attempt to mix checkpoint data from another configured or unintended chain domain."
+exploit_preconditions:
+  - "The side-vote handler validates checkpoint shape before comparing the message chain ID with local chain-manager configuration."
+  - "Validators may vote on checkpoint messages whose domain does not match local configuration."
+blast_radius: "Potential cross-domain checkpoint approval confusion; no end-to-end acceptance or fund-loss path was proven."
+
+impact_types: ["checkpoint-domain-separation", "consensus-integrity"]
+severity_guess: "medium"
+severity_rationale: "Cross-chain domain checks are important for checkpoint safety, but the evidence only shows hardening of the side-vote boundary and does not prove prior end-to-end exploitability."
+
+code_shape_summary: "A checkpoint side-vote handler proceeded to generic validation without first checking the message's source-chain ID against configured chain-manager state. The fix loads configuration, rejects configuration read failures, and votes NO when the message chain ID does not match."
+search_motifs:
+  - "checkpoint, bridge, or state-sync message includes chainId/domainId but handler validates payload before comparing it"
+  - "side vote or attestation handler lacks configured chain ID check"
+  - "GetParams/GetChainConfig added before IsValidCheckpoint or proof validation"
+  - "fail closed with VOTE_NO/Reject when domain config cannot be loaded"
+negative_signals:
+  - "The chain ID is already cryptographically bound and verified by the proof or contract caller."
+  - "The handler is for local-only generated messages that cannot cross chain domains."
+  - "The patch only preserves events or rewires commands, without changing domain checks."
+  - "The configured domain is intentionally wildcarded for multi-chain operation."
+patch_pattern: "Fetch trusted chain-domain configuration at the side-vote boundary, reject unreadable config, compare message domain before deeper validation, and fail closed on mismatch."
+
+source_refs: ["/testing/heimdall-v2/validated-findings/kept/2025-08-13-heimdall-v2-storage-8b425ed5.md"]
+notes:
+  - "Ignore app event preservation and command rewiring when retrieving this case for security patterns."
