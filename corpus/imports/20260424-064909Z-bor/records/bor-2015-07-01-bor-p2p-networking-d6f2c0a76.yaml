@@ -1,0 +1,52 @@
+id: "bor-2015-07-01-bor-p2p-networking-d6f2c0a76"
+source_finding: "2015-07-01-bor-p2p-networking-d6f2c0a76.md"
+project: "bor"
+date: "2015-07-01"
+language_tags: ["go"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "resource-exhaustion"
+subsystem: "p2p-networking"
+architecture_tags: ["blockchain-core", "p2p", "p2p-networking", "queue", "remote-dos", "resource-exhaustion"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement", "eval_seed"]
+
+missing_property: "resource limit and input validity enforcement"
+violated_invariant: "Attacker-controlled input must be bounded and rejected before it can drive unbounded allocation, expensive processing, queue growth, or process termination."
+trust_boundary: "remote peer to node networking boundary"
+entrypoint_type: "inbound p2p message, handshake, or sync response handler"
+sensitive_sink: "peer table mutation, sync scheduling, or message acceptance"
+
+attacker_capabilities:
+  - "Can connect as or spoof a remote network peer"
+  - "Can send malformed, replayed, oversized, or out-of-sequence protocol messages"
+exploit_preconditions:
+  - "The node accepts inbound traffic for the affected p2p or discovery protocol."
+  - "No earlier validation, rate limit, domain binding, or consensus check blocks the crafted input before the sink."
+  - "Exploitability depends on the surrounding deployment and was validated as likely or hardening rather than fully proven."
+blast_radius: "Affected nodes may waste network, CPU, memory, or process availability; broad impact requires attacker reachability and insufficient throttling."
+
+impact_types:
+  - "remote-dos"
+severity_guess: "medium"
+severity_rationale: "Medium severity guess because the finding is a likely security hardening affecting remote-dos; tune downward when deployment controls or missing exploit evidence limit reachability."
+
+code_shape_summary: "The supplied evidence supports a likely denial-of-service fix in the downloader hash-queueing path. Before the change, fetchHashes kept signaling continuation after inserting each batch. The patch adds maxQueuedHashes and makes continuation depend on d.queue.Pending() < maxQueuedHashes, stopping further fetches when the queue is full. Root cause: The hash fetch loop lacked an explicit bound on pending queued hashes and continued requesting more peer-supplied hashes without checking whether the backlog was already too large."
+search_motifs:
+  - "remote input controls allocation, iteration count, queue length, or cache growth without a cap"
+  - "decode or validation path panics or aborts process on malformed peer/RPC data"
+  - "request processing lacks timeout, size limit, rate limit, or early reject before expensive work"
+negative_signals:
+  - "Do not flag if the value is produced only by trusted local code and cannot be influenced across a protocol, RPC, or persistence boundary."
+  - "Do not treat as exploitable if an earlier mandatory validation step rejects the malformed input before the sensitive sink."
+  - "Availability claims need an externally triggerable path and enough cost asymmetry, crashability, or missing throttling to matter."
+  - "The source finding was validated as hardening, so avoid overstating exploitability without additional proof."
+  - "The diff does not show the exact resource exhausted, such as memory or CPU."
+patch_pattern: "Add an explicit queue-depth cap and gate continuation of a peer-driven fetch loop on the current pending backlog."
+
+source_refs: ["/testing/dlt-ai-audit-system/corpus/imports/20260424-064909Z-bor/raw-findings/2015-07-01-bor-p2p-networking-d6f2c0a76.md"]
+notes:
+  - "Enriched from validated finding material; preserve claim boundaries from the source record."

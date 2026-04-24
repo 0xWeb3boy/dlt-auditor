@@ -1,0 +1,34 @@
+# Root-Cause Card
+
+## Metadata
+
+- ID: `optimism-2026-04-07-optimism-storage-5e7de4c09a`
+- Bug family: `input_validation_and_invariant_enforcement`
+- Bug class: `missing-integrity-check`
+- Confidence tier: `tier_b_likely`
+
+## Missing Property
+
+- Missing property: `integrity-binding`
+
+## Violated Invariant
+
+- Invariant: Append-only proof/trie storage should only accept a new block state diff when it extends the current stored tip, and versioned history reconstruction should fail closed when an exact block version is unavailable.
+
+## Trust Boundary
+
+- Boundary: external proof/data provider -> verifier/derivation code
+
+## Attack Surface
+
+- Entrypoint type: proof-or-data-verification path
+- Sensitive sink: acceptance of cryptographic, blob, preimage, or proof data into derivation/state
+
+## Impact Pattern
+
+- Primary impact: state-integrity
+- Secondary impact: state-or-proof-integrity
+
+## Short Reusable Lesson
+
+- Append-only proof/trie storage should only accept a new block state diff when it extends the current stored tip, and versioned history reconstruction should fail closed when an exact block version is unavailable. Similar bugs appear when proof-or-data-verification path code treats partially checked input as authoritative and lets it reach acceptance of cryptographic, blob, preimage, or proof data into derivation/state. The reusable fix is to enforce integrity-binding at the boundary and fail closed before state, privilege, or consensus-visible output changes.

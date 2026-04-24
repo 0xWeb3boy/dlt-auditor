@@ -1,0 +1,69 @@
+id: optimism-2026-04-10-optimism-storage-bc9c3420ae
+source_finding: 2026-04-10-optimism-storage-bc9c3420ae.md
+project: optimism
+date: '2026-04-10'
+language_tags:
+- rust
+bug_family: input_validation_and_invariant_enforcement
+bug_class: improper-state-validation
+subsystem: storage
+architecture_tags:
+- rollup
+- state-storage
+confidence_tier: tier_b_likely
+security_verdict: likely
+validated_as: security-hardening
+recommended_uses:
+- retrieval_exemplar
+- taxonomy_refinement
+missing_property: input-validation
+violated_invariant: 'The evidenced invariant is local proof-window consistency: mutations should only proceed when
+  the proof window is initialized, new blocks should attach to the stored latest hash, and reorg replacement should
+  stay within the stored earliest/latest window. The provided material does not establish a broader protocol-security
+  failure.'
+trust_boundary: persisted chain state -> recovery/derivation logic
+entrypoint_type: state-storage or reset/reorg handling path
+sensitive_sink: stored canonicality, proof-window, or derived-state update
+attacker_capabilities:
+- cause or race chain-state changes, reorgs, resets, or persisted-state recovery paths
+- supply state/proof data that is later read from storage
+exploit_preconditions:
+- the affected validation path is reachable before an equivalent fail-closed check runs
+- the malformed or ambiguous input is accepted far enough to influence a security-sensitive decision
+- no upstream component has already canonicalized, authenticated, or bounded the relevant field
+- for hardening-only records, practical exploitability still depends on deployment exposure and attacker control
+  of the input source
+blast_radius: node-local unless the state feeds consensus-critical outputs
+impact_types:
+- state-integrity
+severity_guess: medium
+severity_rationale: Evidence supports security hardening, but the raw finding does not prove a complete attacker-triggered
+  exploit. Severity is medium because the affected path can influence state-or-proof-integrity, while deployment
+  exposure, compensating checks, and concrete impact remain the main limiters.
+code_shape_summary: The buggy shape was a state-storage or reset/reorg handling path that allowed data or state
+  to approach stored canonicality, proof-window, or derived-state update before fully enforcing input-validation.
+  The mutation paths treated missing proof-window state as optional or substituted defaults, and they did not consistently
+  use the stored proof-window boundaries as the authoritative guard for update ordering and reorg replacement.
+search_motifs:
+- state-storage or reset/reorg handling path reaches stored canonicality, proof-window, or derived-state update
+  with partial validation
+- input-validation is enforced in one path but missing in an alternate path
+negative_signals:
+- an earlier boundary already rejects the same malformed field under all reachable modes
+- the changed code is test-only, generated-only, logging-only, or pure refactor with no runtime decision change
+- the input is not attacker-influenced and cannot be affected by a faulty peer, operator, backend, or sequencer
+- downstream consensus/proof verification recomputes the property fail-closed before any state or privilege is committed
+- the patch only improves diagnostics or compatibility and does not alter acceptance, rejection, binding, bounds,
+  or state-transition behavior
+patch_pattern: Replace optional/default-state handling with explicit precondition checks against persisted proof-window
+  metadata.
+source_refs:
+- git:bc9c3420ae3fee2a464c6e4841a713ba19e46ec3
+- rust/op-reth/crates/trie/src/db/store_v2.rs:1725
+- rust/op-reth/crates/trie/src/db/store_v2.rs:1080
+- rust/op-reth/crates/trie/src/db/store_v2.rs:2936
+- rust/op-reth/crates/trie/src/db/store_v2.rs:230
+- /testing/optimism/validated-findings/kept/2026-04-10-optimism-storage-bc9c3420ae.md
+notes:
+- Enriched from the prepared raw finding, preserving conservative claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.

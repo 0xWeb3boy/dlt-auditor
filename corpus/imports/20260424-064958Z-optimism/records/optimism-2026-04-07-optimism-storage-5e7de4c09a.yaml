@@ -1,0 +1,71 @@
+id: optimism-2026-04-07-optimism-storage-5e7de4c09a
+source_finding: 2026-04-07-optimism-storage-5e7de4c09a.md
+project: optimism
+date: '2026-04-07'
+language_tags:
+- rust
+bug_family: input_validation_and_invariant_enforcement
+bug_class: missing-integrity-check
+subsystem: storage
+architecture_tags:
+- rollup
+- fault-proof
+- state-storage
+confidence_tier: tier_b_likely
+security_verdict: likely
+validated_as: security-hardening
+recommended_uses:
+- retrieval_exemplar
+- taxonomy_refinement
+missing_property: integrity-binding
+violated_invariant: Append-only proof/trie storage should only accept a new block state diff when it extends the
+  current stored tip, and versioned history reconstruction should fail closed when an exact block version is unavailable.
+trust_boundary: external proof/data provider -> verifier/derivation code
+entrypoint_type: proof-or-data-verification path
+sensitive_sink: acceptance of cryptographic, blob, preimage, or proof data into derivation/state
+attacker_capabilities:
+- cause or race chain-state changes, reorgs, resets, or persisted-state recovery paths
+- supply state/proof data that is later read from storage
+exploit_preconditions:
+- the affected validation path is reachable before an equivalent fail-closed check runs
+- the malformed or ambiguous input is accepted far enough to influence a security-sensitive decision
+- no upstream component has already canonicalized, authenticated, or bounded the relevant field
+- for hardening-only records, practical exploitability still depends on deployment exposure and attacker control
+  of the input source
+blast_radius: node-local unless the state feeds consensus-critical outputs
+impact_types:
+- state-integrity
+severity_guess: medium
+severity_rationale: Evidence supports security hardening, but the raw finding does not prove a complete attacker-triggered
+  exploit. Severity is medium because the affected path can influence state-or-proof-integrity, while deployment
+  exposure, compensating checks, and concrete impact remain the main limiters.
+code_shape_summary: The buggy shape was a proof-or-data-verification path that allowed data or state to approach
+  acceptance of cryptographic, blob, preimage, or proof data into derivation/state before fully enforcing integrity-binding.
+  The append-only storage path lacked an explicit chain-continuity check at the write entry point, so out-of-order
+  or mismatched block references were not visibly rejected there in the supplied pre-patch code.
+search_motifs:
+- object is internally valid but not checked against requested hash/index/context
+- proof or witness hash is computed from the wrong representation or lifecycle point
+- external data provider result is consumed before identity binding is verified
+- proof-or-data-verification path reaches acceptance of cryptographic, blob, preimage, or proof data into derivation/state
+  with partial validation
+- integrity-binding is enforced in one path but missing in an alternate path
+negative_signals:
+- an earlier boundary already rejects the same malformed field under all reachable modes
+- the changed code is test-only, generated-only, logging-only, or pure refactor with no runtime decision change
+- the input is not attacker-influenced and cannot be affected by a faulty peer, operator, backend, or sequencer
+- downstream consensus/proof verification recomputes the property fail-closed before any state or privilege is committed
+- the patch only improves diagnostics or compatibility and does not alter acceptance, rejection, binding, bounds,
+  or state-transition behavior
+patch_pattern: Add a pre-mutation invariant check to an append-only storage path so writes are rejected unless they
+  extend the current tip.
+source_refs:
+- git:5e7de4c09a9bdb917b6c1c10622e9bd036a6b9c1
+- rust/op-reth/crates/trie/src/db/store.rs:676
+- rust/op-reth/crates/trie/src/db/store.rs:733
+- rust/op-reth/crates/trie/src/db/store.rs:694
+- rust/op-reth/crates/trie/src/db/store.rs:525
+- /testing/optimism/validated-findings/kept/2026-04-07-optimism-storage-5e7de4c09a.md
+notes:
+- Enriched from the prepared raw finding, preserving conservative claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.

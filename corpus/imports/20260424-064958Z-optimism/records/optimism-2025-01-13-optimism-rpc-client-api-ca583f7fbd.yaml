@@ -1,0 +1,74 @@
+id: optimism-2025-01-13-optimism-rpc-client-api-ca583f7fbd
+source_finding: 2025-01-13-optimism-rpc-client-api-ca583f7fbd.md
+project: optimism
+date: '2025-01-13'
+language_tags:
+- go
+bug_family: input_validation_and_invariant_enforcement
+bug_class: incorrect-context-binding
+subsystem: rpc-client-api
+architecture_tags:
+- rollup
+- fault-proof
+- rpc
+- interop
+confidence_tier: tier_b_likely
+security_verdict: likely
+validated_as: security-hardening
+recommended_uses:
+- retrieval_exemplar
+- taxonomy_refinement
+missing_property: domain-separation
+violated_invariant: In interop mode, L2 data lookups and proof checks should be bound to the intended chain and
+  requested block context, not inferred from an ambient default chain or unrelated head block.
+trust_boundary: RPC/API caller -> node service
+entrypoint_type: rpc-handler or API validation path
+sensitive_sink: backend forwarding, access-list approval, or service state derived from caller input
+attacker_capabilities:
+- submit crafted RPC/API requests or access-list descriptors
+- choose edge-case block tags, timestamps, chain IDs, or request metadata
+exploit_preconditions:
+- the affected validation path is reachable before an equivalent fail-closed check runs
+- the malformed or ambiguous input is accepted far enough to influence a security-sensitive decision
+- no upstream component has already canonicalized, authenticated, or bounded the relevant field
+- for hardening-only records, practical exploitability still depends on deployment exposure and attacker control
+  of the input source
+blast_radius: service-local to node-local
+impact_types:
+- integrity
+- state-integrity
+- signature-or-domain-confusion
+severity_guess: medium
+severity_rationale: Evidence supports security hardening, but the raw finding does not prove a complete attacker-triggered
+  exploit. Severity is medium because the affected path can influence state-or-proof-integrity, while deployment
+  exposure, compensating checks, and concrete impact remain the main limiters.
+code_shape_summary: 'The buggy shape was a rpc-handler or API validation path that allowed data or state to approach
+  backend forwarding, access-list approval, or service state derived from caller input before fully enforcing domain-separation.
+  The code relied on ambient context for lookup and verification: default chain selection in prefetcher hint handling,
+  and head.Root() instead of the requested block root in output proof verification.'
+search_motifs:
+- signature accepted without binding all domain/context fields
+- chain ID or protected-state converted through lossy integer or metadata path
+- signer recovery occurs before payload identity and replay domain are fixed
+- object is internally valid but not checked against requested hash/index/context
+- proof or witness hash is computed from the wrong representation or lifecycle point
+- external data provider result is consumed before identity binding is verified
+negative_signals:
+- an earlier boundary already rejects the same malformed field under all reachable modes
+- the changed code is test-only, generated-only, logging-only, or pure refactor with no runtime decision change
+- the input is not attacker-influenced and cannot be affected by a faulty peer, operator, backend, or sequencer
+- downstream consensus/proof verification recomputes the property fail-closed before any state or privilege is committed
+- the patch only improves diagnostics or compatibility and does not alter acceptance, rejection, binding, bounds,
+  or state-transition behavior
+patch_pattern: Replace ambient defaults with explicit context passed through the API boundary, and verify proofs
+  against the exact requested object context.
+source_refs:
+- git:ca583f7fbdd7d84b1e124c9e7ca2ac207efcd657
+- op-program/host/prefetcher/prefetcher.go:310
+- op-program/host/prefetcher/prefetcher.go:282
+- op-service/sources/l2_client.go:201
+- op-program/host/prefetcher/prefetcher.go:260
+- /testing/optimism/validated-findings/kept/2025-01-13-optimism-rpc-client-api-ca583f7fbd.md
+notes:
+- Enriched from the prepared raw finding, preserving conservative claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.

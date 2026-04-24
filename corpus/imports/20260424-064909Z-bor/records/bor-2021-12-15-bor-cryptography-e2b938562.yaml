@@ -1,0 +1,52 @@
+id: "bor-2021-12-15-bor-cryptography-e2b938562"
+source_finding: "2021-12-15-bor-cryptography-e2b938562.md"
+project: "bor"
+date: "2021-12-15"
+language_tags: ["go"]
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "signature-domain-mismatch"
+subsystem: "cryptography"
+architecture_tags: ["consensus", "fork-rules", "signature", "validator"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement", "eval_seed"]
+
+missing_property: "signature authorization and domain binding"
+violated_invariant: "A signature or signer action must cover the full security context that gives the message authority, including domain, chain, signer scope, and payload semantics."
+trust_boundary: "untrusted signed payload to verifier or signer boundary"
+entrypoint_type: "transaction/message signature verification path"
+sensitive_sink: "signer recovery, authorization, or replay-protection decision"
+
+attacker_capabilities:
+  - "Can send crafted RPC requests to an exposed node or signer endpoint"
+  - "Can choose malformed parameters, ranges, payload bytes, or transaction fields"
+exploit_preconditions:
+  - "The relevant RPC or signing interface is reachable by the attacker or an attacker-controlled client."
+  - "No earlier validation, rate limit, domain binding, or consensus check blocks the crafted input before the sink."
+  - "Exploitability depends on the surrounding deployment and was validated as likely or hardening rather than fully proven."
+blast_radius: "Signers, verifiers, or clients relying on the affected signature semantics may authorize the wrong domain or accept replayable messages."
+
+impact_types:
+  - "consensus-integrity"
+severity_guess: "medium"
+severity_rationale: "Medium severity guess because the finding is a likely security hardening affecting consensus-integrity; tune downward when deployment controls or missing exploit evidence limit reachability."
+
+code_shape_summary: "The patch corrects Bor's seal-hash computation around the Jaipur fork by making the signed header encoding fork-aware. The provided evidence shows that the pre-fix Bor seal hash omitted BaseFee in the relevant post-EIP-1559 path, and the fix propagates fork config into SealHash and ecrecover so signer recovery uses the updated encoding. Root cause: A fork-unaware canonicalization bug in the Bor seal-hash path caused post-fork signer hashing to omit the BaseFee field that Jaipur-era rules expected."
+search_motifs:
+  - "signed hash omits chain id, domain tag, nonce, signer scope, or payload type"
+  - "RPC signer accepts ambiguous raw bytes or transaction fields without explicit user-visible context"
+  - "verification recovers an address from a partially bound message and treats it as authorized"
+negative_signals:
+  - "Do not flag if the value is produced only by trusted local code and cannot be influenced across a protocol, RPC, or persistence boundary."
+  - "Do not treat as exploitable if an earlier mandatory validation step rejects the malformed input before the sensitive sink."
+  - "Signature findings need evidence that the omitted field is security-relevant and not bound by another mandatory envelope or transport context."
+  - "The source finding was validated as hardening, so avoid overstating exploitability without additional proof."
+  - "No proof that an attacker could forge signatures, impersonate validators, or get invalid blocks accepted."
+patch_pattern: "Make the canonical signature-domain encoding fork-aware and thread the active chain configuration through all seal-hash and signer-recovery call sites."
+
+source_refs: ["/testing/dlt-ai-audit-system/corpus/imports/20260424-064909Z-bor/raw-findings/2021-12-15-bor-cryptography-e2b938562.md"]
+notes:
+  - "Enriched from validated finding material; preserve claim boundaries from the source record."

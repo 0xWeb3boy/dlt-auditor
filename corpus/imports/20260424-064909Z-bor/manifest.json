@@ -1,0 +1,684 @@
+{
+  "repo": "/testing/bor",
+  "repo_slug": "bor",
+  "kept_dir": "/testing/bor/validated-findings/kept",
+  "created_at_utc": "20260424-064909Z",
+  "finding_count": 75,
+  "findings": [
+    {
+      "id": "bor-2014-11-12-bor-transaction-processing-60cdb1148",
+      "source": "/testing/bor/validated-findings/kept/2014-11-12-bor-transaction-processing-60cdb1148.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "integrity-check-omission",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2015-01-13-bor-transaction-processing-82beaabf6",
+      "source": "/testing/bor/validated-findings/kept/2015-01-13-bor-transaction-processing-82beaabf6.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-rule-mismatch",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2015-01-19-bor-p2p-networking-e252c634c",
+      "source": "/testing/bor/validated-findings/kept/2015-01-19-bor-p2p-networking-e252c634c.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "public-key-validation",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2015-03-20-bor-cryptography-d8fe8f60e",
+      "source": "/testing/bor/validated-findings/kept/2015-03-20-bor-cryptography-d8fe8f60e.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "input-validation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2015-03-25-bor-cryptography-de7af720d",
+      "source": "/testing/bor/validated-findings/kept/2015-03-25-bor-cryptography-de7af720d.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "network-amplification",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2015-05-14-bor-transaction-processing-a4246c2da",
+      "source": "/testing/bor/validated-findings/kept/2015-05-14-bor-transaction-processing-a4246c2da.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "state-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2015-05-15-bor-core-logic-5c1a7b965",
+      "source": "/testing/bor/validated-findings/kept/2015-05-15-bor-core-logic-5c1a7b965.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "insufficient-peer-chain-validation",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2015-05-15-bor-core-logic-cd2fb0905",
+      "source": "/testing/bor/validated-findings/kept/2015-05-15-bor-core-logic-cd2fb0905.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "resource-exhaustion",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2015-05-21-bor-core-logic-52db6d8be",
+      "source": "/testing/bor/validated-findings/kept/2015-05-21-bor-core-logic-52db6d8be.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "verification-bypass",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2015-07-01-bor-p2p-networking-d6f2c0a76",
+      "source": "/testing/bor/validated-findings/kept/2015-07-01-bor-p2p-networking-d6f2c0a76.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "resource-exhaustion",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2016-10-28-bor-transaction-processing-b59c8399f",
+      "source": "/testing/bor/validated-findings/kept/2016-10-28-bor-transaction-processing-b59c8399f.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "message-signing-domain-separation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "bor-2016-11-24-bor-storage-12d654a6f",
+      "source": "/testing/bor/validated-findings/kept/2016-11-24-bor-storage-12d654a6f.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-state-inconsistency",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2016-11-28-bor-p2p-networking-e949a2ed2",
+      "source": "/testing/bor/validated-findings/kept/2016-11-28-bor-p2p-networking-e949a2ed2.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "network-boundary-enforcement",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2017-02-13-bor-storage-e23e86921",
+      "source": "/testing/bor/validated-findings/kept/2017-02-13-bor-storage-e23e86921.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "improper-integrity-validation",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2017-05-12-bor-transaction-processing-a5f6a1cb7",
+      "source": "/testing/bor/validated-findings/kept/2017-05-12-bor-transaction-processing-a5f6a1cb7.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "chain-config-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2017-08-25-bor-storage-08f27428b",
+      "source": "/testing/bor/validated-findings/kept/2017-08-25-bor-storage-08f27428b.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "improper-contract-creation-validation",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2018-02-12-bor-p2p-networking-9123eceb0",
+      "source": "/testing/bor/validated-findings/kept/2018-02-12-bor-p2p-networking-9123eceb0.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "insufficient-request-response-correlation",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2018-09-20-bor-storage-d6254f827",
+      "source": "/testing/bor/validated-findings/kept/2018-09-20-bor-storage-d6254f827.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "reorg-tie-breaking",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2018-09-25-bor-cryptography-d3441ebb5",
+      "source": "/testing/bor/validated-findings/kept/2018-09-25-bor-cryptography-d3441ebb5.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "signer-trust-boundary-hardening",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "bor-2019-01-24-bor-transaction-processing-c7664b063",
+      "source": "/testing/bor/validated-findings/kept/2019-01-24-bor-transaction-processing-c7664b063.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-rule-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2019-03-12-bor-transaction-processing-7504dbd6e",
+      "source": "/testing/bor/validated-findings/kept/2019-03-12-bor-transaction-processing-7504dbd6e.md",
+      "bug_family": "checked_arithmetic_and_parameter_bounds",
+      "bug_class": "resource-accounting-overflow",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "arithmetic-bounds"
+    },
+    {
+      "id": "bor-2019-09-25-bor-storage-48c074596",
+      "source": "/testing/bor/validated-findings/kept/2019-09-25-bor-storage-48c074596.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-safety",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2020-05-13-bor-cryptography-0f8d3b100",
+      "source": "/testing/bor/validated-findings/kept/2020-05-13-bor-cryptography-0f8d3b100.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-boundary-validation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2020-05-17-bor-rpc-client-api-868dc81c8",
+      "source": "/testing/bor/validated-findings/kept/2020-05-17-bor-rpc-client-api-868dc81c8.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "fail-open-error-handling",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2020-12-04-bor-transaction-processing-15339cf1c",
+      "source": "/testing/bor/validated-findings/kept/2020-12-04-bor-transaction-processing-15339cf1c.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "unsigned-advisory-feed",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2020-12-08-bor-transaction-processing-ed0670cb1",
+      "source": "/testing/bor/validated-findings/kept/2020-12-08-bor-transaction-processing-ed0670cb1.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "replay-protection",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2021-02-23-bor-transaction-processing-142fbcfd6",
+      "source": "/testing/bor/validated-findings/kept/2021-02-23-bor-transaction-processing-142fbcfd6.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-replay-protection-check",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2021-04-06-bor-transaction-processing-706683ea7",
+      "source": "/testing/bor/validated-findings/kept/2021-04-06-bor-transaction-processing-706683ea7.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "replay-protection-gating",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2021-09-13-bor-transaction-processing-b8d7c662c",
+      "source": "/testing/bor/validated-findings/kept/2021-09-13-bor-transaction-processing-b8d7c662c.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "trace-output-exposure-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2021-12-04-bor-transaction-processing-a7d97ce58",
+      "source": "/testing/bor/validated-findings/kept/2021-12-04-bor-transaction-processing-a7d97ce58.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "improper-consensus-state-transition",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2021-12-15-bor-cryptography-a10f79dc2",
+      "source": "/testing/bor/validated-findings/kept/2021-12-15-bor-cryptography-a10f79dc2.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "insufficient-signature-coverage",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "bor-2021-12-15-bor-cryptography-e2b938562",
+      "source": "/testing/bor/validated-findings/kept/2021-12-15-bor-cryptography-e2b938562.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "signature-domain-mismatch",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "bor-2022-05-04-bor-p2p-networking-ecae8e4f6",
+      "source": "/testing/bor/validated-findings/kept/2022-05-04-bor-p2p-networking-ecae8e4f6.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "peer-validation-regression",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2022-05-23-bor-rpc-client-api-1b5304405",
+      "source": "/testing/bor/validated-findings/kept/2022-05-23-bor-rpc-client-api-1b5304405.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "privileged-api-exposure",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2022-05-23-bor-transaction-processing-ba47d800b",
+      "source": "/testing/bor/validated-findings/kept/2022-05-23-bor-transaction-processing-ba47d800b.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "panic-on-invalid-input",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2022-06-29-bor-cryptography-d12b1a91c",
+      "source": "/testing/bor/validated-findings/kept/2022-06-29-bor-cryptography-d12b1a91c.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-transition-validation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2022-10-13-bor-consensus-b70723d70",
+      "source": "/testing/bor/validated-findings/kept/2022-10-13-bor-consensus-b70723d70.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "incomplete-chain-validation",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2022-12-06-bor-p2p-networking-50a778207",
+      "source": "/testing/bor/validated-findings/kept/2022-12-06-bor-p2p-networking-50a778207.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "path-validation",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2022-12-20-bor-transaction-processing-b818e73ef",
+      "source": "/testing/bor/validated-findings/kept/2022-12-20-bor-transaction-processing-b818e73ef.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "insufficient-input-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2023-01-03-bor-storage-fcf3d0048",
+      "source": "/testing/bor/validated-findings/kept/2023-01-03-bor-storage-fcf3d0048.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "peer-validation",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2023-01-11-bor-transaction-processing-793f0f9ec",
+      "source": "/testing/bor/validated-findings/kept/2023-01-11-bor-transaction-processing-793f0f9ec.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "resource-control-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2023-03-13-bor-transaction-processing-d0a9e0db2",
+      "source": "/testing/bor/validated-findings/kept/2023-03-13-bor-transaction-processing-d0a9e0db2.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-validator-verification",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2023-03-21-bor-storage-d53c1ec21",
+      "source": "/testing/bor/validated-findings/kept/2023-03-21-bor-storage-d53c1ec21.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "validator-set-verification",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2023-03-28-bor-transaction-processing-fd94b4fcf",
+      "source": "/testing/bor/validated-findings/kept/2023-03-28-bor-transaction-processing-fd94b4fcf.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "resource-exhaustion",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2023-07-04-bor-storage-0f9d7d61c",
+      "source": "/testing/bor/validated-findings/kept/2023-07-04-bor-storage-0f9d7d61c.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "improper-input-validation",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2023-10-19-bor-consensus-a9c57370c",
+      "source": "/testing/bor/validated-findings/kept/2023-10-19-bor-consensus-a9c57370c.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-safety",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2024-04-30-bor-cryptography-bd8fe6260",
+      "source": "/testing/bor/validated-findings/kept/2024-04-30-bor-cryptography-bd8fe6260.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "operand-decoding-error",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2024-05-07-bor-transaction-processing-e4b8058d5",
+      "source": "/testing/bor/validated-findings/kept/2024-05-07-bor-transaction-processing-e4b8058d5.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "resource-exhaustion",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2024-08-21-bor-p2p-networking-f88af2000",
+      "source": "/testing/bor/validated-findings/kept/2024-08-21-bor-p2p-networking-f88af2000.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "peer-validation",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2024-09-05-bor-transaction-processing-8262eae9e",
+      "source": "/testing/bor/validated-findings/kept/2024-09-05-bor-transaction-processing-8262eae9e.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "state-context-mismatch",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2025-02-03-bor-storage-a34426824",
+      "source": "/testing/bor/validated-findings/kept/2025-02-03-bor-storage-a34426824.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "fork-choice-regression",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2025-04-08-bor-transaction-processing-2e739fce5",
+      "source": "/testing/bor/validated-findings/kept/2025-04-08-bor-transaction-processing-2e739fce5.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "resource-exhaustion",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2025-04-14-bor-p2p-networking-c5c75977a",
+      "source": "/testing/bor/validated-findings/kept/2025-04-14-bor-p2p-networking-c5c75977a.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "insufficient-peer-churn",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2025-05-22-bor-transaction-processing-20ad4f500",
+      "source": "/testing/bor/validated-findings/kept/2025-05-22-bor-transaction-processing-20ad4f500.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "resource-exhaustion",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2025-06-30-bor-cryptography-94f2beea9",
+      "source": "/testing/bor/validated-findings/kept/2025-06-30-bor-cryptography-94f2beea9.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "improper-consensus-validation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2025-08-13-bor-storage-2d1aa4ab5",
+      "source": "/testing/bor/validated-findings/kept/2025-08-13-bor-storage-2d1aa4ab5.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-header-validation",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2025-09-08-bor-consensus-abe386cf7",
+      "source": "/testing/bor/validated-findings/kept/2025-09-08-bor-consensus-abe386cf7.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "validator-set-validation",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2025-10-01-bor-storage-83ab606c4",
+      "source": "/testing/bor/validated-findings/kept/2025-10-01-bor-storage-83ab606c4.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "input-validation",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2025-11-28-bor-cryptography-544e6b7c7",
+      "source": "/testing/bor/validated-findings/kept/2025-11-28-bor-cryptography-544e6b7c7.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "numeric-truncation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2025-12-02-bor-cryptography-647b061a9",
+      "source": "/testing/bor/validated-findings/kept/2025-12-02-bor-cryptography-647b061a9.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "input-validation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2026-01-26-bor-transaction-processing-2641b6be6",
+      "source": "/testing/bor/validated-findings/kept/2026-01-26-bor-transaction-processing-2641b6be6.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "insufficient-consensus-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2026-01-27-bor-rpc-client-api-df8f2a879",
+      "source": "/testing/bor/validated-findings/kept/2026-01-27-bor-rpc-client-api-df8f2a879.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-peer-data-verification",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2026-01-27-bor-transaction-processing-0850faf21",
+      "source": "/testing/bor/validated-findings/kept/2026-01-27-bor-transaction-processing-0850faf21.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-consensus-invariant-checks",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2026-02-17-bor-cryptography-d9fac7a4c",
+      "source": "/testing/bor/validated-findings/kept/2026-02-17-bor-cryptography-d9fac7a4c.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "input-validation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2026-02-18-bor-transaction-processing-bff847a3d",
+      "source": "/testing/bor/validated-findings/kept/2026-02-18-bor-transaction-processing-bff847a3d.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "resource-exhaustion",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2026-02-25-bor-storage-752f43932",
+      "source": "/testing/bor/validated-findings/kept/2026-02-25-bor-storage-752f43932.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "reorg-consistency",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2026-02-26-bor-cryptography-b69ad46c1",
+      "source": "/testing/bor/validated-findings/kept/2026-02-26-bor-cryptography-b69ad46c1.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "timestamp-validation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2026-03-05-bor-consensus-26dc364ff",
+      "source": "/testing/bor/validated-findings/kept/2026-03-05-bor-consensus-26dc364ff.md",
+      "bug_family": "checked_arithmetic_and_parameter_bounds",
+      "bug_class": "integer-overflow",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "arithmetic-bounds"
+    },
+    {
+      "id": "bor-2026-03-18-bor-transaction-processing-70f86c4d2",
+      "source": "/testing/bor/validated-findings/kept/2026-03-18-bor-transaction-processing-70f86c4d2.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "insufficient-rpc-range-limit-enforcement",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2026-03-18-bor-transaction-processing-858c6ae6d",
+      "source": "/testing/bor/validated-findings/kept/2026-03-18-bor-transaction-processing-858c6ae6d.md",
+      "bug_family": "resource_accounting_and_limits",
+      "bug_class": "missing-resource-limit-enforcement",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "resource-accounting"
+    },
+    {
+      "id": "bor-2026-03-18-bor-transaction-processing-b1829ef95",
+      "source": "/testing/bor/validated-findings/kept/2026-03-18-bor-transaction-processing-b1829ef95.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "resource-exhaustion-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2026-03-19-bor-transaction-processing-7d6a68d8b",
+      "source": "/testing/bor/validated-findings/kept/2026-03-19-bor-transaction-processing-7d6a68d8b.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "resource-exhaustion",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2026-03-25-bor-rpc-client-api-7e59d7195",
+      "source": "/testing/bor/validated-findings/kept/2026-03-25-bor-rpc-client-api-7e59d7195.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-input-nondeterminism",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2026-04-13-bor-transaction-processing-bc8857fc8",
+      "source": "/testing/bor/validated-findings/kept/2026-04-13-bor-transaction-processing-bc8857fc8.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "bor-2026-04-16-bor-transaction-processing-11ecb6aa7",
+      "source": "/testing/bor/validated-findings/kept/2026-04-16-bor-transaction-processing-11ecb6aa7.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    }
+  ]
+}

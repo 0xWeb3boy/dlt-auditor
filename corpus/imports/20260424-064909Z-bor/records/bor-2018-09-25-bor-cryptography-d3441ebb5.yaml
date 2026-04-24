@@ -1,0 +1,53 @@
+id: "bor-2018-09-25-bor-cryptography-d3441ebb5"
+source_finding: "2018-09-25-bor-cryptography-d3441ebb5.md"
+project: "bor"
+date: "2018-09-25"
+language_tags: ["go"]
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "signer-trust-boundary-hardening"
+subsystem: "cryptography"
+architecture_tags: ["api-surface", "fail-closed", "input-validation", "signer"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement", "eval_seed"]
+
+missing_property: "signature authorization and domain binding"
+violated_invariant: "A signature or signer action must cover the full security context that gives the message authority, including domain, chain, signer scope, and payload semantics."
+trust_boundary: "untrusted signed payload to verifier or signer boundary"
+entrypoint_type: "transaction/message signature verification path"
+sensitive_sink: "signer recovery, authorization, or replay-protection decision"
+
+attacker_capabilities:
+  - "Can send crafted RPC requests to an exposed node or signer endpoint"
+  - "Can choose malformed parameters, ranges, payload bytes, or transaction fields"
+exploit_preconditions:
+  - "The relevant RPC or signing interface is reachable by the attacker or an attacker-controlled client."
+  - "No earlier validation, rate limit, domain binding, or consensus check blocks the crafted input before the sink."
+  - "Exploitability depends on the surrounding deployment and was validated as likely or hardening rather than fully proven."
+blast_radius: "Blast radius is primarily defensive correctness unless additional evidence shows attacker reachability to a security sink."
+
+impact_types:
+  - "unsafe-default-behavior"
+  - "reduced-attack-surface"
+severity_guess: "low"
+severity_rationale: "Low severity guess because the finding is a likely security hardening affecting unsafe-default-behavior, reduced-attack-surface; tune downward when deployment controls or missing exploit evidence limit reachability."
+
+code_shape_summary: "The supplied evidence supports a security-hardening change in the Clef signer API, not a demonstrated exploit fix. The grounded changes are fail-closed handling of transaction-validation warnings, removal of the externally exposed EcRecover helper, and stricter password handling in new-account creation. Root cause: The signer API was too permissive at the trust boundary: validator warnings were not enforced as blocking conditions by default, the remote API exposed an extra helper operation, and account-creation password input handling was weaker than the patched version."
+search_motifs:
+  - "signed hash omits chain id, domain tag, nonce, signer scope, or payload type"
+  - "RPC signer accepts ambiguous raw bytes or transaction fields without explicit user-visible context"
+  - "verification recovers an address from a partially bound message and treats it as authorized"
+negative_signals:
+  - "Do not flag if the value is produced only by trusted local code and cannot be influenced across a protocol, RPC, or persistence boundary."
+  - "Do not treat as exploitable if an earlier mandatory validation step rejects the malformed input before the sensitive sink."
+  - "Signature findings need evidence that the omitted field is security-relevant and not bound by another mandatory envelope or transport context."
+  - "The source finding was validated as hardening, so avoid overstating exploitability without additional proof."
+  - "No diff is provided for the claimed AES-GCM key/value swap fix, so that cryptographic claim is not validated here."
+patch_pattern: "Harden a signer trust boundary by failing closed on validator warnings, reducing exposed remote API surface, and tightening validation around sensitive account-creation inputs."
+
+source_refs: ["/testing/dlt-ai-audit-system/corpus/imports/20260424-064909Z-bor/raw-findings/2018-09-25-bor-cryptography-d3441ebb5.md"]
+notes:
+  - "Enriched from validated finding material; preserve claim boundaries from the source record."

@@ -1,0 +1,51 @@
+id: "bor-2015-05-15-bor-core-logic-cd2fb0905"
+source_finding: "2015-05-15-bor-core-logic-cd2fb0905.md"
+project: "bor"
+date: "2015-05-15"
+language_tags: ["go"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "resource-exhaustion"
+subsystem: "core-logic"
+architecture_tags: ["blockchain-core", "core-logic", "queue", "remote-dos", "resource-exhaustion"]
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement", "eval_seed"]
+
+missing_property: "resource limit and input validity enforcement"
+violated_invariant: "Attacker-controlled input must be bounded and rejected before it can drive unbounded allocation, expensive processing, queue growth, or process termination."
+trust_boundary: "untrusted block, header, transaction, or state data to consensus engine boundary"
+entrypoint_type: "block/header/transaction validation or state-transition path"
+sensitive_sink: "canonical chain selection, state root commitment, or consensus state mutation"
+
+attacker_capabilities:
+  - "Can submit or relay crafted blocks, headers, transactions, state data, or sync responses"
+  - "Can target nodes that process the affected consensus or sync path"
+exploit_preconditions:
+  - "The node processes attacker-influenced data through the affected validation path."
+  - "No earlier validation, rate limit, domain binding, or consensus check blocks the crafted input before the sink."
+blast_radius: "Affected nodes may waste network, CPU, memory, or process availability; broad impact requires attacker reachability and insufficient throttling."
+
+impact_types:
+  - "remote-dos"
+severity_guess: "high"
+severity_rationale: "High severity guess because the finding is a confirmed security fix affecting remote-dos; tune downward when deployment controls or missing exploit evidence limit reachability."
+
+code_shape_summary: "The patch adds an explicit progress check to the peer-driven hash download loop. Before the change, the downloader would continue querying a peer even when a non-final response added no new hashes to the queue. After the change, such a zero-progress response is treated as ErrBadPeer, and the synchronisation layer removes that peer. This supports a peer-triggered denial-of-service or resource-exhaustion fix in the downloader path. Root cause: The downloader accepted non-terminal hash responses without validating that they advanced local queue state. Because the queue insertion API did not report whether anything new was added, the caller could stay in a request/response loop with a peer that kept sending duplicate hashes."
+search_motifs:
+  - "remote input controls allocation, iteration count, queue length, or cache growth without a cap"
+  - "decode or validation path panics or aborts process on malformed peer/RPC data"
+  - "request processing lacks timeout, size limit, rate limit, or early reject before expensive work"
+negative_signals:
+  - "Do not flag if the value is produced only by trusted local code and cannot be influenced across a protocol, RPC, or persistence boundary."
+  - "Do not treat as exploitable if an earlier mandatory validation step rejects the malformed input before the sensitive sink."
+  - "Consensus findings need evidence that different valid-looking inputs or node versions can reach divergent acceptance, state, or fork-choice behavior."
+  - "The patch does not quantify CPU, bandwidth, or memory impact."
+  - "No exploit trace or test case is shown proving end-to-end denial of service."
+patch_pattern: "Expose whether untrusted input made forward progress, reject zero-progress non-terminal responses, and propagate that failure into peer removal."
+
+source_refs: ["/testing/dlt-ai-audit-system/corpus/imports/20260424-064909Z-bor/raw-findings/2015-05-15-bor-core-logic-cd2fb0905.md"]
+notes:
+  - "Enriched from validated finding material; preserve claim boundaries from the source record."

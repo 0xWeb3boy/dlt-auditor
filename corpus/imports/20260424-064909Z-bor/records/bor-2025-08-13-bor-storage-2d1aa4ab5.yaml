@@ -1,0 +1,53 @@
+id: "bor-2025-08-13-bor-storage-2d1aa4ab5"
+source_finding: "2025-08-13-bor-storage-2d1aa4ab5.md"
+project: "bor"
+date: "2025-08-13"
+language_tags: ["go"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "missing-header-validation"
+subsystem: "storage"
+architecture_tags: ["ancient-store", "consensus", "header-validation", "security-hardening", "state-integrity"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement", "eval_seed"]
+
+missing_property: "consensus invariant enforcement"
+violated_invariant: "Persisted or peer-supplied state must be verified against its expected hash, path, or schema before being trusted by consensus or sync logic."
+trust_boundary: "untrusted block, header, transaction, or state data to consensus engine boundary"
+entrypoint_type: "block/header/transaction validation or state-transition path"
+sensitive_sink: "canonical chain selection, state root commitment, or consensus state mutation"
+
+attacker_capabilities:
+  - "Can submit or relay crafted blocks, headers, transactions, state data, or sync responses"
+  - "Can target nodes that process the affected consensus or sync path"
+exploit_preconditions:
+  - "The node processes attacker-influenced data through the affected validation path."
+  - "No earlier validation, rate limit, domain binding, or consensus check blocks the crafted input before the sink."
+  - "Exploitability depends on the surrounding deployment and was validated as likely or hardening rather than fully proven."
+blast_radius: "Consensus or sync participants that accept the affected data path may diverge, reject valid data, accept invalid data, or persist inconsistent state."
+
+impact_types:
+  - "integrity"
+  - "consensus-integrity"
+severity_guess: "medium"
+severity_rationale: "Medium severity guess because the finding is a likely security hardening affecting integrity, consensus-integrity; tune downward when deployment controls or missing exploit evidence limit reachability."
+
+code_shape_summary: "The supplied evidence supports a non-security test fix, not a vulnerability fix. The concrete, supported change is that receipt-oriented tests now insert headers explicitly before continuing, while the production-code snippets only show anchor movement or refactoring and do not prove a new runtime security check. Root cause: Test/setup drift: the receipt-oriented test paths were using an import path that did not explicitly perform the header insertion step that later chain-state assertions rely on. The provided evidence does not establish a production security flaw."
+search_motifs:
+  - "state or trie data is loaded from disk or peer response without recomputing the expected root/hash"
+  - "path or key material from an external source reaches storage lookup/write before normalization"
+  - "missing mismatch handling lets corrupt or stale state be treated as canonical"
+negative_signals:
+  - "Do not flag if the value is produced only by trusted local code and cannot be influenced across a protocol, RPC, or persistence boundary."
+  - "Do not treat as exploitable if an earlier mandatory validation step rejects the malformed input before the sensitive sink."
+  - "Consensus findings need evidence that different valid-looking inputs or node versions can reach divergent acceptance, state, or fork-choice behavior."
+  - "The source finding was validated as hardening, so avoid overstating exploitability without additional proof."
+  - "No proof that untrusted or remote input could reach this path in an exploitable way."
+patch_pattern: "Align tests with the intended import contract by making prerequisite header insertion explicit and improving failure reporting, without establishing a new security boundary."
+
+source_refs: ["/testing/dlt-ai-audit-system/corpus/imports/20260424-064909Z-bor/raw-findings/2025-08-13-bor-storage-2d1aa4ab5.md"]
+notes:
+  - "Enriched from validated finding material; preserve claim boundaries from the source record."

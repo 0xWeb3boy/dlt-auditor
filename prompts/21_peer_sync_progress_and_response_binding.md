@@ -34,6 +34,8 @@ Search patterns:
 - shared sender, authority, account, or reservation handles enforced in one pool but not another
 - invalid, empty, timeout, and retry paths that do not update peer penalties symmetrically
 - resource caps enforced on insertion while cleanup, reinsertion, continuation, or alternate ingress paths use weaker predicates
+- sync termination or "peer has stronger chain" decisions that accept a peer's claim without proving header progress, expected parentage, or a concrete chain segment beyond the local head
+- discovery, bonding, ping/pong, or handshake responses where a reply of the right type is accepted without matching the exact challenge, nonce, peer identity, previous bond, or request token that authorized the larger response or state transition
 
 Questions to answer:
 1. What exact request is this response supposed to satisfy?

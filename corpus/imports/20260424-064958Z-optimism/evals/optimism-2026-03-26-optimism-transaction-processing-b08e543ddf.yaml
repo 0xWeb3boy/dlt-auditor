@@ -1,0 +1,20 @@
+id: optimism-2026-03-26-optimism-transaction-processing-b08e543ddf
+source_record: optimism-2026-03-26-optimism-transaction-processing-b08e543ddf.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: resource-exhaustion
+expected_missing_property: resource-and-failure-isolation
+expected_impact_band: availability-or-liveness
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No supplied diff excerpt shows the claimed zlib limit change or the exact pre-patch unbounded zlib call.
+- No evidence demonstrates an actual crash, OOM, or remotely triggerable exploit in deployed nodes.
+- The excerpts do not show attack reachability, privileges required, or real-world impact beyond hardening/resource
+  control.
+- an earlier boundary already rejects the same malformed field under all reachable modes
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention resource-and-failure-isolation at the sequencer/batch/transaction input
+  -> derivation or execution engine boundary.

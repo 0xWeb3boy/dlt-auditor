@@ -1,0 +1,18 @@
+id: optimism-2024-11-27-optimism-rpc-client-api-c8f4b3a0e0
+source_record: optimism-2024-11-27-optimism-rpc-client-api-c8f4b3a0e0.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: security-sensitive-config-validation
+expected_missing_property: configuration-validation
+expected_impact_band: authorization-or-policy
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- The full new validation logic inside intent.Check() / validateStandardValues is not shown.
+- No supplied hunk demonstrates attacker control, privilege hijack, or a concrete exploitable path before the patch.
+- No evidence shows that a bad deployment had already occurred or that deployed contracts were vulnerable at runtime.
+- The Locator.MarshalText snippet does not establish a security issue by itself.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention configuration-validation at the RPC/API caller -> node service boundary.

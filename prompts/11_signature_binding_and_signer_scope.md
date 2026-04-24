@@ -34,6 +34,8 @@ Search patterns:
 - proof or transcript builders that bind part of an artifact while downstream verification or execution depends on additional detached identifiers or commitments
 - proof verification paths that are weaker for historical queries, latest-state queries, or bridge messages than for normal execution
 - verifier APIs returning `Result<bool, _>`, status enums, per-item outcomes, or indexed roots where callers may treat "no error" as success
+- signed network payloads should authenticate the exact raw payload bytes and domain context before deeper decoding, scheduling, or block construction. Check minimum length and signature/payload split before slicing
+- signing APIs should accept structured domain fields or one canonical message object, not detached byte buffers plus side-channel chain IDs, payload hashes, signer roles, or version flags that can disagree
 - proof or challenge flows where the protocol names one challenged root, index, query height, or hash but the code validates a batch, all roots, or the first invalid item
 - enum-based verification branches where one proof type recomputes and compares expected output but another only parses or looks up helper data
 - wrappers that deserialize twice or carry typed values instead of raw authenticated bytes

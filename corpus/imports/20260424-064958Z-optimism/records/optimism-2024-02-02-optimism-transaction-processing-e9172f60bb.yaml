@@ -1,0 +1,72 @@
+id: optimism-2024-02-02-optimism-transaction-processing-e9172f60bb
+source_finding: 2024-02-02-optimism-transaction-processing-e9172f60bb.md
+project: optimism
+date: '2024-02-02'
+language_tags:
+- go
+bug_family: input_validation_and_invariant_enforcement
+bug_class: preimage-representation-confusion
+subsystem: transaction-processing
+architecture_tags:
+- rollup
+- fault-proof
+- smart-contracts
+confidence_tier: tier_b_likely
+security_verdict: likely
+validated_as: security-hardening
+recommended_uses:
+- retrieval_exemplar
+- taxonomy_refinement
+missing_property: integrity-binding
+violated_invariant: If large preimages are uploaded to the oracle, the uploaded bytes and the reported size should
+  refer to the same canonical raw preimage bytes, not an internal length-prefixed representation.
+trust_boundary: sequencer/batch/transaction input -> derivation or execution engine
+entrypoint_type: transaction-handler or batch-derivation path
+sensitive_sink: block payload acceptance, execution attributes, or derived state transition
+attacker_capabilities:
+- influence sequencer, batch, transaction, or L1-derived input consumed by derivation/execution
+- provide malformed payload fields that reach protocol validation
+exploit_preconditions:
+- the affected validation path is reachable before an equivalent fail-closed check runs
+- the malformed or ambiguous input is accepted far enough to influence a security-sensitive decision
+- no upstream component has already canonicalized, authenticated, or bounded the relevant field
+- for hardening-only records, practical exploitability still depends on deployment exposure and attacker control
+  of the input source
+blast_radius: node-local unless the state feeds consensus-critical outputs
+impact_types:
+- data-integrity
+- state-integrity
+severity_guess: low
+severity_rationale: Evidence supports security hardening, but the raw finding does not prove a complete attacker-triggered
+  exploit. Severity is low because the affected path can influence state-or-proof-integrity, while deployment exposure,
+  compensating checks, and concrete impact remain the main limiters.
+code_shape_summary: The buggy shape was a transaction-handler or batch-derivation path that allowed data or state
+  to approach block payload acceptance, execution attributes, or derived state transition before fully enforcing
+  integrity-binding. The evidence suggests an API/representation mixup between an internal length-prefixed encoding
+  and the raw preimage bytes expected by the upload path.
+search_motifs:
+- state promotion, rewind, or finalization proceeds without parent/canonicality/freshness check
+- derivation updates persisted state before all protocol attributes are validated
+- fork-specific validation is missing on one post-upgrade branch
+- object is internally valid but not checked against requested hash/index/context
+- proof or witness hash is computed from the wrong representation or lifecycle point
+- external data provider result is consumed before identity binding is verified
+negative_signals:
+- an earlier boundary already rejects the same malformed field under all reachable modes
+- the changed code is test-only, generated-only, logging-only, or pure refactor with no runtime decision change
+- the input is not attacker-influenced and cannot be affected by a faulty peer, operator, backend, or sequencer
+- downstream consensus/proof verification recomputes the property fail-closed before any state or privilege is committed
+- the patch only improves diagnostics or compatibility and does not alter acceptance, rejection, binding, bounds,
+  or state-transition behavior
+patch_pattern: Hide ambiguous internal encodings behind a safer API and make callers use an accessor or constructor
+  for the canonical payload.
+source_refs:
+- git:e9172f60bbce209c058b916b689ef9ab150647e1
+- op-challenger/game/fault/contracts/vm_test.go:25
+- op-challenger/game/fault/preimages/large_test.go:115
+- op-challenger/game/fault/preimages/large_test.go:92
+- op-challenger/game/fault/preimages/large_test.go:132
+- /testing/optimism/validated-findings/kept/2024-02-02-optimism-transaction-processing-e9172f60bb.md
+notes:
+- Enriched from the prepared raw finding, preserving conservative claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.

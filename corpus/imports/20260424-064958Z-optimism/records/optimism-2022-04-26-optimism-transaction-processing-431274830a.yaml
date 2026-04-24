@@ -1,0 +1,72 @@
+id: optimism-2022-04-26-optimism-transaction-processing-431274830a
+source_finding: 2022-04-26-optimism-transaction-processing-431274830a.md
+project: optimism
+date: '2022-04-26'
+language_tags:
+- go
+bug_family: input_validation_and_invariant_enforcement
+bug_class: denial-of-service
+subsystem: transaction-processing
+architecture_tags:
+- rollup
+- state-storage
+confidence_tier: tier_b_likely
+security_verdict: likely
+validated_as: security-hardening
+recommended_uses:
+- retrieval_exemplar
+- taxonomy_refinement
+missing_property: resource-and-failure-isolation
+violated_invariant: Malformed or unparsable L1 deposit entries must be isolated to the affected entry; they should
+  not cause the opnode to abort derivation for the entire L1 input batch. Inputs accepted upstream should also fit
+  the node parser's representable field widths.
+trust_boundary: sequencer/batch/transaction input -> derivation or execution engine
+entrypoint_type: transaction-handler or batch-derivation path
+sensitive_sink: block payload acceptance, execution attributes, or derived state transition
+attacker_capabilities:
+- influence sequencer, batch, transaction, or L1-derived input consumed by derivation/execution
+- provide malformed payload fields that reach protocol validation
+exploit_preconditions:
+- the affected validation path is reachable before an equivalent fail-closed check runs
+- the malformed or ambiguous input is accepted far enough to influence a security-sensitive decision
+- no upstream component has already canonicalized, authenticated, or bounded the relevant field
+- for hardening-only records, practical exploitability still depends on deployment exposure and attacker control
+  of the input source
+blast_radius: node-local to network-wide depending on peer exposure
+impact_types:
+- availability
+severity_guess: medium
+severity_rationale: Evidence supports security hardening, but the raw finding does not prove a complete attacker-triggered
+  exploit. Severity is medium because the affected path can influence availability-or-liveness, while deployment
+  exposure, compensating checks, and concrete impact remain the main limiters.
+code_shape_summary: 'The buggy shape was a transaction-handler or batch-derivation path that allowed data or state
+  to approach block payload acceptance, execution attributes, or derived state transition before fully enforcing
+  resource-and-failure-isolation. The direct root cause in the shown code is batch-wide fail-fast handling in the
+  deposit parsing and encoding pipeline: one bad deposit entry was promoted into a fatal error for the entire derivation
+  step.'
+search_motifs:
+- untrusted bytes decompressed or parsed before enforcing output limits
+- validator callback can panic instead of returning a reject/error
+- single malformed item aborts an entire batch instead of being isolated
+- state promotion, rewind, or finalization proceeds without parent/canonicality/freshness check
+- derivation updates persisted state before all protocol attributes are validated
+- fork-specific validation is missing on one post-upgrade branch
+negative_signals:
+- an earlier boundary already rejects the same malformed field under all reachable modes
+- the changed code is test-only, generated-only, logging-only, or pure refactor with no runtime decision change
+- the input is not attacker-influenced and cannot be affected by a faulty peer, operator, backend, or sequencer
+- downstream consensus/proof verification recomputes the property fail-closed before any state or privilege is committed
+- the patch only improves diagnostics or compatibility and does not alter acceptance, rejection, binding, bounds,
+  or state-transition behavior
+patch_pattern: Replace batch-wide fail-fast parsing/encoding with per-item validation and error isolation, and constrain
+  upstream field types to parser-supported ranges where possible.
+source_refs:
+- git:431274830a0c6db6edd0ed417764ef6db6bb80fd
+- opnode/rollup/driver/step.go:90
+- opnode/rollup/driver/step.go:177
+- opnode/rollup/derive/payload_attributes.go:344
+- opnode/rollup/derive/payload_attributes.go:202
+- /testing/optimism/validated-findings/kept/2022-04-26-optimism-transaction-processing-431274830a.md
+notes:
+- Enriched from the prepared raw finding, preserving conservative claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.

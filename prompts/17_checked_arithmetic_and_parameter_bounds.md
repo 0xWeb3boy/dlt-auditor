@@ -25,6 +25,8 @@ Search patterns:
 - constructors that cannot fail even though they build derived protocol parameters
 - saturating or wrapping behavior where rejection would be safer
 - test code that only exercises small values
+- consensus-significant numeric fields parsed as arbitrary precision, RLP integers, decimal strings, or big integers and then narrowed to fixed-width types before checking canonical representability
+- block numbers, timestamps, epochs, milestone numbers, fork heights, and confirmation offsets where adding, subtracting, or converting across signed and unsigned widths can turn invalid future, past, or impossible values into plausible local state
 
 Questions to answer:
 1. Is the parameter attacker-controlled, governance-controlled, or state-derived?
@@ -32,6 +34,7 @@ Questions to answer:
 3. Could overflow create a more permissive, permanently frozen, or mis-accounted state?
 4. Should this constructor or state update be fallible?
 5. Are all call sites prepared to handle invalid parameters?
+6. Is the code checking representability and canonical encoding before narrowing or comparing, and do sanity checks enforce the same width as consensus verification?
 
 Severity guidance:
 - Medium by default.

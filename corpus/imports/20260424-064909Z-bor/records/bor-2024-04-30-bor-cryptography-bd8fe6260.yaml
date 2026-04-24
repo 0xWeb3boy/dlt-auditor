@@ -1,0 +1,52 @@
+id: "bor-2024-04-30-bor-cryptography-bd8fe6260"
+source_finding: "2024-04-30-bor-cryptography-bd8fe6260.md"
+project: "bor"
+date: "2024-04-30"
+language_tags: ["go"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "operand-decoding-error"
+subsystem: "cryptography"
+architecture_tags: ["authcall", "authorization", "evm", "operand-decoding"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement", "eval_seed"]
+
+missing_property: "input validation and invariant enforcement"
+violated_invariant: "Untrusted inputs must be checked against the protocol invariant before they can reach a state-changing or security-sensitive sink."
+trust_boundary: "untrusted protocol input to trusted node logic boundary"
+entrypoint_type: "validation or decoding path"
+sensitive_sink: "state mutation or security-relevant decision"
+
+attacker_capabilities:
+  - "Can influence data crossing the affected protocol boundary"
+  - "Can trigger the vulnerable parsing, validation, or state-update path"
+exploit_preconditions:
+  - "The node processes attacker-influenced data through the affected validation path."
+  - "No earlier validation, rate limit, domain binding, or consensus check blocks the crafted input before the sink."
+  - "Exploitability depends on the surrounding deployment and was validated as likely or hardening rather than fully proven."
+blast_radius: "The affected node or peers relying on its decisions may accept unauthorized, unauthenticated, or incorrectly validated protocol state."
+
+impact_types:
+  - "incorrect-authorized-call-execution"
+severity_guess: "low"
+severity_rationale: "Low severity guess because the finding is a likely security hardening affecting incorrect-authorized-call-execution; tune downward when deployment controls or missing exploit evidence limit reachability."
+
+code_shape_summary: "The only runtime change shown is in core/vm/eips.go, where opAuthCall stops popping one extra stack item while decoding AUTHCALL operands. That supports a real opcode-decoding bug in an authorization-related path, but the provided evidence does not establish an exploitable security vulnerability. Root cause: opAuthCall consumed one more stack item than the subsequent logic used, so later operands could be shifted relative to the intended AUTHCALL layout."
+search_motifs:
+  - "input decoder feeds state-changing logic before semantic validation"
+  - "error path logs or ignores invalid data instead of failing closed"
+  - "security-relevant state changes occur before all invariants are checked"
+negative_signals:
+  - "Do not flag if the value is produced only by trusted local code and cannot be influenced across a protocol, RPC, or persistence boundary."
+  - "Do not treat as exploitable if an earlier mandatory validation step rejects the malformed input before the sensitive sink."
+  - "Treat as hardening when the patch only improves error reporting, refactoring, or defensive checks without attacker reachability."
+  - "The source finding was validated as hardening, so avoid overstating exploitability without additional proof."
+  - "No proof of a practical exploit, privilege escalation, fund loss, or consensus impact is provided."
+patch_pattern: "Remove stray operand consumption in opcode stack decoding and tighten tests around the affected authorization flow."
+
+source_refs: ["/testing/dlt-ai-audit-system/corpus/imports/20260424-064909Z-bor/raw-findings/2024-04-30-bor-cryptography-bd8fe6260.md"]
+notes:
+  - "Enriched from validated finding material; preserve claim boundaries from the source record."

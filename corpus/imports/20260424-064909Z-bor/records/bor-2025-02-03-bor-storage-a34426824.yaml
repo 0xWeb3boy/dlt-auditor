@@ -1,0 +1,53 @@
+id: "bor-2025-02-03-bor-storage-a34426824"
+source_finding: "2025-02-03-bor-storage-a34426824.md"
+project: "bor"
+date: "2025-02-03"
+language_tags: ["go"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "fork-choice-regression"
+subsystem: "storage"
+architecture_tags: ["blockchain-core", "consensus", "fork-choice", "header-import", "reorg"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement", "eval_seed"]
+
+missing_property: "consensus invariant enforcement"
+violated_invariant: "Consensus-critical data must satisfy the same validation rules on every node before it can influence state transition, fork choice, rewards, or canonical-chain decisions."
+trust_boundary: "untrusted block, header, transaction, or state data to consensus engine boundary"
+entrypoint_type: "block/header/transaction validation or state-transition path"
+sensitive_sink: "canonical chain selection, state root commitment, or consensus state mutation"
+
+attacker_capabilities:
+  - "Can submit or relay crafted blocks, headers, transactions, state data, or sync responses"
+  - "Can target nodes that process the affected consensus or sync path"
+exploit_preconditions:
+  - "The node processes attacker-influenced data through the affected validation path."
+  - "No earlier validation, rate limit, domain binding, or consensus check blocks the crafted input before the sink."
+  - "Exploitability depends on the surrounding deployment and was validated as likely or hardening rather than fully proven."
+blast_radius: "Consensus or sync participants that accept the affected data path may diverge, reject valid data, accept invalid data, or persist inconsistent state."
+
+impact_types:
+  - "consensus-integrity"
+  - "canonical-chain-selection"
+severity_guess: "medium"
+severity_rationale: "Medium severity guess because the finding is a likely security hardening affecting consensus-integrity, canonical-chain-selection; tune downward when deployment controls or missing exploit evidence limit reachability."
+
+code_shape_summary: "The visible patch reintroduces an explicit ForkChoice.ReorgNeeded check in the header import path and updates tests to model fork-choice decisions for past, future, and overlapping inserts. That supports a regression in canonical-branch selection logic, but the provided evidence does not establish an actual exploitable security vulnerability. Root cause: The evidence supports that an explicit fork-choice decision point in header import was removed or no longer enforced in the reverted change, and this patch restores that gate before treating imported headers as canonical progression."
+search_motifs:
+  - "block/header/transaction validation has a special case that bypasses a consensus rule"
+  - "fork-choice or state-transition code derives canonical state before checking all protocol invariants"
+  - "reward, validator-set, timestamp, gas, or root validation differs across execution paths or fork eras"
+negative_signals:
+  - "Do not flag if the value is produced only by trusted local code and cannot be influenced across a protocol, RPC, or persistence boundary."
+  - "Do not treat as exploitable if an earlier mandatory validation step rejects the malformed input before the sensitive sink."
+  - "Consensus findings need evidence that different valid-looking inputs or node versions can reach divergent acceptance, state, or fork-choice behavior."
+  - "The source finding was validated as hardening, so avoid overstating exploitability without additional proof."
+  - "No proof of attacker-triggerable exploitation is shown in the provided patch."
+patch_pattern: "Restore an explicit fork-choice gate at the canonical head transition point and add regression tests that encode allowed and disallowed branch-selection outcomes."
+
+source_refs: ["/testing/dlt-ai-audit-system/corpus/imports/20260424-064909Z-bor/raw-findings/2025-02-03-bor-storage-a34426824.md"]
+notes:
+  - "Enriched from validated finding material; preserve claim boundaries from the source record."

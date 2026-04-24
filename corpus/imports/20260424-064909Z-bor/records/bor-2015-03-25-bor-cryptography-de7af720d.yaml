@@ -1,0 +1,51 @@
+id: "bor-2015-03-25-bor-cryptography-de7af720d"
+source_finding: "2015-03-25-bor-cryptography-de7af720d.md"
+project: "bor"
+date: "2015-03-25"
+language_tags: ["go"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "network-amplification"
+subsystem: "cryptography"
+architecture_tags: ["dos", "network-protocol", "p2p", "reflection-amplification", "udp"]
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement", "eval_seed"]
+
+missing_property: "resource limit and input validity enforcement"
+violated_invariant: "A node must not send an amplified network response until the requester has proven protocol state, reachability, or authorization appropriate for that response."
+trust_boundary: "unauthenticated UDP discovery packet to node networking boundary"
+entrypoint_type: "inbound discovery request handler"
+sensitive_sink: "larger outbound reply generation and peer-table update"
+
+attacker_capabilities:
+  - "Can connect as or spoof a remote network peer"
+  - "Can send malformed, replayed, oversized, or out-of-sequence protocol messages"
+exploit_preconditions:
+  - "The node accepts inbound traffic for the affected p2p or discovery protocol."
+  - "No earlier validation, rate limit, domain binding, or consensus check blocks the crafted input before the sink."
+blast_radius: "Affected nodes may waste network, CPU, memory, or process availability; broad impact requires attacker reachability and insufficient throttling."
+
+impact_types:
+  - "denial-of-service"
+severity_guess: "high"
+severity_rationale: "High severity guess because the finding is a confirmed security fix affecting denial-of-service; tune downward when deployment controls or missing exploit evidence limit reachability."
+
+code_shape_summary: "This patch addresses a discovery-protocol UDP reflection/amplification issue. Before the change, a findnode request could reach the neighbors reply path without a prior bond check. After the change, unbonded senders are rejected with errUnknownNode, preventing that reply path. Root cause: The discovery handler trusted an unbonded sender enough to process findnode and emit a larger UDP response, enabling spoofed-source reflection/amplification."
+search_motifs:
+  - "UDP or unauthenticated request handler sends a larger reply before bond/session validation"
+  - "discovery find/lookup request reaches neighbors or peer-list response without source proof"
+  - "reply generation and peer-table mutation occur before reachability or request-correlation checks"
+negative_signals:
+  - "Do not flag if the value is produced only by trusted local code and cannot be influenced across a protocol, RPC, or persistence boundary."
+  - "Do not treat as exploitable if an earlier mandatory validation step rejects the malformed input before the sensitive sink."
+  - "Availability claims need an externally triggerable path and enough cost asymmetry, crashability, or missing throttling to matter."
+  - "Patch does not prove complete protection against replay within the expiration window."
+  - "Patch does not show stricter source-address validation beyond the bonding requirement."
+patch_pattern: "Require prior protocol state before honoring a request that can trigger a larger response."
+
+source_refs: ["/testing/dlt-ai-audit-system/corpus/imports/20260424-064909Z-bor/raw-findings/2015-03-25-bor-cryptography-de7af720d.md"]
+notes:
+  - "Enriched from validated finding material; preserve claim boundaries from the source record."

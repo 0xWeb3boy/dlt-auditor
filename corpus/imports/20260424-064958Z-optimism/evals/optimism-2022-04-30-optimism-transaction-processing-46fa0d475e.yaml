@@ -1,0 +1,18 @@
+id: optimism-2022-04-30-optimism-transaction-processing-46fa0d475e
+source_record: optimism-2022-04-30-optimism-transaction-processing-46fa0d475e.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: p2p-message-validation-hardening
+expected_missing_property: input-validation
+expected_impact_band: state-or-proof-integrity
+expected_severity_band: low_or_informational
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No diff for p2p.NewGossipSub or p2p.JoinGossip shows the exact validation logic.
+- No test excerpt shows rejection of spoofed, unauthenticated, or cross-chain gossip blocks.
+- No patch evidence proves that pre-patch nodes actually accepted invalid blocks.
+- an earlier boundary already rejects the same malformed field under all reachable modes
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention input-validation at the remote peer -> node networking validator boundary.

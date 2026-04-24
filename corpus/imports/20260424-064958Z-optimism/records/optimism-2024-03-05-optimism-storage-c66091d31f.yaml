@@ -1,0 +1,73 @@
+id: optimism-2024-03-05-optimism-storage-c66091d31f
+source_finding: 2024-03-05-optimism-storage-c66091d31f.md
+project: optimism
+date: '2024-03-05'
+language_tags:
+- go
+bug_family: signature_binding_and_signer_scope
+bug_class: insufficient-domain-separation
+subsystem: storage
+architecture_tags:
+- rollup
+- fault-proof
+- smart-contracts
+- state-storage
+confidence_tier: tier_b_likely
+security_verdict: likely
+validated_as: security-hardening
+recommended_uses:
+- retrieval_exemplar
+- taxonomy_refinement
+missing_property: domain-separation
+violated_invariant: Local dispute-game preimage data should be bound to the challenged L2's identity, so different
+  L2s that share an L1 remain distinguishable.
+trust_boundary: signed payload -> protocol verifier
+entrypoint_type: signature-verification or transaction-decoding path
+sensitive_sink: acceptance of a signature, signer identity, or chain-domain-bound payload
+attacker_capabilities:
+- cause or race chain-state changes, reorgs, resets, or persisted-state recovery paths
+- supply state/proof data that is later read from storage
+exploit_preconditions:
+- the affected validation path is reachable before an equivalent fail-closed check runs
+- the malformed or ambiguous input is accepted far enough to influence a security-sensitive decision
+- no upstream component has already canonicalized, authenticated, or bounded the relevant field
+- for hardening-only records, practical exploitability still depends on deployment exposure and attacker control
+  of the input source
+blast_radius: node-local unless the state feeds consensus-critical outputs
+impact_types:
+- state-integrity
+- signature-or-domain-confusion
+severity_guess: medium
+severity_rationale: Evidence supports security hardening, but the raw finding does not prove a complete attacker-triggered
+  exploit. Severity is medium because the affected path can influence state-or-proof-integrity, while deployment
+  exposure, compensating checks, and concrete impact remain the main limiters.
+code_shape_summary: The buggy shape was a signature-verification or transaction-decoding path that allowed data
+  or state to approach acceptance of a signature, signer identity, or chain-domain-bound payload before fully enforcing
+  domain-separation. The dispute game appears to have relied on the wrong chain identifier for local preimage context,
+  using shared L1 identity where an L2-specific identity was needed.
+search_motifs:
+- signature accepted without binding all domain/context fields
+- chain ID or protected-state converted through lossy integer or metadata path
+- signer recovery occurs before payload identity and replay domain are fixed
+- signature-verification or transaction-decoding path reaches acceptance of a signature, signer identity, or chain-domain-bound
+  payload with partial validation
+- domain-separation is enforced in one path but missing in an alternate path
+negative_signals:
+- an earlier boundary already rejects the same malformed field under all reachable modes
+- the changed code is test-only, generated-only, logging-only, or pure refactor with no runtime decision change
+- the input is not attacker-influenced and cannot be affected by a faulty peer, operator, backend, or sequencer
+- downstream consensus/proof verification recomputes the property fail-closed before any state or privilege is committed
+- the patch only improves diagnostics or compatibility and does not alter acceptance, rejection, binding, bounds,
+  or state-transition behavior
+patch_pattern: Add an explicit domain-specific identifier to contract initialization and state, then use that identifier
+  instead of a broader shared-context identifier.
+source_refs:
+- git:c66091d31f7c266878172ac93c25e0446b8501eb
+- op-bindings/bindings/faultdisputegame.go:725
+- op-bindings/bindings/faultdisputegame.go:31
+- op-bindings/bindings/faultdisputegame.go:53
+- op-bindings/bindings/faultdisputegame.go:44
+- /testing/optimism/validated-findings/kept/2024-03-05-optimism-storage-c66091d31f.md
+notes:
+- Enriched from the prepared raw finding, preserving conservative claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.

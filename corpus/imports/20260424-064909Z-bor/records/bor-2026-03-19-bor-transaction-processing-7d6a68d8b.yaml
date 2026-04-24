@@ -1,0 +1,52 @@
+id: "bor-2026-03-19-bor-transaction-processing-7d6a68d8b"
+source_finding: "2026-03-19-bor-transaction-processing-7d6a68d8b.md"
+project: "bor"
+date: "2026-03-19"
+language_tags: ["go"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "resource-exhaustion"
+subsystem: "transaction-processing"
+architecture_tags: ["blockchain-core", "filters", "resource-exhaustion", "rpc", "security-hardening"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement", "eval_seed"]
+
+missing_property: "resource limit and input validity enforcement"
+violated_invariant: "Attacker-controlled input must be bounded and rejected before it can drive unbounded allocation, expensive processing, queue growth, or process termination."
+trust_boundary: "external RPC client to node service boundary"
+entrypoint_type: "public or administrative RPC method"
+sensitive_sink: "backend state access, privileged API behavior, or response serialization"
+
+attacker_capabilities:
+  - "Can submit or relay crafted blocks, headers, transactions, state data, or sync responses"
+  - "Can target nodes that process the affected consensus or sync path"
+exploit_preconditions:
+  - "The node processes attacker-influenced data through the affected validation path."
+  - "No earlier validation, rate limit, domain binding, or consensus check blocks the crafted input before the sink."
+  - "Exploitability depends on the surrounding deployment and was validated as likely or hardening rather than fully proven."
+blast_radius: "Affected nodes may waste network, CPU, memory, or process availability; broad impact requires attacker reachability and insufficient throttling."
+
+impact_types:
+  - "availability-impact"
+severity_guess: "medium"
+severity_rationale: "Medium severity guess because the finding is a likely security hardening affecting availability-impact; tune downward when deployment controls or missing exploit evidence limit reachability."
+
+code_shape_summary: "The supplied evidence shows added range-limit enforcement and block-number normalization in eth/filters RPC paths, which is consistent with resource-control hardening. But the provided hunks do not establish that a concrete vulnerability previously existed, how severe it was, or whether earlier code lacked other effective protections. This is better treated as security-relevant but unproven from the evidence here. Root cause: The visible issue is inconsistent or previously missing range-budget enforcement on some RPC log/filter entry points, plus the need to normalize symbolic block numbers for the guard logic. The commit message suggests config pass-through was also involved, but that part is not directly shown in the provided hunks."
+search_motifs:
+  - "remote input controls allocation, iteration count, queue length, or cache growth without a cap"
+  - "decode or validation path panics or aborts process on malformed peer/RPC data"
+  - "request processing lacks timeout, size limit, rate limit, or early reject before expensive work"
+negative_signals:
+  - "Do not flag if the value is produced only by trusted local code and cannot be influenced across a protocol, RPC, or persistence boundary."
+  - "Do not treat as exploitable if an earlier mandatory validation step rejects the malformed input before the sensitive sink."
+  - "Consensus findings need evidence that different valid-looking inputs or node versions can reach divergent acceptance, state, or fork-choice behavior."
+  - "The source finding was validated as hardening, so avoid overstating exploitability without additional proof."
+  - "No provided hunk shows the implementation or prior absence of checkBlockRangeLimit deeper in the stack."
+patch_pattern: "Add explicit resource-budget validation at each RPC entry point before expensive filter construction, and normalize symbolic user inputs when the guard logic requires concrete numeric ranges."
+
+source_refs: ["/testing/dlt-ai-audit-system/corpus/imports/20260424-064909Z-bor/raw-findings/2026-03-19-bor-transaction-processing-7d6a68d8b.md"]
+notes:
+  - "Enriched from validated finding material; preserve claim boundaries from the source record."

@@ -1,0 +1,70 @@
+id: optimism-2025-08-28-optimism-storage-676b987dc4
+source_finding: 2025-08-28-optimism-storage-676b987dc4.md
+project: optimism
+date: '2025-08-28'
+language_tags:
+- rust
+bug_family: input_validation_and_invariant_enforcement
+bug_class: insufficient-state-validation
+subsystem: storage
+architecture_tags:
+- rollup
+- state-storage
+confidence_tier: tier_b_likely
+security_verdict: likely
+validated_as: security-hardening
+recommended_uses:
+- retrieval_exemplar
+- taxonomy_refinement
+missing_property: protocol-state-invariant
+violated_invariant: A reset target chosen from stored derivation state should still map to a canonical L1 source
+  block at the time of reset.
+trust_boundary: persisted chain state -> recovery/derivation logic
+entrypoint_type: state-storage or reset/reorg handling path
+sensitive_sink: stored canonicality, proof-window, or derived-state update
+attacker_capabilities:
+- cause or race chain-state changes, reorgs, resets, or persisted-state recovery paths
+- supply state/proof data that is later read from storage
+exploit_preconditions:
+- the affected validation path is reachable before an equivalent fail-closed check runs
+- the malformed or ambiguous input is accepted far enough to influence a security-sensitive decision
+- no upstream component has already canonicalized, authenticated, or bounded the relevant field
+- for hardening-only records, practical exploitability still depends on deployment exposure and attacker control
+  of the input source
+blast_radius: node-local unless the state feeds consensus-critical outputs
+impact_types:
+- state-integrity
+severity_guess: medium
+severity_rationale: Evidence supports security hardening, but the raw finding does not prove a complete attacker-triggered
+  exploit. Severity is medium because the affected path can influence state-or-proof-integrity, while deployment
+  exposure, compensating checks, and concrete impact remain the main limiters.
+code_shape_summary: The buggy shape was a state-storage or reset/reorg handling path that allowed data or state
+  to approach stored canonicality, proof-window, or derived-state update before fully enforcing protocol-state-invariant.
+  The reset flow trusted previously stored derived state as a reset point without rechecking whether that state's
+  L1 source remained on the canonical chain at reset time.
+search_motifs:
+- state promotion, rewind, or finalization proceeds without parent/canonicality/freshness check
+- derivation updates persisted state before all protocol attributes are validated
+- fork-specific validation is missing on one post-upgrade branch
+- object is internally valid but not checked against requested hash/index/context
+- proof or witness hash is computed from the wrong representation or lifecycle point
+- external data provider result is consumed before identity binding is verified
+negative_signals:
+- an earlier boundary already rejects the same malformed field under all reachable modes
+- the changed code is test-only, generated-only, logging-only, or pure refactor with no runtime decision change
+- the input is not attacker-influenced and cannot be affected by a faulty peer, operator, backend, or sequencer
+- downstream consensus/proof verification recomputes the property fail-closed before any state or privilege is committed
+- the patch only improves diagnostics or compatibility and does not alter acceptance, rejection, binding, bounds,
+  or state-transition behavior
+patch_pattern: Revalidate stored or derived state against live canonical chain state before reusing it in recovery
+  or reset logic.
+source_refs:
+- git:676b987dc400c2acf21f79c5ce95c0a3f4fa9786
+- crates/supervisor/core/src/syncnode/resetter.rs:53
+- crates/supervisor/core/src/syncnode/resetter.rs:278
+- crates/supervisor/core/src/syncnode/resetter.rs:529
+- crates/supervisor/core/src/syncnode/resetter.rs:468
+- /testing/optimism/validated-findings/kept/2025-08-28-optimism-storage-676b987dc4.md
+notes:
+- Enriched from the prepared raw finding, preserving conservative claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.

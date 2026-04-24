@@ -1,0 +1,52 @@
+id: "bor-2025-11-28-bor-cryptography-544e6b7c7"
+source_finding: "2025-11-28-bor-cryptography-544e6b7c7.md"
+project: "bor"
+date: "2025-11-28"
+language_tags: ["go"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "numeric-truncation"
+subsystem: "cryptography"
+architecture_tags: ["blockchain-core", "canonical-encoding", "consensus", "input-validation", "numeric-truncation"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement", "eval_seed"]
+
+missing_property: "arithmetic bounds and resource accounting"
+violated_invariant: "Resource and value accounting must use checked arithmetic and type ranges that cannot wrap, truncate, or undercharge attacker-controlled work."
+trust_boundary: "untrusted block, header, transaction, or state data to consensus engine boundary"
+entrypoint_type: "block/header/transaction validation or state-transition path"
+sensitive_sink: "canonical chain selection, state root commitment, or consensus state mutation"
+
+attacker_capabilities:
+  - "Can influence data crossing the affected protocol boundary"
+  - "Can trigger the vulnerable parsing, validation, or state-update path"
+exploit_preconditions:
+  - "The node processes attacker-influenced data through the affected validation path."
+  - "No earlier validation, rate limit, domain binding, or consensus check blocks the crafted input before the sink."
+  - "Exploitability depends on the surrounding deployment and was validated as likely or hardening rather than fully proven."
+blast_radius: "The affected node or peers relying on its decisions may accept unauthorized, unauthenticated, or incorrectly validated protocol state."
+
+impact_types:
+  - "malformed-input-acceptance"
+severity_guess: "low"
+severity_rationale: "Low severity guess because the finding is a likely security hardening affecting malformed-input-acceptance; tune downward when deployment controls or missing exploit evidence limit reachability."
+
+code_shape_summary: "The supported security-relevant change is stricter consensus/header validation for Difficulty. Before the patch, seal verification compared header.Difficulty.Uint64() to the expected signer difficulty while header sanity checks still allowed Difficulty values above 64 bits. After the patch, non-uint64 Difficulty values are rejected in verifySeal and header sanity checking is tightened to a 64-bit limit, closing a truncation-based acceptance gap for malformed headers. Root cause: Canonical width validation for the Difficulty field was inconsistent. verifySeal narrowed big.Int to uint64 before validating representability, while Header.SanityCheck permitted wider values, allowing malformed non-canonical encodings to reach consensus comparison."
+search_motifs:
+  - "gas, fee, size, or work accounting uses unchecked add/mul/cast on attacker-influenced values"
+  - "large protocol parameter crosses uint/int or narrow/wide type boundary before validation"
+  - "resource charge is computed after state mutation or uses a value that can wrap or truncate"
+negative_signals:
+  - "Do not flag if the value is produced only by trusted local code and cannot be influenced across a protocol, RPC, or persistence boundary."
+  - "Do not treat as exploitable if an earlier mandatory validation step rejects the malformed input before the sensitive sink."
+  - "Treat as hardening when the patch only improves error reporting, refactoring, or defensive checks without attacker reachability."
+  - "The source finding was validated as hardening, so avoid overstating exploitability without additional proof."
+  - "No proof that the pre-patch behavior was exploitable in practice on a live network."
+patch_pattern: "Reject oversized or non-canonical numeric encodings before narrowing or comparing protocol fields in consensus logic."
+
+source_refs: ["/testing/dlt-ai-audit-system/corpus/imports/20260424-064909Z-bor/raw-findings/2025-11-28-bor-cryptography-544e6b7c7.md"]
+notes:
+  - "Enriched from validated finding material; preserve claim boundaries from the source record."

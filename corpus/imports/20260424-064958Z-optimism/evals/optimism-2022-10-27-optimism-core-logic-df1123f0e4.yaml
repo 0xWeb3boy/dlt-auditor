@@ -1,0 +1,19 @@
+id: optimism-2022-10-27-optimism-core-logic-df1123f0e4
+source_record: optimism-2022-10-27-optimism-core-logic-df1123f0e4.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: insufficient-input-validation
+expected_missing_property: input-validation
+expected_impact_band: consensus-or-state-integrity
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No proof that an external attacker can control or spoof the L1 provider in deployment.
+- No demonstrated exploit, incident, or concrete invalid-state acceptance from the old behavior.
+- The full post-patch acceptance logic over finalityData is not shown.
+- No direct evidence of impact such as chain split, fund risk, or remote denial of service.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention input-validation at the sequencer/batch/transaction input -> derivation
+  or execution engine boundary.

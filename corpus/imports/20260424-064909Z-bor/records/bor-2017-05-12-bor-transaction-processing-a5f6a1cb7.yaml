@@ -1,0 +1,52 @@
+id: "bor-2017-05-12-bor-transaction-processing-a5f6a1cb7"
+source_finding: "2017-05-12-bor-transaction-processing-a5f6a1cb7.md"
+project: "bor"
+date: "2017-05-12"
+language_tags: ["go"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "chain-config-validation"
+subsystem: "transaction-processing"
+architecture_tags: ["chain-config", "consensus", "fork-validation", "security-hardening"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement", "eval_seed"]
+
+missing_property: "consensus invariant enforcement"
+violated_invariant: "Consensus-critical data must satisfy the same validation rules on every node before it can influence state transition, fork choice, rewards, or canonical-chain decisions."
+trust_boundary: "untrusted block, header, transaction, or state data to consensus engine boundary"
+entrypoint_type: "block/header/transaction validation or state-transition path"
+sensitive_sink: "canonical chain selection, state root commitment, or consensus state mutation"
+
+attacker_capabilities:
+  - "Can submit or relay crafted blocks, headers, transactions, state data, or sync responses"
+  - "Can target nodes that process the affected consensus or sync path"
+exploit_preconditions:
+  - "The node processes attacker-influenced data through the affected validation path."
+  - "No earlier validation, rate limit, domain binding, or consensus check blocks the crafted input before the sink."
+  - "Exploitability depends on the surrounding deployment and was validated as likely or hardening rather than fully proven."
+blast_radius: "Consensus or sync participants that accept the affected data path may diverge, reject valid data, accept invalid data, or persist inconsistent state."
+
+impact_types:
+  - "consensus-integrity-risk"
+severity_guess: "medium"
+severity_rationale: "Medium severity guess because the finding is a likely security hardening affecting consensus-integrity-risk; tune downward when deployment controls or missing exploit evidence limit reachability."
+
+code_shape_summary: "The provided evidence supports a correctness fix in chain-configuration compatibility checking: params/config.go adds a previously missing MetropolisBlock incompatibility check and an IsMetropolis helper. That is consensus-relevant code, but the supplied material does not establish a concrete vulnerability, exploit path, or real security impact, so this should be treated as unclear rather than a confirmed security fix. Root cause: ChainConfig.checkCompatible enforced historical compatibility for several fork parameters but omitted MetropolisBlock, leaving that fork point out of the existing compatibility gate."
+search_motifs:
+  - "block/header/transaction validation has a special case that bypasses a consensus rule"
+  - "fork-choice or state-transition code derives canonical state before checking all protocol invariants"
+  - "reward, validator-set, timestamp, gas, or root validation differs across execution paths or fork eras"
+negative_signals:
+  - "Do not flag if the value is produced only by trusted local code and cannot be influenced across a protocol, RPC, or persistence boundary."
+  - "Do not treat as exploitable if an earlier mandatory validation step rejects the malformed input before the sensitive sink."
+  - "Consensus findings need evidence that different valid-looking inputs or node versions can reach divergent acceptance, state, or fork-choice behavior."
+  - "The source finding was validated as hardening, so avoid overstating exploitability without additional proof."
+  - "No evidence shows an external attacker can influence local chain configuration."
+patch_pattern: "Add the missing fork-parameter validation to the central chain-config compatibility gate."
+
+source_refs: ["/testing/dlt-ai-audit-system/corpus/imports/20260424-064909Z-bor/raw-findings/2017-05-12-bor-transaction-processing-a5f6a1cb7.md"]
+notes:
+  - "Enriched from validated finding material; preserve claim boundaries from the source record."

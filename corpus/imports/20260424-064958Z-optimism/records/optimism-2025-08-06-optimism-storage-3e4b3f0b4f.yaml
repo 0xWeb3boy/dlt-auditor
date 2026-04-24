@@ -1,0 +1,67 @@
+id: optimism-2025-08-06-optimism-storage-3e4b3f0b4f
+source_finding: 2025-08-06-optimism-storage-3e4b3f0b4f.md
+project: optimism
+date: '2025-08-06'
+language_tags:
+- rust
+bug_family: input_validation_and_invariant_enforcement
+bug_class: unsafe-state-rewind
+subsystem: storage
+architecture_tags:
+- rollup
+- state-storage
+confidence_tier: tier_b_likely
+security_verdict: likely
+validated_as: security-hardening
+recommended_uses:
+- retrieval_exemplar
+- taxonomy_refinement
+missing_property: input-validation
+violated_invariant: A log-only rewind must not delete logs at or below the current LocalSafe head, because that
+  would let persisted logs diverge from the recorded safety state.
+trust_boundary: persisted chain state -> recovery/derivation logic
+entrypoint_type: state-storage or reset/reorg handling path
+sensitive_sink: stored canonicality, proof-window, or derived-state update
+attacker_capabilities:
+- cause or race chain-state changes, reorgs, resets, or persisted-state recovery paths
+- supply state/proof data that is later read from storage
+exploit_preconditions:
+- the affected validation path is reachable before an equivalent fail-closed check runs
+- the malformed or ambiguous input is accepted far enough to influence a security-sensitive decision
+- no upstream component has already canonicalized, authenticated, or bounded the relevant field
+- for hardening-only records, practical exploitability still depends on deployment exposure and attacker control
+  of the input source
+blast_radius: node-local unless the state feeds consensus-critical outputs
+impact_types:
+- state-integrity
+severity_guess: medium
+severity_rationale: Evidence supports security hardening, but the raw finding does not prove a complete attacker-triggered
+  exploit. Severity is medium because the affected path can influence state-or-proof-integrity, while deployment
+  exposure, compensating checks, and concrete impact remain the main limiters.
+code_shape_summary: The buggy shape was a state-storage or reset/reorg handling path that allowed data or state
+  to approach stored canonicality, proof-window, or derived-state update before fully enforcing input-validation.
+  The log-only rewind path did not enforce the invariant that rewinds must stay above the current LocalSafe head,
+  so it could perform a partial rollback of logs without first coordinating the corresponding safety-state transition.
+search_motifs:
+- state-storage or reset/reorg handling path reaches stored canonicality, proof-window, or derived-state update
+  with partial validation
+- input-validation is enforced in one path but missing in an alternate path
+negative_signals:
+- an earlier boundary already rejects the same malformed field under all reachable modes
+- the changed code is test-only, generated-only, logging-only, or pure refactor with no runtime decision change
+- the input is not attacker-influenced and cannot be affected by a faulty peer, operator, backend, or sequencer
+- downstream consensus/proof verification recomputes the property fail-closed before any state or privilege is committed
+- the patch only improves diagnostics or compatibility and does not alter acceptance, rejection, binding, bounds,
+  or state-transition behavior
+patch_pattern: Add a pre-mutation invariant check to a destructive rollback path, reject invalid boundary-crossing
+  requests with a typed error, and document the intended API split.
+source_refs:
+- git:3e4b3f0b4fb992873a6c423381f92c2cb17f7701
+- crates/supervisor/storage/src/chaindb.rs:401
+- crates/supervisor/storage/src/chaindb.rs:1015
+- crates/supervisor/storage/src/traits.rs:422
+- crates/supervisor/storage/src/error.rs:43
+- /testing/optimism/validated-findings/kept/2025-08-06-optimism-storage-3e4b3f0b4f.md
+notes:
+- Enriched from the prepared raw finding, preserving conservative claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.

@@ -1,0 +1,20 @@
+id: optimism-2024-06-04-optimism-transaction-processing-1eda12bf58
+source_record: optimism-2024-06-04-optimism-transaction-processing-1eda12bf58.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: insufficient-validation
+expected_missing_property: input-validation
+expected_impact_band: consensus-or-state-integrity
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No proof that the missing fee-recipient check previously allowed invalid canonical blocks to be accepted.
+- No demonstrated attacker-controlled path, exploit scenario, or production incident.
+- No evidence that the safe-head inconsistency was externally triggerable rather than an internal reliability issue.
+- The commit subject and structure suggest substantial refactoring, so the security intent is not explicit from
+  the patch alone.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention input-validation at the sequencer/batch/transaction input -> derivation
+  or execution engine boundary.

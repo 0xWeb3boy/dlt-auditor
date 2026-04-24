@@ -1,0 +1,53 @@
+id: "bor-2018-09-20-bor-storage-d6254f827"
+source_finding: "2018-09-20-bor-storage-d6254f827.md"
+project: "bor"
+date: "2018-09-20"
+language_tags: ["go"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "reorg-tie-breaking"
+subsystem: "storage"
+architecture_tags: ["consensus", "fork-choice", "reorg", "selfish-mining", "validator-ops"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement", "eval_seed"]
+
+missing_property: "consensus invariant enforcement"
+violated_invariant: "Consensus-critical data must satisfy the same validation rules on every node before it can influence state transition, fork choice, rewards, or canonical-chain decisions."
+trust_boundary: "untrusted block, header, transaction, or state data to consensus engine boundary"
+entrypoint_type: "block/header/transaction validation or state-transition path"
+sensitive_sink: "canonical chain selection, state root commitment, or consensus state mutation"
+
+attacker_capabilities:
+  - "Can submit or relay crafted blocks, headers, transactions, state data, or sync responses"
+  - "Can target nodes that process the affected consensus or sync path"
+exploit_preconditions:
+  - "The node processes attacker-influenced data through the affected validation path."
+  - "No earlier validation, rate limit, domain binding, or consensus check blocks the crafted input before the sink."
+  - "Exploitability depends on the surrounding deployment and was validated as likely or hardening rather than fully proven."
+blast_radius: "Consensus or sync participants that accept the affected data path may diverge, reject valid data, accept invalid data, or persist inconsistent state."
+
+impact_types:
+  - "reorg-stability"
+  - "selfish-mining-resistance"
+severity_guess: "low"
+severity_rationale: "Low severity guess because the finding is a likely security hardening affecting reorg-stability, selfish-mining-resistance; tune downward when deployment controls or missing exploit evidence limit reachability."
+
+code_shape_summary: "The evidence supports a chain-selection hardening change, not a state-corruption fix. In core/blockchain.go, equal-total-difficulty same-height forks were previously broken partly at random; the patch changes that path to prefer the locally mined block as canonical, with an explicit Clique exception due to deadlock risk. Added isLocalFn plumbing in BlockChain/NewBlockChain supports that policy, but the provided excerpts do not prove more than local reorg-policy hardening. Root cause: The supported root cause is a weak equal-difficulty tie-break rule in canonical-head selection: same-height ties could trigger a random reorg instead of preserving the local node's freshly mined head. The patch also adds local-miner-awareness plumbing, which suggests the prior code lacked the context needed to express that preference cleanly."
+search_motifs:
+  - "block/header/transaction validation has a special case that bypasses a consensus rule"
+  - "fork-choice or state-transition code derives canonical state before checking all protocol invariants"
+  - "reward, validator-set, timestamp, gas, or root validation differs across execution paths or fork eras"
+negative_signals:
+  - "Do not flag if the value is produced only by trusted local code and cannot be influenced across a protocol, RPC, or persistence boundary."
+  - "Do not treat as exploitable if an earlier mandatory validation step rejects the malformed input before the sensitive sink."
+  - "Consensus findings need evidence that different valid-looking inputs or node versions can reach divergent acceptance, state, or fork-choice behavior."
+  - "The source finding was validated as hardening, so avoid overstating exploitability without additional proof."
+  - "The excerpt does not show the full same-height branch or the exact use of isLocalFn in decision-making."
+patch_pattern: "Replace probabilistic tie-breaking in a security-relevant reorg path with an explicit local-policy rule, and add the minimal identity/context plumbing needed to apply that rule while preserving engine-specific exceptions."
+
+source_refs: ["/testing/dlt-ai-audit-system/corpus/imports/20260424-064909Z-bor/raw-findings/2018-09-20-bor-storage-d6254f827.md"]
+notes:
+  - "Enriched from validated finding material; preserve claim boundaries from the source record."

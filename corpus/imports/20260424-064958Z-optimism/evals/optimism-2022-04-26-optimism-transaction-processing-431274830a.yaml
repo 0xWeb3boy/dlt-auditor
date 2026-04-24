@@ -1,0 +1,20 @@
+id: optimism-2022-04-26-optimism-transaction-processing-431274830a
+source_record: optimism-2022-04-26-optimism-transaction-processing-431274830a.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: denial-of-service
+expected_missing_property: resource-and-failure-isolation
+expected_impact_band: availability-or-liveness
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- The provided hunks do not show the claimed contract-side gasLimit narrowing from uint256 to uint64.
+- The patch alone does not prove an external attacker could reliably trigger the malformed deposit condition in
+  practice.
+- The evidence does not show exploitation, consensus break, or direct fund theft.
+- an earlier boundary already rejects the same malformed field under all reachable modes
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention resource-and-failure-isolation at the sequencer/batch/transaction input
+  -> derivation or execution engine boundary.

@@ -1,0 +1,19 @@
+id: optimism-2025-07-08-optimism-storage-ebb9f7cfcc
+source_record: optimism-2025-07-08-optimism-storage-ebb9f7cfcc.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: derivation-state-consistency
+expected_missing_property: protocol-state-invariant
+expected_impact_band: state-or-proof-integrity
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No evidence shows attacker control over the incoming derived pair or reset inputs.
+- No patch evidence demonstrates concrete exploitation, privilege gain, auth bypass, or direct fund impact.
+- The authentication-themed changes shown are test-only and do not prove a production authentication flaw was fixed.
+- an earlier boundary already rejects the same malformed field under all reachable modes
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention protocol-state-invariant at the persisted chain state -> recovery/derivation
+  logic boundary.

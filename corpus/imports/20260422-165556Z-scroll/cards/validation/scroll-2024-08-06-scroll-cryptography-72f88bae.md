@@ -8,7 +8,7 @@
 
 ## What Confirmed The Issue
 
-- Evidence 1: In `coordinator/internal/types/auth.go`, the patch replaces `// Message the login message struct` with `// TODO just use for darwin upgrade, need delete next upgrade`.
+- Evidence 1: In `coordinator/internal/types/auth.go`, the patch replaces `// Message the login message struct` with a temporary compatibility note for the Darwin upgrade.
 - Evidence 2: In `coordinator/internal/types/auth.go`, the patch replaces `hash, err := a.Message.Hash()` with `curieIdentity := identity{`.
 - Evidence 3: In `common/version/version.go`, the patch replaces `var tag = "v4.4.41"` with `var tag = "v4.4.42"`.
 

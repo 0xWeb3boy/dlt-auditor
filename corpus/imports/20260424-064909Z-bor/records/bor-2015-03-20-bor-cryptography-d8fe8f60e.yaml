@@ -1,0 +1,52 @@
+id: "bor-2015-03-20-bor-cryptography-d8fe8f60e"
+source_finding: "2015-03-20-bor-cryptography-d8fe8f60e.md"
+project: "bor"
+date: "2015-03-20"
+language_tags: ["go"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "input-validation"
+subsystem: "cryptography"
+architecture_tags: ["correctness-or-hardening", "cryptography", "infrastructure", "input-validation"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement", "eval_seed"]
+
+missing_property: "input validation and invariant enforcement"
+violated_invariant: "Untrusted inputs must be checked against the protocol invariant before they can reach a state-changing or security-sensitive sink."
+trust_boundary: "untrusted protocol input to trusted node logic boundary"
+entrypoint_type: "validation or decoding path"
+sensitive_sink: "state mutation or security-relevant decision"
+
+attacker_capabilities:
+  - "Can influence data crossing the affected protocol boundary"
+  - "Can trigger the vulnerable parsing, validation, or state-update path"
+exploit_preconditions:
+  - "The node processes attacker-influenced data through the affected validation path."
+  - "No earlier validation, rate limit, domain binding, or consensus check blocks the crafted input before the sink."
+  - "Exploitability depends on the surrounding deployment and was validated as likely or hardening rather than fully proven."
+blast_radius: "Blast radius is primarily defensive correctness unless additional evidence shows attacker reachability to a security sink."
+
+impact_types:
+  - "correctness-or-hardening"
+severity_guess: "low"
+severity_rationale: "Low severity guess because the finding is a likely security hardening affecting correctness-or-hardening; tune downward when deployment controls or missing exploit evidence limit reachability."
+
+code_shape_summary: "The patch in vendored Ethash code replaces several assertion-based assumptions with explicit runtime checks and failure returns in size lookup, cache generation, DAG generation, and hashing helpers. That is a real robustness improvement, but the provided evidence does not establish a concrete vulnerability, exploit path, or security impact beyond safer handling of invalid parameters. Root cause: Critical Ethash helper routines depended on assertion-only checks for bounds and alignment instead of explicit runtime validation and error propagation."
+search_motifs:
+  - "input decoder feeds state-changing logic before semantic validation"
+  - "error path logs or ignores invalid data instead of failing closed"
+  - "security-relevant state changes occur before all invariants are checked"
+negative_signals:
+  - "Do not flag if the value is produced only by trusted local code and cannot be influenced across a protocol, RPC, or persistence boundary."
+  - "Do not treat as exploitable if an earlier mandatory validation step rejects the malformed input before the sensitive sink."
+  - "Treat as hardening when the patch only improves error reporting, refactoring, or defensive checks without attacker reachability."
+  - "The source finding was validated as hardening, so avoid overstating exploitability without additional proof."
+  - "No proof that untrusted or remote input can drive invalid block_number, cache_size, or full_size values in the deployed product."
+patch_pattern: "Replace assertion-only invariant enforcement with explicit runtime validation and propagated error returns."
+
+source_refs: ["/testing/dlt-ai-audit-system/corpus/imports/20260424-064909Z-bor/raw-findings/2015-03-20-bor-cryptography-d8fe8f60e.md"]
+notes:
+  - "Enriched from validated finding material; preserve claim boundaries from the source record."

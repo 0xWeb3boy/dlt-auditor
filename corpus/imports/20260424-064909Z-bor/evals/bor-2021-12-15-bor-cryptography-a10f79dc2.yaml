@@ -1,0 +1,20 @@
+id: "bor-2021-12-15-bor-cryptography-a10f79dc2"
+source_record: "bor-2021-12-15-bor-cryptography-a10f79dc2.yaml"
+project: "bor"
+
+expected_bug_family: "signature_binding_and_signer_scope"
+expected_bug_class: "insufficient-signature-coverage"
+expected_missing_property: "signature authorization and domain binding"
+
+expected_impact_band: "integrity"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Do not flag if the value is produced only by trusted local code and cannot be influenced across a protocol, RPC, or persistence boundary."
+  - "Do not treat as exploitable if an earlier mandatory validation step rejects the malformed input before the sensitive sink."
+  - "Signature findings need evidence that the omitted field is security-relevant and not bound by another mandatory envelope or transport context."
+notes:
+  - "Eval enriched from corpus import source finding; use cautions to distinguish hardening from exploitable cases."

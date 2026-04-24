@@ -1,0 +1,19 @@
+id: optimism-2024-10-18-optimism-cryptography-cc4527008e
+source_record: optimism-2024-10-18-optimism-cryptography-cc4527008e.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: state-validation-hardening
+expected_missing_property: input-validation
+expected_impact_band: state-or-proof-integrity
+expected_severity_band: low_or_informational
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No proof that the old behavior allowed attacker-controlled invalid blocks, logs, or messages to be accepted.
+- No exploit scenario, incident report, CVE, or test demonstrating real security impact before the patch.
+- Only partial diffs are shown; the full CandidateCrossSafe logic and call graph are not provided.
+- No evidence of confidentiality or availability impact; the visible effect is stricter integrity checking.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention input-validation at the external proof/data provider -> verifier/derivation
+  code boundary.

@@ -1,0 +1,19 @@
+id: optimism-2022-12-16-optimism-p2p-networking-727c1fccda
+source_record: optimism-2022-12-16-optimism-p2p-networking-727c1fccda.yaml
+project: optimism
+expected_bug_family: attestation_trust_and_freshness
+expected_bug_class: uncaught-panic-on-untrusted-input
+expected_missing_property: resource-and-failure-isolation
+expected_impact_band: availability-or-liveness
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No shown root cause for the underlying panic inside the validator.
+- No proof that a remote peer could reliably trigger the panic with crafted input.
+- No evidence of the pre-patch blast radius, such as whole-node crash versus isolated goroutine failure.
+- No evidence of confidentiality, integrity, or consensus compromise beyond availability hardening.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention resource-and-failure-isolation at the remote peer -> node networking
+  validator boundary.

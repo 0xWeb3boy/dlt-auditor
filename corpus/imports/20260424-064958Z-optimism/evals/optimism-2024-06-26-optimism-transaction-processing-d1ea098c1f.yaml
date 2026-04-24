@@ -1,0 +1,19 @@
+id: optimism-2024-06-26-optimism-transaction-processing-d1ea098c1f
+source_record: optimism-2024-06-26-optimism-transaction-processing-d1ea098c1f.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: incorrect-proof-state-hash
+expected_missing_property: integrity-binding
+expected_impact_band: state-or-proof-integrity
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No proof that an invalid proof or claim was actually accepted before the patch.
+- No attacker-controlled input or exploit path is shown in the supplied diff.
+- No evidence of funds loss, consensus impact, or verifier bypass is provided.
+- The snippets do not show whether the bug was reachable outside internal tooling or only caused correctness failures.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention integrity-binding at the external proof/data provider -> verifier/derivation
+  code boundary.

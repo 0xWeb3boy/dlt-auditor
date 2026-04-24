@@ -1,0 +1,22 @@
+id: optimism-2024-02-02-optimism-transaction-processing-e9172f60bb
+source_record: optimism-2024-02-02-optimism-transaction-processing-e9172f60bb.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: preimage-representation-confusion
+expected_missing_property: integrity-binding
+expected_impact_band: state-or-proof-integrity
+expected_severity_band: low_or_informational
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No production-code hunk is shown from large.go, split.go, split.go, or types.go to prove the exact runtime bug
+  and fix path.
+- No evidence shows the old behavior caused accepted invalid uploads, failed dispute resolution, or another concrete
+  exploitable outcome.
+- No demonstrated impact such as fund loss, consensus break, privilege bypass, or attacker-controlled trigger is
+  provided.
+- an earlier boundary already rejects the same malformed field under all reachable modes
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention integrity-binding at the sequencer/batch/transaction input -> derivation
+  or execution engine boundary.

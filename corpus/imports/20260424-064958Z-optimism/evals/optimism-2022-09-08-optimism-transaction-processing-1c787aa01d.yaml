@@ -1,0 +1,18 @@
+id: optimism-2022-09-08-optimism-transaction-processing-1c787aa01d
+source_record: optimism-2022-09-08-optimism-transaction-processing-1c787aa01d.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: input-validation
+expected_missing_property: input-validation
+expected_impact_band: signature-or-domain-integrity
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No reproducer or test is shown demonstrating the exact pre-patch runtime failure or exploitability.
+- The evidence does not prove forged signatures were previously accepted.
+- The patch does not show concrete consensus impact, privilege gain, or a confirmed remote crash path.
+- an earlier boundary already rejects the same malformed field under all reachable modes
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention input-validation at the remote peer -> node networking validator boundary.

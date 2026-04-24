@@ -1,0 +1,20 @@
+id: optimism-2025-12-03-optimism-consensus-a8aa4c3839
+source_record: optimism-2025-12-03-optimism-consensus-a8aa4c3839.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: improper-input-validation
+expected_missing_property: input-validation
+expected_impact_band: consensus-or-state-integrity
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No proof that attacker-controlled input can practically reach this path in deployed conditions.
+- No proof of concrete exploit impact such as chain split, finalized-state corruption, or fund loss.
+- Commit text says legacy BatchQueue handling was still unfinished work marker, so full exposure and full remediation
+  are not shown.
+- No advisory, incident report, or other evidence ties this patch to a disclosed vulnerability.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention input-validation at the sequencer/batch/transaction input -> derivation
+  or execution engine boundary.

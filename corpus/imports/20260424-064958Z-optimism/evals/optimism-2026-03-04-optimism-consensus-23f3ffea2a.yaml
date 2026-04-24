@@ -1,0 +1,19 @@
+id: optimism-2026-03-04-optimism-consensus-23f3ffea2a
+source_record: optimism-2026-03-04-optimism-consensus-23f3ffea2a.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: consensus-safety
+expected_missing_property: protocol-state-invariant
+expected_impact_band: consensus-or-state-integrity
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No proof that an external attacker can cause the EL restart or state-loss condition.
+- No evidence of a concrete exploit, chain split, finalized-state corruption, or fund-impact outcome.
+- No test or runtime evidence showing security impact beyond stale-state divergence risk.
+- an earlier boundary already rejects the same malformed field under all reachable modes
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention protocol-state-invariant at the remote or persisted chain signal ->
+  consensus state machine boundary.

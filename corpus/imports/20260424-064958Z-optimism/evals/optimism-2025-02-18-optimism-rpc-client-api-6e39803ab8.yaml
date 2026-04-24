@@ -1,0 +1,18 @@
+id: optimism-2025-02-18-optimism-rpc-client-api-6e39803ab8
+source_record: optimism-2025-02-18-optimism-rpc-client-api-6e39803ab8.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: verification-config-inconsistency
+expected_missing_property: configuration-validation
+expected_impact_band: state-or-proof-integrity
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No shown scenario where the old code accepted an invalid proof or invalid state transition.
+- No attacker-controlled input or externally reachable exploit path is demonstrated in the patch.
+- No evidence distinguishes false-accept behavior from false-reject or reliability-only divergence.
+- No advisory, bug description, or test explicitly states a broken security property before the change.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention configuration-validation at the RPC/API caller -> node service boundary.

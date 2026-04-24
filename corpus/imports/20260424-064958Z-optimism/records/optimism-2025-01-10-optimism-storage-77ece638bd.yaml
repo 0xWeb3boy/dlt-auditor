@@ -1,0 +1,75 @@
+id: optimism-2025-01-10-optimism-storage-77ece638bd
+source_finding: 2025-01-10-optimism-storage-77ece638bd.md
+project: optimism
+date: '2025-01-10'
+language_tags:
+- go
+bug_family: input_validation_and_invariant_enforcement
+bug_class: insufficient-validation
+subsystem: storage
+architecture_tags:
+- rollup
+- consensus
+- state-storage
+confidence_tier: tier_b_likely
+security_verdict: likely
+validated_as: security-hardening
+recommended_uses:
+- retrieval_exemplar
+- taxonomy_refinement
+missing_property: input-validation
+violated_invariant: When the supervisor validates an executing message against stored logs, the returned inclusion
+  context should correspond to the exact sealed block expected by the protocol, including the expected timestamp,
+  rather than only matching block number, log index, and log hash.
+trust_boundary: artifact/archive input -> host filesystem
+entrypoint_type: archive-extraction or file-materialization path
+sensitive_sink: filesystem write outside the intended extraction or artifact directory
+attacker_capabilities:
+- cause or race chain-state changes, reorgs, resets, or persisted-state recovery paths
+- supply state/proof data that is later read from storage
+exploit_preconditions:
+- the affected validation path is reachable before an equivalent fail-closed check runs
+- the malformed or ambiguous input is accepted far enough to influence a security-sensitive decision
+- no upstream component has already canonicalized, authenticated, or bounded the relevant field
+- for hardening-only records, practical exploitability still depends on deployment exposure and attacker control
+  of the input source
+blast_radius: host-local
+impact_types:
+- protocol-integrity
+- consensus-integrity
+- state-integrity
+severity_guess: medium
+severity_rationale: Evidence supports security hardening, but the raw finding does not prove a complete attacker-triggered
+  exploit. Severity is medium because the affected path can influence consensus-or-state-integrity, while deployment
+  exposure, compensating checks, and concrete impact remain the main limiters.
+code_shape_summary: 'The buggy shape was a archive-extraction or file-materialization path that allowed data or
+  state to approach filesystem write outside the intended extraction or artifact directory before fully enforcing
+  input-validation. The validation path relied on an incomplete lookup contract: log inclusion was treated as sufficiently
+  identified by block number, log index, and log hash, while timestamp was also part of the surrounding ordering/safety
+  logic.'
+search_motifs:
+- archive extraction joins paths without containment check
+- tar entry names, links, or absolute paths reach filesystem writes
+- cleanup/overwrite logic trusts paths from the artifact
+- state promotion, rewind, or finalization proceeds without parent/canonicality/freshness check
+- derivation updates persisted state before all protocol attributes are validated
+- fork-specific validation is missing on one post-upgrade branch
+negative_signals:
+- an earlier boundary already rejects the same malformed field under all reachable modes
+- the changed code is test-only, generated-only, logging-only, or pure refactor with no runtime decision change
+- the input is not attacker-influenced and cannot be affected by a faulty peer, operator, backend, or sequencer
+- downstream consensus/proof verification recomputes the property fail-closed before any state or privilege is committed
+- the patch only improves diagnostics or compatibility and does not alter acceptance, rejection, binding, bounds,
+  or state-transition behavior
+patch_pattern: Strengthen invariant checks by passing all required identity fields through helper APIs and failing
+  closed when reconstructed state does not exactly match the expected sealed-block context.
+source_refs:
+- git:77ece638bd1103ee878fceaaf7e69de47e316032
+- op-supervisor/supervisor/backend/db/query.go:211
+- op-supervisor/supervisor/backend/db/logs/db.go:316
+- op-supervisor/supervisor/backend/db/logs/iterator.go:122
+- op-supervisor/supervisor/backend/cross/unsafe_start.go:69
+- /testing/optimism/validated-findings/kept/2025-01-10-optimism-storage-77ece638bd.md
+notes:
+- Enriched from the prepared raw finding, preserving conservative claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.

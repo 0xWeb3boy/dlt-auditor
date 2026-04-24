@@ -1,0 +1,20 @@
+id: optimism-2026-02-09-optimism-transaction-processing-68b81dd5bb
+source_record: optimism-2026-02-09-optimism-transaction-processing-68b81dd5bb.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: finalization-boundary-check
+expected_missing_property: protocol-state-invariant
+expected_impact_band: consensus-or-state-integrity
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No proof that an attacker or untrusted input could trigger this rewind path.
+- No evidence that the old behavior caused consensus divergence, finalized-state rollback, or chain safety failure
+  in practice.
+- No direct demonstration of panic, denial of service, or privilege boundary crossing from the pre-patch behavior.
+- No caller-level evidence showing how far the bad rewind targets could propagate before being stopped elsewhere.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention protocol-state-invariant at the sequencer/batch/transaction input ->
+  derivation or execution engine boundary.

@@ -1,0 +1,72 @@
+id: optimism-2026-03-26-optimism-transaction-processing-b08e543ddf
+source_finding: 2026-03-26-optimism-transaction-processing-b08e543ddf.md
+project: optimism
+date: '2026-03-26'
+language_tags:
+- rust
+bug_family: input_validation_and_invariant_enforcement
+bug_class: resource-exhaustion
+subsystem: transaction-processing
+architecture_tags:
+- rollup
+confidence_tier: tier_a_confirmed
+security_verdict: confirmed
+validated_as: security-hardening
+recommended_uses:
+- retrieval_exemplar
+- eval_positive
+- taxonomy_refinement
+missing_property: resource-and-failure-isolation
+violated_invariant: Compressed channel data should be decompressed with a clear byte cap and deterministic handling
+  at that cap so batch parsing does not diverge on oversized or repeated inputs.
+trust_boundary: sequencer/batch/transaction input -> derivation or execution engine
+entrypoint_type: transaction-handler or batch-derivation path
+sensitive_sink: block payload acceptance, execution attributes, or derived state transition
+attacker_capabilities:
+- influence sequencer, batch, transaction, or L1-derived input consumed by derivation/execution
+- provide malformed payload fields that reach protocol validation
+exploit_preconditions:
+- the affected validation path is reachable before an equivalent fail-closed check runs
+- the malformed or ambiguous input is accepted far enough to influence a security-sensitive decision
+- no upstream component has already canonicalized, authenticated, or bounded the relevant field
+- for hardening-only records, practical exploitability still depends on deployment exposure and attacker control
+  of the input source
+blast_radius: node-local to network-wide depending on peer exposure
+impact_types:
+- denial-of-service
+- availability
+severity_guess: medium
+severity_rationale: Confirmed security-relevant evidence shows a runtime acceptance or validation behavior change.
+  Severity is medium because the affected path can influence availability-or-liveness, while deployment exposure,
+  compensating checks, and concrete impact remain the main limiters.
+code_shape_summary: 'The buggy shape was a transaction-handler or batch-derivation path that allowed data or state
+  to approach block payload acceptance, execution attributes, or derived state transition before fully enforcing
+  resource-and-failure-isolation. The decompression boundary did not encode the size-cap behavior explicitly enough:
+  limit handling in the Brotli path was tied to buffer growth/rejection behavior rather than a clear capped-output
+  rule, and reader state handling around already-decompressed data was implicit.'
+search_motifs:
+- untrusted bytes decompressed or parsed before enforcing output limits
+- validator callback can panic instead of returning a reject/error
+- single malformed item aborts an entire batch instead of being isolated
+- state promotion, rewind, or finalization proceeds without parent/canonicality/freshness check
+- derivation updates persisted state before all protocol attributes are validated
+- fork-specific validation is missing on one post-upgrade branch
+negative_signals:
+- an earlier boundary already rejects the same malformed field under all reachable modes
+- the changed code is test-only, generated-only, logging-only, or pure refactor with no runtime decision change
+- the input is not attacker-influenced and cannot be affected by a faulty peer, operator, backend, or sequencer
+- downstream consensus/proof verification recomputes the property fail-closed before any state or privilege is committed
+- the patch only improves diagnostics or compatibility and does not alter acceptance, rejection, binding, bounds,
+  or state-transition behavior
+patch_pattern: 'Make boundary handling explicit: cap decompression output, stop at the configured limit instead
+  of overgrowing or rejecting on the next resize step, and make reader decompression state idempotent.'
+source_refs:
+- git:b08e543ddfb2c49be51a351c10135bdedcb8152d
+- rust/kona/crates/protocol/protocol/src/batch/reader.rs:69
+- rust/kona/crates/protocol/protocol/src/brotli.rs:54
+- rust/kona/crates/protocol/protocol/src/batch/reader.rs:186
+- rust/kona/crates/protocol/protocol/src/brotli.rs:110
+- /testing/optimism/validated-findings/kept/2026-03-26-optimism-transaction-processing-b08e543ddf.md
+notes:
+- Enriched from the prepared raw finding, preserving conservative claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.

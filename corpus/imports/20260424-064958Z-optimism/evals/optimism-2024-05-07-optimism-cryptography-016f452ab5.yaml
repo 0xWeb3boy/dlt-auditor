@@ -1,0 +1,21 @@
+id: optimism-2024-05-07-optimism-cryptography-016f452ab5
+source_record: optimism-2024-05-07-optimism-cryptography-016f452ab5.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: missing-integrity-verification
+expected_missing_property: integrity-binding
+expected_impact_band: state-or-proof-integrity
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No advisory, bug report, or commit message states a real vulnerability was exploited or reachable.
+- No evidence shows an attacker could reliably control or inject malformed sidecars in the relevant deployment model.
+- The patch does not demonstrate downstream impact such as consensus failure, state corruption, fund loss, or denial
+  of service.
+- The supplied hunks do not show the full pre-patch call chain proving unverified blobs were previously accepted
+  into security-critical state transitions.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention integrity-binding at the external proof/data provider -> verifier/derivation
+  code boundary.

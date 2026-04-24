@@ -1,0 +1,20 @@
+id: optimism-2025-05-17-optimism-p2p-networking-efbdcb76b7
+source_record: optimism-2025-05-17-optimism-p2p-networking-efbdcb76b7.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: forkchoice-state-transition
+expected_missing_property: protocol-state-invariant
+expected_impact_band: consensus-or-state-integrity
+expected_severity_band: low_or_informational
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No proof that a remote adversary can trigger or control the bad sync-state transition.
+- No evidence of consensus failure, chain split, funds impact, or accepted invalid state from the patch alone.
+- The provided snippet does not show the full post-patch branches, so some behavior relies on the commit message
+  rather than complete code evidence.
+- The derivation select! reordering looks primarily like liveness/correctness support, not standalone security evidence.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention protocol-state-invariant at the remote peer -> node networking validator
+  boundary.

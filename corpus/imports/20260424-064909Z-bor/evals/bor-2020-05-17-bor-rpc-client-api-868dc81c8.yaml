@@ -1,0 +1,20 @@
+id: "bor-2020-05-17-bor-rpc-client-api-868dc81c8"
+source_record: "bor-2020-05-17-bor-rpc-client-api-868dc81c8.yaml"
+project: "bor"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "fail-open-error-handling"
+expected_missing_property: "consensus invariant enforcement"
+
+expected_impact_band: "integrity"
+expected_severity_band: "low"
+
+should_be_detected: true
+should_be_flagged_as_security: false
+
+false_positive_cautions:
+  - "Do not flag if the value is produced only by trusted local code and cannot be influenced across a protocol, RPC, or persistence boundary."
+  - "Do not treat as exploitable if an earlier mandatory validation step rejects the malformed input before the sensitive sink."
+  - "RPC findings are lower risk when the method is disabled by default, authenticated, strictly local-only, or returns only non-sensitive metadata."
+notes:
+  - "Eval enriched from corpus import source finding; use cautions to distinguish hardening from exploitable cases."

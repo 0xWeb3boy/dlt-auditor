@@ -1,0 +1,20 @@
+id: optimism-2025-02-18-optimism-transaction-processing-1d5770cd93
+source_record: optimism-2025-02-18-optimism-transaction-processing-1d5770cd93.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: incomplete-block-hash-verification
+expected_missing_property: integrity-binding
+expected_impact_band: state-or-proof-integrity
+expected_severity_band: low_or_informational
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No proof is shown that attackers could previously supply malformed blocks that passed all relevant production
+  checks.
+- No test or narrative demonstrates acceptance of invalid blocks, only that verification logic was incomplete.
+- No concrete impact such as consensus split, fund loss, or trust-boundary bypass is established from the patch
+  alone.
+- The evidence does not show how broadly reachable CheckBlockHash() is on untrusted inputs in deployed configurations.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention integrity-binding at the RPC/API caller -> node service boundary.

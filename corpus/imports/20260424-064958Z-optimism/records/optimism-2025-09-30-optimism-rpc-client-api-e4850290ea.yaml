@@ -1,0 +1,73 @@
+id: optimism-2025-09-30-optimism-rpc-client-api-e4850290ea
+source_finding: 2025-09-30-optimism-rpc-client-api-e4850290ea.md
+project: optimism
+date: '2025-09-30'
+language_tags:
+- go
+bug_family: input_validation_and_invariant_enforcement
+bug_class: race-condition
+subsystem: rpc-client-api
+architecture_tags:
+- rollup
+- consensus
+- rpc
+confidence_tier: tier_b_likely
+security_verdict: likely
+validated_as: security-hardening
+recommended_uses:
+- retrieval_exemplar
+- taxonomy_refinement
+missing_property: input-validation
+violated_invariant: EngineController operations that read or mutate forkchoice-related heads and retry flags should
+  observe one coherent controller state while deciding whether to send forkchoice updates or perform backup-unsafe
+  reorgs.
+trust_boundary: RPC/API caller -> node service
+entrypoint_type: rpc-handler or API validation path
+sensitive_sink: backend forwarding, access-list approval, or service state derived from caller input
+attacker_capabilities:
+- submit crafted RPC/API requests or access-list descriptors
+- choose edge-case block tags, timestamps, chain IDs, or request metadata
+exploit_preconditions:
+- the affected validation path is reachable before an equivalent fail-closed check runs
+- the malformed or ambiguous input is accepted far enough to influence a security-sensitive decision
+- no upstream component has already canonicalized, authenticated, or bounded the relevant field
+- for hardening-only records, practical exploitability still depends on deployment exposure and attacker control
+  of the input source
+blast_radius: chain-or-network-wide if the invalid state is accepted; otherwise node-local
+impact_types:
+- state-integrity
+- consensus-integrity
+severity_guess: medium
+severity_rationale: Evidence supports security hardening, but the raw finding does not prove a complete attacker-triggered
+  exploit. Severity is medium because the affected path can influence consensus-or-state-integrity, while deployment
+  exposure, compensating checks, and concrete impact remain the main limiters.
+code_shape_summary: The buggy shape was a rpc-handler or API validation path that allowed data or state to approach
+  backend forwarding, access-list approval, or service state derived from caller input before fully enforcing input-validation.
+  Shared EngineController state was accessed and mutated from public entrypoints without consistent synchronization,
+  allowing races over fields such as head pointers and FCU-related flags.
+search_motifs:
+- state promotion, rewind, or finalization proceeds without parent/canonicality/freshness check
+- derivation updates persisted state before all protocol attributes are validated
+- fork-specific validation is missing on one post-upgrade branch
+- rpc-handler or API validation path reaches backend forwarding, access-list approval, or service state derived
+  from caller input with partial validation
+- input-validation is enforced in one path but missing in an alternate path
+negative_signals:
+- an earlier boundary already rejects the same malformed field under all reachable modes
+- the changed code is test-only, generated-only, logging-only, or pure refactor with no runtime decision change
+- the input is not attacker-influenced and cannot be affected by a faulty peer, operator, backend, or sequencer
+- downstream consensus/proof verification recomputes the property fail-closed before any state or privilege is committed
+- the patch only improves diagnostics or compatibility and does not alter acceptance, rejection, binding, bounds,
+  or state-transition behavior
+patch_pattern: Add controller-level mutex protection around stateful entrypoints and route the actual mutation logic
+  through internal helpers that execute while the lock is held.
+source_refs:
+- git:e4850290eac27399392e488ae33029825224c889
+- op-node/rollup/engine/engine_controller.go:660
+- op-node/rollup/engine/engine_controller.go:597
+- op-node/rollup/engine/engine_controller.go:405
+- op-node/rollup/engine/engine_controller.go:452
+- /testing/optimism/validated-findings/kept/2025-09-30-optimism-rpc-client-api-e4850290ea.md
+notes:
+- Enriched from the prepared raw finding, preserving conservative claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.

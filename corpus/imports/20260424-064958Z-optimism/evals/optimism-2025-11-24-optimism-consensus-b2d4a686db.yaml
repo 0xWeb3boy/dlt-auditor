@@ -1,0 +1,19 @@
+id: optimism-2025-11-24-optimism-consensus-b2d4a686db
+source_record: optimism-2025-11-24-optimism-consensus-b2d4a686db.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: protocol-invariant-enforcement
+expected_missing_property: input-validation
+expected_impact_band: consensus-or-state-integrity
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No provided hunk shows the full pre-patch implementation of as_deposits_only failing in production code.
+- No evidence shows attacker control, exploit steps, or remotely triggerable abuse.
+- No evidence demonstrates real-world consensus divergence, chain split, or funds impact.
+- The excerpts do not fully define the semantic difference between inner and attributes beyond the observed fix.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention input-validation at the remote or persisted chain signal -> consensus
+  state machine boundary.

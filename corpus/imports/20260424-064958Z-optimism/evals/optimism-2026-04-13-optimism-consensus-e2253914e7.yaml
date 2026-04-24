@@ -1,0 +1,20 @@
+id: optimism-2026-04-13-optimism-consensus-e2253914e7
+source_record: optimism-2026-04-13-optimism-consensus-e2253914e7.yaml
+project: optimism
+expected_bug_family: attestation_trust_and_freshness
+expected_bug_class: untrusted-input-in-protocol-activation-check
+expected_missing_property: freshness-and-fail-closed-validation
+expected_impact_band: consensus-or-state-integrity
+expected_severity_band: high_or_medium
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No test diff is shown demonstrating the divergence before the fix or agreement after the fix.
+- The patch does not quantify whether the mismatch could cause chain split, node desync, or only local derivation
+  failure.
+- The evidence does not show whether similar activation checks elsewhere had the same trust-boundary mistake.
+- an earlier boundary already rejects the same malformed field under all reachable modes
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention freshness-and-fail-closed-validation at the sequencer/batch/transaction
+  input -> derivation or execution engine boundary.

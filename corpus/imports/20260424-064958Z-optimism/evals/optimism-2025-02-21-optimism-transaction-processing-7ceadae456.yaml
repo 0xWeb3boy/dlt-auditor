@@ -1,0 +1,19 @@
+id: optimism-2025-02-21-optimism-transaction-processing-7ceadae456
+source_record: optimism-2025-02-21-optimism-transaction-processing-7ceadae456.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: input-validation
+expected_missing_property: protocol-state-invariant
+expected_impact_band: state-or-proof-integrity
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No proof that malformed payload hashes or oversized chain IDs were reachable from untrusted input before the patch.
+- No evidence that peers accepted invalid signatures or that the old path enabled signature forgery.
+- No evidence of an actual replay, cross-chain confusion, or consensus-impacting incident.
+- No commit text, test, or patch fragment explicitly states a security bug or exploit was fixed.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention protocol-state-invariant at the remote peer -> node networking validator
+  boundary.

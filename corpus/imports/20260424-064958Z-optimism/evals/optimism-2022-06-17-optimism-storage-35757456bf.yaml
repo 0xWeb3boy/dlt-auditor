@@ -1,0 +1,21 @@
+id: optimism-2022-06-17-optimism-storage-35757456bf
+source_record: optimism-2022-06-17-optimism-storage-35757456bf.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: oracle-output-key-mismatch
+expected_missing_property: integrity-binding
+expected_impact_band: state-or-proof-integrity
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No contract-side excerpt shows the exact pre-patch faulty acceptance condition in L2OutputOracle.sol.
+- No concrete exploit scenario or failing unauthorized-withdrawal path is demonstrated in the provided patch snippets.
+- No evidence proves timestamps were attacker-influenced, ambiguous in practice, or sufficient to cause acceptance
+  of the wrong output.
+- The provided excerpts do not show the added tests, so the exact regression/security property being enforced is
+  only implied.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention integrity-binding at the persisted chain state -> recovery/derivation
+  logic boundary.

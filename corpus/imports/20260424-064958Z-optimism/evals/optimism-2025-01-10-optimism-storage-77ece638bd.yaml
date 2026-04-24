@@ -1,0 +1,18 @@
+id: optimism-2025-01-10-optimism-storage-77ece638bd
+source_record: optimism-2025-01-10-optimism-storage-77ece638bd.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: insufficient-validation
+expected_missing_property: input-validation
+expected_impact_band: consensus-or-state-integrity
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No proof that untrusted or adversarial input could reach and exploit the pre-fix behavior.
+- No demonstrated consensus break, fund loss, privilege gain, or remote attack path.
+- No evidence that the old behavior was used to bypass authorization or forge messages in production.
+- Test details are not specific enough to prove concrete exploitability.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention input-validation at the artifact/archive input -> host filesystem boundary.

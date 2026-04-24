@@ -1,0 +1,72 @@
+id: optimism-2024-06-26-optimism-transaction-processing-d1ea098c1f
+source_finding: 2024-06-26-optimism-transaction-processing-d1ea098c1f.md
+project: optimism
+date: '2024-06-26'
+language_tags:
+- go
+bug_family: input_validation_and_invariant_enforcement
+bug_class: incorrect-proof-state-hash
+subsystem: transaction-processing
+architecture_tags:
+- rollup
+- fault-proof
+confidence_tier: tier_b_likely
+security_verdict: likely
+validated_as: security-hardening
+recommended_uses:
+- retrieval_exemplar
+- taxonomy_refinement
+missing_property: integrity-binding
+violated_invariant: Witness-derived hashes used in Cannon proof and trace data should match the encoded VM state
+  for the claimed execution point.
+trust_boundary: external proof/data provider -> verifier/derivation code
+entrypoint_type: proof-or-data-verification path
+sensitive_sink: acceptance of cryptographic, blob, preimage, or proof data into derivation/state
+attacker_capabilities:
+- influence sequencer, batch, transaction, or L1-derived input consumed by derivation/execution
+- provide malformed payload fields that reach protocol validation
+exploit_preconditions:
+- the affected validation path is reachable before an equivalent fail-closed check runs
+- the malformed or ambiguous input is accepted far enough to influence a security-sensitive decision
+- no upstream component has already canonicalized, authenticated, or bounded the relevant field
+- for hardening-only records, practical exploitability still depends on deployment exposure and attacker control
+  of the input source
+blast_radius: node-local unless the state feeds consensus-critical outputs
+impact_types:
+- proof-integrity
+- state-integrity
+severity_guess: medium
+severity_rationale: Evidence supports security hardening, but the raw finding does not prove a complete attacker-triggered
+  exploit. Severity is medium because the affected path can influence state-or-proof-integrity, while deployment
+  exposure, compensating checks, and concrete impact remain the main limiters.
+code_shape_summary: 'The buggy shape was a proof-or-data-verification path that allowed data or state to approach
+  acceptance of cryptographic, blob, preimage, or proof data into derivation/state before fully enforcing integrity-binding.
+  The evidence points to stage-incorrect and non-canonical state-hash derivation: some callers separately recomputed
+  hashes from encoded witness data, and the shown proof path derived a hash before the execution step instead of
+  taking the post-step hash afterward.'
+search_motifs:
+- object is internally valid but not checked against requested hash/index/context
+- proof or witness hash is computed from the wrong representation or lifecycle point
+- external data provider result is consumed before identity binding is verified
+- proof-or-data-verification path reaches acceptance of cryptographic, blob, preimage, or proof data into derivation/state
+  with partial validation
+- integrity-binding is enforced in one path but missing in an alternate path
+negative_signals:
+- an earlier boundary already rejects the same malformed field under all reachable modes
+- the changed code is test-only, generated-only, logging-only, or pure refactor with no runtime decision change
+- the input is not attacker-influenced and cannot be affected by a faulty peer, operator, backend, or sequencer
+- downstream consensus/proof verification recomputes the property fail-closed before any state or privilege is committed
+- the patch only improves diagnostics or compatibility and does not alter acceptance, rejection, binding, bounds,
+  or state-transition behavior
+patch_pattern: Replace separate or timing-sensitive hash recomputation with a single canonical witness-encoding
+  API, and obtain the hash at the correct execution stage.
+source_refs:
+- git:d1ea098c1f99c396de407a7ba69bc79d1bc578fe
+- cannon/cmd/run.go:437
+- cannon/cmd/witness.go:31
+- op-challenger/game/fault/trace/cannon/provider.go:133
+- op-challenger/game/fault/trace/cannon/prestate.go:35
+- /testing/optimism/validated-findings/kept/2024-06-26-optimism-transaction-processing-d1ea098c1f.md
+notes:
+- Enriched from the prepared raw finding, preserving conservative claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.

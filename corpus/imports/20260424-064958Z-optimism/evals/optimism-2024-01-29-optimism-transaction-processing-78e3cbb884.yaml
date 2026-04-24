@@ -1,0 +1,19 @@
+id: optimism-2024-01-29-optimism-transaction-processing-78e3cbb884
+source_record: optimism-2024-01-29-optimism-transaction-processing-78e3cbb884.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: consensus-safety
+expected_missing_property: protocol-state-invariant
+expected_impact_band: consensus-or-state-integrity
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No advisory, CVE, or commit text explicitly states a security vulnerability.
+- No proof of attacker-triggerable exploit, fund loss, or authorization bypass.
+- No direct evidence that the old behavior caused a live consensus split or production incident.
+- No demonstration that the previous byte-decoding bug was externally exploitable beyond protocol-correctness failure.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention protocol-state-invariant at the operator configuration -> deployment/genesis
+  artifacts boundary.

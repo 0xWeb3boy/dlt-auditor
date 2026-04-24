@@ -1,0 +1,73 @@
+id: optimism-2024-10-18-optimism-cryptography-cc4527008e
+source_finding: 2024-10-18-optimism-cryptography-cc4527008e.md
+project: optimism
+date: '2024-10-18'
+language_tags:
+- go
+bug_family: input_validation_and_invariant_enforcement
+bug_class: state-validation-hardening
+subsystem: cryptography
+architecture_tags:
+- rollup
+- cryptographic-data
+- state-storage
+confidence_tier: tier_b_likely
+security_verdict: likely
+validated_as: security-hardening
+recommended_uses:
+- retrieval_exemplar
+- taxonomy_refinement
+missing_property: input-validation
+violated_invariant: Cross-safe checks should derive their L1 scope from the exact next eligible cross-safe candidate
+  and reject inconsistent local-safe/cross-safe DB state instead of inferring scope from a broader local-safe lookup.
+trust_boundary: external proof/data provider -> verifier/derivation code
+entrypoint_type: proof-or-data-verification path
+sensitive_sink: acceptance of cryptographic, blob, preimage, or proof data into derivation/state
+attacker_capabilities:
+- supply or relay externally fetched cryptographic/proof/blob data
+- return data whose internal validity differs from the requested identity or context
+exploit_preconditions:
+- the affected validation path is reachable before an equivalent fail-closed check runs
+- the malformed or ambiguous input is accepted far enough to influence a security-sensitive decision
+- no upstream component has already canonicalized, authenticated, or bounded the relevant field
+- for hardening-only records, practical exploitability still depends on deployment exposure and attacker control
+  of the input source
+blast_radius: node-local unless the state feeds consensus-critical outputs
+impact_types:
+- integrity
+- state-integrity
+severity_guess: low
+severity_rationale: Evidence supports security hardening, but the raw finding does not prove a complete attacker-triggered
+  exploit. Severity is low because the affected path can influence state-or-proof-integrity, while deployment exposure,
+  compensating checks, and concrete impact remain the main limiters.
+code_shape_summary: The buggy shape was a proof-or-data-verification path that allowed data or state to approach
+  acceptance of cryptographic, blob, preimage, or proof data into derivation/state before fully enforcing input-validation.
+  The fallback path used the queried local-safe block's derivation record without first proving that the block was
+  the next eligible cross-safe candidate, and the surrounding DB traversal now shows added consistency checks that
+  were previously absent in this path.
+search_motifs:
+- object is internally valid but not checked against requested hash/index/context
+- proof or witness hash is computed from the wrong representation or lifecycle point
+- external data provider result is consumed before identity binding is verified
+- proof-or-data-verification path reaches acceptance of cryptographic, blob, preimage, or proof data into derivation/state
+  with partial validation
+- input-validation is enforced in one path but missing in an alternate path
+negative_signals:
+- an earlier boundary already rejects the same malformed field under all reachable modes
+- the changed code is test-only, generated-only, logging-only, or pure refactor with no runtime decision change
+- the input is not attacker-influenced and cannot be affected by a faulty peer, operator, backend, or sequencer
+- downstream consensus/proof verification recomputes the property fail-closed before any state or privilege is committed
+- the patch only improves diagnostics or compatibility and does not alter acceptance, rejection, binding, bounds,
+  or state-transition behavior
+patch_pattern: Replace a direct fallback lookup with explicit candidate computation and fail-closed consistency
+  checks.
+source_refs:
+- git:cc4527008eda49fb413a612893ae9aab794f9ab6
+- op-supervisor/supervisor/backend/cross/safe_frontier.go:35
+- op-supervisor/supervisor/backend/db/fromda/db.go:134
+- op-supervisor/supervisor/backend/db/query.go:179
+- op-supervisor/supervisor/backend/db/fromda/db.go:66
+- /testing/optimism/validated-findings/kept/2024-10-18-optimism-cryptography-cc4527008e.md
+notes:
+- Enriched from the prepared raw finding, preserving conservative claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.

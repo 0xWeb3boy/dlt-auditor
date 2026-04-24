@@ -1,0 +1,52 @@
+id: "bor-2019-09-25-bor-storage-48c074596"
+source_finding: "2019-09-25-bor-storage-48c074596.md"
+project: "bor"
+date: "2019-09-25"
+language_tags: ["go"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-safety"
+subsystem: "storage"
+architecture_tags: ["consensus", "consensus-failure", "consensus-safety", "rpc", "snapshot", "storage", "validator", "validator-ops"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement", "eval_seed"]
+
+missing_property: "consensus invariant enforcement"
+violated_invariant: "Consensus-critical data must satisfy the same validation rules on every node before it can influence state transition, fork choice, rewards, or canonical-chain decisions."
+trust_boundary: "external RPC client to node service boundary"
+entrypoint_type: "public or administrative RPC method"
+sensitive_sink: "backend state access, privileged API behavior, or response serialization"
+
+attacker_capabilities:
+  - "Can submit or relay crafted blocks, headers, transactions, state data, or sync responses"
+  - "Can target nodes that process the affected consensus or sync path"
+exploit_preconditions:
+  - "The node processes attacker-influenced data through the affected validation path."
+  - "No earlier validation, rate limit, domain binding, or consensus check blocks the crafted input before the sink."
+  - "Exploitability depends on the surrounding deployment and was validated as likely or hardening rather than fully proven."
+blast_radius: "Consensus or sync participants that accept the affected data path may diverge, reject valid data, accept invalid data, or persist inconsistent state."
+
+impact_types:
+  - "consensus-failure"
+severity_guess: "medium"
+severity_rationale: "Medium severity guess because the finding is a likely security hardening affecting consensus-failure; tune downward when deployment controls or missing exploit evidence limit reachability."
+
+code_shape_summary: "The diff shows Bor checkpoint-handling corrections and added validation, but the provided evidence does not establish a concrete vulnerability. The safest reading is consensus-related correctness or hardening around validator-set selection, checkpoint field checks, and snapshot availability. Root cause: The code appears to have had an under-specified checkpoint-boundary transition: validator data and validation prerequisites were not enforced as explicitly as they are after the patch. However, the evidence does not prove whether this was exploitable, consensus-breaking in practice, or primarily defensive cleanup."
+search_motifs:
+  - "block/header/transaction validation has a special case that bypasses a consensus rule"
+  - "fork-choice or state-transition code derives canonical state before checking all protocol invariants"
+  - "reward, validator-set, timestamp, gas, or root validation differs across execution paths or fork eras"
+negative_signals:
+  - "Do not flag if the value is produced only by trusted local code and cannot be influenced across a protocol, RPC, or persistence boundary."
+  - "Do not treat as exploitable if an earlier mandatory validation step rejects the malformed input before the sensitive sink."
+  - "Consensus findings need evidence that different valid-looking inputs or node versions can reach divergent acceptance, state, or fork-choice behavior."
+  - "The source finding was validated as hardening, so avoid overstating exploitability without additional proof."
+  - "No test, advisory, or commit message explains a concrete exploit or pre-patch attack scenario."
+patch_pattern: "Tighten boundary-condition handling and fail closed when required consensus state is missing."
+
+source_refs: ["/testing/dlt-ai-audit-system/corpus/imports/20260424-064909Z-bor/raw-findings/2019-09-25-bor-storage-48c074596.md"]
+notes:
+  - "Enriched from validated finding material; preserve claim boundaries from the source record."

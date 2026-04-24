@@ -1,0 +1,19 @@
+id: optimism-2025-03-12-optimism-transaction-processing-060a261c6f
+source_record: optimism-2025-03-12-optimism-transaction-processing-060a261c6f.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: configuration-scoping
+expected_missing_property: configuration-validation
+expected_impact_band: configuration-safety
+expected_severity_band: low_or_informational
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No evidence shows an external attacker could control deployment intent or exploit the old behavior.
+- No proof of unauthorized runtime access to deployed contracts, funds impact, or concrete privilege escalation.
+- The patch excerpt does not fully demonstrate the role-override condition described in the commit message.
+- No incident, test, or exploit evidence is provided showing harmful consequences from the prior logic.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention configuration-validation at the operator configuration -> deployment/genesis
+  artifacts boundary.

@@ -1,0 +1,53 @@
+id: "bor-2026-02-26-bor-cryptography-b69ad46c1"
+source_finding: "2026-02-26-bor-cryptography-b69ad46c1.md"
+project: "bor"
+date: "2026-02-26"
+language_tags: ["go"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "timestamp-validation"
+subsystem: "cryptography"
+architecture_tags: ["availability", "blockchain-core", "consensus", "timestamp", "validator"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement", "eval_seed"]
+
+missing_property: "consensus invariant enforcement"
+violated_invariant: "Untrusted inputs must be checked against the protocol invariant before they can reach a state-changing or security-sensitive sink."
+trust_boundary: "untrusted block, header, transaction, or state data to consensus engine boundary"
+entrypoint_type: "block/header/transaction validation or state-transition path"
+sensitive_sink: "canonical chain selection, state root commitment, or consensus state mutation"
+
+attacker_capabilities:
+  - "Can influence data crossing the affected protocol boundary"
+  - "Can trigger the vulnerable parsing, validation, or state-update path"
+exploit_preconditions:
+  - "The node processes attacker-influenced data through the affected validation path."
+  - "No earlier validation, rate limit, domain binding, or consensus check blocks the crafted input before the sink."
+  - "Exploitability depends on the surrounding deployment and was validated as likely or hardening rather than fully proven."
+blast_radius: "Affected nodes may waste network, CPU, memory, or process availability; broad impact requires attacker reachability and insufficient throttling."
+
+impact_types:
+  - "availability"
+  - "denial-of-service"
+severity_guess: "medium"
+severity_rationale: "Medium severity guess because the finding is a likely security hardening affecting availability, denial-of-service; tune downward when deployment controls or missing exploit evidence limit reachability."
+
+code_shape_summary: "The patch adds a missing upper bound on Rio-era block timestamps in verifyHeader. The shown evidence supports a consensus-liveness issue where a validator-supplied far-future header could pass the relaxed Rio checks before this change; after the patch, headers more than 30 seconds ahead of local time are rejected with ErrFutureBlock. Root cause: After Rio relaxed timestamp validation to allow flexible block times, verifyHeader no longer enforced an upper bound on validator-controlled header.Time relative to the local clock."
+search_motifs:
+  - "input decoder feeds state-changing logic before semantic validation"
+  - "error path logs or ignores invalid data instead of failing closed"
+  - "security-relevant state changes occur before all invariants are checked"
+negative_signals:
+  - "Do not flag if the value is produced only by trusted local code and cannot be influenced across a protocol, RPC, or persistence boundary."
+  - "Do not treat as exploitable if an earlier mandatory validation step rejects the malformed input before the sensitive sink."
+  - "Treat as hardening when the patch only improves error reporting, refactoring, or defensive checks without attacker reachability."
+  - "The source finding was validated as hardening, so avoid overstating exploitability without additional proof."
+  - "No supplied diff for Prepare or other downstream code to independently prove the claimed long sleep or permanent halt."
+patch_pattern: "Restore a missing validation invariant at the consensus boundary by bounding acceptable future timestamp skew before later scheduling logic runs."
+
+source_refs: ["/testing/dlt-ai-audit-system/corpus/imports/20260424-064909Z-bor/raw-findings/2026-02-26-bor-cryptography-b69ad46c1.md"]
+notes:
+  - "Enriched from validated finding material; preserve claim boundaries from the source record."

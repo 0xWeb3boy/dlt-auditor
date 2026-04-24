@@ -1,0 +1,20 @@
+id: optimism-2022-09-19-optimism-storage-af3e56b124
+source_record: optimism-2022-09-19-optimism-storage-af3e56b124.yaml
+project: optimism
+expected_bug_family: authz_and_role_gates
+expected_bug_class: access-control-invariant-bypass
+expected_missing_property: authorization
+expected_impact_band: state-or-proof-integrity
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No direct Solidity diff for packages/contracts-bedrock/contracts/L1/L2OutputOracle.sol was provided.
+- No test hunk was provided to confirm the exact pre-patch and post-patch behavior.
+- No evidence shows a concrete exploit, attacker path, or real-world impact beyond policy circumvention.
+- The supplied OptimismPortal and L2ToL1MessagePasser changes look like regeneration fallout, not independent security
+  proof.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention authorization at the persisted chain state -> recovery/derivation logic
+  boundary.

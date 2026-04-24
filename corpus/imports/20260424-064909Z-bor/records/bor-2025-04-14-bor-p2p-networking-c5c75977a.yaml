@@ -1,0 +1,52 @@
+id: "bor-2025-04-14-bor-p2p-networking-c5c75977a"
+source_finding: "2025-04-14-bor-p2p-networking-c5c75977a.md"
+project: "bor"
+date: "2025-04-14"
+language_tags: ["go"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "insufficient-peer-churn"
+subsystem: "p2p-networking"
+architecture_tags: ["blockchain-core", "p2p-networking", "peer-churn", "saturation-management", "security-hardening"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement", "eval_seed"]
+
+missing_property: "network peer authenticity and protocol state validation"
+violated_invariant: "A node must authenticate, correlate, and validate peer-controlled protocol data before using it to advance handshake, sync, or peer-state decisions."
+trust_boundary: "remote peer to node networking boundary"
+entrypoint_type: "inbound p2p message, handshake, or sync response handler"
+sensitive_sink: "peer table mutation, sync scheduling, or message acceptance"
+
+attacker_capabilities:
+  - "Can connect as or spoof a remote network peer"
+  - "Can send malformed, replayed, oversized, or out-of-sequence protocol messages"
+exploit_preconditions:
+  - "The node accepts inbound traffic for the affected p2p or discovery protocol."
+  - "No earlier validation, rate limit, domain binding, or consensus check blocks the crafted input before the sink."
+  - "Exploitability depends on the surrounding deployment and was validated as likely or hardening rather than fully proven."
+blast_radius: "The affected node or peers relying on its decisions may accept unauthorized, unauthenticated, or incorrectly validated protocol state."
+
+impact_types:
+  - "peer-isolation-risk"
+severity_guess: "low"
+severity_rationale: "Low severity guess because the finding is a likely security hardening affecting peer-isolation-risk; tune downward when deployment controls or missing exploit evidence limit reachability."
+
+code_shape_summary: "The patch appears to add slow peer churn for saturated peer sets, but the provided evidence does not establish a concrete vulnerability. This is better treated as an operational or hardening change with unclear security status. Root cause: The supplied evidence supports a missing peer-churn mechanism when connection slots were saturated: incumbent peers could persist until timeout or protocol error, leaving limited turnover. The evidence does not show a stronger root cause such as an exploit primitive, authentication failure, or consensus issue."
+search_motifs:
+  - "handshake or protocol handler advances peer state before validating identity, key, or request correlation"
+  - "sync response is accepted without matching an outstanding request or expected peer capability"
+  - "peer-controlled metadata is trusted for scheduling, scoring, or chain progress before verification"
+negative_signals:
+  - "Do not flag if the value is produced only by trusted local code and cannot be influenced across a protocol, RPC, or persistence boundary."
+  - "Do not treat as exploitable if an earlier mandatory validation step rejects the malformed input before the sensitive sink."
+  - "Treat as hardening when the patch only improves error reporting, refactoring, or defensive checks without attacker reachability."
+  - "The source finding was validated as hardening, so avoid overstating exploitability without additional proof."
+  - "No functional code from eth/dropper.go is shown, so the actual drop policy and safeguards are not evidenced."
+patch_pattern: "Add a background peer-management path and expose the minimum server and peer classification helpers needed to support churn decisions under saturation."
+
+source_refs: ["/testing/dlt-ai-audit-system/corpus/imports/20260424-064909Z-bor/raw-findings/2025-04-14-bor-p2p-networking-c5c75977a.md"]
+notes:
+  - "Enriched from validated finding material; preserve claim boundaries from the source record."

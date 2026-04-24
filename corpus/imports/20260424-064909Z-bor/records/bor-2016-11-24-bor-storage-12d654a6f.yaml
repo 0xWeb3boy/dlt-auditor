@@ -1,0 +1,53 @@
+id: "bor-2016-11-24-bor-storage-12d654a6f"
+source_finding: "2016-11-24-bor-storage-12d654a6f.md"
+project: "bor"
+date: "2016-11-24"
+language_tags: ["go"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-state-inconsistency"
+subsystem: "storage"
+architecture_tags: ["consensus", "eip158", "empty-account", "snapshot-revert", "state"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement", "eval_seed"]
+
+missing_property: "consensus invariant enforcement"
+violated_invariant: "Consensus-critical data must satisfy the same validation rules on every node before it can influence state transition, fork choice, rewards, or canonical-chain decisions."
+trust_boundary: "untrusted block, header, transaction, or state data to consensus engine boundary"
+entrypoint_type: "block/header/transaction validation or state-transition path"
+sensitive_sink: "canonical chain selection, state root commitment, or consensus state mutation"
+
+attacker_capabilities:
+  - "Can submit or relay crafted blocks, headers, transactions, state data, or sync responses"
+  - "Can target nodes that process the affected consensus or sync path"
+exploit_preconditions:
+  - "The node processes attacker-influenced data through the affected validation path."
+  - "No earlier validation, rate limit, domain binding, or consensus check blocks the crafted input before the sink."
+  - "Exploitability depends on the surrounding deployment and was validated as likely or hardening rather than fully proven."
+blast_radius: "Consensus or sync participants that accept the affected data path may diverge, reject valid data, accept invalid data, or persist inconsistent state."
+
+impact_types:
+  - "consensus-integrity"
+  - "state-integrity"
+severity_guess: "medium"
+severity_rationale: "Medium severity guess because the finding is a likely security hardening affecting consensus-integrity, state-integrity; tune downward when deployment controls or missing exploit evidence limit reachability."
+
+code_shape_summary: "The patch fixes a state-revert inconsistency in core/state: touching an empty account through a zero-value balance update was not given its own reversible journal entry, so snapshot rollback could leave a transient touched/dirty account behind. The commit metadata explicitly calls this a consensus issue, which makes the fix likely security-relevant, but the provided evidence does not show the full triggering chain or impact scope. Root cause: Empty-account touch behavior was not modeled as an explicit reversible journaled state transition. As a result, a revert could fail to remove account state introduced only by a touch during execution."
+search_motifs:
+  - "block/header/transaction validation has a special case that bypasses a consensus rule"
+  - "fork-choice or state-transition code derives canonical state before checking all protocol invariants"
+  - "reward, validator-set, timestamp, gas, or root validation differs across execution paths or fork eras"
+negative_signals:
+  - "Do not flag if the value is produced only by trusted local code and cannot be influenced across a protocol, RPC, or persistence boundary."
+  - "Do not treat as exploitable if an earlier mandatory validation step rejects the malformed input before the sensitive sink."
+  - "Consensus findings need evidence that different valid-looking inputs or node versions can reach divergent acceptance, state, or fork-choice behavior."
+  - "The source finding was validated as hardening, so avoid overstating exploitability without additional proof."
+  - "No concrete adversarial trigger or exploit scenario is shown in the provided patch."
+patch_pattern: "Record touch side effects explicitly in the journal and provide matching undo logic for snapshot reverts."
+
+source_refs: ["/testing/dlt-ai-audit-system/corpus/imports/20260424-064909Z-bor/raw-findings/2016-11-24-bor-storage-12d654a6f.md"]
+notes:
+  - "Enriched from validated finding material; preserve claim boundaries from the source record."

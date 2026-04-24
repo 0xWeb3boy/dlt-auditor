@@ -1,0 +1,18 @@
+id: optimism-2024-03-05-optimism-storage-c66091d31f
+source_record: optimism-2024-03-05-optimism-storage-c66091d31f.yaml
+project: optimism
+expected_bug_family: signature_binding_and_signer_scope
+expected_bug_class: insufficient-domain-separation
+expected_missing_property: domain-separation
+expected_impact_band: state-or-proof-integrity
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No Solidity diff is shown for where local preimages are constructed or checked.
+- No test excerpt demonstrates the pre-fix cross-L2 ambiguity or a blocked exploit after the fix.
+- No evidence shows concrete fund loss, privilege bypass, or successful replay in practice.
+- No evidence shows whether already-deployed instances were vulnerable or only new deployments/configurations.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention domain-separation at the signed payload -> protocol verifier boundary.

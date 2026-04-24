@@ -8,7 +8,7 @@ language_tags:
 bug_family: "input_validation_and_invariant_enforcement"
 bug_class: "insufficient-input-validation"
 subsystem: "cryptography"
-architecture_tags:[]
+architecture_tags: []
 
 confidence_tier: "tier_b_likely"
 security_verdict: "likely"

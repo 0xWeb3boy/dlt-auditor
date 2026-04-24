@@ -1,0 +1,21 @@
+id: optimism-2024-10-21-optimism-storage-4e4687ff75
+source_record: optimism-2024-10-21-optimism-storage-4e4687ff75.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: chain-continuity-validation
+expected_missing_property: input-validation
+expected_impact_band: state-or-proof-integrity
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No proof that attacker-controlled input can reach and exploit the pre-patch behavior.
+- No test, incident, or advisory evidence showing consensus failure, message forgery, fund impact, or production
+  compromise.
+- The commit message is generic and does not describe a vulnerability or security incident.
+- The added DB/query helper methods are supportive plumbing; the diff alone does not show them fixing an independently
+  exploitable issue.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention input-validation at the persisted chain state -> recovery/derivation
+  logic boundary.

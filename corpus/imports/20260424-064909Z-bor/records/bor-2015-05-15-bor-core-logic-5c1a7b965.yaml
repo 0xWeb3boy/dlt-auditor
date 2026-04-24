@@ -1,0 +1,52 @@
+id: "bor-2015-05-15-bor-core-logic-5c1a7b965"
+source_finding: "2015-05-15-bor-core-logic-5c1a7b965.md"
+project: "bor"
+date: "2015-05-15"
+language_tags: ["go"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "insufficient-peer-chain-validation"
+subsystem: "core-logic"
+architecture_tags: ["blockchain-core", "chain-continuity", "downloader", "peer-validation"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement", "eval_seed"]
+
+missing_property: "network peer authenticity and protocol state validation"
+violated_invariant: "Consensus-critical data must satisfy the same validation rules on every node before it can influence state transition, fork choice, rewards, or canonical-chain decisions."
+trust_boundary: "remote peer to node networking boundary"
+entrypoint_type: "inbound p2p message, handshake, or sync response handler"
+sensitive_sink: "peer table mutation, sync scheduling, or message acceptance"
+
+attacker_capabilities:
+  - "Can connect as or spoof a remote network peer"
+  - "Can send malformed, replayed, oversized, or out-of-sequence protocol messages"
+exploit_preconditions:
+  - "The node accepts inbound traffic for the affected p2p or discovery protocol."
+  - "No earlier validation, rate limit, domain binding, or consensus check blocks the crafted input before the sink."
+  - "Exploitability depends on the surrounding deployment and was validated as likely or hardening rather than fully proven."
+blast_radius: "Consensus or sync participants that accept the affected data path may diverge, reject valid data, accept invalid data, or persist inconsistent state."
+
+impact_types:
+  - "sync-integrity-risk"
+severity_guess: "medium"
+severity_rationale: "Medium severity guess because the finding is a likely security hardening affecting sync-integrity-risk; tune downward when deployment controls or missing exploit evidence limit reachability."
+
+code_shape_summary: "The evidence supports a downloader validation flaw in which a peer could satisfy a cross-check with a block hash alone, without proving parent continuity to the queued chain. The patch tightens that check and the tests were updated to exercise reordered or made-up chain data. The security relevance is plausible and supported by the live-code change, but the provided excerpts do not prove downstream consensus impact, so confidence should be kept below high. Root cause: Cross-check state was advanced based only on receipt of a block with the expected hash, without verifying that the block's parent matched the queued chain state."
+search_motifs:
+  - "block/header/transaction validation has a special case that bypasses a consensus rule"
+  - "fork-choice or state-transition code derives canonical state before checking all protocol invariants"
+  - "reward, validator-set, timestamp, gas, or root validation differs across execution paths or fork eras"
+negative_signals:
+  - "Do not flag if the value is produced only by trusted local code and cannot be influenced across a protocol, RPC, or persistence boundary."
+  - "Do not treat as exploitable if an earlier mandatory validation step rejects the malformed input before the sensitive sink."
+  - "Consensus findings need evidence that different valid-looking inputs or node versions can reach divergent acceptance, state, or fork-choice behavior."
+  - "The source finding was validated as hardening, so avoid overstating exploitability without additional proof."
+  - "No production-path evidence shows what concrete impact the old behavior enabled beyond downloader acceptance logic."
+patch_pattern: "Require structural consistency before advancing verification state, and add adversarial tests that model the required parent-child relationships."
+
+source_refs: ["/testing/dlt-ai-audit-system/corpus/imports/20260424-064909Z-bor/raw-findings/2015-05-15-bor-core-logic-5c1a7b965.md"]
+notes:
+  - "Enriched from validated finding material; preserve claim boundaries from the source record."

@@ -1,0 +1,20 @@
+id: optimism-2025-01-28-optimism-transaction-processing-d39eb247e6
+source_record: optimism-2025-01-28-optimism-transaction-processing-d39eb247e6.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: improper-state-handling
+expected_missing_property: input-validation
+expected_impact_band: state-or-proof-integrity
+expected_severity_band: low_or_informational
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No supplied diff shows the full Put enforcement logic for ErrInvalidKeyLength.
+- No evidence demonstrates attacker-controlled input reaching the vulnerable path before the patch.
+- No runtime trace, test result, or incident evidence shows consensus failure, fund risk, or unauthorized state
+  change.
+- The patch alone does not prove remote exploitability or a concrete pre-patch security defect.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention input-validation at the persisted chain state -> recovery/derivation
+  logic boundary.

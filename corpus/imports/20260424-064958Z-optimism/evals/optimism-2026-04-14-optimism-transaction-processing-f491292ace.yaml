@@ -1,0 +1,19 @@
+id: optimism-2026-04-14-optimism-transaction-processing-f491292ace
+source_record: optimism-2026-04-14-optimism-transaction-processing-f491292ace.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: validation-configuration-mismatch
+expected_missing_property: configuration-validation
+expected_impact_band: security-hardening-or-correctness
+expected_severity_band: low_or_informational
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No downstream expiry-checking logic or interop.New(...) implementation is shown.
+- No evidence that production deployments used non-default expiry-window overrides.
+- No proof of concrete exploit, fund loss, chain safety failure, or broad acceptance of expired messages.
+- Much of the diff is test migration and scaffolding rather than direct fix logic.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention configuration-validation at the operator configuration -> deployment/genesis
+  artifacts boundary.

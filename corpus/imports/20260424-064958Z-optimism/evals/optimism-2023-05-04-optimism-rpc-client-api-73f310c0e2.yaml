@@ -1,0 +1,18 @@
+id: optimism-2023-05-04-optimism-rpc-client-api-73f310c0e2
+source_record: optimism-2023-05-04-optimism-rpc-client-api-73f310c0e2.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: insufficient-consensus-validation
+expected_missing_property: protocol-state-invariant
+expected_impact_band: consensus-or-state-integrity
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- The patch does not show a concrete exploit path, attacker model, or abuse scenario.
+- The full RewriteTags implementation and exact RPC methods affected are not provided.
+- No evidence shows privilege escalation, authentication bypass, or direct unauthorized data access.
+- Referenced tests are not included here, so the exact invariant coverage is not visible.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention protocol-state-invariant at the RPC/API caller -> node service boundary.

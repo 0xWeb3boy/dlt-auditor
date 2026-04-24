@@ -1,0 +1,20 @@
+id: "bor-2026-03-18-bor-transaction-processing-858c6ae6d"
+source_record: "bor-2026-03-18-bor-transaction-processing-858c6ae6d.yaml"
+project: "bor"
+
+expected_bug_family: "resource_accounting_and_limits"
+expected_bug_class: "missing-resource-limit-enforcement"
+expected_missing_property: "arithmetic bounds and resource accounting"
+
+expected_impact_band: "availability"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Do not flag if the value is produced only by trusted local code and cannot be influenced across a protocol, RPC, or persistence boundary."
+  - "Do not treat as exploitable if an earlier mandatory validation step rejects the malformed input before the sensitive sink."
+  - "Consensus findings need evidence that different valid-looking inputs or node versions can reach divergent acceptance, state, or fork-choice behavior."
+notes:
+  - "Eval enriched from corpus import source finding; use cautions to distinguish hardening from exploitable cases."

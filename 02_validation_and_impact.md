@@ -48,6 +48,9 @@ For the candidate under review:
    - cache context rebinding
    - peer-quality feedback enforcement
    - listener or event policy preservation
+   - deterministic external-consensus snapshot binding
+   - explicit finalization error propagation
+   - canonical numeric representability before narrowing
 4. Search for compensating controls elsewhere in the codebase.
 5. Decide whether the issue is:
    - confirmed
@@ -63,6 +66,8 @@ Then assess impact:
 5. Is the finding proven to cross a production trust boundary, or is it best classified as security hardening because it tightens a consensus, proof, peer, or resource-control path without a demonstrated exploit?
 6. If the bug is in consensus validation, distinguish invalid-block acceptance, invalid-block rejection, syncing/liveness confusion, payload-building side effects, and error-classification hardening.
 7. If the bug is in authenticated state or proof code, distinguish proof-generation ambiguity, verifier acceptance, local state corruption, persistence correctness, and consensus-visible state-root impact.
+8. If the issue involves an external consensus client, checkpoint source, bridge oracle, or validator-set provider, distinguish stale local trust, nondeterministic data selection across honest nodes, fail-open unavailability, and direct forged-state acceptance.
+9. If the issue involves finalization or generated system work, distinguish unsupported-field rejection, generated-work mismatch, receipt/accounting mismatch, and state-root divergence.
 
 Assign severity using this baseline:
 - Critical: direct consensus break, forged finalized state acceptance, bridge or settlement compromise, unauthorized mint or burn, or broad secret compromise.

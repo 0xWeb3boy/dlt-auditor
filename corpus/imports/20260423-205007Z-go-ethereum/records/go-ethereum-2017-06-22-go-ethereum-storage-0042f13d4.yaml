@@ -29,7 +29,9 @@ exploit_preconditions:
   - "Exploitability depends on deployment reachability and surrounding controls because the source evidence is framed as hardening."
 blast_radius: "The affected node crosses a security boundary with weaker validation than intended."
 
-impact_types: []
+impact_types:
+  - "remote-dos"
+  - "resource-exhaustion"
 severity_guess: "low"
 severity_rationale: "The evidence supports  hardening, but it does not prove a complete exploit path or broad real-world impact."
 

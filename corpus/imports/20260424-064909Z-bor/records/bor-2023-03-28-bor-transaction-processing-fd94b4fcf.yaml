@@ -1,0 +1,52 @@
+id: "bor-2023-03-28-bor-transaction-processing-fd94b4fcf"
+source_finding: "2023-03-28-bor-transaction-processing-fd94b4fcf.md"
+project: "bor"
+date: "2023-03-28"
+language_tags: ["go"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "resource-exhaustion"
+subsystem: "transaction-processing"
+architecture_tags: ["panic-prevention", "resource-limits", "security-hardening", "tracing"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement", "eval_seed"]
+
+missing_property: "resource limit and input validity enforcement"
+violated_invariant: "Attacker-controlled input must be bounded and rejected before it can drive unbounded allocation, expensive processing, queue growth, or process termination."
+trust_boundary: "untrusted block, header, transaction, or state data to consensus engine boundary"
+entrypoint_type: "block/header/transaction validation or state-transition path"
+sensitive_sink: "canonical chain selection, state root commitment, or consensus state mutation"
+
+attacker_capabilities:
+  - "Can submit or relay crafted blocks, headers, transactions, state data, or sync responses"
+  - "Can target nodes that process the affected consensus or sync path"
+exploit_preconditions:
+  - "The node processes attacker-influenced data through the affected validation path."
+  - "No earlier validation, rate limit, domain binding, or consensus check blocks the crafted input before the sink."
+  - "Exploitability depends on the surrounding deployment and was validated as likely or hardening rather than fully proven."
+blast_radius: "Affected nodes may waste network, CPU, memory, or process availability; broad impact requires attacker reachability and insufficient throttling."
+
+impact_types:
+  - "availability"
+severity_guess: "medium"
+severity_rationale: "Medium severity guess because the finding is a likely security hardening affecting availability; tune downward when deployment controls or missing exploit evidence limit reachability."
+
+code_shape_summary: "The provided patch clearly hardens tracer memory access and LOG capture against oversized reads by centralizing padded-memory copying behind a size-checked helper. The evidence supports a robustness fix for panic/OOM-like behavior in tracing code, but it does not establish default remote reachability or a confirmed security vulnerability. Root cause: Tracer memory extraction was handled in multiple places without one shared bounded path. That left JS tracer slicing and native LOG capture dependent on ad hoc copy behavior for large or invalid ranges instead of uniform checked error handling."
+search_motifs:
+  - "remote input controls allocation, iteration count, queue length, or cache growth without a cap"
+  - "decode or validation path panics or aborts process on malformed peer/RPC data"
+  - "request processing lacks timeout, size limit, rate limit, or early reject before expensive work"
+negative_signals:
+  - "Do not flag if the value is produced only by trusted local code and cannot be influenced across a protocol, RPC, or persistence boundary."
+  - "Do not treat as exploitable if an earlier mandatory validation step rejects the malformed input before the sensitive sink."
+  - "Consensus findings need evidence that different valid-looking inputs or node versions can reach divergent acceptance, state, or fork-choice behavior."
+  - "The source finding was validated as hardening, so avoid overstating exploitability without additional proof."
+  - "No patch excerpt proves these tracer paths are reachable by untrusted remote users in a default deployment."
+patch_pattern: "Centralize edge-case memory copying in a shared helper with explicit size limits, and convert oversized tracer operations into ordinary errors or early exits."
+
+source_refs: ["/testing/dlt-ai-audit-system/corpus/imports/20260424-064909Z-bor/raw-findings/2023-03-28-bor-transaction-processing-fd94b4fcf.md"]
+notes:
+  - "Enriched from validated finding material; preserve claim boundaries from the source record."

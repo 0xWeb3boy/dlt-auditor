@@ -1,0 +1,20 @@
+id: optimism-2025-04-30-optimism-p2p-networking-4b2b22bd85
+source_record: optimism-2025-04-30-optimism-p2p-networking-4b2b22bd85.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: p2p-identity-configuration-hardening
+expected_missing_property: configuration-validation
+expected_impact_band: configuration-safety
+expected_severity_band: low_or_informational
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No commit text or code comment states that a vulnerability, exploit, or attack was observed.
+- The patch does not show an authentication bypass, peer impersonation exploit, or concrete remote abuse path.
+- The event-handling refactor in gossip/driver.rs is not shown to have a security consequence from the provided
+  diff alone.
+- an earlier boundary already rejects the same malformed field under all reachable modes
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention configuration-validation at the remote peer -> node networking validator
+  boundary.

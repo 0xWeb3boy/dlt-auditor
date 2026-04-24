@@ -1,0 +1,19 @@
+id: optimism-2024-05-07-optimism-cryptography-1a9d14b8ab
+source_record: optimism-2024-05-07-optimism-cryptography-1a9d14b8ab.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: insufficient-input-validation
+expected_missing_property: input-validation
+expected_impact_band: security-hardening-or-correctness
+expected_severity_band: low_or_informational
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No full pre-patch code path is shown proving exactly how mismatched sidecars were accepted in production.
+- No attacker model or deployment context is provided to show exposure to adversarial beacon responses.
+- No evidence shows concrete exploitability, consensus failure, fund loss, or other demonstrated security impact.
+- No report, advisory, or commit message text states that a known vulnerability was being fixed.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention input-validation at the external proof/data provider -> verifier/derivation
+  code boundary.

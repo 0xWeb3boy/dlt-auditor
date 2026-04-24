@@ -1,0 +1,20 @@
+id: optimism-2024-11-06-optimism-transaction-processing-633aceb2a2
+source_record: optimism-2024-11-06-optimism-transaction-processing-633aceb2a2.yaml
+project: optimism
+expected_bug_family: signature_binding_and_signer_scope
+expected_bug_class: signature-metadata-inconsistency
+expected_missing_property: signer-and-context-binding
+expected_impact_band: signature-or-domain-integrity
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No proof that malformed span-batch or transaction data was attacker-controlled at a security boundary.
+- No demonstration of signature forgery, cross-chain replay, sender confusion, or consensus failure in this repository.
+- No test, advisory, incident report, or bug reference showing real-world security impact.
+- The patch is also framed as an upstream API/dependency adaptation, which weakens confidence that it was primarily
+  a security fix.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention signer-and-context-binding at the signed payload -> protocol verifier
+  boundary.

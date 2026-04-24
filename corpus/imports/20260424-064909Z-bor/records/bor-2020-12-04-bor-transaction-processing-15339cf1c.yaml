@@ -1,0 +1,52 @@
+id: "bor-2020-12-04-bor-transaction-processing-15339cf1c"
+source_finding: "2020-12-04-bor-transaction-processing-15339cf1c.md"
+project: "bor"
+date: "2020-12-04"
+language_tags: ["go"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "unsigned-advisory-feed"
+subsystem: "transaction-processing"
+architecture_tags: ["cli-hardening", "security-metadata", "signature-verification"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement", "eval_seed"]
+
+missing_property: "signature authorization and domain binding"
+violated_invariant: "Consensus-critical data must satisfy the same validation rules on every node before it can influence state transition, fork choice, rewards, or canonical-chain decisions."
+trust_boundary: "untrusted signed payload to verifier or signer boundary"
+entrypoint_type: "transaction/message signature verification path"
+sensitive_sink: "signer recovery, authorization, or replay-protection decision"
+
+attacker_capabilities:
+  - "Can submit or relay crafted blocks, headers, transactions, state data, or sync responses"
+  - "Can target nodes that process the affected consensus or sync path"
+exploit_preconditions:
+  - "The node processes attacker-influenced data through the affected validation path."
+  - "No earlier validation, rate limit, domain binding, or consensus check blocks the crafted input before the sink."
+  - "Exploitability depends on the surrounding deployment and was validated as likely or hardening rather than fully proven."
+blast_radius: "Consensus or sync participants that accept the affected data path may diverge, reject valid data, accept invalid data, or persist inconsistent state."
+
+impact_types:
+  - "integrity"
+severity_guess: "medium"
+severity_rationale: "Medium severity guess because the finding is a likely security hardening affecting integrity; tune downward when deployment controls or missing exploit evidence limit reachability."
+
+code_shape_summary: "The evidence supports that this commit adds a cmd/geth vulnerability/version check and includes signed advisory-feed handling with Minisign/Signify test material. It does not support a stronger claim that the commit fixes a proven exploitable vulnerability in existing code. The CorruptedDAG content in the JSON files is advisory data consumed by the checker, not the bug being fixed here. Root cause: Not established by the provided evidence. At most, the commit shows that advisory-feed authenticity was implemented or strengthened in the new checker. The evidence does not prove that older code accepted unauthenticated advisory data or that a concrete security bug existed before this commit."
+search_motifs:
+  - "block/header/transaction validation has a special case that bypasses a consensus rule"
+  - "fork-choice or state-transition code derives canonical state before checking all protocol invariants"
+  - "reward, validator-set, timestamp, gas, or root validation differs across execution paths or fork eras"
+negative_signals:
+  - "Do not flag if the value is produced only by trusted local code and cannot be influenced across a protocol, RPC, or persistence boundary."
+  - "Do not treat as exploitable if an earlier mandatory validation step rejects the malformed input before the sensitive sink."
+  - "Consensus findings need evidence that different valid-looking inputs or node versions can reach divergent acceptance, state, or fork-choice behavior."
+  - "The source finding was validated as hardening, so avoid overstating exploitability without additional proof."
+  - "No behavioral code excerpt from version_check.go shows exactly how verification is enforced."
+patch_pattern: "Add signature verification and trusted-key material around externally supplied security metadata as part of an advisory-check feature, with tests and support code for signer/key handling."
+
+source_refs: ["/testing/dlt-ai-audit-system/corpus/imports/20260424-064909Z-bor/raw-findings/2020-12-04-bor-transaction-processing-15339cf1c.md"]
+notes:
+  - "Enriched from validated finding material; preserve claim boundaries from the source record."

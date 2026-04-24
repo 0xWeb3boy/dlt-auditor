@@ -1,0 +1,19 @@
+id: optimism-2025-03-12-optimism-transaction-processing-0085136f22
+source_record: optimism-2025-03-12-optimism-transaction-processing-0085136f22.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: configuration-integrity
+expected_missing_property: configuration-validation
+expected_impact_band: state-or-proof-integrity
+expected_severity_band: low_or_informational
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No proof that an untrusted actor could trigger this deployment path.
+- No proof that the prior behavior caused actual unauthorized control or exploitable privilege escalation.
+- No evidence of an incident, compromise, or concrete downstream impact from the misbinding.
+- The excerpts do not fully show how role comparisons are enforced after lookup.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention configuration-validation at the operator configuration -> deployment/genesis
+  artifacts boundary.

@@ -1,0 +1,19 @@
+id: optimism-2026-04-07-optimism-storage-5e7de4c09a
+source_record: optimism-2026-04-07-optimism-storage-5e7de4c09a.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: missing-integrity-check
+expected_missing_property: integrity-binding
+expected_impact_band: state-or-proof-integrity
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No supplied test or regression shows a real pre-patch exploit scenario.
+- No evidence shows untrusted or attacker-controlled input can reach this write path.
+- No evidence shows invalid proofs, consensus breakage, or user-visible compromise before the change.
+- The commit subject fmt + clippy + doc fixes does not independently support a strong vulnerability claim.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention integrity-binding at the external proof/data provider -> verifier/derivation
+  code boundary.

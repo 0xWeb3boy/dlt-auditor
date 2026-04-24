@@ -1,0 +1,71 @@
+id: optimism-2026-04-14-optimism-transaction-processing-f491292ace
+source_finding: 2026-04-14-optimism-transaction-processing-f491292ace.md
+project: optimism
+date: '2026-04-14'
+language_tags:
+- go
+bug_family: input_validation_and_invariant_enforcement
+bug_class: validation-configuration-mismatch
+subsystem: transaction-processing
+architecture_tags:
+- rollup
+- interop
+confidence_tier: tier_b_likely
+security_verdict: likely
+validated_as: security-hardening
+recommended_uses:
+- retrieval_exemplar
+- taxonomy_refinement
+missing_property: configuration-validation
+violated_invariant: If a message expiry window is configured in the dependency set, supernode interop validation
+  should use that same window rather than an unrelated hardcoded default.
+trust_boundary: operator configuration -> deployment/genesis artifacts
+entrypoint_type: configuration-loader or deployment pipeline
+sensitive_sink: generation or activation of privileged protocol configuration
+attacker_capabilities:
+- influence sequencer, batch, transaction, or L1-derived input consumed by derivation/execution
+- provide malformed payload fields that reach protocol validation
+exploit_preconditions:
+- the affected validation path is reachable before an equivalent fail-closed check runs
+- the malformed or ambiguous input is accepted far enough to influence a security-sensitive decision
+- no upstream component has already canonicalized, authenticated, or bounded the relevant field
+- for hardening-only records, practical exploitability still depends on deployment exposure and attacker control
+  of the input source
+blast_radius: deployment-wide
+impact_types:
+- validation-bypass-risk
+severity_guess: low
+severity_rationale: Evidence supports security hardening, but the raw finding does not prove a complete attacker-triggered
+  exploit. Severity is low because the affected path can influence security-hardening-or-correctness, while deployment
+  exposure, compensating checks, and concrete impact remain the main limiters.
+code_shape_summary: 'The buggy shape was a configuration-loader or deployment pipeline that allowed data or state
+  to approach generation or activation of privileged protocol configuration before fully enforcing configuration-validation.
+  The shown root cause is inconsistent propagation of the configured message expiry window: the supernode interop
+  path used a default or hardcoded value instead of the dependency-set override, and runtime wiring did not always
+  carry the overridden dependency set forward.'
+search_motifs:
+- deployment config is applied before required security fields are checked
+- chain-specific defaults overwrite or omit privileged role constraints
+- unsupported mode combinations are accepted and interpreted later
+- configuration-loader or deployment pipeline reaches generation or activation of privileged protocol configuration
+  with partial validation
+- configuration-validation is enforced in one path but missing in an alternate path
+negative_signals:
+- an earlier boundary already rejects the same malformed field under all reachable modes
+- the changed code is test-only, generated-only, logging-only, or pure refactor with no runtime decision change
+- the input is not attacker-influenced and cannot be affected by a faulty peer, operator, backend, or sequencer
+- downstream consensus/proof verification recomputes the property fail-closed before any state or privilege is committed
+- the patch only improves diagnostics or compatibility and does not alter acceptance, rejection, binding, bounds,
+  or state-transition behavior
+patch_pattern: Replace a hardcoded default with dependency-set-sourced configuration, and propagate override-bearing
+  config objects through runtime construction. Add regression support code to exercise the affected path.
+source_refs:
+- git:f491292aced7c3ce43354927fa88c73f32f370b9
+- op-devstack/dsl/eoa.go:338
+- op-devstack/sysgo/multichain_supernode_runtime.go:238
+- op-supernode/supernode/supernode.go:105
+- op-devstack/sysgo/multichain_supernode_runtime.go:130
+- /testing/optimism/validated-findings/kept/2026-04-14-optimism-transaction-processing-f491292ace.md
+notes:
+- Enriched from the prepared raw finding, preserving conservative claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.

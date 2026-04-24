@@ -34,6 +34,8 @@ Search patterns:
 - accept loops or handlers that spawn per-connection or per-request work before acquiring admission permits
 - backlog growth controls that protect one ingress path but leave alternate RPC or publisher paths effectively unbounded
 - streaming sync, fetch, or announcement loops that continue after only already-known items, empty batches, or zero net progress
+- compressed protocol input should enforce output limits at the decompression boundary, including partial-output and repeated-read behavior. Do not rely only on later parsers to discover that decompressed bytes exceeded the channel, batch, or message cap
+- per-item parsing failures in derived input streams should be isolated when the protocol allows skipping or reporting bad items; one malformed child object should not abort a whole parent batch unless that is the consensus rule
 - multi-dimensional limits where one path enforces count but not bytes, bytes but not count, or uses `both limits exceeded` where the policy says `any limit exceeded`
 - cleanup or truncation paths that use a weaker predicate than insertion/admission paths
 - cache-hit paths that return stored execution or precompile result objects containing gas, quota, reservoir, refund, or caller-local accounting state
@@ -42,6 +44,8 @@ Search patterns:
 - cross-language, cross-process, or offloaded execution APIs that receive a mutable budget, gas, or quota on entry but do not return the remaining budget to the authoritative charging layer
 - recovery or trap-handling paths that retry with larger stacks, buffers, or allocations without a one-time guard, context restriction, or outer quota
 - parent operations that spawn derived work where the parent is charged, finalized, or committed before the child work proves cleanly met the same accounting or filter rules
+- historical-range, log, trace, fee-history, proof, or witness APIs where the configured range limit is checked in one entrypoint but not in stored-filter replay, chain-specific variants, symbolic latest/pending/finalized selectors, or helper paths that construct the same expensive query
+- background verification, sync-maintenance, pruning, and repair loops that derive their work window from current head minus a checkpoint, milestone, or finalized boundary. Check that the trusted boundary is fresh, the window is capped before materializing work, and missing boundary data disables or defers the loop instead of scanning an unbounded range
 
 Questions to answer:
 1. What resource is the protocol trying to meter: gas, fees, bytes, weight, queue slots, proving budget, bridge capacity, committee size, or sender concurrency?

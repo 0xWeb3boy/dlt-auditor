@@ -1,0 +1,72 @@
+id: optimism-2025-08-28-optimism-storage-2ba747f98b
+source_finding: 2025-08-28-optimism-storage-2ba747f98b.md
+project: optimism
+date: '2025-08-28'
+language_tags:
+- rust
+bug_family: input_validation_and_invariant_enforcement
+bug_class: missing-canonicality-validation
+subsystem: storage
+architecture_tags:
+- rollup
+- state-storage
+confidence_tier: tier_a_confirmed
+security_verdict: confirmed
+validated_as: security-hardening
+recommended_uses:
+- retrieval_exemplar
+- eval_positive
+- taxonomy_refinement
+missing_property: protocol-state-invariant
+violated_invariant: A local_safe block used as a reset anchor must still map to a canonical L1 source block; if
+  its recorded source is no longer canonical after an L1 reorg, reset should not proceed from that anchor.
+trust_boundary: persisted chain state -> recovery/derivation logic
+entrypoint_type: state-storage or reset/reorg handling path
+sensitive_sink: stored canonicality, proof-window, or derived-state update
+attacker_capabilities:
+- cause or race chain-state changes, reorgs, resets, or persisted-state recovery paths
+- supply state/proof data that is later read from storage
+exploit_preconditions:
+- the affected validation path is reachable before an equivalent fail-closed check runs
+- the malformed or ambiguous input is accepted far enough to influence a security-sensitive decision
+- no upstream component has already canonicalized, authenticated, or bounded the relevant field
+- for hardening-only records, practical exploitability still depends on deployment exposure and attacker control
+  of the input source
+blast_radius: node-local unless the state feeds consensus-critical outputs
+impact_types:
+- integrity
+- state-integrity
+severity_guess: low
+severity_rationale: Confirmed security-relevant evidence shows a runtime acceptance or validation behavior change.
+  Severity is low because the affected path can influence state-or-proof-integrity, while deployment exposure, compensating
+  checks, and concrete impact remain the main limiters.
+code_shape_summary: The buggy shape was a state-storage or reset/reorg handling path that allowed data or state
+  to approach stored canonicality, proof-window, or derived-state update before fully enforcing protocol-state-invariant.
+  The reset flow trusted stored derived state (local_safe) as a reset anchor without revalidating that its upstream
+  L1 source still matched canonical chain state.
+search_motifs:
+- state promotion, rewind, or finalization proceeds without parent/canonicality/freshness check
+- derivation updates persisted state before all protocol attributes are validated
+- fork-specific validation is missing on one post-upgrade branch
+- state-storage or reset/reorg handling path reaches stored canonicality, proof-window, or derived-state update
+  with partial validation
+- protocol-state-invariant is enforced in one path but missing in an alternate path
+negative_signals:
+- an earlier boundary already rejects the same malformed field under all reachable modes
+- the changed code is test-only, generated-only, logging-only, or pure refactor with no runtime decision change
+- the input is not attacker-influenced and cannot be affected by a faulty peer, operator, backend, or sequencer
+- downstream consensus/proof verification recomputes the property fail-closed before any state or privilege is committed
+- the patch only improves diagnostics or compatibility and does not alter acceptance, rejection, binding, bounds,
+  or state-transition behavior
+patch_pattern: Revalidate persisted recovery anchors against current canonical upstream state before using them,
+  and fail closed if the anchor's provenance is stale.
+source_refs:
+- git:2ba747f98b6dbf13d63c574a1e7e9d2a4b59a520
+- crates/supervisor/core/src/syncnode/resetter.rs:53
+- crates/supervisor/core/src/syncnode/resetter.rs:278
+- crates/supervisor/core/src/syncnode/resetter.rs:529
+- crates/supervisor/core/src/syncnode/resetter.rs:468
+- /testing/optimism/validated-findings/kept/2025-08-28-optimism-storage-2ba747f98b.md
+notes:
+- Enriched from the prepared raw finding, preserving conservative claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.

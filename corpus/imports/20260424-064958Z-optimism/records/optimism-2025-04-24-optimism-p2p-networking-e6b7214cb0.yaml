@@ -1,0 +1,74 @@
+id: optimism-2025-04-24-optimism-p2p-networking-e6b7214cb0
+source_finding: 2025-04-24-optimism-p2p-networking-e6b7214cb0.md
+project: optimism
+date: '2025-04-24'
+language_tags:
+- rust
+bug_family: signature_binding_and_signer_scope
+bug_class: trusted-signer-resolution
+subsystem: p2p-networking
+architecture_tags:
+- rollup
+- p2p
+- rpc
+- deployment-config
+confidence_tier: tier_b_likely
+security_verdict: likely
+validated_as: security-hardening
+recommended_uses:
+- retrieval_exemplar
+- taxonomy_refinement
+missing_property: signer-and-context-binding
+violated_invariant: If the node relies on an "unsafe block signer" for trust decisions, that signer should come
+  from a canonical runtime source and failures to load or decode the needed metadata should not be silently ignored.
+trust_boundary: remote peer -> node networking validator
+entrypoint_type: p2p-message-handler
+sensitive_sink: message acceptance, peer selection, or forkchoice update driven by network input
+attacker_capabilities:
+- send crafted gossip, sync, or peer-discovery messages to a node
+- withhold, reorder, or misrepresent peer-supplied protocol data
+exploit_preconditions:
+- the affected validation path is reachable before an equivalent fail-closed check runs
+- the malformed or ambiguous input is accepted far enough to influence a security-sensitive decision
+- no upstream component has already canonicalized, authenticated, or bounded the relevant field
+- for hardening-only records, practical exploitability still depends on deployment exposure and attacker control
+  of the input source
+blast_radius: deployment-wide
+impact_types:
+- configuration-integrity
+- state-integrity
+- signature-or-domain-confusion
+severity_guess: low
+severity_rationale: Evidence supports security hardening, but the raw finding does not prove a complete attacker-triggered
+  exploit. Severity is low because the affected path can influence state-or-proof-integrity, while deployment exposure,
+  compensating checks, and concrete impact remain the main limiters.
+code_shape_summary: The buggy shape was a p2p-message-handler that allowed data or state to approach message acceptance,
+  peer selection, or forkchoice update driven by network input before fully enforcing signer-and-context-binding.
+  Based on the excerpts, the likely issue was that signer lookup and related runtime metadata handling were not
+  previously factored into an explicit, typed resolution path.
+search_motifs:
+- object is internally valid but not checked against requested hash/index/context
+- proof or witness hash is computed from the wrong representation or lifecycle point
+- external data provider result is consumed before identity binding is verified
+- deployment config is applied before required security fields are checked
+- chain-specific defaults overwrite or omit privileged role constraints
+- unsupported mode combinations are accepted and interpreted later
+negative_signals:
+- an earlier boundary already rejects the same malformed field under all reachable modes
+- the changed code is test-only, generated-only, logging-only, or pure refactor with no runtime decision change
+- the input is not attacker-influenced and cannot be affected by a faulty peer, operator, backend, or sequencer
+- downstream consensus/proof verification recomputes the property fail-closed before any state or privilege is committed
+- the patch only improves diagnostics or compatibility and does not alter acceptance, rejection, binding, bounds,
+  or state-transition behavior
+patch_pattern: Introduce an explicit helper for resolving sensitive runtime-derived configuration and propagate
+  fetch/decode failures as typed errors.
+source_refs:
+- git:e6b7214cb0a68da4cf428f6811e81f323826b33d
+- kona/bin/node/src/flags/p2p.rs:223
+- kona/crates/node/rpc/src/superchain.rs:52
+- kona/bin/node/src/runtime/error.rs:1
+- kona/crates/node/rpc/src/superchain.rs:66
+- /testing/optimism/validated-findings/kept/2025-04-24-optimism-p2p-networking-e6b7214cb0.md
+notes:
+- Enriched from the prepared raw finding, preserving conservative claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.

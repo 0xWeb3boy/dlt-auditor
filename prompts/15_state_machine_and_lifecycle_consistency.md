@@ -33,6 +33,9 @@ Search patterns:
 - cached checkpoint, request, config, or game state reused on retry without revalidation against current authoritative state
 - one-time scan watermarks or "already seen" markers on objects whose classification can legitimately change later
 - policies enforced at wake-up or signaling boundaries but not at the underlying provider or write sink
+- startup and sync-completion paths should not initialize stronger safety labels from weaker local state. Check whether unsafe, optimistic, pending, syncing, safe, finalized, or cross-domain-safe labels are copied, zeroed, or defaulted during recovery
+- if a component once observed a synced, finalized, or ready state, later responses that regress to syncing, unknown, or invalid should be classified explicitly rather than treated as ordinary progress
+- shared controller state that drives forkchoice, reorg, reset, or retry decisions should be read under one coherent lock/snapshot; mixed old/new fields can create impossible lifecycle transitions
 - append-only histories stored as mutable read-modify-write objects under concurrent writers instead of immutable write-once records
 - fallback paths that do not preserve enough state to transition cleanly into the alternate recovery mode
 - event, listener, subscription, or gossip paths where a policy bit is checked at admission but dropped before delivery
@@ -41,6 +44,8 @@ Search patterns:
 - invalid, syncing, timeout, empty-response, and already-known states that update state in one path but not the analogous path
 - parent operations that queue or spawn protocol-generated child work, where failure or filtering of the child should rewind the parent group but the code only drops the child result
 - round, epoch, or session scoped privileged work queues where enqueue, wake-up, dequeue, and replay use different freshness or authorization sources
+- startup, constructor, and background-maintenance paths that initialize security-sensitive loops from persisted state. Oversized, stale, impossible, or fork-incompatible persisted values should be sanitized or rejected before they drive reorg, milestone, sync, verifier, or peer-churn decisions
+- finalization, replay, and recovery paths where internally generated protocol work must remain grouped with the parent block or operation; dropping, filtering, or failing the generated work should rewind or reject the whole group when that is the consensus rule
 
 Questions to answer:
 1. What are the legal states and transitions?

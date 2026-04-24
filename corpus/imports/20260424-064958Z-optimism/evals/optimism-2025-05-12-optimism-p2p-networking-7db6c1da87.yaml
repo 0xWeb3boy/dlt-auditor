@@ -1,0 +1,19 @@
+id: optimism-2025-05-12-optimism-p2p-networking-7db6c1da87
+source_record: optimism-2025-05-12-optimism-p2p-networking-7db6c1da87.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: forkchoice-state-machine-hardening
+expected_missing_property: protocol-state-invariant
+expected_impact_band: consensus-or-state-integrity
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No proof that a remote or adversarial party can force the bad forkchoice states.
+- No reproducer, test, or incident report showing exploitable consensus failure.
+- No evidence of invalid block acceptance, privilege gain, fund loss, or data exposure.
+- The snippets do not show the full surrounding logic, so downstream safety impact is inferred rather than demonstrated.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention protocol-state-invariant at the remote peer -> node networking validator
+  boundary.

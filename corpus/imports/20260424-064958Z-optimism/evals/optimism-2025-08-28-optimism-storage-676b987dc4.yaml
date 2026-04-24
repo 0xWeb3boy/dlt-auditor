@@ -1,0 +1,19 @@
+id: optimism-2025-08-28-optimism-storage-676b987dc4
+source_record: optimism-2025-08-28-optimism-storage-676b987dc4.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: insufficient-state-validation
+expected_missing_property: protocol-state-invariant
+expected_impact_band: state-or-proof-integrity
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No proof of attacker control or externally triggerable exploitation beyond the race window.
+- No evidence of confidentiality, authentication, or authorization impact.
+- No demonstrated consensus split, fund loss, or permanent corruption caused by the old behavior.
+- No advisory, CVE, or explicit security statement from maintainers in the supplied material.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention protocol-state-invariant at the persisted chain state -> recovery/derivation
+  logic boundary.

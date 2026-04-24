@@ -38,6 +38,7 @@ Search patterns:
 - peer or session APIs that select a target identity but do not bind that identity into verification
 - code paths that accept well-formed test keys because they verify cryptographically
 - signer or policy interfaces shared across scopes without explicit domain binding
+- external consensus-client, bridge-client, checkpoint, milestone, or oracle reads that feed local consensus should be pinned to one deterministic snapshot boundary. Check whether time-based, latest, retry, or fallback queries are converted into an explicit height, hash, epoch, finalized checkpoint, or signer-set identity before the data affects block validity, finalization, or state derivation
 
 Questions to answer:
 1. What trust decision is being made here?

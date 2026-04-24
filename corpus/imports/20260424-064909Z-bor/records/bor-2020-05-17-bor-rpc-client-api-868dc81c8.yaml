@@ -1,0 +1,52 @@
+id: "bor-2020-05-17-bor-rpc-client-api-868dc81c8"
+source_finding: "2020-05-17-bor-rpc-client-api-868dc81c8.md"
+project: "bor"
+date: "2020-05-17"
+language_tags: ["go"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "fail-open-error-handling"
+subsystem: "rpc-client-api"
+architecture_tags: ["consensus", "error-handling", "fail-closed", "hardening", "state-sync"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement", "eval_seed"]
+
+missing_property: "consensus invariant enforcement"
+violated_invariant: "RPC-facing code must fail closed and enforce request limits and authorization before exposing backend state or privileged behavior."
+trust_boundary: "external RPC client to node service boundary"
+entrypoint_type: "public or administrative RPC method"
+sensitive_sink: "backend state access, privileged API behavior, or response serialization"
+
+attacker_capabilities:
+  - "Can send crafted RPC requests to an exposed node or signer endpoint"
+  - "Can choose malformed parameters, ranges, payload bytes, or transaction fields"
+exploit_preconditions:
+  - "The relevant RPC or signing interface is reachable by the attacker or an attacker-controlled client."
+  - "No earlier validation, rate limit, domain binding, or consensus check blocks the crafted input before the sink."
+  - "Exploitability depends on the surrounding deployment and was validated as likely or hardening rather than fully proven."
+blast_radius: "The affected node or peers relying on its decisions may accept unauthorized, unauthenticated, or incorrectly validated protocol state."
+
+impact_types:
+  - "state-consistency"
+severity_guess: "low"
+severity_rationale: "Low severity guess because the finding is a likely security hardening affecting state-consistency; tune downward when deployment controls or missing exploit evidence limit reachability."
+
+code_shape_summary: "The patch changes Bor's sprint-boundary state-sync flow to return an error when CommitStates fails, adds an early c.config.Sprint guard, moves state commit work into genesisContractsClient, and replaces a local span-pending helper with a current-span contract read. That is evidence of consensus/state-transition refactoring or hardening, but the provided excerpts do not establish a concrete vulnerability or show that the prior behavior was exploitable. Root cause: The only clearly supported issue is permissive error handling in a consensus-related path: FinalizeAndAssemble could continue after CommitStates failed. The rest of the diff shows restructuring around canonical contract-backed helpers, but the evidence does not prove the old local logic was unsafe rather than simply being replaced."
+search_motifs:
+  - "RPC method continues after backend error or returns success with partial/unchecked data"
+  - "public query accepts unbounded range, path, or selector before authorization and limit checks"
+  - "administrative or debug endpoint exposes privileged behavior without explicit gating"
+negative_signals:
+  - "Do not flag if the value is produced only by trusted local code and cannot be influenced across a protocol, RPC, or persistence boundary."
+  - "Do not treat as exploitable if an earlier mandatory validation step rejects the malformed input before the sensitive sink."
+  - "RPC findings are lower risk when the method is disabled by default, authenticated, strictly local-only, or returns only non-sensitive metadata."
+  - "The source finding was validated as hardening, so avoid overstating exploitability without additional proof."
+  - "No proof that the old behavior was attacker-triggerable from an external interface."
+patch_pattern: "Fail closed on consensus-path errors and centralize state-sync/span interactions behind explicit contract-backed helper calls."
+
+source_refs: ["/testing/dlt-ai-audit-system/corpus/imports/20260424-064909Z-bor/raw-findings/2020-05-17-bor-rpc-client-api-868dc81c8.md"]
+notes:
+  - "Enriched from validated finding material; preserve claim boundaries from the source record."

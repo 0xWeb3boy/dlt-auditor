@@ -1,0 +1,52 @@
+id: "bor-2019-03-12-bor-transaction-processing-7504dbd6e"
+source_finding: "2019-03-12-bor-transaction-processing-7504dbd6e.md"
+project: "bor"
+date: "2019-03-12"
+language_tags: ["go"]
+
+bug_family: "checked_arithmetic_and_parameter_bounds"
+bug_class: "resource-accounting-overflow"
+subsystem: "transaction-processing"
+architecture_tags: ["evm", "gas-accounting", "integer-overflow", "memory-accounting", "security-hardening"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement", "eval_seed"]
+
+missing_property: "arithmetic bounds and resource accounting"
+violated_invariant: "Attacker-controlled input must be bounded and rejected before it can drive unbounded allocation, expensive processing, queue growth, or process termination."
+trust_boundary: "untrusted block, header, transaction, or state data to consensus engine boundary"
+entrypoint_type: "block/header/transaction validation or state-transition path"
+sensitive_sink: "canonical chain selection, state root commitment, or consensus state mutation"
+
+attacker_capabilities:
+  - "Can submit or relay crafted blocks, headers, transactions, state data, or sync responses"
+  - "Can target nodes that process the affected consensus or sync path"
+exploit_preconditions:
+  - "The node processes attacker-influenced data through the affected validation path."
+  - "No earlier validation, rate limit, domain binding, or consensus check blocks the crafted input before the sink."
+  - "Exploitability depends on the surrounding deployment and was validated as likely or hardening rather than fully proven."
+blast_radius: "Affected nodes may waste network, CPU, memory, or process availability; broad impact requires attacker reachability and insufficient throttling."
+
+impact_types:
+  - "resource-accounting-integrity"
+severity_guess: "medium"
+severity_rationale: "Medium severity guess because the finding is a likely security hardening affecting resource-accounting-integrity; tune downward when deployment controls or missing exploit evidence limit reachability."
+
+code_shape_summary: "The patch clearly hardens EVM memory/gas arithmetic by moving sizing and gas-related interfaces onto uint64 and adding explicit overflow handling, but the provided evidence does not establish a concrete vulnerability or exploit path in the pre-patch code. The stack-validation and other refactors in the same commit further weaken a strong security-fix claim. Root cause: Arithmetic around memory sizing and gas charging was refactored to an explicit checked uint64 path, suggesting prior correctness risk at that boundary; however, the supplied hunks do not prove that the earlier code was actually vulnerable in a security sense."
+search_motifs:
+  - "remote input controls allocation, iteration count, queue length, or cache growth without a cap"
+  - "decode or validation path panics or aborts process on malformed peer/RPC data"
+  - "request processing lacks timeout, size limit, rate limit, or early reject before expensive work"
+negative_signals:
+  - "Do not flag if the value is produced only by trusted local code and cannot be influenced across a protocol, RPC, or persistence boundary."
+  - "Do not treat as exploitable if an earlier mandatory validation step rejects the malformed input before the sensitive sink."
+  - "Consensus findings need evidence that different valid-looking inputs or node versions can reach divergent acceptance, state, or fork-choice behavior."
+  - "The source finding was validated as hardening, so avoid overstating exploitability without additional proof."
+  - "No end-to-end proof that the old arithmetic caused exploitable gas undercharge, OOG misbehavior, or consensus divergence."
+patch_pattern: "Introduce fixed-width checked arithmetic for resource accounting and fail closed on overflow."
+
+source_refs: ["/testing/dlt-ai-audit-system/corpus/imports/20260424-064909Z-bor/raw-findings/2019-03-12-bor-transaction-processing-7504dbd6e.md"]
+notes:
+  - "Enriched from validated finding material; preserve claim boundaries from the source record."

@@ -1,0 +1,20 @@
+id: optimism-2022-09-08-optimism-transaction-processing-a6101c460a
+source_record: optimism-2022-09-08-optimism-transaction-processing-a6101c460a.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: input-validation
+expected_missing_property: input-validation
+expected_impact_band: availability-or-liveness
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No direct proof in the provided patch that the pre-patch short-input path caused a remotely triggerable panic
+  or node crash.
+- No advisory, test, or exploit evidence establishes the real-world impact or attacker requirements.
+- The snippets do not show that forged or unauthorized blocks were previously accepted; signature verification already
+  existed and was reordered.
+- an earlier boundary already rejects the same malformed field under all reachable modes
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention input-validation at the remote peer -> node networking validator boundary.

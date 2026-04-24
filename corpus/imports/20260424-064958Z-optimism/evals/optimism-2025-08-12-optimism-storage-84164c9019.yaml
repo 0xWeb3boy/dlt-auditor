@@ -1,0 +1,20 @@
+id: optimism-2025-08-12-optimism-storage-84164c9019
+source_record: optimism-2025-08-12-optimism-storage-84164c9019.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: reorg-state-validation
+expected_missing_property: protocol-state-invariant
+expected_impact_band: consensus-or-state-integrity
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No advisory, CVE, or commit text states that this fixed an exploitable vulnerability.
+- The patch does not show an attacker-controlled input, privilege boundary crossing, or remote trigger.
+- The evidence does not demonstrate concrete outcomes such as fund loss, consensus split, or persistent corruption
+  in production.
+- an earlier boundary already rejects the same malformed field under all reachable modes
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention protocol-state-invariant at the persisted chain state -> recovery/derivation
+  logic boundary.

@@ -1,0 +1,18 @@
+id: optimism-2025-05-19-optimism-consensus-1681ca2942
+source_record: optimism-2025-05-19-optimism-consensus-1681ca2942.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: consensus-safety
+expected_missing_property: path-confinement
+expected_impact_band: host-filesystem-integrity
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No proof that an attacker could reliably trigger the bad startup state in a real deployment.
+- No evidence of an observed chain split, invalid finality acceptance, or fund-impacting consequence.
+- No test or trace showing downstream consensus failure from the removed promotion behavior.
+- No adversary model or network-reachability details are provided in the patch excerpts.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention path-confinement at the artifact/archive input -> host filesystem boundary.

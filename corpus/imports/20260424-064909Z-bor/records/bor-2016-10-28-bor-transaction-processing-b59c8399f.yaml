@@ -1,0 +1,51 @@
+id: "bor-2016-10-28-bor-transaction-processing-b59c8399f"
+source_finding: "2016-10-28-bor-transaction-processing-b59c8399f.md"
+project: "bor"
+date: "2016-10-28"
+language_tags: ["go"]
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "message-signing-domain-separation"
+subsystem: "transaction-processing"
+architecture_tags: ["cryptography", "eth-sign", "message-signing", "rpc-signing"]
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement", "eval_seed"]
+
+missing_property: "signature authorization and domain binding"
+violated_invariant: "A signature or signer action must cover the full security context that gives the message authority, including domain, chain, signer scope, and payload semantics."
+trust_boundary: "external RPC/user signing request to local signer boundary"
+entrypoint_type: "RPC signing or transaction-submission method"
+sensitive_sink: "signature creation or signed transaction acceptance"
+
+attacker_capabilities:
+  - "Can send crafted RPC requests to an exposed node or signer endpoint"
+  - "Can choose malformed parameters, ranges, payload bytes, or transaction fields"
+exploit_preconditions:
+  - "The relevant RPC or signing interface is reachable by the attacker or an attacker-controlled client."
+  - "No earlier validation, rate limit, domain binding, or consensus check blocks the crafted input before the sink."
+blast_radius: "Signers, verifiers, or clients relying on the affected signature semantics may authorize the wrong domain or accept replayable messages."
+
+impact_types:
+  - "unsafe-message-signing"
+severity_guess: "high"
+severity_rationale: "High severity guess because the finding is a confirmed security hardening affecting unsafe-message-signing; tune downward when deployment controls or missing exploit evidence limit reachability."
+
+code_shape_summary: "The provided evidence supports a security hardening change in the RPC signing path: eth_sign was changed to sign a prefixed-and-hashed message instead of a raw caller-provided digest, and the codebase now separates raw signing from Ethereum-formatted signing. The evidence does not support stronger claims about transaction replay handling, nonce validation, or a demonstrated private-key extraction exploit. Root cause: The RPC/account signing boundary was too close to the low-level raw signing primitive, so user-supplied signing requests were not clearly forced into the Ethereum message-signing domain before signature generation."
+search_motifs:
+  - "signed hash omits chain id, domain tag, nonce, signer scope, or payload type"
+  - "RPC signer accepts ambiguous raw bytes or transaction fields without explicit user-visible context"
+  - "verification recovers an address from a partially bound message and treats it as authorized"
+negative_signals:
+  - "Do not flag if the value is produced only by trusted local code and cannot be influenced across a protocol, RPC, or persistence boundary."
+  - "Do not treat as exploitable if an earlier mandatory validation step rejects the malformed input before the sensitive sink."
+  - "Signature findings need evidence that the omitted field is security-relevant and not bound by another mandatory envelope or transport context."
+  - "The source finding was validated as hardening, so avoid overstating exploitability without additional proof."
+  - "No direct diff excerpt is provided for the RPC handler that performs the prefix-and-hash step."
+patch_pattern: "Separate low-level cryptographic primitives from RPC-facing signing APIs, and enforce message-domain separation by prefixing and hashing user-supplied messages before signing."
+
+source_refs: ["/testing/dlt-ai-audit-system/corpus/imports/20260424-064909Z-bor/raw-findings/2016-10-28-bor-transaction-processing-b59c8399f.md"]
+notes:
+  - "Enriched from validated finding material; preserve claim boundaries from the source record."

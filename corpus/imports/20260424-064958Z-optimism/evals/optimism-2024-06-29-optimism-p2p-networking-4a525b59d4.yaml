@@ -1,0 +1,18 @@
+id: optimism-2024-06-29-optimism-p2p-networking-4a525b59d4
+source_record: optimism-2024-06-29-optimism-p2p-networking-4a525b59d4.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: peer-selection-hardening
+expected_missing_property: input-validation
+expected_impact_band: security-hardening-or-correctness
+expected_severity_band: low_or_informational
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No evidence shows the old behavior enabled a concrete attack or exploitable bug.
+- No evidence shows the new flag is enabled by default or broadly deployed.
+- No evidence ties the change to resource exhaustion, remote DoS, integrity loss, or auth bypass.
+- No test or commit text demonstrates an adversarial scenario against non-static peers.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention input-validation at the remote peer -> node networking validator boundary.

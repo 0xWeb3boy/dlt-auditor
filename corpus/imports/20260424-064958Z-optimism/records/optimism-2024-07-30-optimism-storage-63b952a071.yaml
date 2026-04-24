@@ -1,0 +1,72 @@
+id: optimism-2024-07-30-optimism-storage-63b952a071
+source_finding: 2024-07-30-optimism-storage-63b952a071.md
+project: optimism
+date: '2024-07-30'
+language_tags:
+- go
+bug_family: input_validation_and_invariant_enforcement
+bug_class: configuration-validation
+subsystem: storage
+architecture_tags:
+- rollup
+- deployment-config
+- state-storage
+confidence_tier: tier_a_confirmed
+security_verdict: confirmed
+validated_as: security-hardening
+recommended_uses:
+- retrieval_exemplar
+- eval_positive
+- taxonomy_refinement
+missing_property: configuration-validation
+violated_invariant: The deployment/genesis configuration pipeline should reject obviously invalid required parameters,
+  especially non-zero privileged addresses and unsupported DA configuration combinations, before artifacts are generated.
+trust_boundary: operator configuration -> deployment/genesis artifacts
+entrypoint_type: configuration-loader or deployment pipeline
+sensitive_sink: generation or activation of privileged protocol configuration
+attacker_capabilities:
+- cause or race chain-state changes, reorgs, resets, or persisted-state recovery paths
+- supply state/proof data that is later read from storage
+exploit_preconditions:
+- the affected validation path is reachable before an equivalent fail-closed check runs
+- the malformed or ambiguous input is accepted far enough to influence a security-sensitive decision
+- no upstream component has already canonicalized, authenticated, or bounded the relevant field
+- for hardening-only records, practical exploitability still depends on deployment exposure and attacker control
+  of the input source
+blast_radius: deployment-wide
+impact_types:
+- misconfiguration-risk
+severity_guess: high
+severity_rationale: Confirmed security-relevant evidence shows a runtime acceptance or validation behavior change.
+  Severity is high because the affected path can influence configuration-safety, while deployment exposure, compensating
+  checks, and concrete impact remain the main limiters.
+code_shape_summary: The buggy shape was a configuration-loader or deployment pipeline that allowed data or state
+  to approach generation or activation of privileged protocol configuration before fully enforcing configuration-validation.
+  Insufficient validation of deploy-config inputs allowed more invalid or incomplete deployment settings to pass
+  configuration checks than the patched code now permits.
+search_motifs:
+- deployment config is applied before required security fields are checked
+- chain-specific defaults overwrite or omit privileged role constraints
+- unsupported mode combinations are accepted and interpreted later
+- configuration-loader or deployment pipeline reaches generation or activation of privileged protocol configuration
+  with partial validation
+- configuration-validation is enforced in one path but missing in an alternate path
+negative_signals:
+- an earlier boundary already rejects the same malformed field under all reachable modes
+- the changed code is test-only, generated-only, logging-only, or pure refactor with no runtime decision change
+- the input is not attacker-influenced and cannot be affected by a faulty peer, operator, backend, or sequencer
+- downstream consensus/proof verification recomputes the property fail-closed before any state or privilege is committed
+- the patch only improves diagnostics or compatibility and does not alter acceptance, rejection, binding, bounds,
+  or state-transition behavior
+patch_pattern: Add explicit fail-closed validation for required deploy-config fields and supported parameter combinations
+  in config checker methods.
+source_refs:
+- git:63b952a071985abc10bee12efd3d9820d5cf4da6
+- op-chain-ops/genesis/config.go:468
+- op-chain-ops/genesis/config.go:576
+- op-chain-ops/genesis/config.go:350
+- op-chain-ops/genesis/config.go:125
+- /testing/optimism/validated-findings/kept/2024-07-30-optimism-storage-63b952a071.md
+notes:
+- Enriched from the prepared raw finding, preserving conservative claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.

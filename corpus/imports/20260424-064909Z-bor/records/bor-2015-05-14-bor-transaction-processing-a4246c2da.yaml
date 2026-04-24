@@ -1,0 +1,51 @@
+id: "bor-2015-05-14-bor-transaction-processing-a4246c2da"
+source_finding: "2015-05-14-bor-transaction-processing-a4246c2da.md"
+project: "bor"
+date: "2015-05-14"
+language_tags: ["go"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "state-validation"
+subsystem: "transaction-processing"
+architecture_tags: ["blockchain-core", "downloader", "peer-input", "state-validation", "sync-pipeline"]
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement", "eval_seed"]
+
+missing_property: "network peer authenticity and protocol state validation"
+violated_invariant: "Consensus-critical data must satisfy the same validation rules on every node before it can influence state transition, fork choice, rewards, or canonical-chain decisions."
+trust_boundary: "remote peer to node networking boundary"
+entrypoint_type: "inbound p2p message, handshake, or sync response handler"
+sensitive_sink: "peer table mutation, sync scheduling, or message acceptance"
+
+attacker_capabilities:
+  - "Can submit or relay crafted blocks, headers, transactions, state data, or sync responses"
+  - "Can target nodes that process the affected consensus or sync path"
+exploit_preconditions:
+  - "The node processes attacker-influenced data through the affected validation path."
+  - "No earlier validation, rate limit, domain binding, or consensus check blocks the crafted input before the sink."
+blast_radius: "Affected nodes may waste network, CPU, memory, or process availability; broad impact requires attacker reachability and insufficient throttling."
+
+impact_types:
+  - "availability-degradation"
+severity_guess: "medium"
+severity_rationale: "Medium severity guess because the finding is a confirmed security hardening affecting availability-degradation; tune downward when deployment controls or missing exploit evidence limit reachability."
+
+code_shape_summary: "The patch changes the downloader so an unknown-parent head is reported as an error instead of being silently treated as \"no blocks available.\" That is clear validation hardening in the sync pipeline, but the provided evidence does not establish a concrete exploit or security impact beyond handling an invalid state more explicitly. Root cause: The downloader boundary conflated two different states: an empty queue and a queued block batch whose head did not connect to known local chain state. That hid invalid input/state from the caller instead of surfacing it explicitly."
+search_motifs:
+  - "block/header/transaction validation has a special case that bypasses a consensus rule"
+  - "fork-choice or state-transition code derives canonical state before checking all protocol invariants"
+  - "reward, validator-set, timestamp, gas, or root validation differs across execution paths or fork eras"
+negative_signals:
+  - "Do not flag if the value is produced only by trusted local code and cannot be influenced across a protocol, RPC, or persistence boundary."
+  - "Do not treat as exploitable if an earlier mandatory validation step rejects the malformed input before the sensitive sink."
+  - "Consensus findings need evidence that different valid-looking inputs or node versions can reach divergent acceptance, state, or fork-choice behavior."
+  - "The source finding was validated as hardening, so avoid overstating exploitability without additional proof."
+  - "No proof that the prior behavior caused a persistent remote DoS, crash, or consensus failure."
+patch_pattern: "Distinguish benign empty state from invalid state at the handoff boundary and propagate an explicit error instead of silently collapsing both cases into the same result."
+
+source_refs: ["/testing/dlt-ai-audit-system/corpus/imports/20260424-064909Z-bor/raw-findings/2015-05-14-bor-transaction-processing-a4246c2da.md"]
+notes:
+  - "Enriched from validated finding material; preserve claim boundaries from the source record."

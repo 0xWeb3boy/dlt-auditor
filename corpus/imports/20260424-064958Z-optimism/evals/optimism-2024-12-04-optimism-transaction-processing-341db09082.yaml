@@ -1,0 +1,19 @@
+id: optimism-2024-12-04-optimism-transaction-processing-341db09082
+source_record: optimism-2024-12-04-optimism-transaction-processing-341db09082.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: consensus-validation-omission
+expected_missing_property: protocol-state-invariant
+expected_impact_band: consensus-or-state-integrity
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- The excerpt does not show the full before/after comparison logic for the Holocene base-fee rule.
+- No test diff or execution evidence is provided to show the exact invalid-header case that was previously accepted.
+- The patch does not demonstrate observed exploitation, chain split, or peer-triggered impact in production.
+- The transaction-file changes are not clearly tied to the security claim and do not support replay/signature classification.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention protocol-state-invariant at the sequencer/batch/transaction input ->
+  derivation or execution engine boundary.

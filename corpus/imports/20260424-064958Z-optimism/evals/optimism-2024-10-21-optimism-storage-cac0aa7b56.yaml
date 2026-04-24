@@ -1,0 +1,21 @@
+id: optimism-2024-10-21-optimism-storage-cac0aa7b56
+source_record: optimism-2024-10-21-optimism-storage-cac0aa7b56.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: insufficient-frontier-validation
+expected_missing_property: input-validation
+expected_impact_band: state-or-proof-integrity
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- The provided snippets do not prove the pre-patch system lacked equivalent continuity validation elsewhere.
+- No attacker-controlled trigger or exploit path is shown in the supplied evidence.
+- No concrete downstream security impact is demonstrated, such as consensus bypass, forged cross-chain execution,
+  fund loss, or privilege gain.
+- The commit message and mixed file changes suggest general correctness/plumbing work in addition to the hardening
+  change.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention input-validation at the persisted chain state -> recovery/derivation
+  logic boundary.

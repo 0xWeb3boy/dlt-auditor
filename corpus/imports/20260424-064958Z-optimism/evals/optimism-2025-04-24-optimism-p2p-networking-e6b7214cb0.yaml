@@ -1,0 +1,20 @@
+id: optimism-2025-04-24-optimism-p2p-networking-e6b7214cb0
+source_record: optimism-2025-04-24-optimism-p2p-networking-e6b7214cb0.yaml
+project: optimism
+expected_bug_family: signature_binding_and_signer_scope
+expected_bug_class: trusted-signer-resolution
+expected_missing_property: signer-and-context-binding
+expected_impact_band: state-or-proof-integrity
+expected_severity_band: low_or_informational
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No excerpt shows the full pre-patch signer source or fallback behavior.
+- No excerpt shows the full post-patch unsafe_block_signer implementation.
+- No excerpt shows where the resolved signer is enforced in block validation, acceptance, or peer handling.
+- No evidence demonstrates a concrete exploit path, consensus break, or arbitrary unsafe block acceptance before
+  the patch.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention signer-and-context-binding at the remote peer -> node networking validator
+  boundary.

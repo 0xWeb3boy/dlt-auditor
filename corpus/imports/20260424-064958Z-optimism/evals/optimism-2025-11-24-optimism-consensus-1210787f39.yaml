@@ -1,0 +1,19 @@
+id: optimism-2025-11-24-optimism-consensus-1210787f39
+source_record: optimism-2025-11-24-optimism-consensus-1210787f39.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: payload-derivation-filtering
+expected_missing_property: protocol-state-invariant
+expected_impact_band: consensus-or-state-integrity
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No proof that an attacker could reliably trigger or exploit the pre-fix behavior.
+- No evidence of an observed consensus split, chain halt, or accepted invalid block.
+- The core implementation diff for the faulty filter itself is not shown in the provided excerpts.
+- No demonstrated fund impact, privilege gain, or unauthorized state transition is provided.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention protocol-state-invariant at the sequencer/batch/transaction input ->
+  derivation or execution engine boundary.

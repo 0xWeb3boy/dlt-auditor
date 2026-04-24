@@ -1,0 +1,73 @@
+id: optimism-2025-12-03-optimism-consensus-8924fbe38d
+source_finding: 2025-12-03-optimism-consensus-8924fbe38d.md
+project: optimism
+date: '2025-12-03'
+language_tags:
+- rust
+bug_family: input_validation_and_invariant_enforcement
+bug_class: input-validation
+subsystem: consensus
+architecture_tags:
+- rollup
+- consensus
+confidence_tier: tier_b_likely
+security_verdict: likely
+validated_as: security-hardening
+recommended_uses:
+- retrieval_exemplar
+- taxonomy_refinement
+missing_property: input-validation
+violated_invariant: After the L2 safe head, a singular batch derived from a span batch must not use an L1 origin
+  older than the safe head's L1 origin. If singular-batch extraction in that path fails, the pipeline should take
+  the same drop-or-flush recovery path used for invalid span batches rather than propagating an inconsistent intermediate
+  error.
+trust_boundary: sequencer/batch/transaction input -> derivation or execution engine
+entrypoint_type: transaction-handler or batch-derivation path
+sensitive_sink: block payload acceptance, execution attributes, or derived state transition
+attacker_capabilities:
+- influence forkchoice, sync, finality, or consensus input observed by the node
+- trigger edge-case state transitions during startup, rewind, or promotion
+exploit_preconditions:
+- the affected validation path is reachable before an equivalent fail-closed check runs
+- the malformed or ambiguous input is accepted far enough to influence a security-sensitive decision
+- no upstream component has already canonicalized, authenticated, or bounded the relevant field
+- for hardening-only records, practical exploitability still depends on deployment exposure and attacker control
+  of the input source
+blast_radius: chain-or-network-wide if the invalid state is accepted; otherwise node-local
+impact_types:
+- correctness-or-hardening
+- consensus-integrity
+severity_guess: medium
+severity_rationale: Evidence supports security hardening, but the raw finding does not prove a complete attacker-triggered
+  exploit. Severity is medium because the affected path can influence consensus-or-state-integrity, while deployment
+  exposure, compensating checks, and concrete impact remain the main limiters.
+code_shape_summary: The buggy shape was a transaction-handler or batch-derivation path that allowed data or state
+  to approach block payload acceptance, execution attributes, or derived state transition before fully enforcing
+  input-validation. The implementation under-enforced the safe-head L1-origin invariant for overlapping span batches
+  and did not route extraction failures through the same recovery behavior used for dropped invalid batches.
+search_motifs:
+- state promotion, rewind, or finalization proceeds without parent/canonicality/freshness check
+- derivation updates persisted state before all protocol attributes are validated
+- fork-specific validation is missing on one post-upgrade branch
+- transaction-handler or batch-derivation path reaches block payload acceptance, execution attributes, or derived
+  state transition with partial validation
+- input-validation is enforced in one path but missing in an alternate path
+negative_signals:
+- an earlier boundary already rejects the same malformed field under all reachable modes
+- the changed code is test-only, generated-only, logging-only, or pure refactor with no runtime decision change
+- the input is not attacker-influenced and cannot be affected by a faulty peer, operator, backend, or sequencer
+- downstream consensus/proof verification recomputes the property fail-closed before any state or privilege is committed
+- the patch only improves diagnostics or compatibility and does not alter acceptance, rejection, binding, bounds,
+  or state-transition behavior
+patch_pattern: Add the same protocol-invariant check at multiple entry points in the validation/extraction flow,
+  then normalize exceptional extraction outcomes into one deterministic recovery path.
+source_refs:
+- git:8924fbe38d1b8a92569b4043b89a12fc87a00a2b
+- crates/protocol/derive/src/stages/batch/batch_stream.rs:194
+- crates/protocol/protocol/src/batch/span.rs:309
+- crates/protocol/protocol/src/batch/span.rs:396
+- crates/protocol/protocol/src/batch/span.rs:2208
+- /testing/optimism/validated-findings/kept/2025-12-03-optimism-consensus-8924fbe38d.md
+notes:
+- Enriched from the prepared raw finding, preserving conservative claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.

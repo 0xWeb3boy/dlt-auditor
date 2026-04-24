@@ -18,13 +18,20 @@ Focus on externally supplied or consensus-layer supplied blocks, headers, payloa
 Search patterns:
 - A fork or feature predicate called with fewer inputs than the protocol rule requires, such as height without timestamp, parent total difficulty without current difficulty, method version without message kind, or activation state without chain variant.
 - A generic mainnet or base-chain validator reused for a chain variant that has different field presence, value, or timing rules.
+- In rollup or multi-domain derivation pipelines, compare the trusted origin context with payload-carried timestamps, origins, fork markers, and batch metadata. Fork or feature gates should use the trusted origin when the protocol defines the gate there, not a value decoded from untrusted batch contents.
 - Header or payload fields checked in one import path but omitted in sidechain, downloaded, recovery, optimistic, reorg, replay, or Engine API paths.
 - Canonical commitments such as transaction root, receipt root, uncle list, recovered sender, replay-protection flags, or terminal-total-difficulty conditions enforced in one path but omitted in replay, compatibility, recovery, signing, or side import paths.
+- Check conversions between aggregate batch formats and per-block or per-transaction formats. A span, segment, or aggregate batch must not produce child payloads whose origin, parent, timestamp, fork activation, or safe-head relation is older or weaker than the boundary being processed.
+- Check fallback payload construction paths such as deposits-only, system-transaction-only, invalid-payload recovery, or post-execution metadata paths. The fallback must filter exactly the allowed transaction classes and must clear or rebuild cached attributes that came from the invalid path.
 - Early returns that process payload attributes, return VALID, or update head/safe/finalized state before forkchoice consistency checks run.
+- For rollups, distinguish unsafe, local-safe, cross-safe, finalized, and disputed target states. Code must not relabel unsafe data as safe/finalized during startup, sync completion, rewind, or recovery without re-deriving that label from authoritative protocol context.
 - Parent, ancestor, finalized, safe, or invalid-state decisions keyed by one coordinate while the protocol identity includes hash, number, parent hash, and validity status.
 - Special cases for synthetic payloads, segmented blocks, zero hashes, legacy fixtures, or compatibility modes that skip broad validation instead of only the specific non-comparable field.
 - Error paths that collapse invalid-block, invalid-header, or sender-recovery failures into generic execution or internal errors that higher layers cannot treat as invalid.
 - Equal-score, equal-total-difficulty, or same-height tie-breaks that use randomness or local heuristics without an explicit protocol or policy rule.
+- Finalization, post-execution, state-sync, deposit, withdrawal, or system-transaction paths that derive extra receipts, generated transactions, or state changes. Check that the block body, locally derived system work, receipts, and state root are cross-checked before success and that unsupported fields fail closed.
+- Fork-aware hashing, signing, opcode decoding, and header sanity paths where the canonical object shape changes by fork. Check that every verifier, signer, replay path, and helper includes exactly the fields active for that fork and rejects fields forbidden before or after the fork.
+- Consensus validation that depends on an external chain or consensus client. Check that time-based or latest queries are first pinned to a deterministic height/hash/finality boundary, and that all validators would query the same snapshot for the same local block.
 
 Questions to answer:
 1. Which protocol rule is authoritative for this block, payload, fork, method version, chain variant, and timestamp or height?

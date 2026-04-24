@@ -1,0 +1,72 @@
+id: optimism-2022-06-22-optimism-transaction-processing-a828da9fe7
+source_finding: 2022-06-22-optimism-transaction-processing-a828da9fe7.md
+project: optimism
+date: '2022-06-22'
+language_tags:
+- go
+bug_family: authz_and_role_gates
+bug_class: access-control
+subsystem: transaction-processing
+architecture_tags:
+- rollup
+- smart-contracts
+confidence_tier: tier_b_likely
+security_verdict: likely
+validated_as: security-hardening
+recommended_uses:
+- retrieval_exemplar
+- taxonomy_refinement
+missing_property: authorization
+violated_invariant: 'Privileged oracle roles should be explicit and observable: the contract deployment path, role-query
+  interface, and role-rotation path should clearly encode who operates the oracle and who administers that role.'
+trust_boundary: sequencer/batch/transaction input -> derivation or execution engine
+entrypoint_type: transaction-handler or batch-derivation path
+sensitive_sink: block payload acceptance, execution attributes, or derived state transition
+attacker_capabilities:
+- influence sequencer, batch, transaction, or L1-derived input consumed by derivation/execution
+- provide malformed payload fields that reach protocol validation
+- exercise an initialization, ownership, role-change, or policy-gated path
+exploit_preconditions:
+- the affected validation path is reachable before an equivalent fail-closed check runs
+- the malformed or ambiguous input is accepted far enough to influence a security-sensitive decision
+- no upstream component has already canonicalized, authenticated, or bounded the relevant field
+- for hardening-only records, practical exploitability still depends on deployment exposure and attacker control
+  of the input source
+blast_radius: node-local unless the state feeds consensus-critical outputs
+impact_types:
+- privilege-misuse
+- state-integrity
+- authorization-or-policy-bypass
+severity_guess: medium
+severity_rationale: Evidence supports security hardening, but the raw finding does not prove a complete attacker-triggered
+  exploit. Severity is medium because the affected path can influence state-or-proof-integrity, while deployment
+  exposure, compensating checks, and concrete impact remain the main limiters.
+code_shape_summary: The buggy shape was a transaction-handler or batch-derivation path that allowed data or state
+  to approach block payload acceptance, execution attributes, or derived state transition before fully enforcing
+  authorization. Not established by the provided evidence.
+search_motifs:
+- role separation checked on one lifecycle path but not initialize/transfer/update
+- policy gate depends on caller-supplied context that can be omitted or defaulted
+- privileged address or owner field accepted without invariant checks
+- state promotion, rewind, or finalization proceeds without parent/canonicality/freshness check
+- derivation updates persisted state before all protocol attributes are validated
+- fork-specific validation is missing on one post-upgrade branch
+negative_signals:
+- an earlier boundary already rejects the same malformed field under all reachable modes
+- the changed code is test-only, generated-only, logging-only, or pure refactor with no runtime decision change
+- the input is not attacker-influenced and cannot be affected by a faulty peer, operator, backend, or sequencer
+- downstream consensus/proof verification recomputes the property fail-closed before any state or privilege is committed
+- the patch only improves diagnostics or compatibility and does not alter acceptance, rejection, binding, bounds,
+  or state-transition behavior
+patch_pattern: Make role management explicit in the contract interface and deployment path, and add event/test coverage
+  around role changes.
+source_refs:
+- git:a828da9fe77683ef69f5f08198eb378a37b69d51
+- op-bindings/bindings/l2outputoracle.go:518
+- op-bindings/bindings/l2outputoracle.go:570
+- op-bindings/bindings/l2outputoracle.go:1130
+- op-bindings/bindings/l2outputoracle.go:59
+- /testing/optimism/validated-findings/kept/2022-06-22-optimism-transaction-processing-a828da9fe7.md
+notes:
+- Enriched from the prepared raw finding, preserving conservative claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.

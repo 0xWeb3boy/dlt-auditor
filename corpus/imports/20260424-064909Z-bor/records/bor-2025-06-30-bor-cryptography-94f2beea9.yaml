@@ -1,0 +1,52 @@
+id: "bor-2025-06-30-bor-cryptography-94f2beea9"
+source_finding: "2025-06-30-bor-cryptography-94f2beea9.md"
+project: "bor"
+date: "2025-06-30"
+language_tags: ["go"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "improper-consensus-validation"
+subsystem: "cryptography"
+architecture_tags: ["authorization-check", "consensus", "signer-validation", "stateless-sync", "validator-set"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement", "eval_seed"]
+
+missing_property: "signature authorization and domain binding"
+violated_invariant: "Consensus-critical data must satisfy the same validation rules on every node before it can influence state transition, fork choice, rewards, or canonical-chain decisions."
+trust_boundary: "untrusted signed payload to verifier or signer boundary"
+entrypoint_type: "transaction/message signature verification path"
+sensitive_sink: "signer recovery, authorization, or replay-protection decision"
+
+attacker_capabilities:
+  - "Can submit or relay crafted blocks, headers, transactions, state data, or sync responses"
+  - "Can target nodes that process the affected consensus or sync path"
+exploit_preconditions:
+  - "The node processes attacker-influenced data through the affected validation path."
+  - "No earlier validation, rate limit, domain binding, or consensus check blocks the crafted input before the sink."
+  - "Exploitability depends on the surrounding deployment and was validated as likely or hardening rather than fully proven."
+blast_radius: "The affected node or peers relying on its decisions may accept unauthorized, unauthenticated, or incorrectly validated protocol state."
+
+impact_types:
+  - "consensus-integrity-risk"
+severity_guess: "medium"
+severity_rationale: "Medium severity guess because the finding is a likely security hardening affecting consensus-integrity-risk; tune downward when deployment controls or missing exploit evidence limit reachability."
+
+code_shape_summary: "The provided evidence supports a consensus-sensitive stateless-sync validation fix, but it does not establish a concrete vulnerability. The diff shows explicit signer-membership and succession checks being added to snapshot application and veBlop snapshot handling being split into a dedicated helper, which is consistent with bug fixing or hardening in consensus code. From the shown hunks alone, it is not proven that invalid headers were previously accepted, that a chain split was possible, or that an attacker-controlled security issue existed. Root cause: The evidence shows missing or delayed validation in the stateless snapshot transition path: recovered signers were not explicitly checked in the shown code for validator-set membership and succession before further snapshot processing. The diff also suggests veBlop-specific snapshot handling was intertwined with the generic path. The provided material does not prove whether this caused only sync correctness issues or a broader security failure."
+search_motifs:
+  - "block/header/transaction validation has a special case that bypasses a consensus rule"
+  - "fork-choice or state-transition code derives canonical state before checking all protocol invariants"
+  - "reward, validator-set, timestamp, gas, or root validation differs across execution paths or fork eras"
+negative_signals:
+  - "Do not flag if the value is produced only by trusted local code and cannot be influenced across a protocol, RPC, or persistence boundary."
+  - "Do not treat as exploitable if an earlier mandatory validation step rejects the malformed input before the sensitive sink."
+  - "Consensus findings need evidence that different valid-looking inputs or node versions can reach divergent acceptance, state, or fork-choice behavior."
+  - "The source finding was validated as hardening, so avoid overstating exploitability without additional proof."
+  - "No full pre-patch function is shown to prove equivalent signer checks were not enforced elsewhere."
+patch_pattern: "Add explicit validation checks at the snapshot state-transition boundary and isolate special-case reconstruction logic in a dedicated helper."
+
+source_refs: ["/testing/dlt-ai-audit-system/corpus/imports/20260424-064909Z-bor/raw-findings/2025-06-30-bor-cryptography-94f2beea9.md"]
+notes:
+  - "Enriched from validated finding material; preserve claim boundaries from the source record."

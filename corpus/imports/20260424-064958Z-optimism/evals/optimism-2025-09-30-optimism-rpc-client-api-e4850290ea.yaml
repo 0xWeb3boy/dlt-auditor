@@ -1,0 +1,18 @@
+id: optimism-2025-09-30-optimism-rpc-client-api-e4850290ea
+source_record: optimism-2025-09-30-optimism-rpc-client-api-e4850290ea.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: race-condition
+expected_missing_property: input-validation
+expected_impact_band: consensus-or-state-integrity
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No proof that an attacker can trigger the race from an external interface.
+- No reproducer showing invalid forkchoice, chain split, or acceptance of bad state.
+- No evidence of confidentiality, authentication, or memory-safety impact.
+- No patch text demonstrating an actual exploited bug rather than preventive serialization.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention input-validation at the RPC/API caller -> node service boundary.

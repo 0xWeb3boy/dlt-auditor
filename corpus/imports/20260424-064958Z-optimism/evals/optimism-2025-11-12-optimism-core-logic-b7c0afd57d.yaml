@@ -1,0 +1,19 @@
+id: optimism-2025-11-12-optimism-core-logic-b7c0afd57d
+source_record: optimism-2025-11-12-optimism-core-logic-b7c0afd57d.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: archive-path-validation-hardening
+expected_missing_property: path-confinement
+expected_impact_band: host-filesystem-integrity
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No failing pre-patch test or proof of exploit is shown.
+- The full sanitizeTarPath implementation is not provided, so complete before/after semantics are not visible.
+- The patch evidence does not show whether the old logic allowed escaping the output directory on all supported
+  platforms.
+- No evidence is provided for symlink, hardlink, or other tar-header edge cases.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention path-confinement at the artifact/archive input -> host filesystem boundary.

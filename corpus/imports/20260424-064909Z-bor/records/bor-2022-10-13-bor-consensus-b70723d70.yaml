@@ -1,0 +1,52 @@
+id: "bor-2022-10-13-bor-consensus-b70723d70"
+source_finding: "2022-10-13-bor-consensus-b70723d70.md"
+project: "bor"
+date: "2022-10-13"
+language_tags: ["go"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "incomplete-chain-validation"
+subsystem: "consensus"
+architecture_tags: ["blockchain-core", "chain-validation", "consensus", "milestone", "whitelist"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement", "eval_seed"]
+
+missing_property: "consensus invariant enforcement"
+violated_invariant: "Consensus-critical data must satisfy the same validation rules on every node before it can influence state transition, fork choice, rewards, or canonical-chain decisions."
+trust_boundary: "untrusted block, header, transaction, or state data to consensus engine boundary"
+entrypoint_type: "block/header/transaction validation or state-transition path"
+sensitive_sink: "canonical chain selection, state root commitment, or consensus state mutation"
+
+attacker_capabilities:
+  - "Can submit or relay crafted blocks, headers, transactions, state data, or sync responses"
+  - "Can target nodes that process the affected consensus or sync path"
+exploit_preconditions:
+  - "The node processes attacker-influenced data through the affected validation path."
+  - "No earlier validation, rate limit, domain binding, or consensus check blocks the crafted input before the sink."
+  - "Exploitability depends on the surrounding deployment and was validated as likely or hardening rather than fully proven."
+blast_radius: "Consensus or sync participants that accept the affected data path may diverge, reject valid data, accept invalid data, or persist inconsistent state."
+
+impact_types:
+  - "chain-validation-risk"
+severity_guess: "low"
+severity_rationale: "Low severity guess because the finding is a likely security hardening affecting chain-validation-risk; tune downward when deployment controls or missing exploit evidence limit reachability."
+
+code_shape_summary: "The diff supports a correctness or hardening change in Bor's whitelist milestone lock state, but it does not establish a concrete vulnerability. The implementation now tightens lock progression rules and stores the locked sprint hash, and the tests were updated to exercise that behavior. Root cause: The evidence points to incomplete milestone lock-state handling: the prior code did not fully enforce monotonic lock transitions and did not retain the associated end-block hash in the lock state."
+search_motifs:
+  - "block/header/transaction validation has a special case that bypasses a consensus rule"
+  - "fork-choice or state-transition code derives canonical state before checking all protocol invariants"
+  - "reward, validator-set, timestamp, gas, or root validation differs across execution paths or fork eras"
+negative_signals:
+  - "Do not flag if the value is produced only by trusted local code and cannot be influenced across a protocol, RPC, or persistence boundary."
+  - "Do not treat as exploitable if an earlier mandatory validation step rejects the malformed input before the sensitive sink."
+  - "Consensus findings need evidence that different valid-looking inputs or node versions can reach divergent acceptance, state, or fork-choice behavior."
+  - "The source finding was validated as hardening, so avoid overstating exploitability without additional proof."
+  - "No commit message, advisory, or patch note describes an attack, exploit, or reported vulnerability."
+patch_pattern: "Tighten a local state machine by enforcing additional transition guards, clearing stale state on advancement, and storing the full state needed for later validation."
+
+source_refs: ["/testing/dlt-ai-audit-system/corpus/imports/20260424-064909Z-bor/raw-findings/2022-10-13-bor-consensus-b70723d70.md"]
+notes:
+  - "Enriched from validated finding material; preserve claim boundaries from the source record."

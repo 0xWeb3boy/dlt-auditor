@@ -1,0 +1,20 @@
+id: optimism-2025-02-06-optimism-storage-6fb1a6d8e0
+source_record: optimism-2025-02-06-optimism-storage-6fb1a6d8e0.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: proof-validation-hardening
+expected_missing_property: integrity-binding
+expected_impact_band: consensus-or-state-integrity
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No test or advisory evidence shows the old code could actually be exploited to win a false dispute or finalize
+  an invalid state.
+- The diff does not show whether the pre-fix behavior accepted invalid claims, rejected valid claims, or both.
+- No deployment impact, reachable attacker conditions, or real-world exploit scenario is provided.
+- an earlier boundary already rejects the same malformed field under all reachable modes
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention integrity-binding at the external proof/data provider -> verifier/derivation
+  code boundary.

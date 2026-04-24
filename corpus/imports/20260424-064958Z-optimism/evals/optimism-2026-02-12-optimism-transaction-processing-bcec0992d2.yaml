@@ -1,0 +1,20 @@
+id: optimism-2026-02-12-optimism-transaction-processing-bcec0992d2
+source_record: optimism-2026-02-12-optimism-transaction-processing-bcec0992d2.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: missing-derivation-completeness-check
+expected_missing_property: protocol-state-invariant
+expected_impact_band: state-or-proof-integrity
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No direct evidence shows the old code could be exploited by an attacker or malicious claimant.
+- No patch evidence proves transition_and_check(...) would previously accept an incorrect post-state.
+- No demonstrated consensus failure, asset loss, or dispute-game bypass is shown.
+- No evidence establishes how reachable incomplete derivation was under adversarial conditions versus benign missing-input
+  conditions.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention protocol-state-invariant at the external proof/data provider -> verifier/derivation
+  code boundary.

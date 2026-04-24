@@ -1,0 +1,72 @@
+id: optimism-2025-03-12-optimism-transaction-processing-060a261c6f
+source_finding: 2025-03-12-optimism-transaction-processing-060a261c6f.md
+project: optimism
+date: '2025-03-12'
+language_tags:
+- go
+bug_family: input_validation_and_invariant_enforcement
+bug_class: configuration-scoping
+subsystem: transaction-processing
+architecture_tags:
+- rollup
+- deployment-config
+confidence_tier: tier_b_likely
+security_verdict: likely
+validated_as: security-hardening
+recommended_uses:
+- retrieval_exemplar
+- taxonomy_refinement
+missing_property: configuration-validation
+violated_invariant: A deployment should not be routed onto the shared predeployed OPCM and global SuperchainConfig
+  path solely because tagged artifacts exist; that path should be used only for intents that explicitly match the
+  standard configuration and standard governance-role assumptions.
+trust_boundary: operator configuration -> deployment/genesis artifacts
+entrypoint_type: configuration-loader or deployment pipeline
+sensitive_sink: generation or activation of privileged protocol configuration
+attacker_capabilities:
+- influence sequencer, batch, transaction, or L1-derived input consumed by derivation/execution
+- provide malformed payload fields that reach protocol validation
+exploit_preconditions:
+- the affected validation path is reachable before an equivalent fail-closed check runs
+- the malformed or ambiguous input is accepted far enough to influence a security-sensitive decision
+- no upstream component has already canonicalized, authenticated, or bounded the relevant field
+- for hardening-only records, practical exploitability still depends on deployment exposure and attacker control
+  of the input source
+blast_radius: deployment-wide
+impact_types:
+- governance-misconfiguration
+severity_guess: low
+severity_rationale: Evidence supports security hardening, but the raw finding does not prove a complete attacker-triggered
+  exploit. Severity is low because the affected path can influence configuration-safety, while deployment exposure,
+  compensating checks, and concrete impact remain the main limiters.
+code_shape_summary: The buggy shape was a configuration-loader or deployment pipeline that allowed data or state
+  to approach generation or activation of privileged protocol configuration before fully enforcing configuration-validation.
+  The init logic chose a shared global configuration path from deployment-environment properties (isL1Tag and predeployed
+  OPCM availability) without first constraining that choice to intents that actually matched the standard deployment
+  model and standard role assumptions.
+search_motifs:
+- deployment config is applied before required security fields are checked
+- chain-specific defaults overwrite or omit privileged role constraints
+- unsupported mode combinations are accepted and interpreted later
+- configuration-loader or deployment pipeline reaches generation or activation of privileged protocol configuration
+  with partial validation
+- configuration-validation is enforced in one path but missing in an alternate path
+negative_signals:
+- an earlier boundary already rejects the same malformed field under all reachable modes
+- the changed code is test-only, generated-only, logging-only, or pure refactor with no runtime decision change
+- the input is not attacker-influenced and cannot be affected by a faulty peer, operator, backend, or sequencer
+- downstream consensus/proof verification recomputes the property fail-closed before any state or privilege is committed
+- the patch only improves diagnostics or compatibility and does not alter acceptance, rejection, binding, bounds,
+  or state-transition behavior
+patch_pattern: Restrict a broad default/shared configuration path to explicitly eligible intent types, and back
+  that decision with fail-closed validation of canonical role and owner data.
+source_refs:
+- git:060a261c6f3ca373c9800f3b1e50e973773728a6
+- op-deployer/pkg/deployer/pipeline/init.go:39
+- op-deployer/pkg/deployer/state/intent.go:293
+- op-deployer/pkg/deployer/standard/standard.go:172
+- op-deployer/pkg/deployer/state/intent.go:122
+- /testing/optimism/validated-findings/kept/2025-03-12-optimism-transaction-processing-060a261c6f.md
+notes:
+- Enriched from the prepared raw finding, preserving conservative claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.

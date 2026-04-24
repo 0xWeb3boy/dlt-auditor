@@ -1,0 +1,756 @@
+{
+  "repo": "/testing/optimism",
+  "repo_slug": "optimism",
+  "kept_dir": "/testing/optimism/validated-findings/kept",
+  "created_at_utc": "20260424-064958Z",
+  "finding_count": 83,
+  "findings": [
+    {
+      "id": "optimism-2022-04-26-optimism-transaction-processing-431274830a",
+      "source": "/testing/optimism/validated-findings/kept/2022-04-26-optimism-transaction-processing-431274830a.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "denial-of-service",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2022-04-30-optimism-transaction-processing-46fa0d475e",
+      "source": "/testing/optimism/validated-findings/kept/2022-04-30-optimism-transaction-processing-46fa0d475e.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "p2p-message-validation-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2022-06-17-optimism-storage-35757456bf",
+      "source": "/testing/optimism/validated-findings/kept/2022-06-17-optimism-storage-35757456bf.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "oracle-output-key-mismatch",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2022-06-22-optimism-transaction-processing-a828da9fe7",
+      "source": "/testing/optimism/validated-findings/kept/2022-06-22-optimism-transaction-processing-a828da9fe7.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "access-control",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "optimism-2022-09-08-optimism-transaction-processing-1c787aa01d",
+      "source": "/testing/optimism/validated-findings/kept/2022-09-08-optimism-transaction-processing-1c787aa01d.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "input-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2022-09-08-optimism-transaction-processing-a6101c460a",
+      "source": "/testing/optimism/validated-findings/kept/2022-09-08-optimism-transaction-processing-a6101c460a.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "input-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2022-09-19-optimism-storage-af3e56b124",
+      "source": "/testing/optimism/validated-findings/kept/2022-09-19-optimism-storage-af3e56b124.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "access-control-invariant-bypass",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "optimism-2022-10-27-optimism-core-logic-df1123f0e4",
+      "source": "/testing/optimism/validated-findings/kept/2022-10-27-optimism-core-logic-df1123f0e4.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "insufficient-input-validation",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2022-12-16-optimism-p2p-networking-727c1fccda",
+      "source": "/testing/optimism/validated-findings/kept/2022-12-16-optimism-p2p-networking-727c1fccda.md",
+      "bug_family": "attestation_trust_and_freshness",
+      "bug_class": "uncaught-panic-on-untrusted-input",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "freshness"
+    },
+    {
+      "id": "optimism-2023-05-04-optimism-rpc-client-api-73f310c0e2",
+      "source": "/testing/optimism/validated-findings/kept/2023-05-04-optimism-rpc-client-api-73f310c0e2.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "insufficient-consensus-validation",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2023-10-26-optimism-transaction-processing-210492cdcb",
+      "source": "/testing/optimism/validated-findings/kept/2023-10-26-optimism-transaction-processing-210492cdcb.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "state-machine-atomicity",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2024-01-29-optimism-transaction-processing-78e3cbb884",
+      "source": "/testing/optimism/validated-findings/kept/2024-01-29-optimism-transaction-processing-78e3cbb884.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-safety",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2024-02-02-optimism-transaction-processing-e9172f60bb",
+      "source": "/testing/optimism/validated-findings/kept/2024-02-02-optimism-transaction-processing-e9172f60bb.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "preimage-representation-confusion",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2024-03-05-optimism-storage-c66091d31f",
+      "source": "/testing/optimism/validated-findings/kept/2024-03-05-optimism-storage-c66091d31f.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "insufficient-domain-separation",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "optimism-2024-05-07-optimism-cryptography-016f452ab5",
+      "source": "/testing/optimism/validated-findings/kept/2024-05-07-optimism-cryptography-016f452ab5.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-integrity-verification",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2024-05-07-optimism-cryptography-1a9d14b8ab",
+      "source": "/testing/optimism/validated-findings/kept/2024-05-07-optimism-cryptography-1a9d14b8ab.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "insufficient-input-validation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2024-05-07-optimism-cryptography-4441686d3f",
+      "source": "/testing/optimism/validated-findings/kept/2024-05-07-optimism-cryptography-4441686d3f.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "insufficient-integrity-validation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2024-05-28-optimism-cryptography-926ba71288",
+      "source": "/testing/optimism/validated-findings/kept/2024-05-28-optimism-cryptography-926ba71288.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "input-validation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2024-06-04-optimism-transaction-processing-1eda12bf58",
+      "source": "/testing/optimism/validated-findings/kept/2024-06-04-optimism-transaction-processing-1eda12bf58.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "insufficient-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2024-06-26-optimism-transaction-processing-d1ea098c1f",
+      "source": "/testing/optimism/validated-findings/kept/2024-06-26-optimism-transaction-processing-d1ea098c1f.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "incorrect-proof-state-hash",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2024-06-29-optimism-p2p-networking-4a525b59d4",
+      "source": "/testing/optimism/validated-findings/kept/2024-06-29-optimism-p2p-networking-4a525b59d4.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "peer-selection-hardening",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2024-07-30-optimism-storage-63b952a071",
+      "source": "/testing/optimism/validated-findings/kept/2024-07-30-optimism-storage-63b952a071.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "configuration-validation",
+      "subsystem": "storage",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2024-10-18-optimism-cryptography-cc4527008e",
+      "source": "/testing/optimism/validated-findings/kept/2024-10-18-optimism-cryptography-cc4527008e.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "state-validation-hardening",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2024-10-21-optimism-storage-4e4687ff75",
+      "source": "/testing/optimism/validated-findings/kept/2024-10-21-optimism-storage-4e4687ff75.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "chain-continuity-validation",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2024-10-21-optimism-storage-cac0aa7b56",
+      "source": "/testing/optimism/validated-findings/kept/2024-10-21-optimism-storage-cac0aa7b56.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "insufficient-frontier-validation",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2024-10-31-optimism-transaction-processing-47da14af2d",
+      "source": "/testing/optimism/validated-findings/kept/2024-10-31-optimism-transaction-processing-47da14af2d.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "invalid-payload-handling",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2024-11-06-optimism-transaction-processing-633aceb2a2",
+      "source": "/testing/optimism/validated-findings/kept/2024-11-06-optimism-transaction-processing-633aceb2a2.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "signature-metadata-inconsistency",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "optimism-2024-11-27-optimism-rpc-client-api-c8f4b3a0e0",
+      "source": "/testing/optimism/validated-findings/kept/2024-11-27-optimism-rpc-client-api-c8f4b3a0e0.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "security-sensitive-config-validation",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2024-12-04-optimism-transaction-processing-341db09082",
+      "source": "/testing/optimism/validated-findings/kept/2024-12-04-optimism-transaction-processing-341db09082.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-validation-omission",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2025-01-10-optimism-storage-77ece638bd",
+      "source": "/testing/optimism/validated-findings/kept/2025-01-10-optimism-storage-77ece638bd.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "insufficient-validation",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2025-01-13-optimism-rpc-client-api-ca583f7fbd",
+      "source": "/testing/optimism/validated-findings/kept/2025-01-13-optimism-rpc-client-api-ca583f7fbd.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "incorrect-context-binding",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2025-01-21-optimism-storage-dd37e6192c",
+      "source": "/testing/optimism/validated-findings/kept/2025-01-21-optimism-storage-dd37e6192c.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "insufficient-state-transition-validation",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2025-01-28-optimism-transaction-processing-d39eb247e6",
+      "source": "/testing/optimism/validated-findings/kept/2025-01-28-optimism-transaction-processing-d39eb247e6.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "improper-state-handling",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2025-02-06-optimism-storage-6fb1a6d8e0",
+      "source": "/testing/optimism/validated-findings/kept/2025-02-06-optimism-storage-6fb1a6d8e0.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "proof-validation-hardening",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2025-02-06-optimism-storage-ec85a08ef9",
+      "source": "/testing/optimism/validated-findings/kept/2025-02-06-optimism-storage-ec85a08ef9.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "state-machine-validation",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2025-02-18-optimism-rpc-client-api-6e39803ab8",
+      "source": "/testing/optimism/validated-findings/kept/2025-02-18-optimism-rpc-client-api-6e39803ab8.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "verification-config-inconsistency",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2025-02-18-optimism-transaction-processing-1d5770cd93",
+      "source": "/testing/optimism/validated-findings/kept/2025-02-18-optimism-transaction-processing-1d5770cd93.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "incomplete-block-hash-verification",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2025-02-21-optimism-transaction-processing-7ceadae456",
+      "source": "/testing/optimism/validated-findings/kept/2025-02-21-optimism-transaction-processing-7ceadae456.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "input-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2025-03-12-optimism-transaction-processing-0085136f22",
+      "source": "/testing/optimism/validated-findings/kept/2025-03-12-optimism-transaction-processing-0085136f22.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "configuration-integrity",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2025-03-12-optimism-transaction-processing-060a261c6f",
+      "source": "/testing/optimism/validated-findings/kept/2025-03-12-optimism-transaction-processing-060a261c6f.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "configuration-scoping",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2025-03-14-optimism-storage-d6a49f70d3",
+      "source": "/testing/optimism/validated-findings/kept/2025-03-14-optimism-storage-d6a49f70d3.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "incomplete-verification-binding",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2025-04-24-optimism-p2p-networking-e6b7214cb0",
+      "source": "/testing/optimism/validated-findings/kept/2025-04-24-optimism-p2p-networking-e6b7214cb0.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "trusted-signer-resolution",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "optimism-2025-04-30-optimism-p2p-networking-4b2b22bd85",
+      "source": "/testing/optimism/validated-findings/kept/2025-04-30-optimism-p2p-networking-4b2b22bd85.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "p2p-identity-configuration-hardening",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2025-04-30-optimism-p2p-networking-4dd9281e5f",
+      "source": "/testing/optimism/validated-findings/kept/2025-04-30-optimism-p2p-networking-4dd9281e5f.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "p2p-identity-handling",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2025-05-12-optimism-p2p-networking-7db6c1da87",
+      "source": "/testing/optimism/validated-findings/kept/2025-05-12-optimism-p2p-networking-7db6c1da87.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "forkchoice-state-machine-hardening",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2025-05-17-optimism-p2p-networking-0b2e5f9cf7",
+      "source": "/testing/optimism/validated-findings/kept/2025-05-17-optimism-p2p-networking-0b2e5f9cf7.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "forkchoice-state-handling",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2025-05-17-optimism-p2p-networking-8e38834340",
+      "source": "/testing/optimism/validated-findings/kept/2025-05-17-optimism-p2p-networking-8e38834340.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "forkchoice-sync-state",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2025-05-17-optimism-p2p-networking-efbdcb76b7",
+      "source": "/testing/optimism/validated-findings/kept/2025-05-17-optimism-p2p-networking-efbdcb76b7.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "forkchoice-state-transition",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2025-05-19-optimism-consensus-1681ca2942",
+      "source": "/testing/optimism/validated-findings/kept/2025-05-19-optimism-consensus-1681ca2942.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-safety",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2025-05-19-optimism-consensus-6cf0b3a613",
+      "source": "/testing/optimism/validated-findings/kept/2025-05-19-optimism-consensus-6cf0b3a613.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "unsafe-forkchoice-promotion",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2025-05-19-optimism-consensus-dfafb52630",
+      "source": "/testing/optimism/validated-findings/kept/2025-05-19-optimism-consensus-dfafb52630.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "improper-forkchoice-initialization",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2025-06-02-optimism-rpc-client-api-09dfe35bc5",
+      "source": "/testing/optimism/validated-findings/kept/2025-06-02-optimism-rpc-client-api-09dfe35bc5.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "access-control-validation",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "optimism-2025-07-08-optimism-storage-ebb9f7cfcc",
+      "source": "/testing/optimism/validated-findings/kept/2025-07-08-optimism-storage-ebb9f7cfcc.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "derivation-state-consistency",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2025-08-06-optimism-storage-3e4b3f0b4f",
+      "source": "/testing/optimism/validated-findings/kept/2025-08-06-optimism-storage-3e4b3f0b4f.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "unsafe-state-rewind",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2025-08-12-optimism-storage-1b6f57f0cd",
+      "source": "/testing/optimism/validated-findings/kept/2025-08-12-optimism-storage-1b6f57f0cd.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "reorg-state-validation",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2025-08-12-optimism-storage-84164c9019",
+      "source": "/testing/optimism/validated-findings/kept/2025-08-12-optimism-storage-84164c9019.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "reorg-state-validation",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2025-08-28-optimism-storage-2ba747f98b",
+      "source": "/testing/optimism/validated-findings/kept/2025-08-28-optimism-storage-2ba747f98b.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-canonicality-validation",
+      "subsystem": "storage",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2025-08-28-optimism-storage-676b987dc4",
+      "source": "/testing/optimism/validated-findings/kept/2025-08-28-optimism-storage-676b987dc4.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "insufficient-state-validation",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2025-08-28-optimism-storage-b9dbd60602",
+      "source": "/testing/optimism/validated-findings/kept/2025-08-28-optimism-storage-b9dbd60602.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "state-validation",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2025-09-02-optimism-transaction-processing-50b1b1bb09",
+      "source": "/testing/optimism/validated-findings/kept/2025-09-02-optimism-transaction-processing-50b1b1bb09.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "insufficient-fork-aware-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2025-09-30-optimism-rpc-client-api-e4850290ea",
+      "source": "/testing/optimism/validated-findings/kept/2025-09-30-optimism-rpc-client-api-e4850290ea.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "race-condition",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2025-10-23-optimism-transaction-processing-5f5e50fa73",
+      "source": "/testing/optimism/validated-findings/kept/2025-10-23-optimism-transaction-processing-5f5e50fa73.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "fork-activation-validation-gap",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2025-10-29-optimism-transaction-processing-1903a448cd",
+      "source": "/testing/optimism/validated-findings/kept/2025-10-29-optimism-transaction-processing-1903a448cd.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-rule-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2025-10-29-optimism-transaction-processing-1cd5d94050",
+      "source": "/testing/optimism/validated-findings/kept/2025-10-29-optimism-transaction-processing-1cd5d94050.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "input-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2025-11-12-optimism-core-logic-b7c0afd57d",
+      "source": "/testing/optimism/validated-findings/kept/2025-11-12-optimism-core-logic-b7c0afd57d.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "archive-path-validation-hardening",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2025-11-12-optimism-core-logic-c0185733a7",
+      "source": "/testing/optimism/validated-findings/kept/2025-11-12-optimism-core-logic-c0185733a7.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "archive-extraction-path-validation",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2025-11-24-optimism-consensus-1210787f39",
+      "source": "/testing/optimism/validated-findings/kept/2025-11-24-optimism-consensus-1210787f39.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "payload-derivation-filtering",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2025-11-24-optimism-consensus-b2d4a686db",
+      "source": "/testing/optimism/validated-findings/kept/2025-11-24-optimism-consensus-b2d4a686db.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "protocol-invariant-enforcement",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2025-12-03-optimism-consensus-8924fbe38d",
+      "source": "/testing/optimism/validated-findings/kept/2025-12-03-optimism-consensus-8924fbe38d.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "input-validation",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2025-12-03-optimism-consensus-a52de0ddea",
+      "source": "/testing/optimism/validated-findings/kept/2025-12-03-optimism-consensus-a52de0ddea.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-invariant-enforcement",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2025-12-03-optimism-consensus-a8aa4c3839",
+      "source": "/testing/optimism/validated-findings/kept/2025-12-03-optimism-consensus-a8aa4c3839.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "improper-input-validation",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2026-01-27-optimism-transaction-processing-b8a91297ea",
+      "source": "/testing/optimism/validated-findings/kept/2026-01-27-optimism-transaction-processing-b8a91297ea.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "integer-truncation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2026-02-09-optimism-transaction-processing-68b81dd5bb",
+      "source": "/testing/optimism/validated-findings/kept/2026-02-09-optimism-transaction-processing-68b81dd5bb.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "finalization-boundary-check",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2026-02-12-optimism-transaction-processing-bcec0992d2",
+      "source": "/testing/optimism/validated-findings/kept/2026-02-12-optimism-transaction-processing-bcec0992d2.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-derivation-completeness-check",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2026-02-19-optimism-transaction-processing-543510ee9b",
+      "source": "/testing/optimism/validated-findings/kept/2026-02-19-optimism-transaction-processing-543510ee9b.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "resource-exhaustion",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2026-02-19-optimism-transaction-processing-c390d771c6",
+      "source": "/testing/optimism/validated-findings/kept/2026-02-19-optimism-transaction-processing-c390d771c6.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "resource-exhaustion",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2026-03-04-optimism-consensus-23f3ffea2a",
+      "source": "/testing/optimism/validated-findings/kept/2026-03-04-optimism-consensus-23f3ffea2a.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-safety",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2026-03-26-optimism-transaction-processing-b08e543ddf",
+      "source": "/testing/optimism/validated-findings/kept/2026-03-26-optimism-transaction-processing-b08e543ddf.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "resource-exhaustion",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2026-04-07-optimism-storage-5e7de4c09a",
+      "source": "/testing/optimism/validated-findings/kept/2026-04-07-optimism-storage-5e7de4c09a.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-integrity-check",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2026-04-10-optimism-storage-bc9c3420ae",
+      "source": "/testing/optimism/validated-findings/kept/2026-04-10-optimism-storage-bc9c3420ae.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "improper-state-validation",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2026-04-13-optimism-consensus-e2253914e7",
+      "source": "/testing/optimism/validated-findings/kept/2026-04-13-optimism-consensus-e2253914e7.md",
+      "bug_family": "attestation_trust_and_freshness",
+      "bug_class": "untrusted-input-in-protocol-activation-check",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "freshness"
+    },
+    {
+      "id": "optimism-2026-04-14-optimism-transaction-processing-f491292ace",
+      "source": "/testing/optimism/validated-findings/kept/2026-04-14-optimism-transaction-processing-f491292ace.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "validation-configuration-mismatch",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "optimism-2026-04-22-optimism-transaction-processing-052c1d65dc",
+      "source": "/testing/optimism/validated-findings/kept/2026-04-22-optimism-transaction-processing-052c1d65dc.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-consensus-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    }
+  ]
+}

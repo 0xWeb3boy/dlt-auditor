@@ -1,0 +1,19 @@
+id: optimism-2025-08-06-optimism-storage-3e4b3f0b4f
+source_record: optimism-2025-08-06-optimism-storage-3e4b3f0b4f.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: unsafe-state-rewind
+expected_missing_property: input-validation
+expected_impact_band: state-or-proof-integrity
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No proof that untrusted or remote actors can invoke this rewind path.
+- No demonstrated exploit chain from invalid rewind to consensus failure, forgery, or fund loss.
+- No evidence that this bug was previously reachable in production deployments.
+- No advisory, CVE, or security report tying the issue to an attacker scenario.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention input-validation at the persisted chain state -> recovery/derivation
+  logic boundary.

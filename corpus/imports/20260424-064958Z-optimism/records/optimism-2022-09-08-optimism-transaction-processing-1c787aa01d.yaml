@@ -1,0 +1,73 @@
+id: optimism-2022-09-08-optimism-transaction-processing-1c787aa01d
+source_finding: 2022-09-08-optimism-transaction-processing-1c787aa01d.md
+project: optimism
+date: '2022-09-08'
+language_tags:
+- go
+bug_family: input_validation_and_invariant_enforcement
+bug_class: input-validation
+subsystem: transaction-processing
+architecture_tags:
+- rollup
+- p2p
+- state-storage
+confidence_tier: tier_b_likely
+security_verdict: likely
+validated_as: security-hardening
+recommended_uses:
+- retrieval_exemplar
+- taxonomy_refinement
+missing_property: input-validation
+violated_invariant: Untrusted block-gossip messages must be large enough to contain a 65-byte signature and a non-empty
+  payload, and the payload bytes should be authenticated as coming from the configured sequencer before deeper decoding
+  or bookkeeping.
+trust_boundary: remote peer -> node networking validator
+entrypoint_type: p2p-message-handler
+sensitive_sink: message acceptance, peer selection, or forkchoice update driven by network input
+attacker_capabilities:
+- send crafted gossip, sync, or peer-discovery messages to a node
+- withhold, reorder, or misrepresent peer-supplied protocol data
+exploit_preconditions:
+- the affected validation path is reachable before an equivalent fail-closed check runs
+- the malformed or ambiguous input is accepted far enough to influence a security-sensitive decision
+- no upstream component has already canonicalized, authenticated, or bounded the relevant field
+- for hardening-only records, practical exploitability still depends on deployment exposure and attacker control
+  of the input source
+blast_radius: node-local to network-wide depending on peer exposure
+impact_types:
+- correctness-or-hardening
+- signature-or-domain-confusion
+severity_guess: medium
+severity_rationale: Evidence supports security hardening, but the raw finding does not prove a complete attacker-triggered
+  exploit. Severity is medium because the affected path can influence signature-or-domain-integrity, while deployment
+  exposure, compensating checks, and concrete impact remain the main limiters.
+code_shape_summary: The buggy shape was a p2p-message-handler that allowed data or state to approach message acceptance,
+  peer selection, or forkchoice update driven by network input before fully enforcing input-validation. The validator
+  accepted attacker-controlled decoded gossip bytes without first enforcing the minimum structure required by later
+  slicing and without authenticating the payload at the earliest trust boundary.
+search_motifs:
+- signature accepted without binding all domain/context fields
+- chain ID or protected-state converted through lossy integer or metadata path
+- signer recovery occurs before payload identity and replay domain are fixed
+- p2p-message-handler reaches message acceptance, peer selection, or forkchoice update driven by network input with
+  partial validation
+- input-validation is enforced in one path but missing in an alternate path
+negative_signals:
+- an earlier boundary already rejects the same malformed field under all reachable modes
+- the changed code is test-only, generated-only, logging-only, or pure refactor with no runtime decision change
+- the input is not attacker-influenced and cannot be affected by a faulty peer, operator, backend, or sequencer
+- downstream consensus/proof verification recomputes the property fail-closed before any state or privilege is committed
+- the patch only improves diagnostics or compatibility and does not alter acceptance, rejection, binding, bounds,
+  or state-transition behavior
+patch_pattern: Add explicit structural bounds checks and perform authentication before deeper parsing of network
+  input.
+source_refs:
+- git:1c787aa01dbbffbd68ad6874fdc0c561f85937b5
+- op-node/p2p/gossip.go:225
+- op-node/p2p/gossip.go:285
+- op-node/p2p/gossip.go:208
+- op-node/p2p/gossip.go:32
+- /testing/optimism/validated-findings/kept/2022-09-08-optimism-transaction-processing-1c787aa01d.md
+notes:
+- Enriched from the prepared raw finding, preserving conservative claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.

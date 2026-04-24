@@ -1,0 +1,75 @@
+id: optimism-2023-10-26-optimism-transaction-processing-210492cdcb
+source_finding: 2023-10-26-optimism-transaction-processing-210492cdcb.md
+project: optimism
+date: '2023-10-26'
+language_tags:
+- go
+bug_family: input_validation_and_invariant_enforcement
+bug_class: state-machine-atomicity
+subsystem: transaction-processing
+architecture_tags:
+- rollup
+- consensus
+confidence_tier: tier_b_likely
+security_verdict: likely
+validated_as: security-hardening
+recommended_uses:
+- retrieval_exemplar
+- taxonomy_refinement
+missing_property: protocol-state-invariant
+violated_invariant: The derivation pipeline should only advance the safe L2 head after an entire span batch has
+  been processed successfully, and queued safe attributes must be checked against the in-progress pending safe head
+  rather than the already-committed safe head.
+trust_boundary: sequencer/batch/transaction input -> derivation or execution engine
+entrypoint_type: transaction-handler or batch-derivation path
+sensitive_sink: block payload acceptance, execution attributes, or derived state transition
+attacker_capabilities:
+- influence sequencer, batch, transaction, or L1-derived input consumed by derivation/execution
+- provide malformed payload fields that reach protocol validation
+exploit_preconditions:
+- the affected validation path is reachable before an equivalent fail-closed check runs
+- the malformed or ambiguous input is accepted far enough to influence a security-sensitive decision
+- no upstream component has already canonicalized, authenticated, or bounded the relevant field
+- for hardening-only records, practical exploitability still depends on deployment exposure and attacker control
+  of the input source
+blast_radius: chain-or-network-wide if the invalid state is accepted; otherwise node-local
+impact_types:
+- state-inconsistency
+- liveness
+- consensus-integrity
+- state-integrity
+severity_guess: medium
+severity_rationale: Evidence supports security hardening, but the raw finding does not prove a complete attacker-triggered
+  exploit. Severity is medium because the affected path can influence consensus-or-state-integrity, while deployment
+  exposure, compensating checks, and concrete impact remain the main limiters.
+code_shape_summary: The buggy shape was a transaction-handler or batch-derivation path that allowed data or state
+  to approach block payload acceptance, execution attributes, or derived state transition before fully enforcing
+  protocol-state-invariant. The derivation code conflated committed safe-head state with in-progress span-batch
+  state.
+search_motifs:
+- state promotion, rewind, or finalization proceeds without parent/canonicality/freshness check
+- derivation updates persisted state before all protocol attributes are validated
+- fork-specific validation is missing on one post-upgrade branch
+- transaction-handler or batch-derivation path reaches block payload acceptance, execution attributes, or derived
+  state transition with partial validation
+- protocol-state-invariant is enforced in one path but missing in an alternate path
+negative_signals:
+- an earlier boundary already rejects the same malformed field under all reachable modes
+- the changed code is test-only, generated-only, logging-only, or pure refactor with no runtime decision change
+- the input is not attacker-influenced and cannot be affected by a faulty peer, operator, backend, or sequencer
+- downstream consensus/proof verification recomputes the property fail-closed before any state or privilege is committed
+- the patch only improves diagnostics or compatibility and does not alter acceptance, rejection, binding, bounds,
+  or state-transition behavior
+patch_pattern: Introduce explicit pending state for multi-step processing, validate queued work against that pending
+  state, and only commit final state after the full compound operation succeeds; discard cached derivatives when
+  the compound operation fails.
+source_refs:
+- git:210492cdcb122af75aeae384c850f088ff728ece
+- op-node/rollup/derive/engine_queue.go:561
+- op-node/rollup/derive/batch_queue.go:90
+- op-node/rollup/derive/engine_queue.go:606
+- op-node/rollup/derive/batch_queue.go:176
+- /testing/optimism/validated-findings/kept/2023-10-26-optimism-transaction-processing-210492cdcb.md
+notes:
+- Enriched from the prepared raw finding, preserving conservative claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.

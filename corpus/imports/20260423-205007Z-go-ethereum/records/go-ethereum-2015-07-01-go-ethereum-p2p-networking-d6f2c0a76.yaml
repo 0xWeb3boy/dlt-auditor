@@ -28,7 +28,9 @@ exploit_preconditions:
   - "The intended validation, policy, or accounting gate is missing, too weak, or applied too late."
 blast_radius: "The affected node crosses a security boundary with weaker validation than intended."
 
-impact_types: []
+impact_types:
+  - "remote-dos"
+  - "resource-exhaustion"
 severity_guess: "medium"
 severity_rationale: "The evidence directly ties the patch to  risk on a reachable security boundary, but the supplied material still limits the claim to what the patch demonstrates."
 

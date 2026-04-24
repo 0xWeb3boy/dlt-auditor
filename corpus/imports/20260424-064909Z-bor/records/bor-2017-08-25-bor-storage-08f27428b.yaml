@@ -1,0 +1,52 @@
+id: "bor-2017-08-25-bor-storage-08f27428b"
+source_finding: "2017-08-25-bor-storage-08f27428b.md"
+project: "bor"
+date: "2017-08-25"
+language_tags: ["go"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "improper-contract-creation-validation"
+subsystem: "storage"
+architecture_tags: ["address-collision", "contract-creation", "evm", "protocol-validation"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement", "eval_seed"]
+
+missing_property: "input validation and invariant enforcement"
+violated_invariant: "Persisted or peer-supplied state must be verified against its expected hash, path, or schema before being trusted by consensus or sync logic."
+trust_boundary: "persisted or peer-supplied state data to trusted local database boundary"
+entrypoint_type: "state import, trie/database read, or sync persistence path"
+sensitive_sink: "state commitment, canonical database write, or integrity decision"
+
+attacker_capabilities:
+  - "Can submit or relay crafted blocks, headers, transactions, state data, or sync responses"
+  - "Can target nodes that process the affected consensus or sync path"
+exploit_preconditions:
+  - "The node processes attacker-influenced data through the affected validation path."
+  - "No earlier validation, rate limit, domain binding, or consensus check blocks the crafted input before the sink."
+  - "Exploitability depends on the surrounding deployment and was validated as likely or hardening rather than fully proven."
+blast_radius: "Consensus or sync participants that accept the affected data path may diverge, reject valid data, accept invalid data, or persist inconsistent state."
+
+impact_types:
+  - "state-integrity"
+severity_guess: "medium"
+severity_rationale: "Medium severity guess because the finding is a likely security hardening affecting state-integrity; tune downward when deployment controls or missing exploit evidence limit reachability."
+
+code_shape_summary: "The patch adds an explicit destination-occupancy check to EVM.Create and returns ErrContractAddressCollision when the derived contract address is already in use. That is security-relevant protocol validation logic, but the provided evidence supports this more as implementation of Metropolis EIP-684 than as a demonstrated vulnerability fix for previously incorrect behavior in the applicable ruleset. Root cause: The shown pre-patch Create path lacked a destination-address occupancy check before continuing with contract creation. However, from the provided evidence alone, this is best characterized as missing enforcement of a newly implemented EIP rule rather than proof of an existing exploitable vulnerability."
+search_motifs:
+  - "state or trie data is loaded from disk or peer response without recomputing the expected root/hash"
+  - "path or key material from an external source reaches storage lookup/write before normalization"
+  - "missing mismatch handling lets corrupt or stale state be treated as canonical"
+negative_signals:
+  - "Do not flag if the value is produced only by trusted local code and cannot be influenced across a protocol, RPC, or persistence boundary."
+  - "Do not treat as exploitable if an earlier mandatory validation step rejects the malformed input before the sensitive sink."
+  - "Consensus findings need evidence that different valid-looking inputs or node versions can reach divergent acceptance, state, or fork-choice behavior."
+  - "The source finding was validated as hardening, so avoid overstating exploitability without additional proof."
+  - "No provided test diff shows the exact regression or security property being enforced."
+patch_pattern: "Add an explicit precondition check in the CREATE path: derive the destination address early, inspect its occupancy state, and fail before account creation when the address is already in use."
+
+source_refs: ["/testing/dlt-ai-audit-system/corpus/imports/20260424-064909Z-bor/raw-findings/2017-08-25-bor-storage-08f27428b.md"]
+notes:
+  - "Enriched from validated finding material; preserve claim boundaries from the source record."

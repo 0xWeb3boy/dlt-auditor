@@ -1,0 +1,73 @@
+id: optimism-2026-04-22-optimism-transaction-processing-052c1d65dc
+source_finding: 2026-04-22-optimism-transaction-processing-052c1d65dc.md
+project: optimism
+date: '2026-04-22'
+language_tags:
+- rust
+bug_family: input_validation_and_invariant_enforcement
+bug_class: missing-consensus-validation
+subsystem: transaction-processing
+architecture_tags:
+- rollup
+- consensus
+confidence_tier: tier_b_likely
+security_verdict: likely
+validated_as: security-hardening
+recommended_uses:
+- retrieval_exemplar
+- taxonomy_refinement
+missing_property: protocol-state-invariant
+violated_invariant: A post-exec 0x7D transaction must be rejected unless the executor is in an SDM mode that produces
+  or verifies it, and any produced SDM refund must not exceed the transaction's raw gas used.
+trust_boundary: sequencer/batch/transaction input -> derivation or execution engine
+entrypoint_type: transaction-handler or batch-derivation path
+sensitive_sink: block payload acceptance, execution attributes, or derived state transition
+attacker_capabilities:
+- influence sequencer, batch, transaction, or L1-derived input consumed by derivation/execution
+- provide malformed payload fields that reach protocol validation
+exploit_preconditions:
+- the affected validation path is reachable before an equivalent fail-closed check runs
+- the malformed or ambiguous input is accepted far enough to influence a security-sensitive decision
+- no upstream component has already canonicalized, authenticated, or bounded the relevant field
+- for hardening-only records, practical exploitability still depends on deployment exposure and attacker control
+  of the input source
+blast_radius: chain-or-network-wide if the invalid state is accepted; otherwise node-local
+impact_types:
+- malformed-payload-acceptance
+- consensus-divergence-risk
+- consensus-integrity
+severity_guess: medium
+severity_rationale: Evidence supports security hardening, but the raw finding does not prove a complete attacker-triggered
+  exploit. Severity is medium because the affected path can influence consensus-or-state-integrity, while deployment
+  exposure, compensating checks, and concrete impact remain the main limiters.
+code_shape_summary: 'The buggy shape was a transaction-handler or batch-derivation path that allowed data or state
+  to approach block payload acceptance, execution attributes, or derived state transition before fully enforcing
+  protocol-state-invariant. The root cause was missing fail-closed validation at the SDM post-exec boundary in block
+  execution: the executor did not enforce that post-exec transactions were only valid in the right mode, and it
+  did not enforce that produced refund metadata stayed within a basic gas-usage bound.'
+search_motifs:
+- state promotion, rewind, or finalization proceeds without parent/canonicality/freshness check
+- derivation updates persisted state before all protocol attributes are validated
+- fork-specific validation is missing on one post-upgrade branch
+- transaction-handler or batch-derivation path reaches block payload acceptance, execution attributes, or derived
+  state transition with partial validation
+- protocol-state-invariant is enforced in one path but missing in an alternate path
+negative_signals:
+- an earlier boundary already rejects the same malformed field under all reachable modes
+- the changed code is test-only, generated-only, logging-only, or pure refactor with no runtime decision change
+- the input is not attacker-influenced and cannot be affected by a faulty peer, operator, backend, or sequencer
+- downstream consensus/proof verification recomputes the property fail-closed before any state or privilege is committed
+- the patch only improves diagnostics or compatibility and does not alter acceptance, rejection, binding, bounds,
+  or state-transition behavior
+patch_pattern: Add explicit mode-gating and numeric invariant checks at the point where post-exec transactions and
+  refund metadata are accepted or produced, so malformed inputs fail immediately instead of being silently tolerated.
+source_refs:
+- git:052c1d65dc068a36d48627810af04b3aaa865109
+- rust/alloy-op-evm/src/block/mod.rs:681
+- rust/alloy-op-evm/src/block/mod.rs:734
+- rust/alloy-op-evm/src/post_exec/inspector.rs:16
+- rust/alloy-op-evm/src/post_exec/inspector.rs:212
+- /testing/optimism/validated-findings/kept/2026-04-22-optimism-transaction-processing-052c1d65dc.md
+notes:
+- Enriched from the prepared raw finding, preserving conservative claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.

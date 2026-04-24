@@ -1,0 +1,20 @@
+id: "bor-2024-08-21-bor-p2p-networking-f88af2000"
+source_record: "bor-2024-08-21-bor-p2p-networking-f88af2000.yaml"
+project: "bor"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "peer-validation"
+expected_missing_property: "network peer authenticity and protocol state validation"
+
+expected_impact_band: "integrity"
+expected_severity_band: "low"
+
+should_be_detected: true
+should_be_flagged_as_security: false
+
+false_positive_cautions:
+  - "Do not flag if the value is produced only by trusted local code and cannot be influenced across a protocol, RPC, or persistence boundary."
+  - "Do not treat as exploitable if an earlier mandatory validation step rejects the malformed input before the sensitive sink."
+  - "Treat as hardening when the patch only improves error reporting, refactoring, or defensive checks without attacker reachability."
+notes:
+  - "Eval enriched from corpus import source finding; use cautions to distinguish hardening from exploitable cases."

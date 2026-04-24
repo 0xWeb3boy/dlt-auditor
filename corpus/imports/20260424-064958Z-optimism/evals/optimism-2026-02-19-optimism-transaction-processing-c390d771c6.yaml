@@ -1,0 +1,19 @@
+id: optimism-2026-02-19-optimism-transaction-processing-c390d771c6
+source_record: optimism-2026-02-19-optimism-transaction-processing-c390d771c6.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: resource-exhaustion
+expected_missing_property: resource-and-failure-isolation
+expected_impact_band: availability-or-liveness
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- The provided code excerpts do not show the exact zlib call replacement in the source diff.
+- The patch alone does not establish which deployed roles or external actors can feed crafted channels to this path.
+- No exploit demonstration or production impact data is provided beyond the commit description.
+- an earlier boundary already rejects the same malformed field under all reachable modes
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention resource-and-failure-isolation at the sequencer/batch/transaction input
+  -> derivation or execution engine boundary.

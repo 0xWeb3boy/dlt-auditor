@@ -1,0 +1,18 @@
+id: optimism-2025-05-17-optimism-p2p-networking-0b2e5f9cf7
+source_record: optimism-2025-05-17-optimism-p2p-networking-0b2e5f9cf7.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: forkchoice-state-handling
+expected_missing_property: path-confinement
+expected_impact_band: host-filesystem-integrity
+expected_severity_band: low_or_informational
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No proof of remote attacker control or a concrete adversarial trigger is shown.
+- No test, incident report, or consensus-failure reproduction is provided.
+- The patch does not demonstrate authentication bypass, signature bypass, memory corruption, or code execution.
+- The after-snippet is partial, so some security significance depends on the commit message description.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention path-confinement at the artifact/archive input -> host filesystem boundary.

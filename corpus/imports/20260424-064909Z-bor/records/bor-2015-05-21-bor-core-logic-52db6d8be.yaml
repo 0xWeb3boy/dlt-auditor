@@ -1,0 +1,51 @@
+id: "bor-2015-05-21-bor-core-logic-52db6d8be"
+source_finding: "2015-05-21-bor-core-logic-52db6d8be.md"
+project: "bor"
+date: "2015-05-21"
+language_tags: ["go"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "verification-bypass"
+subsystem: "core-logic"
+architecture_tags: ["blockchain-core", "downloader", "integrity-check", "peer-input"]
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement", "eval_seed"]
+
+missing_property: "network peer authenticity and protocol state validation"
+violated_invariant: "Consensus-critical data must satisfy the same validation rules on every node before it can influence state transition, fork choice, rewards, or canonical-chain decisions."
+trust_boundary: "remote peer to node networking boundary"
+entrypoint_type: "inbound p2p message, handshake, or sync response handler"
+sensitive_sink: "peer table mutation, sync scheduling, or message acceptance"
+
+attacker_capabilities:
+  - "Can submit or relay crafted blocks, headers, transactions, state data, or sync responses"
+  - "Can target nodes that process the affected consensus or sync path"
+exploit_preconditions:
+  - "The node processes attacker-influenced data through the affected validation path."
+  - "No earlier validation, rate limit, domain binding, or consensus check blocks the crafted input before the sink."
+blast_radius: "Consensus or sync participants that accept the affected data path may diverge, reject valid data, accept invalid data, or persist inconsistent state."
+
+impact_types:
+  - "sync-integrity-bypass"
+severity_guess: "high"
+severity_rationale: "High severity guess because the finding is a confirmed security fix affecting sync-integrity-bypass; tune downward when deployment controls or missing exploit evidence limit reachability."
+
+code_shape_summary: "The patch tightens eth/downloader cross-checking so a sampled block must match the exact expected parent, not just any parent already present in the download queue. The evidence supports a sync-path integrity bypass in downloader verification, with a regression test for the forged-parent case. Root cause: The cross-check state was too weak: it remembered only expiration and later accepted any queued parent for a sampled block hash. That allowed the deferred verification step to test local membership rather than exact ancestry for the sampled block."
+search_motifs:
+  - "block/header/transaction validation has a special case that bypasses a consensus rule"
+  - "fork-choice or state-transition code derives canonical state before checking all protocol invariants"
+  - "reward, validator-set, timestamp, gas, or root validation differs across execution paths or fork eras"
+negative_signals:
+  - "Do not flag if the value is produced only by trusted local code and cannot be influenced across a protocol, RPC, or persistence boundary."
+  - "Do not treat as exploitable if an earlier mandatory validation step rejects the malformed input before the sensitive sink."
+  - "Consensus findings need evidence that different valid-looking inputs or node versions can reach divergent acceptance, state, or fork-choice behavior."
+  - "The patch does not show whether the forged chain would survive later consensus or full block validation stages."
+  - "The evidence does not demonstrate measurable resource exhaustion or a reliable remote denial-of-service condition."
+patch_pattern: "Record the exact relationship to be verified later, then compare against that recorded value instead of using a broader local-state predicate."
+
+source_refs: ["/testing/dlt-ai-audit-system/corpus/imports/20260424-064909Z-bor/raw-findings/2015-05-21-bor-core-logic-52db6d8be.md"]
+notes:
+  - "Enriched from validated finding material; preserve claim boundaries from the source record."

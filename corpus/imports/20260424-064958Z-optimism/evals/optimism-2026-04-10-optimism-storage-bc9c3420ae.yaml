@@ -1,0 +1,19 @@
+id: optimism-2026-04-10-optimism-storage-bc9c3420ae
+source_record: optimism-2026-04-10-optimism-storage-bc9c3420ae.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: improper-state-validation
+expected_missing_property: input-validation
+expected_impact_band: state-or-proof-integrity
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No call-path evidence shows untrusted external input can trigger these storage mutations.
+- No proof that the old behavior led to exploitable corruption, forgery, or privilege gain.
+- No evidence of consensus divergence, proof bypass, or real-world exploitability.
+- Commit message and patch do not describe a disclosed security issue or incident.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention input-validation at the persisted chain state -> recovery/derivation
+  logic boundary.

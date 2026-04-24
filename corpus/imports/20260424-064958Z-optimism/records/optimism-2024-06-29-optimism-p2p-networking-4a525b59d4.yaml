@@ -1,0 +1,66 @@
+id: optimism-2024-06-29-optimism-p2p-networking-4a525b59d4
+source_finding: 2024-06-29-optimism-p2p-networking-4a525b59d4.md
+project: optimism
+date: '2024-06-29'
+language_tags:
+- go
+bug_family: input_validation_and_invariant_enforcement
+bug_class: peer-selection-hardening
+subsystem: p2p-networking
+architecture_tags:
+- rollup
+- p2p
+confidence_tier: tier_b_likely
+security_verdict: likely
+validated_as: security-hardening
+recommended_uses:
+- retrieval_exemplar
+- taxonomy_refinement
+missing_property: input-validation
+violated_invariant: When the optional p2p.sync.onlyreqtostatic policy is enabled, outbound req/resp sync requests
+  should be initiated only for static peers.
+trust_boundary: remote peer -> node networking validator
+entrypoint_type: p2p-message-handler
+sensitive_sink: message acceptance, peer selection, or forkchoice update driven by network input
+attacker_capabilities:
+- send crafted gossip, sync, or peer-discovery messages to a node
+- withhold, reorder, or misrepresent peer-supplied protocol data
+exploit_preconditions:
+- the affected validation path is reachable before an equivalent fail-closed check runs
+- the malformed or ambiguous input is accepted far enough to influence a security-sensitive decision
+- no upstream component has already canonicalized, authenticated, or bounded the relevant field
+- for hardening-only records, practical exploitability still depends on deployment exposure and attacker control
+  of the input source
+blast_radius: node-local to network-wide depending on peer exposure
+impact_types:
+- reduced-attack-surface
+severity_guess: low
+severity_rationale: Evidence supports security hardening, but the raw finding does not prove a complete attacker-triggered
+  exploit. Severity is low because the affected path can influence security-hardening-or-correctness, while deployment
+  exposure, compensating checks, and concrete impact remain the main limiters.
+code_shape_summary: The buggy shape was a p2p-message-handler that allowed data or state to approach message acceptance,
+  peer selection, or forkchoice update driven by network input before fully enforcing input-validation. No host-driven
+  restriction was enforced in the shown req/resp sync loop for limiting outbound sync requests to static peers.
+search_motifs:
+- p2p-message-handler reaches message acceptance, peer selection, or forkchoice update driven by network input with
+  partial validation
+- input-validation is enforced in one path but missing in an alternate path
+negative_signals:
+- an earlier boundary already rejects the same malformed field under all reachable modes
+- the changed code is test-only, generated-only, logging-only, or pure refactor with no runtime decision change
+- the input is not attacker-influenced and cannot be affected by a faulty peer, operator, backend, or sequencer
+- downstream consensus/proof verification recomputes the property fail-closed before any state or privilege is committed
+- the patch only improves diagnostics or compatibility and does not alter acceptance, rejection, binding, bounds,
+  or state-transition behavior
+patch_pattern: Add an optional runtime policy gate in a sensitive path and suppress work for peers outside the allowed
+  set.
+source_refs:
+- git:4a525b59d4eba01f34954d9e3aca4607a1916deb
+- op-node/p2p/sync.go:564
+- op-node/p2p/host.go:77
+- op-node/p2p/sync.go:305
+- op-node/p2p/sync_test.go:357
+- /testing/optimism/validated-findings/kept/2024-06-29-optimism-p2p-networking-4a525b59d4.md
+notes:
+- Enriched from the prepared raw finding, preserving conservative claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.

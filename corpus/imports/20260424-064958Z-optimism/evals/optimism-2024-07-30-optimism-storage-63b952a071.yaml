@@ -1,0 +1,19 @@
+id: optimism-2024-07-30-optimism-storage-63b952a071
+source_record: optimism-2024-07-30-optimism-storage-63b952a071.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: configuration-validation
+expected_missing_property: configuration-validation
+expected_impact_band: configuration-safety
+expected_severity_band: high_or_medium
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- The provided excerpts do not show the exact DAChallengeProxy bug or its prior failure mode.
+- There is no proof of exploitation, fund loss, consensus failure, or privilege escalation in a deployed system.
+- The patch evidence does not show that an attacker could control these configuration values in practice.
+- an earlier boundary already rejects the same malformed field under all reachable modes
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention configuration-validation at the operator configuration -> deployment/genesis
+  artifacts boundary.

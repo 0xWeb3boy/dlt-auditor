@@ -1,0 +1,51 @@
+id: "bor-2021-02-23-bor-transaction-processing-142fbcfd6"
+source_finding: "2021-02-23-bor-transaction-processing-142fbcfd6.md"
+project: "bor"
+date: "2021-02-23"
+language_tags: ["go"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "missing-replay-protection-check"
+subsystem: "transaction-processing"
+architecture_tags: ["blockchain-core", "eip155", "replay-protection", "rpc", "transaction-submission"]
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement", "eval_seed"]
+
+missing_property: "replay-protection and signature domain binding"
+violated_invariant: "Signed messages and transactions must be bound to the intended chain, domain, nonce, and execution context before they are accepted or relayed."
+trust_boundary: "external RPC/user signing request to local signer boundary"
+entrypoint_type: "RPC signing or transaction-submission method"
+sensitive_sink: "signature creation or signed transaction acceptance"
+
+attacker_capabilities:
+  - "Can send crafted RPC requests to an exposed node or signer endpoint"
+  - "Can choose malformed parameters, ranges, payload bytes, or transaction fields"
+exploit_preconditions:
+  - "The relevant RPC or signing interface is reachable by the attacker or an attacker-controlled client."
+  - "No earlier validation, rate limit, domain binding, or consensus check blocks the crafted input before the sink."
+blast_radius: "Signers, verifiers, or clients relying on the affected signature semantics may authorize the wrong domain or accept replayable messages."
+
+impact_types:
+  - "transaction-replay"
+severity_guess: "high"
+severity_rationale: "High severity guess because the finding is a confirmed security hardening affecting transaction-replay; tune downward when deployment controls or missing exploit evidence limit reachability."
+
+code_shape_summary: "The patch hardens the RPC transaction submission path by rejecting non-EIP-155-signed transactions unless the operator explicitly enables an override. The evidence supports a missing replay-protection check on this RPC boundary before the change, but it does not prove a broader protocol or consensus flaw. Root cause: The RPC submission boundary did not enforce replay protection by default. In the provided pre-patch snippet, unprotected transactions could pass the visible fee-cap checks and reach SendTx without a shown EIP-155 protection check."
+search_motifs:
+  - "signed hash omits chain id, domain tag, nonce, signer scope, or payload type"
+  - "RPC signer accepts ambiguous raw bytes or transaction fields without explicit user-visible context"
+  - "verification recovers an address from a partially bound message and treats it as authorized"
+negative_signals:
+  - "Do not flag if the value is produced only by trusted local code and cannot be influenced across a protocol, RPC, or persistence boundary."
+  - "Do not treat as exploitable if an earlier mandatory validation step rejects the malformed input before the sensitive sink."
+  - "Signature findings need evidence that the omitted field is security-relevant and not bound by another mandatory envelope or transport context."
+  - "The source finding was validated as hardening, so avoid overstating exploitability without additional proof."
+  - "No proof of a concrete exploit, incident, or attacker-controlled exposure in default deployments."
+patch_pattern: "Add an explicit security check at the external submission boundary, then plumb a narrowly scoped configuration override for deployments that intentionally need legacy behavior."
+
+source_refs: ["/testing/dlt-ai-audit-system/corpus/imports/20260424-064909Z-bor/raw-findings/2021-02-23-bor-transaction-processing-142fbcfd6.md"]
+notes:
+  - "Enriched from validated finding material; preserve claim boundaries from the source record."

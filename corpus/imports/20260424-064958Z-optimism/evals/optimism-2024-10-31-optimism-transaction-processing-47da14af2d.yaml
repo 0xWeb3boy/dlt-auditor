@@ -1,0 +1,19 @@
+id: optimism-2024-10-31-optimism-transaction-processing-47da14af2d
+source_record: optimism-2024-10-31-optimism-transaction-processing-47da14af2d.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: invalid-payload-handling
+expected_missing_property: input-validation
+expected_impact_band: consensus-or-state-integrity
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No advisory, bug report, or commit text states that a security vulnerability existed before the patch.
+- The diff does not show attacker control, exploit steps, or a demonstrated chain split / remote DoS scenario.
+- The provided test evidence does not include assertions proving a concrete pre-patch security failure.
+- Nothing in the shown patch supports the original resource-exhaustion classification.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention input-validation at the sequencer/batch/transaction input -> derivation
+  or execution engine boundary.

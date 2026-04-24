@@ -1,0 +1,19 @@
+id: optimism-2025-01-21-optimism-storage-dd37e6192c
+source_record: optimism-2025-01-21-optimism-storage-dd37e6192c.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: insufficient-state-transition-validation
+expected_missing_property: protocol-state-invariant
+expected_impact_band: state-or-proof-integrity
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No proof of external attacker reachability or control over the invalidation/rewind inputs.
+- No demonstrated exploit, incident, or concrete consensus failure caused by the old behavior.
+- No explicit security advisory, vulnerability reference, or attacker impact statement in the commit metadata.
+- No evidence that the pre-patch behavior was exploitable beyond correctness or operator-integrity failure.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention protocol-state-invariant at the persisted chain state -> recovery/derivation
+  logic boundary.

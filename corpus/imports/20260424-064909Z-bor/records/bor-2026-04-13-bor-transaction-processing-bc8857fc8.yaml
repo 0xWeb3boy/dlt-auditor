@@ -1,0 +1,52 @@
+id: "bor-2026-04-13-bor-transaction-processing-bc8857fc8"
+source_finding: "2026-04-13-bor-transaction-processing-bc8857fc8.md"
+project: "bor"
+date: "2026-04-13"
+language_tags: ["go"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-validation"
+subsystem: "transaction-processing"
+architecture_tags: ["consensus", "error-propagation", "fail-closed", "state-sync", "validator"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement", "eval_seed"]
+
+missing_property: "consensus invariant enforcement"
+violated_invariant: "Consensus-critical data must satisfy the same validation rules on every node before it can influence state transition, fork choice, rewards, or canonical-chain decisions."
+trust_boundary: "untrusted block, header, transaction, or state data to consensus engine boundary"
+entrypoint_type: "block/header/transaction validation or state-transition path"
+sensitive_sink: "canonical chain selection, state root commitment, or consensus state mutation"
+
+attacker_capabilities:
+  - "Can submit or relay crafted blocks, headers, transactions, state data, or sync responses"
+  - "Can target nodes that process the affected consensus or sync path"
+exploit_preconditions:
+  - "The node processes attacker-influenced data through the affected validation path."
+  - "No earlier validation, rate limit, domain binding, or consensus check blocks the crafted input before the sink."
+  - "Exploitability depends on the surrounding deployment and was validated as likely or hardening rather than fully proven."
+blast_radius: "Consensus or sync participants that accept the affected data path may diverge, reject valid data, accept invalid data, or persist inconsistent state."
+
+impact_types:
+  - "consensus-integrity"
+severity_guess: "medium"
+severity_rationale: "Medium severity guess because the finding is a likely security hardening affecting consensus-integrity; tune downward when deployment controls or missing exploit evidence limit reachability."
+
+code_shape_summary: "The patch hardens Bor block finalization by turning silent failure cases into explicit errors and by making both state processors stop when finalization or state-sync receipt accounting is inconsistent. The provided evidence supports a consensus-correctness and invariant-enforcement fix, but it does not establish a concrete security vulnerability or show that invalid blocks were previously accepted. Root cause: The finalization interface did not provide an explicit error channel for invalid Bor finalization outcomes, so unsupported block-body fields and some state-sync receipt inconsistencies were represented indirectly through the returned receipts instead of being authoritative failures at the finalization boundary."
+search_motifs:
+  - "block/header/transaction validation has a special case that bypasses a consensus rule"
+  - "fork-choice or state-transition code derives canonical state before checking all protocol invariants"
+  - "reward, validator-set, timestamp, gas, or root validation differs across execution paths or fork eras"
+negative_signals:
+  - "Do not flag if the value is produced only by trusted local code and cannot be influenced across a protocol, RPC, or persistence boundary."
+  - "Do not treat as exploitable if an earlier mandatory validation step rejects the malformed input before the sensitive sink."
+  - "Consensus findings need evidence that different valid-looking inputs or node versions can reach divergent acceptance, state, or fork-choice behavior."
+  - "The source finding was validated as hardening, so avoid overstating exploitability without additional proof."
+  - "No evidence shows malformed blocks were previously accepted into canonical state."
+patch_pattern: "Convert a consensus finalization hook from an implicit receipt-only result into an error-returning validation boundary, then propagate that error through callers and add explicit consistency checks around synthetic receipt generation."
+
+source_refs: ["/testing/dlt-ai-audit-system/corpus/imports/20260424-064909Z-bor/raw-findings/2026-04-13-bor-transaction-processing-bc8857fc8.md"]
+notes:
+  - "Enriched from validated finding material; preserve claim boundaries from the source record."

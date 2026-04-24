@@ -1,0 +1,53 @@
+id: "bor-2026-01-27-bor-rpc-client-api-df8f2a879"
+source_finding: "2026-01-27-bor-rpc-client-api-df8f2a879.md"
+project: "bor"
+date: "2026-01-27"
+language_tags: ["go"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "missing-peer-data-verification"
+subsystem: "rpc-client-api"
+architecture_tags: ["hardening", "p2p", "peer-jailing", "resource-limits", "witness-verification"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement", "eval_seed"]
+
+missing_property: "resource limit and input validity enforcement"
+violated_invariant: "RPC-facing code must fail closed and enforce request limits and authorization before exposing backend state or privileged behavior."
+trust_boundary: "external RPC client to node service boundary"
+entrypoint_type: "public or administrative RPC method"
+sensitive_sink: "backend state access, privileged API behavior, or response serialization"
+
+attacker_capabilities:
+  - "Can send crafted RPC requests to an exposed node or signer endpoint"
+  - "Can choose malformed parameters, ranges, payload bytes, or transaction fields"
+exploit_preconditions:
+  - "The relevant RPC or signing interface is reachable by the attacker or an attacker-controlled client."
+  - "No earlier validation, rate limit, domain binding, or consensus check blocks the crafted input before the sink."
+  - "Exploitability depends on the surrounding deployment and was validated as likely or hardening rather than fully proven."
+blast_radius: "Affected nodes may waste network, CPU, memory, or process availability; broad impact requires attacker reachability and insufficient throttling."
+
+impact_types:
+  - "integrity-risk"
+  - "resource-exhaustion"
+severity_guess: "medium"
+severity_rationale: "Medium severity guess because the finding is a likely security hardening affecting integrity-risk, resource-exhaustion; tune downward when deployment controls or missing exploit evidence limit reachability."
+
+code_shape_summary: "The provided diff supports that witness fetching was refactored into a verification-aware path and that metadata page-count querying was added, but it does not establish a concrete vulnerability or exploit from the shown code alone. This is security-relevant hardening at most from the available evidence, so the security conclusion should be downgraded to unclear. Root cause: The visible issue is that the shown witness-fetch call sites did not consistently use the verification-aware request path. The patch centralizes those requests and adds a metadata-query helper with basic guards. The provided evidence does not prove a stronger root cause such as a consensus break, full witness forgery acceptance, or a demonstrated denial-of-service vulnerability."
+search_motifs:
+  - "RPC method continues after backend error or returns success with partial/unchecked data"
+  - "public query accepts unbounded range, path, or selector before authorization and limit checks"
+  - "administrative or debug endpoint exposes privileged behavior without explicit gating"
+negative_signals:
+  - "Do not flag if the value is produced only by trusted local code and cannot be influenced across a protocol, RPC, or persistence boundary."
+  - "Do not treat as exploitable if an earlier mandatory validation step rejects the malformed input before the sensitive sink."
+  - "RPC findings are lower risk when the method is disabled by default, authenticated, strictly local-only, or returns only non-sensitive metadata."
+  - "The source finding was validated as hardening, so avoid overstating exploitability without additional proof."
+  - "No snippet shows the internals of RequestWitnessesWithVerification or what security property it enforces."
+patch_pattern: "Centralize a network request behind a single verification-aware helper, and add a lightweight metadata query plus enforcement hooks so callers do not bypass the checked path."
+
+source_refs: ["/testing/dlt-ai-audit-system/corpus/imports/20260424-064909Z-bor/raw-findings/2026-01-27-bor-rpc-client-api-df8f2a879.md"]
+notes:
+  - "Enriched from validated finding material; preserve claim boundaries from the source record."

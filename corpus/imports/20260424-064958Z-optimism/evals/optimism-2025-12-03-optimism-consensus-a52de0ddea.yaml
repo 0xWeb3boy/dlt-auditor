@@ -1,0 +1,19 @@
+id: optimism-2025-12-03-optimism-consensus-a52de0ddea
+source_record: optimism-2025-12-03-optimism-consensus-a52de0ddea.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: consensus-invariant-enforcement
+expected_missing_property: protocol-state-invariant
+expected_impact_band: consensus-or-state-integrity
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No proof that pre-fix behavior was attacker-triggerable in a deployed setting.
+- No direct evidence of concrete exploitation such as invalid block acceptance, chain split, or fund impact.
+- Commit text says the older BatchQueue path was still pending, so the fix was not complete across all paths.
+- an earlier boundary already rejects the same malformed field under all reachable modes
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention protocol-state-invariant at the sequencer/batch/transaction input ->
+  derivation or execution engine boundary.

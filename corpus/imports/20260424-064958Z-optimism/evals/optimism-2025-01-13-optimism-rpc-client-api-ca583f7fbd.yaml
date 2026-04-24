@@ -1,0 +1,19 @@
+id: optimism-2025-01-13-optimism-rpc-client-api-ca583f7fbd
+source_record: optimism-2025-01-13-optimism-rpc-client-api-ca583f7fbd.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: incorrect-context-binding
+expected_missing_property: domain-separation
+expected_impact_band: state-or-proof-integrity
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No evidence shows an attacker can supply or influence these hints in a way that reaches the vulnerable paths.
+- No test excerpt or runtime example demonstrates prior acceptance of wrong-chain or wrong-block data as valid.
+- No concrete exploit outcome is shown, such as fund loss, consensus impact, replay, or authorization bypass.
+- The diff does not show whether the prior behavior merely failed closed in interop cases rather than accepting
+  unsafe data.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention domain-separation at the RPC/API caller -> node service boundary.

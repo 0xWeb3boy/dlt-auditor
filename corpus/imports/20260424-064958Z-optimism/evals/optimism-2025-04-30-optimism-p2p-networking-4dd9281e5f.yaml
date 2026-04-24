@@ -1,0 +1,18 @@
+id: optimism-2025-04-30-optimism-p2p-networking-4dd9281e5f
+source_record: optimism-2025-04-30-optimism-p2p-networking-4dd9281e5f.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: p2p-identity-handling
+expected_missing_property: input-validation
+expected_impact_band: configuration-safety
+expected_severity_band: low_or_informational
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No shown diff demonstrates unauthorized peer acceptance, impersonation, or message forgery before the fix.
+- The provided excerpts do not show the identify-protocol enablement logic named in the commit subject.
+- No exploit narrative, incident reference, or security-specific commit message is provided.
+- The event-handler refactor is not shown to enforce a concrete security check by itself.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention input-validation at the remote peer -> node networking validator boundary.

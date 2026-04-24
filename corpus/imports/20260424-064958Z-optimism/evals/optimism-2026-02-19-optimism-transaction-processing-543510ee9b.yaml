@@ -1,0 +1,19 @@
+id: optimism-2026-02-19-optimism-transaction-processing-543510ee9b
+source_record: optimism-2026-02-19-optimism-transaction-processing-543510ee9b.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: resource-exhaustion
+expected_missing_property: resource-and-failure-isolation
+expected_impact_band: availability-or-liveness
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No direct diff hunk shows the zlib API replacement at the call site.
+- No proof of an observed exploit or demonstrated pre-fix OOM in a deployed node.
+- No evidence here establishes a concrete remote attack path or real-world reachability.
+- Part of the patch is also protocol/spec-correctness work, which dilutes a pure security-fix reading.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention resource-and-failure-isolation at the sequencer/batch/transaction input
+  -> derivation or execution engine boundary.

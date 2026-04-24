@@ -1,0 +1,20 @@
+id: optimism-2024-05-07-optimism-cryptography-4441686d3f
+source_record: optimism-2024-05-07-optimism-cryptography-4441686d3f.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: insufficient-integrity-validation
+expected_missing_property: integrity-binding
+expected_impact_band: state-or-proof-integrity
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No evidence shows attacker control over the beacon response in a real deployment.
+- No evidence proves prior acceptance led to chain reorgs, finalized state corruption, fund loss, or other concrete
+  impact.
+- No advisory, CVE, or commit message explicitly frames this as a security issue.
+- The excerpts do not show whether other callers already performed equivalent validation before use.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention integrity-binding at the external proof/data provider -> verifier/derivation
+  code boundary.

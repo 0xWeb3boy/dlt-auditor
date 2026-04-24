@@ -1,0 +1,20 @@
+id: optimism-2025-10-29-optimism-transaction-processing-1903a448cd
+source_record: optimism-2025-10-29-optimism-transaction-processing-1903a448cd.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: consensus-rule-validation
+expected_missing_property: integrity-binding
+expected_impact_band: consensus-or-state-integrity
+expected_severity_band: medium_or_low
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- The implementation of validate_against_parent_4844 is not shown, so the exact pre-patch acceptance/rejection behavior
+  is not fully proven from the excerpt alone.
+- No evidence shows an observed chain split, production incident, or attacker-triggered exploit.
+- No advisory or commit text explicitly states invalid blocks were accepted on a live network.
+- an earlier boundary already rejects the same malformed field under all reachable modes
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention integrity-binding at the external proof/data provider -> verifier/derivation
+  code boundary.

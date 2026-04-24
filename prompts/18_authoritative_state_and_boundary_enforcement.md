@@ -40,6 +40,8 @@ Search patterns:
 - extraction or validation subsystems that key cleanup, retention, or early-return logic by local read progress, cache occupancy, or processed counters when the authoritative boundary is finalized, safe, validated, or on-chain state
 - witness, log, preimage, or payload recording paths that are best-effort, optional, or split across modes even though later validation or sequencing treats the recorded data as mandatory
 - privileged admission paths that check current authorization in one layer, but dequeue, replay, or execution paths consult a cache, mirror, watch channel, or stale local summary instead of the same authoritative source
+- range, root, proof, log, or aggregate APIs that compute for `[start,end]` or another explicit target but validate cache freshness, reorg stability, or canonicality against current head, latest state, or a nearby proxy instead of the target block hash/root/range tuple
+- external consensus, checkpoint, milestone, or validator-set data selected by timestamp, latest state, local cache, or retry fallback where all validators must instead derive the same snapshot identity before local execution consumes it
 
 Questions to answer:
 1. What source is authoritative for this decision right now?

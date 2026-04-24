@@ -1,0 +1,21 @@
+id: optimism-2024-05-28-optimism-cryptography-926ba71288
+source_record: optimism-2024-05-28-optimism-cryptography-926ba71288.yaml
+project: optimism
+expected_bug_family: input_validation_and_invariant_enforcement
+expected_bug_class: input-validation
+expected_missing_property: input-validation
+expected_impact_band: state-or-proof-integrity
+expected_severity_band: low_or_informational
+should_be_detected: true
+should_be_flagged_as_security: true
+false_positive_cautions:
+- No evidence shows an attacker could previously exploit commitment-type confusion from an external boundary.
+- No proof that mismatched commitment types previously led to unsafe state transition, consensus failure, or acceptance
+  of invalid data.
+- No demonstrated fund-loss, authorization bypass, or concrete integrity break tied to the pre-patch behavior.
+- Part of the commit is feature/config plumbing for generic commitments, which weakens a claim that the whole change
+  is a pure vulnerability fix.
+notes:
+- Generated from enriched corpus import fields.
+- Expected detector rationale should mention input-validation at the external proof/data provider -> verifier/derivation
+  code boundary.
