@@ -1,0 +1,84 @@
+id: "geth-arb-2015-05-15-go-ethereum-core-logic-5c1a7b965c"
+source_finding: "2015-05-15-go-ethereum-core-logic-5c1a7b965c.md"
+project: "go-ethereum"
+date: "2015-05-15"
+language_tags:
+- go
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "protocol-validation-bypass"
+subsystem: "core-logic"
+architecture_tags:
+- ethereum
+- peer-sync
+- chain-import
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses:
+- retrieval_exemplar
+- eval_positive
+- taxonomy_refinement
+
+missing_property: "peer-response-parent-binding"
+violated_invariant: |
+  A peer response should only clear a pending validation challenge when it satisfies the exact expected
+  relation, not merely when it contains a plausible hash.
+trust_boundary: "untrusted peer downloader response -> sync validation checkpoint"
+entrypoint_type: "peer hash or block response handler"
+sensitive_sink: "clearing pending cross-check state and continuing sync"
+
+attacker_capabilities:
+- provide malformed, inconsistent, or edge-case protocol input through a peer, RPC, sequencer, or
+  operator-facing boundary
+- choose values that exercise an alternate or upgraded validation branch
+exploit_preconditions:
+- the affected path is reachable before an equivalent fail-closed check runs
+- the malformed or ambiguous input is accepted far enough to influence a security-sensitive decision
+- no downstream consensus/proof verification recomputes the same property before side effects
+blast_radius: |
+  chain-or-network-wide if the invalid state is accepted; otherwise limited to the node or exposed service
+
+impact_types:
+- sync-integrity
+- consensus-integrity
+severity_guess: "high"
+severity_rationale: |
+  Evidence is confirmed for peer-response-parent-binding; severity is high because the affected sink can
+  influence sync-integrity, consensus-integrity.
+
+code_shape_summary: |
+  Downloader validation accepted a returned block hash without proving it matched the expected parent
+  relationship for the pending cross-check.
+search_motifs:
+- pending validation cleared by matching hash alone
+- cross-check state lacks expected parent binding
+- peer response advances sync without satisfying requested relation
+- validation exists in one branch but not an alternate execution path
+- object is structurally valid but not checked against the requested protocol coordinate
+- fork-specific rule is missing from a generic validator
+negative_signals:
+- an earlier mandatory check rejects the same malformed field on every reachable path
+- the changed code is test-only, logging-only, generated-only, or pure refactor
+- a downstream consensus or proof verifier recomputes the property fail-closed before state changes are
+  committed
+- the patch only improves diagnostics, naming, generated bindings, or tests without changing runtime
+  acceptance or rejection
+- the input is not attacker-influenced in the deployed threat model
+- a stronger invariant is enforced earlier on every path and the changed check is redundant defense in
+  depth
+patch_pattern: |
+  Bind pending validation state to the expected parent or context and clear it only when the response matches
+  that exact tuple.
+
+source_refs:
+- git:5c1a7b965ca7901d3b185d75205419b87163a4fa
+- eth/downloader/downloader.go:303
+- eth/downloader/downloader_test.go:37
+- eth/downloader/downloader_test.go:429
+- eth/downloader/downloader_test.go:469
+- /testing/go-ethereum/validated-findings/kept/2015-05-15-go-ethereum-core-logic-5c1a7b965c.md
+notes:
+- Enriched from the geth-arb corpus import raw finding, preserving conservative phase-4 claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.

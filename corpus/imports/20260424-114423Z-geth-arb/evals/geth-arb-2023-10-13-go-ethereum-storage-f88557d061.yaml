@@ -1,0 +1,23 @@
+id: "geth-arb-2023-10-13-go-ethereum-storage-f88557d061"
+source_record: "geth-arb-2023-10-13-go-ethereum-storage-f88557d061.yaml"
+project: "go-ethereum"
+
+expected_bug_family: "resource_accounting_and_limits"
+expected_bug_class: "gas-accounting"
+expected_missing_property: "gas-metering-consistency"
+
+expected_impact_band: "availability-or-resource-exhaustion"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+- No corpus match if a hard request cap is enforced before allocation or network work
+- No corpus match if peer scoring or authentication makes repeated abuse impractical
+- No corpus match if the path is operator-only and unreachable from untrusted clients
+- No corpus match if the patch only improves diagnostics, naming, generated bindings, or tests without
+  changing runtime acceptance or rejection
+notes:
+- Generated from enriched geth-arb corpus import fields.
+- Expected detector rationale should mention gas-metering-consistency at the contract activation/execution request -> gas meter and state update boundary.

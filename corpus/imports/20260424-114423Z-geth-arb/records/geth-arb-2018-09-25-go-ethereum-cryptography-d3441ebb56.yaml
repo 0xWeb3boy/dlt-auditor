@@ -1,0 +1,85 @@
+id: "geth-arb-2018-09-25-go-ethereum-cryptography-d3441ebb56"
+source_finding: "2018-09-25-go-ethereum-cryptography-d3441ebb56.md"
+project: "go-ethereum"
+date: "2018-09-25"
+language_tags:
+- go
+
+bug_family: "authz_and_role_gates"
+bug_class: "signer-boundary-policy-hardening"
+subsystem: "cryptography"
+architecture_tags:
+- ethereum
+- signing
+- cryptographic-binding
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+- retrieval_exemplar
+- taxonomy_refinement
+
+missing_property: "signing-policy-fail-closed"
+violated_invariant: |
+  Signing middleware should fail closed on validation warnings or policy failures before presenting or
+  authorizing a signature request.
+trust_boundary: "external signing request -> local signer approval and key use"
+entrypoint_type: "signer transaction validation path"
+sensitive_sink: "user-mediated or policy-mediated signature generation"
+
+attacker_capabilities:
+- reach a privileged API, sequencer path, signer path, or deployment boundary with crafted parameters or
+  state
+- cause an authorization lookup, policy warning, or role check to take an edge-case branch
+exploit_preconditions:
+- authorization is checked with stale, inverted, advisory, or caller-controlled state
+- the sensitive operation runs after a failed or incomplete policy decision
+- no independent authorization gate protects the final sink
+- for hardening-only records, practical exploitability depends on deployment exposure and attacker control
+  of the input source
+blast_radius: |
+  limited to the privileged operation or signing/deployment boundary unless it feeds consensus or fund
+  movement
+
+impact_types:
+- authorization-bypass-prevention
+- key-safety
+severity_guess: "low-medium"
+severity_rationale: |
+  Evidence supports security hardening rather than a fully demonstrated exploit; severity is low-medium
+  because the path can influence authorization-bypass-prevention, key-safety, but reachability and
+  compensating checks bound the claim.
+
+code_shape_summary: |
+  The signer boundary treated validation warnings as continuable by default instead of rejecting before UI-
+  mediated signing.
+search_motifs:
+- signer validation warning defaults to continue
+- policy result is advisory before key use
+- UI signing prompt appears after validation failure
+- authorization predicate combines boolean result and error handling unsafely
+- policy warning is advisory where fail-closed behavior is expected
+- privileged sink accepts caller-controlled authority or destination parameter
+negative_signals:
+- a separate mandatory role check guards the sink
+- errors fail closed before privilege is granted
+- the changed path only affects local diagnostics and not authorization or privilege
+- the patch only improves diagnostics, naming, generated bindings, or tests without changing runtime
+  acceptance or rejection
+- the input is not attacker-influenced in the deployed threat model
+- a stronger invariant is enforced earlier on every path and the changed check is redundant defense in
+  depth
+patch_pattern: |
+  Make warning or policy rejection fail closed by default, with explicit handling for warning-only flows.
+
+source_refs:
+- git:d3441ebb563439bac0837d70591f92e2c6080303
+- signer/core/api.go:442
+- signer/core/api.go:273
+- signer/core/api.go:232
+- signer/core/api.go:353
+- /testing/go-ethereum/validated-findings/kept/2018-09-25-go-ethereum-cryptography-d3441ebb56.md
+notes:
+- Enriched from the geth-arb corpus import raw finding, preserving conservative phase-4 claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.

@@ -36,6 +36,9 @@ Search patterns:
 - resource caps enforced on insertion while cleanup, reinsertion, continuation, or alternate ingress paths use weaker predicates
 - sync termination or "peer has stronger chain" decisions that accept a peer's claim without proving header progress, expected parentage, or a concrete chain segment beyond the local head
 - discovery, bonding, ping/pong, or handshake responses where a reply of the right type is accepted without matching the exact challenge, nonce, peer identity, previous bond, or request token that authorized the larger response or state transition
+- spoofable or unauthenticated discovery requests that can trigger larger responses, table lookups, peer-table mutation, or recursive lookup work before bonding, reachability, nonce, or token validation
+- queue insertion, response-processing, or hash/body/state delivery APIs that return only success/failure when callers need to know whether the peer contributed new work, made zero progress, returned duplicate data, or revealed an unknown parent
+- transaction, block, or state announcements where metadata validation, known-object checks, type support, and size bounds happen after the fetch request is already scheduled
 
 Questions to answer:
 1. What exact request is this response supposed to satisfy?
@@ -44,6 +47,8 @@ Questions to answer:
 4. Are queue, reservation, or fetch limits enforced before expensive work is scheduled?
 5. Do invalid and no-progress outcomes feed back into peer scoring, eviction, or throttling?
 6. Are multiple subpools, queues, or ingress paths sharing one underlying resource without one shared reservation policy?
+7. Does the response handler distinguish made-progress, duplicate/no-progress, stale, unknown-parent, invalid, and benign-empty outcomes?
+8. Can a small request or announcement force a larger response, lookup, or fetch before the peer has proven reachability or supplied valid metadata?
 
 Severity guidance:
 - Medium by default for sync-integrity or resource-exhaustion issues.

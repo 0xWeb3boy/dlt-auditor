@@ -1,0 +1,24 @@
+id: "geth-arb-2015-05-21-go-ethereum-core-logic-52db6d8be5"
+source_record: "geth-arb-2015-05-21-go-ethereum-core-logic-52db6d8be5.yaml"
+project: "go-ethereum"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "validation-bypass"
+expected_missing_property: "queued-parent-cross-check-binding"
+
+expected_impact_band: "consensus-or-state-integrity"
+expected_severity_band: "high_or_medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+- No corpus match if an earlier mandatory check rejects the same malformed field on every reachable path
+- No corpus match if the changed code is test-only, logging-only, generated-only, or pure refactor
+- No corpus match if a downstream consensus or proof verifier recomputes the property fail-closed before
+  state changes are committed
+- No corpus match if the patch only improves diagnostics, naming, generated bindings, or tests without
+  changing runtime acceptance or rejection
+notes:
+- Generated from enriched geth-arb corpus import fields.
+- Expected detector rationale should mention queued-parent-cross-check-binding at the untrusted peer sync response -> downloader validation queue boundary.

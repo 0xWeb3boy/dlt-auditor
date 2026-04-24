@@ -1,0 +1,85 @@
+id: "geth-arb-2017-06-22-go-ethereum-storage-0042f13d47"
+source_finding: "2017-06-22-go-ethereum-storage-0042f13d47.md"
+project: "go-ethereum"
+date: "2017-06-22"
+language_tags:
+- go
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "sync-availability-resource-amplification"
+subsystem: "storage"
+architecture_tags:
+- ethereum
+- state-storage
+- authenticated-data
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+- retrieval_exemplar
+- taxonomy_refinement
+
+missing_property: "sync-request-deduplication-and-timeout"
+violated_invariant: |
+  State-sync work must be deduplicated, timeout-bounded, and separated from unrelated queues so stale or
+  duplicate peer data cannot amplify resource use.
+trust_boundary: "untrusted peer state-sync response -> state downloader scheduler"
+entrypoint_type: "state sync delivery path"
+sensitive_sink: "sync queue memory, retries, and peer request scheduling"
+
+attacker_capabilities:
+- send repeated peer, RPC, transaction, or announcement inputs that control scheduling, fanout, or
+  allocation size
+- withhold progress or replay low-cost inputs while the node performs higher-cost work
+exploit_preconditions:
+- the expensive work is scheduled before admission metadata, progress, or size limits are enforced
+- the attacker can repeat the request often enough to matter under deployment rate limits
+- no peer scoring, cache hit, or upstream quota stops the work first
+- for hardening-only records, practical exploitability depends on deployment exposure and attacker control
+  of the input source
+blast_radius: |
+  node-local or network-wide availability degradation depending on request reachability and amplification
+
+impact_types:
+- sync-availability
+- resource-exhaustion
+severity_guess: "low-medium"
+severity_rationale: |
+  Evidence supports security hardening rather than a fully demonstrated exploit; severity is low-medium
+  because the path can influence sync-availability, resource-exhaustion, but reachability and compensating
+  checks bound the claim.
+
+code_shape_summary: |
+  State sync shared queue handling lacked enough isolation and stale-delivery controls, allowing duplicate or
+  delayed data to waste downloader resources.
+search_motifs:
+- state sync shares a queue with block sync without request identity
+- stale delivery is accepted after timeout
+- duplicate state data causes retries or queue growth
+- attacker-controlled count or loop bound reaches allocation or scheduling
+- metadata validation happens after network or storage work is queued
+- duplicate, stale, or known items consume work instead of being skipped
+negative_signals:
+- a hard request cap is enforced before allocation or network work
+- peer scoring or authentication makes repeated abuse impractical
+- the path is operator-only and unreachable from untrusted clients
+- the patch only improves diagnostics, naming, generated bindings, or tests without changing runtime
+  acceptance or rejection
+- the input is not attacker-influenced in the deployed threat model
+- a stronger invariant is enforced earlier on every path and the changed check is redundant defense in
+  depth
+patch_pattern: |
+  Separate state sync queues, track pending deliveries, reject stale or duplicate responses, and apply
+  timeouts per request.
+
+source_refs:
+- git:0042f13d47700987e93e413be549b312e81854ac
+- eth/downloader/downloader.go:932
+- trie/sync.go:216
+- eth/downloader/queue.go:859
+- eth/downloader/downloader.go:1294
+- /testing/go-ethereum/validated-findings/kept/2017-06-22-go-ethereum-storage-0042f13d47.md
+notes:
+- Enriched from the geth-arb corpus import raw finding, preserving conservative phase-4 claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.

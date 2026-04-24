@@ -1,0 +1,83 @@
+id: "geth-arb-2024-05-07-go-ethereum-transaction-processing-e4b8058d5a"
+source_finding: "2024-05-07-go-ethereum-transaction-processing-e4b8058d5a.md"
+project: "go-ethereum"
+date: "2024-05-07"
+language_tags:
+- go
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "resource-exhaustion"
+subsystem: "transaction-processing"
+architecture_tags:
+- ethereum
+- execution
+- consensus
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+- retrieval_exemplar
+- taxonomy_refinement
+
+missing_property: "request-bounded-resource-use"
+violated_invariant: |
+  Peer-driven fetch loops and caller-controlled query fanout must be bounded before expensive scheduling,
+  allocation, or network work is performed.
+trust_boundary: "untrusted peer or RPC request -> local resource scheduler"
+entrypoint_type: "peer sync loop or RPC query handler"
+sensitive_sink: "memory, CPU, bandwidth, or goroutine-consuming work"
+
+attacker_capabilities:
+- send repeated peer, RPC, transaction, or announcement inputs that control scheduling, fanout, or
+  allocation size
+- withhold progress or replay low-cost inputs while the node performs higher-cost work
+exploit_preconditions:
+- the expensive work is scheduled before admission metadata, progress, or size limits are enforced
+- the attacker can repeat the request often enough to matter under deployment rate limits
+- no peer scoring, cache hit, or upstream quota stops the work first
+- for hardening-only records, practical exploitability depends on deployment exposure and attacker control
+  of the input source
+blast_radius: |
+  node-local or network-wide availability degradation depending on request reachability and amplification
+
+impact_types:
+- resource-exhaustion
+- denial-of-service
+severity_guess: "low-medium"
+severity_rationale: |
+  Evidence supports security hardening rather than a fully demonstrated exploit; severity is low-medium
+  because the path can influence resource-exhaustion, denial-of-service, but reachability and compensating
+  checks bound the claim.
+
+code_shape_summary: |
+  A request or sync loop could continue scheduling work from attacker-influenced input without an explicit
+  bound or stop condition at the admission point.
+search_motifs:
+- loop continues requesting peer data after accepted batch
+- caller-supplied list controls response fanout
+- expensive work is scheduled before length or progress limits are checked
+- attacker-controlled count or loop bound reaches allocation or scheduling
+- metadata validation happens after network or storage work is queued
+- duplicate, stale, or known items consume work instead of being skipped
+negative_signals:
+- a hard request cap is enforced before allocation or network work
+- peer scoring or authentication makes repeated abuse impractical
+- the path is operator-only and unreachable from untrusted clients
+- the patch only improves diagnostics, naming, generated bindings, or tests without changing runtime
+  acceptance or rejection
+- the input is not attacker-influenced in the deployed threat model
+- a stronger invariant is enforced earlier on every path and the changed check is redundant defense in
+  depth
+patch_pattern: |
+  Add a hard cap or stop condition before scheduling additional fetch/query work, and reject oversized inputs
+  fail-closed.
+
+source_refs:
+- git:e4b8058d5a5832cdebdac7da385cf6d829c0d433
+- eth/gasprice/feehistory.go:242
+- eth/gasprice/feehistory.go:45
+- /testing/go-ethereum/validated-findings/kept/2024-05-07-go-ethereum-transaction-processing-e4b8058d5a.md
+notes:
+- Enriched from the geth-arb corpus import raw finding, preserving conservative phase-4 claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.

@@ -1,0 +1,86 @@
+id: "geth-arb-2022-03-17-go-ethereum-storage-368fbe57cb"
+source_finding: "2022-03-17-go-ethereum-storage-368fbe57cb.md"
+project: "go-ethereum"
+date: "2022-03-17"
+language_tags:
+- go
+
+bug_family: "state_machine_and_lifecycle_consistency"
+bug_class: "validator-configuration-validation"
+subsystem: "storage"
+architecture_tags:
+- ethereum
+- state-storage
+- authenticated-data
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+- retrieval_exemplar
+- taxonomy_refinement
+
+missing_property: "validator-configuration-preflight"
+violated_invariant: |
+  Validator startup should fail closed when required chain, data-availability, or node-access configuration is
+  missing or inconsistent with the selected validation mode.
+trust_boundary: "operator configuration -> validator runtime and chain access"
+entrypoint_type: "validator startup/configuration loader"
+sensitive_sink: "validator participation, block validation, or node-action generation"
+
+attacker_capabilities:
+- drive reorgs, sync state, configuration changes, lifecycle transitions, or state updates through normal
+  protocol inputs
+- trigger an alternate mode where cached or persisted state is reused
+exploit_preconditions:
+- state is keyed by an incomplete coordinate such as height, alias, local progress, or stale cache entry
+- the authoritative chain/configuration/artifact identity is not rechecked at point of use
+- the stale state can influence validation, sequencing, storage, or privileged work
+- for hardening-only records, practical exploitability depends on deployment exposure and attacker control
+  of the input source
+blast_radius: |
+  validator, node, or network state can diverge if stale lifecycle state reaches the consensus or sequencing
+  sink
+
+impact_types:
+- validator-safety
+- availability
+severity_guess: "low-medium"
+severity_rationale: |
+  Evidence supports security hardening rather than a fully demonstrated exploit; severity is low-medium
+  because the path can influence validator-safety, availability, but reachability and compensating checks
+  bound the claim.
+
+code_shape_summary: |
+  Validator mode selected security-sensitive behavior without enough preflight checks for data availability,
+  L1 access, or block validation configuration.
+search_motifs:
+- validator mode starts without checking required backend availability
+- configuration validates syntax but not mode-specific security prerequisites
+- node action generation can start with missing chain access
+- state cache is keyed by height or alias without canonical hash binding
+- lifecycle transition reuses stale progress after reorg or mode switch
+- loaded artifact or config is not revalidated against authoritative identity at point of use
+negative_signals:
+- state is invalidated on every relevant reorg, fork, mode, or configuration change
+- the sink re-reads authoritative state before use
+- the patch only changes cleanup or logging with no acceptance or state-transition effect
+- the patch only improves diagnostics, naming, generated bindings, or tests without changing runtime
+  acceptance or rejection
+- the input is not attacker-influenced in the deployed threat model
+- a stronger invariant is enforced earlier on every path and the changed check is redundant defense in
+  depth
+patch_pattern: |
+  Add startup preflight checks that reject inconsistent or incomplete validator configuration before
+  participation begins.
+
+source_refs:
+- git:368fbe57cb921a1b35929915bd02bb0330ef70b5
+- cmd/node/node.go:125
+- cmd/node/node.go:81
+- cmd/node/node.go:112
+- arbnode/node.go:455
+- /testing/go-ethereum/validated-findings/kept/2022-03-17-go-ethereum-storage-368fbe57cb.md
+notes:
+- Enriched from the geth-arb corpus import raw finding, preserving conservative phase-4 claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.

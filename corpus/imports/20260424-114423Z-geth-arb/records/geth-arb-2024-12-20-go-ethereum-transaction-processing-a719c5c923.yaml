@@ -1,0 +1,86 @@
+id: "geth-arb-2024-12-20-go-ethereum-transaction-processing-a719c5c923"
+source_finding: "2024-12-20-go-ethereum-transaction-processing-a719c5c923.md"
+project: "go-ethereum"
+date: "2024-12-20"
+language_tags:
+- go
+
+bug_family: "state_machine_and_lifecycle_consistency"
+bug_class: "hardening-or-correctness-fix"
+subsystem: "transaction-processing"
+architecture_tags:
+- ethereum
+- execution
+- consensus
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+- retrieval_exemplar
+- taxonomy_refinement
+
+missing_property: "round-scoped-admission-binding"
+violated_invariant: |
+  Privileged round-scoped submissions must be validated against the same round tracked by the authoritative
+  state before sequencing continues.
+trust_boundary: "express-lane or privileged submission -> sequencer round admission"
+entrypoint_type: "sequencer privileged submission handler"
+sensitive_sink: "round-specific sequencing or express-lane acceptance"
+
+attacker_capabilities:
+- drive reorgs, sync state, configuration changes, lifecycle transitions, or state updates through normal
+  protocol inputs
+- trigger an alternate mode where cached or persisted state is reused
+exploit_preconditions:
+- state is keyed by an incomplete coordinate such as height, alias, local progress, or stale cache entry
+- the authoritative chain/configuration/artifact identity is not rechecked at point of use
+- the stale state can influence validation, sequencing, storage, or privileged work
+- for hardening-only records, practical exploitability depends on deployment exposure and attacker control
+  of the input source
+blast_radius: |
+  validator, node, or network state can diverge if stale lifecycle state reaches the consensus or sequencing
+  sink
+
+impact_types:
+- sequencer-integrity
+- authorization-freshness
+severity_guess: "medium"
+severity_rationale: |
+  Evidence supports security hardening rather than a fully demonstrated exploit; severity is medium because
+  the path can influence sequencer-integrity, authorization-freshness, but reachability and compensating
+  checks bound the claim.
+
+code_shape_summary: |
+  The sequencer admission loop needed to keep processing only while the authoritative round still matched the
+  submitted message round.
+search_motifs:
+- privileged submission loop checks sender but not current round
+- round-scoped message accepted after round changed
+- cached round state not compared at sequencing sink
+- state cache is keyed by height or alias without canonical hash binding
+- lifecycle transition reuses stale progress after reorg or mode switch
+- loaded artifact or config is not revalidated against authoritative identity at point of use
+negative_signals:
+- state is invalidated on every relevant reorg, fork, mode, or configuration change
+- the sink re-reads authoritative state before use
+- the patch only changes cleanup or logging with no acceptance or state-transition effect
+- the patch only improves diagnostics, naming, generated bindings, or tests without changing runtime
+  acceptance or rejection
+- the input is not attacker-influenced in the deployed threat model
+- a stronger invariant is enforced earlier on every path and the changed check is redundant defense in
+  depth
+patch_pattern: |
+  Add the round equality condition to the processing loop so stale or cross-round messages stop before
+  sequencing.
+
+source_refs:
+- git:a719c5c92368f6fb4f6b7931125358e77b3fcbda
+- execution/gethexec/express_lane_service.go:363
+- execution/gethexec/sequencer.go:462
+- execution/gethexec/express_lane_service_test.go:348
+- execution/gethexec/express_lane_service_test.go:299
+- /testing/go-ethereum/validated-findings/kept/2024-12-20-go-ethereum-transaction-processing-a719c5c923.md
+notes:
+- Enriched from the geth-arb corpus import raw finding, preserving conservative phase-4 claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.

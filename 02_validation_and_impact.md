@@ -22,6 +22,7 @@ For the candidate under review:
    - signer scope
    - domain separation
    - request-response correlation
+   - request-response cost symmetry
    - graph or lineage binding
    - freshness
    - replay protection
@@ -35,6 +36,7 @@ For the candidate under review:
    - content-address integrity
    - robust boundary validation
    - gas/resource/quota accounting
+   - made-progress and zero-progress classification
    - progress or reservation monotonicity
    - lifecycle cleanup
    - state-coordinate consistency
@@ -42,6 +44,8 @@ For the candidate under review:
    - read-only vs persistent-side-effect separation
    - fork/version/method-specific consensus rule coverage
    - chain-variant rule coverage
+   - block-body commitment recomputation
+   - execution-side-effect journaling
    - parent/ancestor/forkchoice consistency
    - explicit absence-proof evidence
    - authenticated-state rollback atomicity
@@ -56,6 +60,9 @@ For the candidate under review:
    - explicit registry key-existence validation
    - ledger accounting invariant coverage
    - reserve and owner-count enforcement
+   - mutable budget handoff across runtime boundaries
+   - authorization error fail-closed handling
+   - variant-specific authority at shared base-client sinks
    - amendment, fork, or feature-scoped authorization
    - validator-list or trust-list threshold achievability
    - generated-side-effect authorization
@@ -81,6 +88,7 @@ Then assess impact:
 12. If the issue involves ledger accounting, distinguish nominal amount, charged fee, delivered amount, reserve or owner-count changes, generated objects, aggregate obligations, and invariant-detector coverage. Do not call it theft unless the state transition demonstrably lets value, debt, reserve burden, or obligations move incorrectly.
 13. If the issue involves amendments, forks, or feature gates, decide whether the bug is pre-activation acceptance, post-activation missing enforcement, or cross-version compatibility hardening.
 14. If the issue involves delegated permissions, identify the exact transaction sub-shape, asset, issuer, destination, receiver policy, and generated side effects covered by the grant.
+15. If the issue appears in a forked client or chain-variant overlay, distinguish base-client consensus impact from variant-local sequencer, validator, gas, artifact, or delayed-message impact. Do not claim base-chain consensus breakage when the evidence only proves variant-local hardening.
 
 Assign severity using this baseline:
 - Critical: direct consensus break, forged finalized state acceptance, bridge or settlement compromise, unauthorized mint or burn, or broad secret compromise.

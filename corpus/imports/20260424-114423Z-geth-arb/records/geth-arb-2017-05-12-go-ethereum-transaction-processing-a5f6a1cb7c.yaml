@@ -1,0 +1,86 @@
+id: "geth-arb-2017-05-12-go-ethereum-transaction-processing-a5f6a1cb7c"
+source_finding: "2017-05-12-go-ethereum-transaction-processing-a5f6a1cb7c.md"
+project: "go-ethereum"
+date: "2017-05-12"
+language_tags:
+- go
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-config-compatibility-hardening"
+subsystem: "transaction-processing"
+architecture_tags:
+- ethereum
+- execution
+- consensus
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+- retrieval_exemplar
+- taxonomy_refinement
+
+missing_property: "fork-config-compatibility"
+violated_invariant: |
+  Fork configuration changes must be checked for compatibility at every consensus fork boundary before a node
+  accepts a chain config as safe to continue.
+trust_boundary: "operator or persisted chain configuration -> consensus fork selection"
+entrypoint_type: "chain configuration loading or compatibility check"
+sensitive_sink: "fork rule selection for block validation"
+
+attacker_capabilities:
+- provide malformed, inconsistent, or edge-case protocol input through a peer, RPC, sequencer, or
+  operator-facing boundary
+- choose values that exercise an alternate or upgraded validation branch
+exploit_preconditions:
+- the affected path is reachable before an equivalent fail-closed check runs
+- the malformed or ambiguous input is accepted far enough to influence a security-sensitive decision
+- no downstream consensus/proof verification recomputes the same property before side effects
+- for hardening-only records, practical exploitability depends on deployment exposure and attacker control
+  of the input source
+blast_radius: |
+  chain-or-network-wide if the invalid state is accepted; otherwise limited to the node or exposed service
+
+impact_types:
+- consensus-integrity
+- operator-safety
+severity_guess: "medium"
+severity_rationale: |
+  Evidence supports security hardening rather than a fully demonstrated exploit; severity is medium because
+  the path can influence consensus-integrity, operator-safety, but reachability and compensating checks bound
+  the claim.
+
+code_shape_summary: |
+  Compatibility checks covered earlier fork blocks but omitted a later fork activation boundary, risking
+  silent rule mismatch after configuration changes.
+search_motifs:
+- new fork block omitted from config compatibility check
+- chain config validates some fork boundaries but not all
+- fork rule selection can change after persisted blocks exist
+- validation exists in one branch but not an alternate execution path
+- object is structurally valid but not checked against the requested protocol coordinate
+- fork-specific rule is missing from a generic validator
+negative_signals:
+- an earlier mandatory check rejects the same malformed field on every reachable path
+- the changed code is test-only, logging-only, generated-only, or pure refactor
+- a downstream consensus or proof verifier recomputes the property fail-closed before state changes are
+  committed
+- the patch only improves diagnostics, naming, generated bindings, or tests without changing runtime
+  acceptance or rejection
+- the input is not attacker-influenced in the deployed threat model
+- a stronger invariant is enforced earlier on every path and the changed check is redundant defense in
+  depth
+patch_pattern: |
+  Add the missing fork activation field to the compatibility checker and fail when stored history and new
+  config disagree.
+
+source_refs:
+- git:a5f6a1cb7c5e5dde130391e9bed7625ef9ff36b5
+- params/config.go:238
+- params/config.go:268
+- core/types/transaction_signing.go:109
+- params/config.go:177
+- /testing/go-ethereum/validated-findings/kept/2017-05-12-go-ethereum-transaction-processing-a5f6a1cb7c.md
+notes:
+- Enriched from the geth-arb corpus import raw finding, preserving conservative phase-4 claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.

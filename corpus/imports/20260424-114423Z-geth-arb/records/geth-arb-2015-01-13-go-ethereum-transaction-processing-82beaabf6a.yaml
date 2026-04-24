@@ -1,0 +1,85 @@
+id: "geth-arb-2015-01-13-go-ethereum-transaction-processing-82beaabf6a"
+source_finding: "2015-01-13-go-ethereum-transaction-processing-82beaabf6a.md"
+project: "go-ethereum"
+date: "2015-01-13"
+language_tags:
+- go
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-rule-mismatch"
+subsystem: "transaction-processing"
+architecture_tags:
+- ethereum
+- execution
+- consensus
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+- retrieval_exemplar
+- taxonomy_refinement
+
+missing_property: "consensus-rule-consistency"
+violated_invariant: |
+  All nodes must apply the same edge-case consensus rules for gas charging, error propagation, uncle
+  eligibility, and state commitment so the same block produces the same validity decision and state root.
+trust_boundary: "untrusted block or transaction data -> consensus execution rules"
+entrypoint_type: "block execution or transaction state-transition path"
+sensitive_sink: "consensus validity decision and state-root calculation"
+
+attacker_capabilities:
+- provide malformed, inconsistent, or edge-case protocol input through a peer, RPC, sequencer, or
+  operator-facing boundary
+- choose values that exercise an alternate or upgraded validation branch
+exploit_preconditions:
+- the affected path is reachable before an equivalent fail-closed check runs
+- the malformed or ambiguous input is accepted far enough to influence a security-sensitive decision
+- no downstream consensus/proof verification recomputes the same property before side effects
+- for hardening-only records, practical exploitability depends on deployment exposure and attacker control
+  of the input source
+blast_radius: |
+  chain-or-network-wide if the invalid state is accepted; otherwise limited to the node or exposed service
+
+impact_types:
+- consensus-integrity
+- state-integrity
+severity_guess: "medium"
+severity_rationale: |
+  Evidence supports security hardening rather than a fully demonstrated exploit; severity is medium because
+  the path can influence consensus-integrity, state-integrity, but reachability and compensating checks bound
+  the claim.
+
+code_shape_summary: |
+  Consensus-sensitive edge cases used inconsistent local error propagation or boundary constants, so
+  equivalent nodes could disagree about whether execution should continue or which relatives are valid.
+search_motifs:
+- nested execution error overwrites outer transaction result
+- uncle/ancestor/fork boundary uses an off-by-one constant
+- debug or alternate execution path handles a consensus error differently
+- validation exists in one branch but not an alternate execution path
+- object is structurally valid but not checked against the requested protocol coordinate
+- fork-specific rule is missing from a generic validator
+negative_signals:
+- an earlier mandatory check rejects the same malformed field on every reachable path
+- the changed code is test-only, logging-only, generated-only, or pure refactor
+- a downstream consensus or proof verifier recomputes the property fail-closed before state changes are
+  committed
+- the patch only improves diagnostics, naming, generated bindings, or tests without changing runtime
+  acceptance or rejection
+- the input is not attacker-influenced in the deployed threat model
+- a stronger invariant is enforced earlier on every path and the changed check is redundant defense in
+  depth
+patch_pattern: |
+  Scope nested errors locally, align boundary constants with the protocol rule, and add regression coverage
+  for the consensus edge case.
+
+source_refs:
+- git:82beaabf6a8b5a146a38e1d6a31a78157c79a0cf
+- core/state_transition.go:193
+- vm/vm_debug.go:664
+- core/block_processor.go:272
+- /testing/go-ethereum/validated-findings/kept/2015-01-13-go-ethereum-transaction-processing-82beaabf6a.md
+notes:
+- Enriched from the geth-arb corpus import raw finding, preserving conservative phase-4 claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.

@@ -1,0 +1,24 @@
+id: "geth-arb-2024-12-20-go-ethereum-transaction-processing-a719c5c923"
+source_record: "geth-arb-2024-12-20-go-ethereum-transaction-processing-a719c5c923.yaml"
+project: "go-ethereum"
+
+expected_bug_family: "state_machine_and_lifecycle_consistency"
+expected_bug_class: "hardening-or-correctness-fix"
+expected_missing_property: "round-scoped-admission-binding"
+
+expected_impact_band: "authorization-or-signature-integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+- No corpus match if state is invalidated on every relevant reorg, fork, mode, or configuration change
+- No corpus match if the sink re-reads authoritative state before use
+- No corpus match if the patch only changes cleanup or logging with no acceptance or state-transition
+  effect
+- No corpus match if the patch only improves diagnostics, naming, generated bindings, or tests without
+  changing runtime acceptance or rejection
+notes:
+- Generated from enriched geth-arb corpus import fields.
+- Expected detector rationale should mention round-scoped-admission-binding at the express-lane or privileged submission -> sequencer round admission boundary.

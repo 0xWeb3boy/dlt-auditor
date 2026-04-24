@@ -1,0 +1,23 @@
+id: "geth-arb-2022-04-17-go-ethereum-transaction-processing-f990e534ab"
+source_record: "geth-arb-2022-04-17-go-ethereum-transaction-processing-f990e534ab.yaml"
+project: "go-ethereum"
+
+expected_bug_family: "authz_and_role_gates"
+expected_bug_class: "container-least-privilege-hardening"
+expected_missing_property: "runtime-least-privilege"
+
+expected_impact_band: "security-hardening-or-defense-in-depth"
+expected_severity_band: "low_or_informational"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+- No corpus match if a separate mandatory role check guards the sink
+- No corpus match if errors fail closed before privilege is granted
+- No corpus match if the changed path only affects local diagnostics and not authorization or privilege
+- No corpus match if the patch only improves diagnostics, naming, generated bindings, or tests without
+  changing runtime acceptance or rejection
+notes:
+- Generated from enriched geth-arb corpus import fields.
+- Expected detector rationale should mention runtime-least-privilege at the container image/runtime -> host and container privilege boundary boundary.

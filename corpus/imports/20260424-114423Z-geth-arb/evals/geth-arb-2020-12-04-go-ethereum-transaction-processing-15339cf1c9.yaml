@@ -1,0 +1,23 @@
+id: "geth-arb-2020-12-04-go-ethereum-transaction-processing-15339cf1c9"
+source_record: "geth-arb-2020-12-04-go-ethereum-transaction-processing-15339cf1c9.yaml"
+project: "go-ethereum"
+
+expected_bug_family: "signature_binding_and_signer_scope"
+expected_bug_class: "advisory-feed-authentication"
+expected_missing_property: "advisory-feed-authenticity"
+
+expected_impact_band: "security-hardening-or-defense-in-depth"
+expected_severity_band: "low_or_informational"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+- No corpus match if the signature covers chain ID, message type, domain, nonce, and freshness at the sink
+- No corpus match if the object is never accepted from an untrusted boundary
+- No corpus match if a later verifier rejects mismatched signer, domain, or sequence before side effects
+- No corpus match if the patch only improves diagnostics, naming, generated bindings, or tests without
+  changing runtime acceptance or rejection
+notes:
+- Generated from enriched geth-arb corpus import fields.
+- Expected detector rationale should mention advisory-feed-authenticity at the remote advisory feed -> local client security warning logic boundary.

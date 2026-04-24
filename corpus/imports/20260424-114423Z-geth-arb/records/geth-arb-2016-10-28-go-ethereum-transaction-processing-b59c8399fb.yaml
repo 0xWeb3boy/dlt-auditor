@@ -1,0 +1,85 @@
+id: "geth-arb-2016-10-28-go-ethereum-transaction-processing-b59c8399fb"
+source_finding: "2016-10-28-go-ethereum-transaction-processing-b59c8399fb.md"
+project: "go-ethereum"
+date: "2016-10-28"
+language_tags:
+- go
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "signing-api-domain-separation"
+subsystem: "transaction-processing"
+architecture_tags:
+- ethereum
+- execution
+- consensus
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+- retrieval_exemplar
+- taxonomy_refinement
+
+missing_property: "signature-domain-separation"
+violated_invariant: |
+  Bytes signed through a general signing API must be domain-separated from transactions and protocol objects
+  so a signature cannot be replayed as a different semantic object.
+trust_boundary: "wallet/RPC signing request -> account key material"
+entrypoint_type: "signing RPC or account API"
+sensitive_sink: "signature generation with reusable private key"
+
+attacker_capabilities:
+- submit data to be signed, relayed, or accepted under a protocol identity
+- reuse or replay a valid-looking signed object across chain, domain, round, or message-type boundaries
+exploit_preconditions:
+- the signature or authenticated metadata does not cover the full semantic context
+- the receiving path accepts the object before checking chain ID, domain, sequence, freshness, or
+  publisher identity
+- the attacker can obtain or observe a valid signature for one context
+- for hardening-only records, practical exploitability depends on deployment exposure and attacker control
+  of the input source
+blast_radius: |
+  cross-chain, cross-domain, or signer-scope impact if replay or authentication confusion reaches acceptance
+
+impact_types:
+- signature-replay-prevention
+- account-safety
+severity_guess: "low-medium"
+severity_rationale: |
+  Evidence supports security hardening rather than a fully demonstrated exploit; severity is low-medium
+  because the path can influence signature-replay-prevention, account-safety, but reachability and
+  compensating checks bound the claim.
+
+code_shape_summary: |
+  The generic message-signing path needed an Ethereum-specific prefix and hash so arbitrary messages could not
+  be confused with transactions or structured protocol payloads.
+search_motifs:
+- raw bytes are signed with the same primitive as transactions
+- signing API lacks prefix/domain/type separation
+- wallet signs attacker-controlled message without semantic binding
+- signature or signed feed omits chain/domain/type/sequence binding
+- authenticated object is accepted before freshness or publisher identity is checked
+- same signing primitive serves multiple semantic object types without prefixing
+negative_signals:
+- the signature covers chain ID, message type, domain, nonce, and freshness at the sink
+- the object is never accepted from an untrusted boundary
+- a later verifier rejects mismatched signer, domain, or sequence before side effects
+- the patch only improves diagnostics, naming, generated bindings, or tests without changing runtime
+  acceptance or rejection
+- the input is not attacker-influenced in the deployed threat model
+- a stronger invariant is enforced earlier on every path and the changed check is redundant defense in
+  depth
+patch_pattern: |
+  Prefix and hash arbitrary messages under a dedicated domain before signing, and keep transaction signing on
+  a distinct typed path.
+
+source_refs:
+- git:b59c8399fbe42390a3d41e945d03b1f21c1a9b8d
+- crypto/crypto.go:199
+- accounts/account_manager.go:151
+- crypto/crypto_test.go:81
+- crypto/crypto.go:79
+- /testing/go-ethereum/validated-findings/kept/2016-10-28-go-ethereum-transaction-processing-b59c8399fb.md
+notes:
+- Enriched from the geth-arb corpus import raw finding, preserving conservative phase-4 claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.

@@ -1,0 +1,24 @@
+id: "geth-arb-2022-06-01-go-ethereum-transaction-processing-37c04d56b5"
+source_record: "geth-arb-2022-06-01-go-ethereum-transaction-processing-37c04d56b5.yaml"
+project: "go-ethereum"
+
+expected_bug_family: "state_machine_and_lifecycle_consistency"
+expected_bug_class: "hardening-or-correctness-fix"
+expected_missing_property: "withdrawal-destination-authority"
+
+expected_impact_band: "authorization-or-signature-integrity"
+expected_severity_band: "low_or_informational"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+- No corpus match if state is invalidated on every relevant reorg, fork, mode, or configuration change
+- No corpus match if the sink re-reads authoritative state before use
+- No corpus match if the patch only changes cleanup or logging with no acceptance or state-transition
+  effect
+- No corpus match if the patch only improves diagnostics, naming, generated bindings, or tests without
+  changing runtime acceptance or rejection
+notes:
+- Generated from enriched geth-arb corpus import fields.
+- Expected detector rationale should mention withdrawal-destination-authority at the validator/staker control flow -> privileged withdrawal sink boundary.

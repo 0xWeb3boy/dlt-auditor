@@ -1,0 +1,86 @@
+id: "geth-arb-2022-04-10-go-ethereum-transaction-processing-3a9ee37539"
+source_finding: "2022-04-10-go-ethereum-transaction-processing-3a9ee37539.md"
+project: "go-ethereum"
+date: "2022-04-10"
+language_tags:
+- go
+
+bug_family: "state_machine_and_lifecycle_consistency"
+bug_class: "module-root-validation-hardening"
+subsystem: "transaction-processing"
+architecture_tags:
+- ethereum
+- execution
+- consensus
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+- retrieval_exemplar
+- taxonomy_refinement
+
+missing_property: "executable-artifact-root-binding"
+violated_invariant: |
+  Executable artifacts selected by alias or root must prove they match the requested canonical module root
+  before validator or staker initialization accepts them.
+trust_boundary: "operator/module-root selection -> machine loader and validator runtime"
+entrypoint_type: "machine loading or validator initialization path"
+sensitive_sink: "accepted execution machine for validation or staking"
+
+attacker_capabilities:
+- drive reorgs, sync state, configuration changes, lifecycle transitions, or state updates through normal
+  protocol inputs
+- trigger an alternate mode where cached or persisted state is reused
+exploit_preconditions:
+- state is keyed by an incomplete coordinate such as height, alias, local progress, or stale cache entry
+- the authoritative chain/configuration/artifact identity is not rechecked at point of use
+- the stale state can influence validation, sequencing, storage, or privileged work
+- for hardening-only records, practical exploitability depends on deployment exposure and attacker control
+  of the input source
+blast_radius: |
+  validator, node, or network state can diverge if stale lifecycle state reaches the consensus or sequencing
+  sink
+
+impact_types:
+- validator-integrity
+- artifact-integrity
+severity_guess: "medium"
+severity_rationale: |
+  Evidence supports security hardening rather than a fully demonstrated exploit; severity is medium because
+  the path can influence validator-integrity, artifact-integrity, but reachability and compensating checks
+  bound the claim.
+
+code_shape_summary: |
+  Machine loading mixed latest-root aliases with explicit module-root requests and needed to verify the loaded
+  machine reported the expected root.
+search_motifs:
+- artifact alias resolved without final identity check
+- loaded VM reports root but caller does not compare it
+- latest pointer and explicit root share acceptance path
+- state cache is keyed by height or alias without canonical hash binding
+- lifecycle transition reuses stale progress after reorg or mode switch
+- loaded artifact or config is not revalidated against authoritative identity at point of use
+negative_signals:
+- state is invalidated on every relevant reorg, fork, mode, or configuration change
+- the sink re-reads authoritative state before use
+- the patch only changes cleanup or logging with no acceptance or state-transition effect
+- the patch only improves diagnostics, naming, generated bindings, or tests without changing runtime
+  acceptance or rejection
+- the input is not attacker-influenced in the deployed threat model
+- a stronger invariant is enforced earlier on every path and the changed check is redundant defense in
+  depth
+patch_pattern: |
+  Canonicalize aliases first, then compare the loaded artifact root to the requested root before assigning the
+  machine.
+
+source_refs:
+- git:3a9ee375394555295ffd0fd7baffcf349ecf8809
+- validator/nitro_machine.go:254
+- validator/staker.go:171
+- validator/nitro_machine.go:97
+- validator/nitro_machine.go:69
+- /testing/go-ethereum/validated-findings/kept/2022-04-10-go-ethereum-transaction-processing-3a9ee37539.md
+notes:
+- Enriched from the geth-arb corpus import raw finding, preserving conservative phase-4 claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.

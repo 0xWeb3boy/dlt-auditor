@@ -36,7 +36,9 @@ Search patterns:
 - proof-carried or caller-supplied artifacts that can replace the locally authoritative verifier, root, target, fork, or state source at the sink
 - canonicality checks that rely on transient indices when persisted canonical state is the source of truth
 - read-only, debug, witness, trace, or inspection flows that reuse normal execution or import helpers and may still reach persistent writers unless write suppression is enforced at the actual sink
-- validator, prover, or runtime loaders that resolve a latest alias, directory default, or config shorthand before checking the measured artifact identity against the challenge, chain, fork, or genesis identity that actually governs correctness
+- chain-variant or rollup adapters that reuse base-client pools, signers, state journals, gas meters, or block import helpers while adding variant-specific authority such as sequencer policy, delayed-message accumulators, module roots, or generated transactions
+- runtime artifact loaders where `latest`, default, local cache, directory default, or config shorthand is accepted before comparing the measured module, root, version, fork, or genesis identity against the chain, challenge, validator, or verifier expectation
+- validator or sequencer progress stores keyed by height, count, local read progress, or optional reader state where the authoritative identity includes block hash, accumulator, finalized boundary, module root, or delayed-message sequence
 - extraction or validation subsystems that key cleanup, retention, or early-return logic by local read progress, cache occupancy, or processed counters when the authoritative boundary is finalized, safe, validated, or on-chain state
 - witness, log, preimage, or payload recording paths that are best-effort, optional, or split across modes even though later validation or sequencing treats the recorded data as mandatory
 - privileged admission paths that check current authorization in one layer, but dequeue, replay, or execution paths consult a cache, mirror, watch channel, or stale local summary instead of the same authoritative source
@@ -53,6 +55,7 @@ Questions to answer:
 7. If the path is supposed to be read-only, where is persistence actually prevented: in the wrapper, in the shared helper, or at the storage sink itself?
 8. If the decision depends on a loaded artifact, verifier context, or tracker state, where is the measured or live authoritative identity compared to the expected identity before the sensitive sink?
 9. If cleanup or reuse depends on progress, is the progress boundary merely local processing state, or is it tied to finalized, validated, or otherwise authoritative protocol state?
+10. If this code extends a base client, which layer is authoritative for the variant-specific fact, and is that fact rechecked at the shared base-client sink?
 
 Severity guidance:
 - Medium by default for stale-policy, stale-checkpoint, sink-coverage, and proxy-state bugs.

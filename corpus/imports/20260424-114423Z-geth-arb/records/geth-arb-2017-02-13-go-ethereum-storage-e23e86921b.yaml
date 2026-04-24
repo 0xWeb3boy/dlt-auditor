@@ -1,0 +1,85 @@
+id: "geth-arb-2017-02-13-go-ethereum-storage-e23e86921b"
+source_finding: "2017-02-13-go-ethereum-storage-e23e86921b.md"
+project: "go-ethereum"
+date: "2017-02-13"
+language_tags:
+- go
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "missing-content-integrity-check"
+subsystem: "storage"
+architecture_tags:
+- ethereum
+- state-storage
+- authenticated-data
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+- retrieval_exemplar
+- taxonomy_refinement
+
+missing_property: "content-address-integrity"
+violated_invariant: |
+  Content-addressed data received from a peer must hash to the requested key before it is cached, stored, or
+  forwarded.
+trust_boundary: "untrusted content store request -> local content-addressed storage"
+entrypoint_type: "p2p storage/chunk request handler"
+sensitive_sink: "local store/cache insertion and replication"
+
+attacker_capabilities:
+- provide malformed, inconsistent, or edge-case protocol input through a peer, RPC, sequencer, or
+  operator-facing boundary
+- choose values that exercise an alternate or upgraded validation branch
+exploit_preconditions:
+- the affected path is reachable before an equivalent fail-closed check runs
+- the malformed or ambiguous input is accepted far enough to influence a security-sensitive decision
+- no downstream consensus/proof verification recomputes the same property before side effects
+- for hardening-only records, practical exploitability depends on deployment exposure and attacker control
+  of the input source
+blast_radius: |
+  chain-or-network-wide if the invalid state is accepted; otherwise limited to the node or exposed service
+
+impact_types:
+- data-integrity
+- storage-poisoning-prevention
+severity_guess: "low-medium"
+severity_rationale: |
+  Evidence supports security hardening rather than a fully demonstrated exploit; severity is low-medium
+  because the path can influence data-integrity, storage-poisoning-prevention, but reachability and
+  compensating checks bound the claim.
+
+code_shape_summary: |
+  Incoming chunk data could be processed under a claimed key before recomputing and comparing its content
+  hash.
+search_motifs:
+- content-addressed key is trusted without hashing payload
+- store request inserts data before key/data equality check
+- peer supplied object ID is not bound to bytes
+- validation exists in one branch but not an alternate execution path
+- object is structurally valid but not checked against the requested protocol coordinate
+- fork-specific rule is missing from a generic validator
+negative_signals:
+- an earlier mandatory check rejects the same malformed field on every reachable path
+- the changed code is test-only, logging-only, generated-only, or pure refactor
+- a downstream consensus or proof verifier recomputes the property fail-closed before state changes are
+  committed
+- the patch only improves diagnostics, naming, generated bindings, or tests without changing runtime
+  acceptance or rejection
+- the input is not attacker-influenced in the deployed threat model
+- a stronger invariant is enforced earlier on every path and the changed check is redundant defense in
+  depth
+patch_pattern: |
+  Hash incoming content at admission and reject it when the computed digest does not equal the requested key.
+
+source_refs:
+- git:e23e86921b55cb1ee2fca6b6fb9ed91f5532f9fd
+- swarm/storage/dbstore.go:400
+- swarm/storage/dbstore.go:262
+- swarm/network/syncer.go:552
+- swarm/network/depo.go:118
+- /testing/go-ethereum/validated-findings/kept/2017-02-13-go-ethereum-storage-e23e86921b.md
+notes:
+- Enriched from the geth-arb corpus import raw finding, preserving conservative phase-4 claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.

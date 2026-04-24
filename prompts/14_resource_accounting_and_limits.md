@@ -44,7 +44,9 @@ Search patterns:
 - cross-language, cross-process, or offloaded execution APIs that receive a mutable budget, gas, or quota on entry but do not return the remaining budget to the authoritative charging layer
 - recovery or trap-handling paths that retry with larger stacks, buffers, or allocations without a one-time guard, context restriction, or outer quota
 - parent operations that spawn derived work where the parent is charged, finalized, or committed before the child work proves cleanly met the same accounting or filter rules
-- historical-range, log, trace, fee-history, proof, or witness APIs where the configured range limit is checked in one entrypoint but not in stored-filter replay, chain-specific variants, symbolic latest/pending/finalized selectors, or helper paths that construct the same expensive query
+- RPC, query, historical-range, log, trace, fee-history, proof, or witness APIs where total work is the product of a range and caller-supplied per-item options. Cap every dimension before spawning goroutines, allocating result matrices, building cache keys, or entering stored-filter replay, chain-specific variants, symbolic latest/pending/finalized selectors, or helper paths that construct the same expensive query.
+- transaction pools with multiple subpools, delegated senders, blob/sidecar data, replacement rules, or feature-specific transaction types. Check that sender-level and resource-level isolation is enforced consistently across every subpool, not only the legacy pool.
+- offloaded or cross-runtime execution that receives a mutable gas, quota, or multi-resource budget. The caller's authoritative meter must receive the post-call remaining budget and burn the consumed amount before state activation or persistence.
 - background verification, sync-maintenance, pruning, and repair loops that derive their work window from current head minus a checkpoint, milestone, or finalized boundary. Check that the trusted boundary is fresh, the window is capped before materializing work, and missing boundary data disables or defers the loop instead of scanning an unbounded range
 - transaction types that auto-create trust lines, holdings, directories, tickets, delegate objects, shares, receipts, or other state entries as a side effect. Check that reserve, owner-count, spam-cost, and quota accounting is enforced before the auto-created object reaches durable state
 - failed protocol handshakes, upgrades, peer sessions, or admission attempts where resource or session accounting is allocated before verification. Rejection paths must release or charge the same resource state as successful handoff paths
@@ -61,6 +63,7 @@ Questions to answer:
 9. If the code retries after a fault, what prevents repeated resource growth or repeated expensive recovery for the same failing invocation?
 10. Can one user action create derived state entries or sessions that consume reserve, ownership slots, queue capacity, or cleanup work not charged to the actor?
 11. Do failed handshake or admission paths release exactly the same reservations, sessions, and per-peer counters that success paths transfer to the next owner?
+12. Is the true cost a single scalar, or does it multiply across range length, requested percentiles/options, sidecar count, delegated sender state, or offloaded runtime work?
 
 Severity guidance:
 - Medium by default for DoS, fee bypass, and resource exhaustion.

@@ -1,0 +1,85 @@
+id: "geth-arb-2021-02-23-go-ethereum-transaction-processing-142fbcfd6f"
+source_finding: "2021-02-23-go-ethereum-transaction-processing-142fbcfd6f.md"
+project: "go-ethereum"
+date: "2021-02-23"
+language_tags:
+- go
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "missing-replay-protection-enforcement"
+subsystem: "transaction-processing"
+architecture_tags:
+- ethereum
+- execution
+- consensus
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses:
+- retrieval_exemplar
+- eval_positive
+- taxonomy_refinement
+
+missing_property: "chain-id-replay-protection"
+violated_invariant: |
+  Public transaction submission should reject unprotected transactions unless the operator has explicitly
+  opted into accepting replayable legacy signatures.
+trust_boundary: "external RPC transaction submission -> mempool and network broadcast"
+entrypoint_type: "RPC SendRawTransaction or SendTx path"
+sensitive_sink: "transaction pool admission and peer propagation"
+
+attacker_capabilities:
+- submit data to be signed, relayed, or accepted under a protocol identity
+- reuse or replay a valid-looking signed object across chain, domain, round, or message-type boundaries
+exploit_preconditions:
+- the signature or authenticated metadata does not cover the full semantic context
+- the receiving path accepts the object before checking chain ID, domain, sequence, freshness, or
+  publisher identity
+- the attacker can obtain or observe a valid signature for one context
+- for hardening-only records, practical exploitability depends on deployment exposure and attacker control
+  of the input source
+blast_radius: |
+  cross-chain, cross-domain, or signer-scope impact if replay or authentication confusion reaches acceptance
+
+impact_types:
+- replay-protection
+- transaction-integrity
+severity_guess: "medium"
+severity_rationale: |
+  Evidence is confirmed for chain-id-replay-protection; severity is medium because the affected sink can
+  influence replay-protection, transaction-integrity.
+
+code_shape_summary: |
+  The RPC submission path forwarded non-EIP-155 transactions unless configured otherwise, allowing replayable
+  transactions to enter normal propagation.
+search_motifs:
+- RPC transaction submission accepts legacy signatures by default
+- replay protection enforced only in wallet path not raw submit
+- operator override exists but default is permissive
+- signature or signed feed omits chain/domain/type/sequence binding
+- authenticated object is accepted before freshness or publisher identity is checked
+- same signing primitive serves multiple semantic object types without prefixing
+negative_signals:
+- the signature covers chain ID, message type, domain, nonce, and freshness at the sink
+- the object is never accepted from an untrusted boundary
+- a later verifier rejects mismatched signer, domain, or sequence before side effects
+- the patch only improves diagnostics, naming, generated bindings, or tests without changing runtime
+  acceptance or rejection
+- the input is not attacker-influenced in the deployed threat model
+- a stronger invariant is enforced earlier on every path and the changed check is redundant defense in
+  depth
+patch_pattern: |
+  Add a fail-closed replay-protection check before SendTx and require an explicit override for legacy
+  acceptance.
+
+source_refs:
+- git:142fbcfd6f4fad825e2ce2684f9d5a487ffb3f84
+- internal/ethapi/api.go:1556
+- cmd/utils/flags.go:594
+- cmd/utils/flags.go:971
+- internal/ethapi/backend.go:46
+- /testing/go-ethereum/validated-findings/kept/2021-02-23-go-ethereum-transaction-processing-142fbcfd6f.md
+notes:
+- Enriched from the geth-arb corpus import raw finding, preserving conservative phase-4 claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.

@@ -1,0 +1,23 @@
+id: "geth-arb-2025-12-11-go-ethereum-transaction-processing-56d201b0fe"
+source_record: "geth-arb-2025-12-11-go-ethereum-transaction-processing-56d201b0fe.yaml"
+project: "go-ethereum"
+
+expected_bug_family: "resource_accounting_and_limits"
+expected_bug_class: "peer-triggered-bandwidth-waste"
+expected_missing_property: "announcement-metadata-validation"
+
+expected_impact_band: "availability-or-resource-exhaustion"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+- No corpus match if a hard request cap is enforced before allocation or network work
+- No corpus match if peer scoring or authentication makes repeated abuse impractical
+- No corpus match if the path is operator-only and unreachable from untrusted clients
+- No corpus match if the patch only improves diagnostics, naming, generated bindings, or tests without
+  changing runtime acceptance or rejection
+notes:
+- Generated from enriched geth-arb corpus import fields.
+- Expected detector rationale should mention announcement-metadata-validation at the untrusted peer transaction announcement -> fetch scheduling boundary.

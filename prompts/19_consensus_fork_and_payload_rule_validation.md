@@ -20,7 +20,8 @@ Search patterns:
 - A generic mainnet or base-chain validator reused for a chain variant that has different field presence, value, or timing rules.
 - In rollup or multi-domain derivation pipelines, compare the trusted origin context with payload-carried timestamps, origins, fork markers, and batch metadata. Fork or feature gates should use the trusted origin when the protocol defines the gate there, not a value decoded from untrusted batch contents.
 - Header or payload fields checked in one import path but omitted in sidechain, downloaded, recovery, optimistic, reorg, replay, or Engine API paths.
-- Canonical commitments such as transaction root, receipt root, uncle list, recovered sender, replay-protection flags, or terminal-total-difficulty conditions enforced in one path but omitted in replay, compatibility, recovery, signing, or side import paths.
+- Canonical commitments such as transaction root, receipt root, withdrawal root, blob commitment, state root, generated-system-work root, recovered sender, replay-protection flags, or terminal-total-difficulty conditions enforced in one path but omitted in replay, compatibility, recovery, signing, or side import paths. Recompute body and payload commitments before execution or success, not only in the happy-path import flow.
+- Execution-state side effects that influence consensus roots, such as account touches, empty-account deletion, gas accounting, generated transactions, receipts, logs, refunds, or storage journaling, where one edge-case path updates the committed state but not the journal or rollback state.
 - Check conversions between aggregate batch formats and per-block or per-transaction formats. A span, segment, or aggregate batch must not produce child payloads whose origin, parent, timestamp, fork activation, or safe-head relation is older or weaker than the boundary being processed.
 - Check fallback payload construction paths such as deposits-only, system-transaction-only, invalid-payload recovery, or post-execution metadata paths. The fallback must filter exactly the allowed transaction classes and must clear or rebuild cached attributes that came from the invalid path.
 - Early returns that process payload attributes, return VALID, or update head/safe/finalized state before forkchoice consistency checks run.
@@ -28,7 +29,7 @@ Search patterns:
 - Parent, ancestor, finalized, safe, or invalid-state decisions keyed by one coordinate while the protocol identity includes hash, number, parent hash, and validity status.
 - Special cases for synthetic payloads, segmented blocks, zero hashes, legacy fixtures, or compatibility modes that skip broad validation instead of only the specific non-comparable field.
 - Error paths that collapse invalid-block, invalid-header, or sender-recovery failures into generic execution or internal errors that higher layers cannot treat as invalid.
-- Equal-score, equal-total-difficulty, or same-height tie-breaks that use randomness or local heuristics without an explicit protocol or policy rule.
+- Equal-score, equal-work, equal-total-difficulty, same-height, or same-round tie-breaks that use randomness or local heuristics without an explicit protocol or policy rule.
 - Finalization, post-execution, state-sync, deposit, withdrawal, or system-transaction paths that derive extra receipts, generated transactions, or state changes. Check that the block body, locally derived system work, receipts, and state root are cross-checked before success and that unsupported fields fail closed.
 - Fork-aware hashing, signing, opcode decoding, and header sanity paths where the canonical object shape changes by fork. Check that every verifier, signer, replay path, and helper includes exactly the fields active for that fork and rejects fields forbidden before or after the fork.
 - Consensus validation that depends on an external chain or consensus client. Check that time-based or latest queries are first pinned to a deterministic height/hash/finality boundary, and that all validators would query the same snapshot for the same local block.
@@ -46,6 +47,7 @@ Questions to answer:
 6. If the protocol allows equal-strength competitors, is the tie-break deterministic and policy-correct, or is security-sensitive selection hidden inside randomness or a local heuristic?
 7. For proposal/validation consensus, are proposal identity, prior state, transaction-set identity, signer identity, sequence, round, and active rules bound together at every acceptance and duplicate-suppression point?
 8. Are quorum, threshold, and amendment or feature activation calculations safe at exact boundary fractions and small validator or committee sets?
+9. Does every execution path that can affect the state root, receipt root, generated work, or fork-choice result journal and validate the same side effects as the canonical path?
 
 Severity guidance:
 - High if malformed consensus data can be accepted as canonical, finalized, valid, or execution-ready.

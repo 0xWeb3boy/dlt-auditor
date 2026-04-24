@@ -1,0 +1,86 @@
+id: "geth-arb-2022-06-01-go-ethereum-transaction-processing-37c04d56b5"
+source_finding: "2022-06-01-go-ethereum-transaction-processing-37c04d56b5.md"
+project: "go-ethereum"
+date: "2022-06-01"
+language_tags:
+- go
+
+bug_family: "state_machine_and_lifecycle_consistency"
+bug_class: "hardening-or-correctness-fix"
+subsystem: "transaction-processing"
+architecture_tags:
+- ethereum
+- execution
+- consensus
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+- retrieval_exemplar
+- taxonomy_refinement
+
+missing_property: "withdrawal-destination-authority"
+violated_invariant: |
+  Privileged withdrawal helpers should derive their destination from trusted contract or staker state, not
+  from a caller-controlled parameter passed into the sensitive sink.
+trust_boundary: "validator/staker control flow -> privileged withdrawal sink"
+entrypoint_type: "validator withdrawal or staker fund-recovery path"
+sensitive_sink: "withdrawal of staker funds to a destination address"
+
+attacker_capabilities:
+- drive reorgs, sync state, configuration changes, lifecycle transitions, or state updates through normal
+  protocol inputs
+- trigger an alternate mode where cached or persisted state is reused
+exploit_preconditions:
+- state is keyed by an incomplete coordinate such as height, alias, local progress, or stale cache entry
+- the authoritative chain/configuration/artifact identity is not rechecked at point of use
+- the stale state can influence validation, sequencing, storage, or privileged work
+- for hardening-only records, practical exploitability depends on deployment exposure and attacker control
+  of the input source
+blast_radius: |
+  validator, node, or network state can diverge if stale lifecycle state reaches the consensus or sequencing
+  sink
+
+impact_types:
+- funds-safety
+- authorization-bypass-prevention
+severity_guess: "low-medium"
+severity_rationale: |
+  Evidence supports security hardening rather than a fully demonstrated exploit; severity is low-medium
+  because the path can influence funds-safety, authorization-bypass-prevention, but reachability and
+  compensating checks bound the claim.
+
+code_shape_summary: |
+  The withdrawal path was hardened by removing configurable withdrawal destinations from the staker flow and
+  relying on the privileged sink to use its trusted destination semantics.
+search_motifs:
+- withdrawal sink accepts destination from caller path
+- privileged fund movement takes address parameter that can be removed
+- safer fix narrows API rather than validating late
+- state cache is keyed by height or alias without canonical hash binding
+- lifecycle transition reuses stale progress after reorg or mode switch
+- loaded artifact or config is not revalidated against authoritative identity at point of use
+negative_signals:
+- state is invalidated on every relevant reorg, fork, mode, or configuration change
+- the sink re-reads authoritative state before use
+- the patch only changes cleanup or logging with no acceptance or state-transition effect
+- the patch only improves diagnostics, naming, generated bindings, or tests without changing runtime
+  acceptance or rejection
+- the input is not attacker-influenced in the deployed threat model
+- a stronger invariant is enforced earlier on every path and the changed check is redundant defense in
+  depth
+patch_pattern: |
+  Narrow the sensitive sink signature by removing caller-controlled destination input and route withdrawals
+  through the fixed trusted-destination helper.
+
+source_refs:
+- git:37c04d56b5db76ad4e0ac9c46e20cf80ca4a7c60
+- validator/staker.go:367
+- validator/staker.go:328
+- validator/staker.go:155
+- validator/staker.go:80
+- /testing/go-ethereum/validated-findings/kept/2022-06-01-go-ethereum-transaction-processing-37c04d56b5.md
+notes:
+- Enriched from the geth-arb corpus import raw finding, preserving conservative phase-4 claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.

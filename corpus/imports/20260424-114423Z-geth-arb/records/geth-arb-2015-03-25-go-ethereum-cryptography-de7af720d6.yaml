@@ -1,0 +1,82 @@
+id: "geth-arb-2015-03-25-go-ethereum-cryptography-de7af720d6"
+source_finding: "2015-03-25-go-ethereum-cryptography-de7af720d6.md"
+project: "go-ethereum"
+date: "2015-03-25"
+language_tags:
+- go
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "udp-reflection-amplification"
+subsystem: "cryptography"
+architecture_tags:
+- ethereum
+- signing
+- cryptographic-binding
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses:
+- retrieval_exemplar
+- eval_positive
+- taxonomy_refinement
+
+missing_property: "request-response-cost-symmetry"
+violated_invariant: |
+  A peer should not emit a larger UDP response or mutate peer-discovery state until the sender has proven
+  reachability or bonding for the claimed source address.
+trust_boundary: "spoofable UDP discovery packet -> peer table lookup and neighbors response"
+entrypoint_type: "p2p discovery request handler"
+sensitive_sink: "amplified network response and peer-table mutation"
+
+attacker_capabilities:
+- send repeated peer, RPC, transaction, or announcement inputs that control scheduling, fanout, or
+  allocation size
+- withhold progress or replay low-cost inputs while the node performs higher-cost work
+exploit_preconditions:
+- the expensive work is scheduled before admission metadata, progress, or size limits are enforced
+- the attacker can repeat the request often enough to matter under deployment rate limits
+- no peer scoring, cache hit, or upstream quota stops the work first
+blast_radius: |
+  node-local or network-wide availability degradation depending on request reachability and amplification
+
+impact_types:
+- network-amplification
+- denial-of-service
+severity_guess: "medium-high"
+severity_rationale: |
+  Evidence is confirmed for request-response-cost-symmetry; severity is medium-high because the affected sink
+  can influence network-amplification, denial-of-service.
+
+code_shape_summary: |
+  The discovery handler could answer a small unauthenticated request with larger neighbor traffic before
+  sender reachability was established.
+search_motifs:
+- UDP request triggers larger response before source validation
+- find-node or peer lookup runs before endpoint bonding
+- reflection-prone response path lacks nonce/token/reachability gate
+- attacker-controlled count or loop bound reaches allocation or scheduling
+- metadata validation happens after network or storage work is queued
+- duplicate, stale, or known items consume work instead of being skipped
+negative_signals:
+- a hard request cap is enforced before allocation or network work
+- peer scoring or authentication makes repeated abuse impractical
+- the path is operator-only and unreachable from untrusted clients
+- the patch only improves diagnostics, naming, generated bindings, or tests without changing runtime
+  acceptance or rejection
+- the input is not attacker-influenced in the deployed threat model
+- a stronger invariant is enforced earlier on every path and the changed check is redundant defense in
+  depth
+patch_pattern: |
+  Require bonding or reachability proof before table lookup, table mutation, or neighbor response generation.
+
+source_refs:
+- git:de7af720d6bb10b93d716fb0c6cf3ee0e51dc71a
+- p2p/discover/udp.go:413
+- p2p/discover/udp.go:332
+- p2p/discover/udp.go:451
+- p2p/discover/udp.go:293
+- /testing/go-ethereum/validated-findings/kept/2015-03-25-go-ethereum-cryptography-de7af720d6.md
+notes:
+- Enriched from the geth-arb corpus import raw finding, preserving conservative phase-4 claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.

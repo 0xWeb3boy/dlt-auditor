@@ -1,0 +1,86 @@
+id: "geth-arb-2014-11-12-go-ethereum-transaction-processing-60cdb1148c"
+source_finding: "2014-11-12-go-ethereum-transaction-processing-60cdb1148c.md"
+project: "go-ethereum"
+date: "2014-11-12"
+language_tags:
+- go
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "missing-consensus-commitment-validation"
+subsystem: "transaction-processing"
+architecture_tags:
+- ethereum
+- execution
+- consensus
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses:
+- retrieval_exemplar
+- eval_positive
+- taxonomy_refinement
+
+missing_property: "block-body-commitment-integrity"
+violated_invariant: |
+  A block body must be checked against the commitment or transaction root carried by its header before the
+  node accepts, executes, or propagates that block.
+trust_boundary: "untrusted block payload -> local block import and execution"
+entrypoint_type: "block import or peer block-processing path"
+sensitive_sink: "block acceptance, transaction execution, and canonical state update"
+
+attacker_capabilities:
+- provide malformed, inconsistent, or edge-case protocol input through a peer, RPC, sequencer, or
+  operator-facing boundary
+- choose values that exercise an alternate or upgraded validation branch
+exploit_preconditions:
+- the affected path is reachable before an equivalent fail-closed check runs
+- the malformed or ambiguous input is accepted far enough to influence a security-sensitive decision
+- no downstream consensus/proof verification recomputes the same property before side effects
+- for hardening-only records, practical exploitability depends on deployment exposure and attacker control
+  of the input source
+blast_radius: |
+  chain-or-network-wide if the invalid state is accepted; otherwise limited to the node or exposed service
+
+impact_types:
+- consensus-integrity
+- state-integrity
+severity_guess: "high"
+severity_rationale: |
+  Evidence is confirmed for block-body-commitment-integrity; severity is high because the affected sink can
+  influence consensus-integrity, state-integrity.
+
+code_shape_summary: |
+  Block-processing code had the transaction commitment comparison present but disabled, allowing body data to
+  approach execution without proving it matched the header commitment.
+search_motifs:
+- block body accepted without recomputing the transaction/root commitment
+- header commitment compared only in tests or dead code
+- block import reaches execution before body/header consistency is checked
+- validation exists in one branch but not an alternate execution path
+- object is structurally valid but not checked against the requested protocol coordinate
+- fork-specific rule is missing from a generic validator
+negative_signals:
+- an earlier mandatory check rejects the same malformed field on every reachable path
+- the changed code is test-only, logging-only, generated-only, or pure refactor
+- a downstream consensus or proof verifier recomputes the property fail-closed before state changes are
+  committed
+- the patch only improves diagnostics, naming, generated bindings, or tests without changing runtime
+  acceptance or rejection
+- the input is not attacker-influenced in the deployed threat model
+- a stronger invariant is enforced earlier on every path and the changed check is redundant defense in
+  depth
+patch_pattern: |
+  Restore the body-root recomputation and equality check at block import, and fail closed before execution
+  when the header commitment does not match.
+
+source_refs:
+- git:60cdb1148c404218846fd39331690658168f4e04
+- chain/block_manager.go:218
+- trie/trie_test.go:383
+- trie/trie.go:223
+- trie/trie_test.go:90
+- /testing/go-ethereum/validated-findings/kept/2014-11-12-go-ethereum-transaction-processing-60cdb1148c.md
+notes:
+- Enriched from the geth-arb corpus import raw finding, preserving conservative phase-4 claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.

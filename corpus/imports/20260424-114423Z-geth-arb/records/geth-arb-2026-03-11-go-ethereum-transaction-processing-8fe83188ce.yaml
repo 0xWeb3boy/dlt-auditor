@@ -1,0 +1,86 @@
+id: "geth-arb-2026-03-11-go-ethereum-transaction-processing-8fe83188ce"
+source_finding: "2026-03-11-go-ethereum-transaction-processing-8fe83188ce.md"
+project: "go-ethereum"
+date: "2026-03-11"
+language_tags:
+- go
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "missing-validation"
+subsystem: "transaction-processing"
+architecture_tags:
+- ethereum
+- execution
+- consensus
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+- retrieval_exemplar
+- taxonomy_refinement
+
+missing_property: "sequencing-accumulator-validation"
+violated_invariant: |
+  Delayed-message sequencing must run accumulator and reorg validation in every mode before accepting or
+  deriving sequenced state.
+trust_boundary: "delayed inbox or message reader state -> sequencer delayed-message acceptance"
+entrypoint_type: "delayed message sequencing path"
+sensitive_sink: "sequenced delayed message state and accumulator progress"
+
+attacker_capabilities:
+- provide malformed, inconsistent, or edge-case protocol input through a peer, RPC, sequencer, or
+  operator-facing boundary
+- choose values that exercise an alternate or upgraded validation branch
+exploit_preconditions:
+- the affected path is reachable before an equivalent fail-closed check runs
+- the malformed or ambiguous input is accepted far enough to influence a security-sensitive decision
+- no downstream consensus/proof verification recomputes the same property before side effects
+- for hardening-only records, practical exploitability depends on deployment exposure and attacker control
+  of the input source
+blast_radius: |
+  chain-or-network-wide if the invalid state is accepted; otherwise limited to the node or exposed service
+
+impact_types:
+- sequencer-integrity
+- message-order-integrity
+severity_guess: "medium"
+severity_rationale: |
+  Evidence supports security hardening rather than a fully demonstrated exploit; severity is medium because
+  the path can influence sequencer-integrity, message-order-integrity, but reachability and compensating
+  checks bound the claim.
+
+code_shape_summary: |
+  One sequencing mode skipped the accumulator reorg check when a reader object was absent, leaving a
+  validation gap before delayed messages were accepted.
+search_motifs:
+- validation runs only when optional reader is non-nil
+- sequencing mode bypasses accumulator reorg check
+- delayed message acceptance has alternate path missing invariant check
+- validation exists in one branch but not an alternate execution path
+- object is structurally valid but not checked against the requested protocol coordinate
+- fork-specific rule is missing from a generic validator
+negative_signals:
+- an earlier mandatory check rejects the same malformed field on every reachable path
+- the changed code is test-only, logging-only, generated-only, or pure refactor
+- a downstream consensus or proof verifier recomputes the property fail-closed before state changes are
+  committed
+- the patch only improves diagnostics, naming, generated bindings, or tests without changing runtime
+  acceptance or rejection
+- the input is not attacker-influenced in the deployed threat model
+- a stronger invariant is enforced earlier on every path and the changed check is redundant defense in
+  depth
+patch_pattern: |
+  Run the accumulator/reorg validation on the mode-independent path or make absence of the reader fail closed
+  before sequencing continues.
+
+source_refs:
+- git:8fe83188ce0d03957b1f0421e68d8a3b49255aeb
+- arbnode/inbox_tracker.go:952
+- arbnode/delayed_sequencer.go:373
+- arbnode/delayed_sequencer.go:253
+- arbnode/mel/runner/mel.go:330
+- /testing/go-ethereum/validated-findings/kept/2026-03-11-go-ethereum-transaction-processing-8fe83188ce.md
+notes:
+- Enriched from the geth-arb corpus import raw finding, preserving conservative phase-4 claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.

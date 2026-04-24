@@ -1,0 +1,23 @@
+id: "geth-arb-2015-05-15-go-ethereum-core-logic-cd2fb09051"
+source_record: "geth-arb-2015-05-15-go-ethereum-core-logic-cd2fb09051.yaml"
+project: "go-ethereum"
+
+expected_bug_family: "signature_binding_and_signer_scope"
+expected_bug_class: "duplicate-hash-replay"
+expected_missing_property: "duplicate-response-deduplication"
+
+expected_impact_band: "availability-or-resource-exhaustion"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+- No corpus match if the signature covers chain ID, message type, domain, nonce, and freshness at the sink
+- No corpus match if the object is never accepted from an untrusted boundary
+- No corpus match if a later verifier rejects mismatched signer, domain, or sequence before side effects
+- No corpus match if the patch only improves diagnostics, naming, generated bindings, or tests without
+  changing runtime acceptance or rejection
+notes:
+- Generated from enriched geth-arb corpus import fields.
+- Expected detector rationale should mention duplicate-response-deduplication at the untrusted peer hash response -> downloader hash queue boundary.

@@ -1,0 +1,86 @@
+id: "geth-arb-2018-09-20-go-ethereum-storage-d6254f827b"
+source_finding: "2018-09-20-go-ethereum-storage-d6254f827b.md"
+project: "go-ethereum"
+date: "2018-09-20"
+language_tags:
+- go
+
+bug_family: "state_machine_and_lifecycle_consistency"
+bug_class: "fork-choice-tie-break-hardening"
+subsystem: "storage"
+architecture_tags:
+- ethereum
+- state-storage
+- authenticated-data
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+- retrieval_exemplar
+- taxonomy_refinement
+
+missing_property: "deterministic-fork-choice"
+violated_invariant: |
+  Fork-choice tie breaks should be deterministic and preference-preserving so equal-work alternatives cannot
+  induce unnecessary local reorg churn.
+trust_boundary: "competing peer-supplied chain head -> local canonical chain selection"
+entrypoint_type: "block import and reorg decision path"
+sensitive_sink: "canonical-chain selection and reorg execution"
+
+attacker_capabilities:
+- drive reorgs, sync state, configuration changes, lifecycle transitions, or state updates through normal
+  protocol inputs
+- trigger an alternate mode where cached or persisted state is reused
+exploit_preconditions:
+- state is keyed by an incomplete coordinate such as height, alias, local progress, or stale cache entry
+- the authoritative chain/configuration/artifact identity is not rechecked at point of use
+- the stale state can influence validation, sequencing, storage, or privileged work
+- for hardening-only records, practical exploitability depends on deployment exposure and attacker control
+  of the input source
+blast_radius: |
+  validator, node, or network state can diverge if stale lifecycle state reaches the consensus or sequencing
+  sink
+
+impact_types:
+- consensus-stability
+- reorg-resistance
+severity_guess: "low-medium"
+severity_rationale: |
+  Evidence supports security hardening rather than a fully demonstrated exploit; severity is low-medium
+  because the path can influence consensus-stability, reorg-resistance, but reachability and compensating
+  checks bound the claim.
+
+code_shape_summary: |
+  Equal-difficulty same-height blocks could trigger random reorg behavior instead of preferentially retaining
+  the local canonical block.
+search_motifs:
+- fork choice uses randomness for equal weight blocks
+- same-height same-work competitor can trigger reorg churn
+- tie-break ignores local canonical preference
+- state cache is keyed by height or alias without canonical hash binding
+- lifecycle transition reuses stale progress after reorg or mode switch
+- loaded artifact or config is not revalidated against authoritative identity at point of use
+negative_signals:
+- state is invalidated on every relevant reorg, fork, mode, or configuration change
+- the sink re-reads authoritative state before use
+- the patch only changes cleanup or logging with no acceptance or state-transition effect
+- the patch only improves diagnostics, naming, generated bindings, or tests without changing runtime
+  acceptance or rejection
+- the input is not attacker-influenced in the deployed threat model
+- a stronger invariant is enforced earlier on every path and the changed check is redundant defense in
+  depth
+patch_pattern: |
+  Replace random tie-breaking with deterministic local-chain preference when total difficulty and height are
+  equal.
+
+source_refs:
+- git:d6254f827bf493c1471a806b7b8a0e9b86c8c420
+- core/blockchain.go:971
+- core/blockchain.go:137
+- core/blockchain_test.go:524
+- core/bench_test.go:288
+- /testing/go-ethereum/validated-findings/kept/2018-09-20-go-ethereum-storage-d6254f827b.md
+notes:
+- Enriched from the geth-arb corpus import raw finding, preserving conservative phase-4 claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.

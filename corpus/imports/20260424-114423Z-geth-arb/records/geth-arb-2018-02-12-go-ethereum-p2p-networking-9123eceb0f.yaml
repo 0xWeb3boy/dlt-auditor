@@ -1,0 +1,85 @@
+id: "geth-arb-2018-02-12-go-ethereum-p2p-networking-9123eceb0f"
+source_finding: "2018-02-12-go-ethereum-p2p-networking-9123eceb0f.md"
+project: "go-ethereum"
+date: "2018-02-12"
+language_tags:
+- go
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "reply-correlation-hardening"
+subsystem: "p2p-networking"
+architecture_tags:
+- ethereum
+- p2p
+- network-protocol
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+- retrieval_exemplar
+- taxonomy_refinement
+
+missing_property: "request-reply-correlation"
+violated_invariant: |
+  A protocol reply must be correlated to the exact request token or packet hash, not only to the peer
+  identity, before liveness or bonding state is updated.
+trust_boundary: "untrusted p2p reply -> request/liveness state machine"
+entrypoint_type: "p2p ping/pong handler"
+sensitive_sink: "node bonding, liveness confirmation, or request completion"
+
+attacker_capabilities:
+- provide malformed, inconsistent, or edge-case protocol input through a peer, RPC, sequencer, or
+  operator-facing boundary
+- choose values that exercise an alternate or upgraded validation branch
+exploit_preconditions:
+- the affected path is reachable before an equivalent fail-closed check runs
+- the malformed or ambiguous input is accepted far enough to influence a security-sensitive decision
+- no downstream consensus/proof verification recomputes the same property before side effects
+- for hardening-only records, practical exploitability depends on deployment exposure and attacker control
+  of the input source
+blast_radius: |
+  chain-or-network-wide if the invalid state is accepted; otherwise limited to the node or exposed service
+
+impact_types:
+- peer-identity-integrity
+- protocol-state-integrity
+severity_guess: "low-medium"
+severity_rationale: |
+  Evidence supports security hardening rather than a fully demonstrated exploit; severity is low-medium
+  because the path can influence peer-identity-integrity, protocol-state-integrity, but reachability and
+  compensating checks bound the claim.
+
+code_shape_summary: |
+  The pong path accepted replies by node identity without checking that the reply token matched the
+  outstanding ping packet.
+search_motifs:
+- reply accepted for peer ID without request token match
+- pong or ack lacks nonce/hash correlation
+- request completion keyed too broadly by node identity
+- validation exists in one branch but not an alternate execution path
+- object is structurally valid but not checked against the requested protocol coordinate
+- fork-specific rule is missing from a generic validator
+negative_signals:
+- an earlier mandatory check rejects the same malformed field on every reachable path
+- the changed code is test-only, logging-only, generated-only, or pure refactor
+- a downstream consensus or proof verifier recomputes the property fail-closed before state changes are
+  committed
+- the patch only improves diagnostics, naming, generated bindings, or tests without changing runtime
+  acceptance or rejection
+- the input is not attacker-influenced in the deployed threat model
+- a stronger invariant is enforced earlier on every path and the changed check is redundant defense in
+  depth
+patch_pattern: |
+  Store the encoded request token and compare the reply token before marking the request complete.
+
+source_refs:
+- git:9123eceb0f78f69e88d909a56ad7fadb75570198
+- p2p/discover/table.go:592
+- p2p/discover/table.go:665
+- p2p/discover/udp.go:274
+- p2p/discover/table.go:126
+- /testing/go-ethereum/validated-findings/kept/2018-02-12-go-ethereum-p2p-networking-9123eceb0f.md
+notes:
+- Enriched from the geth-arb corpus import raw finding, preserving conservative phase-4 claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.

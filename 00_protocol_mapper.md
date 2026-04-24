@@ -114,6 +114,12 @@ Your task:
   - what event invalidates or rotates it,
   - which cache or mirror stores it,
   - where namespace equality is checked before accepting signed or trusted artifacts.
+20. If the repository is a fork, extension, rollup adaptation, or chain-variant of a larger client, map base-client invariants separately from variant-specific invariants:
+  - which transaction/header/block types are inherited unchanged,
+  - which validators are shared but parameterized by variant-specific fork, timestamp, gas, sequencer, or artifact state,
+  - which generated side effects or internal transactions are added by the variant,
+  - which base-client caches, pools, signers, or state journals are reused by the variant,
+  - where the variant's authoritative source of truth overrides or augments base-client assumptions.
 
 Output format:
 - System summary

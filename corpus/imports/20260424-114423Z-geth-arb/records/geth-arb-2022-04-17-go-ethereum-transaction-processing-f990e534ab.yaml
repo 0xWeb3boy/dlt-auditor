@@ -1,0 +1,84 @@
+id: "geth-arb-2022-04-17-go-ethereum-transaction-processing-f990e534ab"
+source_finding: "2022-04-17-go-ethereum-transaction-processing-f990e534ab.md"
+project: "go-ethereum"
+date: "2022-04-17"
+language_tags:
+- go
+
+bug_family: "authz_and_role_gates"
+bug_class: "container-least-privilege-hardening"
+subsystem: "transaction-processing"
+architecture_tags:
+- ethereum
+- execution
+- consensus
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+- retrieval_exemplar
+- taxonomy_refinement
+
+missing_property: "runtime-least-privilege"
+violated_invariant: |
+  Service containers should run with the minimum user privileges needed so application compromise does not
+  immediately become root-level container control.
+trust_boundary: "container image/runtime -> host and container privilege boundary"
+entrypoint_type: "deployment image startup"
+sensitive_sink: "process privileges inside the production container"
+
+attacker_capabilities:
+- reach a privileged API, sequencer path, signer path, or deployment boundary with crafted parameters or
+  state
+- cause an authorization lookup, policy warning, or role check to take an edge-case branch
+exploit_preconditions:
+- authorization is checked with stale, inverted, advisory, or caller-controlled state
+- the sensitive operation runs after a failed or incomplete policy decision
+- no independent authorization gate protects the final sink
+- for hardening-only records, practical exploitability depends on deployment exposure and attacker control
+  of the input source
+blast_radius: |
+  limited to the privileged operation or signing/deployment boundary unless it feeds consensus or fund
+  movement
+
+impact_types:
+- privilege-containment
+- deployment-hardening
+severity_guess: "low-medium"
+severity_rationale: |
+  Evidence supports security hardening rather than a fully demonstrated exploit; severity is low-medium
+  because the path can influence privilege-containment, deployment-hardening, but reachability and
+  compensating checks bound the claim.
+
+code_shape_summary: |
+  The node distribution image ran as root and was hardened by switching the runtime user to a non-root
+  account.
+search_motifs:
+- production node container defaults to root user
+- Dockerfile lacks USER for runtime stage
+- service process has unnecessary write or root privileges
+- authorization predicate combines boolean result and error handling unsafely
+- policy warning is advisory where fail-closed behavior is expected
+- privileged sink accepts caller-controlled authority or destination parameter
+negative_signals:
+- a separate mandatory role check guards the sink
+- errors fail closed before privilege is granted
+- the changed path only affects local diagnostics and not authorization or privilege
+- the patch only improves diagnostics, naming, generated bindings, or tests without changing runtime
+  acceptance or rejection
+- the input is not attacker-influenced in the deployed threat model
+- a stronger invariant is enforced earlier on every path and the changed check is redundant defense in
+  depth
+patch_pattern: "Create/select an unprivileged user in the image and set it as the default runtime identity."
+
+source_refs:
+- git:f990e534abd40688ad8ba633558acd5b4764cc7a
+- cmd/conf/config.go:188
+- cmd/deploy/deploy.go:63
+- arbnode/node.go:266
+- arbnode/node.go:273
+- /testing/go-ethereum/validated-findings/kept/2022-04-17-go-ethereum-transaction-processing-f990e534ab.md
+notes:
+- Enriched from the geth-arb corpus import raw finding, preserving conservative phase-4 claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.

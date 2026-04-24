@@ -1,0 +1,86 @@
+id: "geth-arb-2022-01-26-go-ethereum-transaction-processing-b5048b881e"
+source_finding: "2022-01-26-go-ethereum-transaction-processing-b5048b881e.md"
+project: "go-ethereum"
+date: "2022-01-26"
+language_tags:
+- go
+
+bug_family: "authz_and_role_gates"
+bug_class: "sequencer-fee-policy-bypass"
+subsystem: "transaction-processing"
+architecture_tags:
+- ethereum
+- execution
+- consensus
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+- retrieval_exemplar
+- taxonomy_refinement
+
+missing_property: "sequencer-admission-policy"
+violated_invariant: |
+  Sequencer admission should enforce the authoritative fee-recipient or aggregator policy before accepting
+  transactions into privileged ordering paths.
+trust_boundary: "user transaction -> sequencer admission policy"
+entrypoint_type: "sequencer transaction admission filter"
+sensitive_sink: "sequencer ordering and fee-routing decision"
+
+attacker_capabilities:
+- reach a privileged API, sequencer path, signer path, or deployment boundary with crafted parameters or
+  state
+- cause an authorization lookup, policy warning, or role check to take an edge-case branch
+exploit_preconditions:
+- authorization is checked with stale, inverted, advisory, or caller-controlled state
+- the sensitive operation runs after a failed or incomplete policy decision
+- no independent authorization gate protects the final sink
+- for hardening-only records, practical exploitability depends on deployment exposure and attacker control
+  of the input source
+blast_radius: |
+  limited to the privileged operation or signing/deployment boundary unless it feeds consensus or fund
+  movement
+
+impact_types:
+- economic-policy-enforcement
+- sequencer-integrity
+severity_guess: "medium"
+severity_rationale: |
+  Evidence supports security hardening rather than a fully demonstrated exploit; severity is medium because
+  the path can influence economic-policy-enforcement, sequencer-integrity, but reachability and compensating
+  checks bound the claim.
+
+code_shape_summary: |
+  The sequencer needed to reject transactions whose preferred aggregator did not match the configured
+  sequencer fee recipient.
+search_motifs:
+- sequencer accepts transaction before fee-recipient preference check
+- admission policy depends on account metadata but is not enforced
+- privileged ordering path ignores user-selected aggregator mismatch
+- authorization predicate combines boolean result and error handling unsafely
+- policy warning is advisory where fail-closed behavior is expected
+- privileged sink accepts caller-controlled authority or destination parameter
+negative_signals:
+- a separate mandatory role check guards the sink
+- errors fail closed before privilege is granted
+- the changed path only affects local diagnostics and not authorization or privilege
+- the patch only improves diagnostics, naming, generated bindings, or tests without changing runtime
+  acceptance or rejection
+- the input is not attacker-influenced in the deployed threat model
+- a stronger invariant is enforced earlier on every path and the changed check is redundant defense in
+  depth
+patch_pattern: |
+  Read the sender preference at admission and reject transactions whose aggregator does not match the
+  sequencer address.
+
+source_refs:
+- git:b5048b881ef126fa349a52d4ce80e3633e2c5aa4
+- arbos/block_processor.go:89
+- arbnode/transaction_streamer.go:268
+- arbnode/sequencer.go:72
+- arbnode/sequencer.go:50
+- /testing/go-ethereum/validated-findings/kept/2022-01-26-go-ethereum-transaction-processing-b5048b881e.md
+notes:
+- Enriched from the geth-arb corpus import raw finding, preserving conservative phase-4 claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.

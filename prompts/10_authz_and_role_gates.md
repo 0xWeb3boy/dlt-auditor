@@ -43,6 +43,10 @@ Search patterns:
 - transaction preflight or admission checks that authorize a broad account or role but do not re-check the exact asset, issuer, destination, domain, state object, or generated side effect at the state-transition sink
 - authorization helpers that infer permission from share ownership, receipt ownership, account flags, vault membership, staking position, or domain metadata without loading the authoritative object that defines the policy
 - cleanup, revoke, delete, close, withdraw, or unstake paths where authority to remove an object is not the same as authority to dispose of its dependent obligations, delegated rights, or generated state
+- authorization predicates that combine a boolean result with an error result. Errors from role, owner, policy, or registry lookup should fail closed and must not be treated as proof of access.
+- sensitive sinks that accept a caller-supplied destination, recipient, authority, fee recipient, aggregator, controller, or round value when the sink can derive that value from authoritative state.
+- privileged queues where admission checks authorization, owner, policy, or round freshness but dequeue, replay, retry, or execution uses cached state or a weaker predicate.
+- signing or approval middleware where validation warnings, policy failures, or UI-mediated prompts default to continue instead of requiring explicit approval under a clearly unsafe mode.
 
 Questions to answer:
 1. Who is supposed to be allowed to call this path?
@@ -53,6 +57,9 @@ Questions to answer:
 6. Does the permission cover this exact transaction shape, asset class, issuer, destination, receiver policy, and feature or amendment state, or only the transaction type?
 7. If the operation creates a holding, directory entry, delegate object, pseudo-account state, receipt, share, or follow-on state object, is that generated side effect authorized too?
 8. Are sender consent, receiver consent, issuer policy, domain policy, and operator or admin authority treated as separate checks?
+9. If the role or policy lookup returns both `(allowed, error)`, which combinations grant access, and do all errors deny?
+10. Can the privileged sink derive the sensitive recipient, authority, or policy value itself instead of trusting a caller-supplied parameter?
+11. Are admission, dequeue, replay, and execution checking the same authority and freshness source?
 
 Report only candidates where the missing property is concrete.
 

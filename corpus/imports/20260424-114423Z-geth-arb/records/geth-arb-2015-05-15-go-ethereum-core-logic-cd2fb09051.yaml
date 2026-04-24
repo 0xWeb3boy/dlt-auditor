@@ -1,0 +1,81 @@
+id: "geth-arb-2015-05-15-go-ethereum-core-logic-cd2fb09051"
+source_finding: "2015-05-15-go-ethereum-core-logic-cd2fb09051.md"
+project: "go-ethereum"
+date: "2015-05-15"
+language_tags:
+- go
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "duplicate-hash-replay"
+subsystem: "core-logic"
+architecture_tags:
+- ethereum
+- peer-sync
+- chain-import
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses:
+- retrieval_exemplar
+- eval_positive
+- taxonomy_refinement
+
+missing_property: "duplicate-response-deduplication"
+violated_invariant: |
+  Peer-supplied sync batches must contribute new, ordered work or be rejected so duplicate hashes cannot be
+  replayed to waste downloader capacity or bypass progress checks.
+trust_boundary: "untrusted peer hash response -> downloader hash queue"
+entrypoint_type: "peer hash batch handler"
+sensitive_sink: "sync queue insertion and peer scoring"
+
+attacker_capabilities:
+- submit data to be signed, relayed, or accepted under a protocol identity
+- reuse or replay a valid-looking signed object across chain, domain, round, or message-type boundaries
+exploit_preconditions:
+- the signature or authenticated metadata does not cover the full semantic context
+- the receiving path accepts the object before checking chain ID, domain, sequence, freshness, or
+  publisher identity
+- the attacker can obtain or observe a valid signature for one context
+blast_radius: |
+  cross-chain, cross-domain, or signer-scope impact if replay or authentication confusion reaches acceptance
+
+impact_types:
+- sync-availability
+- resource-exhaustion
+severity_guess: "medium"
+severity_rationale: |
+  Evidence is confirmed for duplicate-response-deduplication; severity is medium because the affected sink can
+  influence sync-availability, resource-exhaustion.
+
+code_shape_summary: |
+  The downloader did not treat a non-final batch of only duplicate hashes as a protocol failure, allowing
+  replayed responses to consume sync work without progress.
+search_motifs:
+- hash queue insertion ignores count of actually new entries
+- duplicate response is accepted as progress
+- non-final peer batch can replay already queued identifiers
+- signature or signed feed omits chain/domain/type/sequence binding
+- authenticated object is accepted before freshness or publisher identity is checked
+- same signing primitive serves multiple semantic object types without prefixing
+negative_signals:
+- the signature covers chain ID, message type, domain, nonce, and freshness at the sink
+- the object is never accepted from an untrusted boundary
+- a later verifier rejects mismatched signer, domain, or sequence before side effects
+- the patch only improves diagnostics, naming, generated bindings, or tests without changing runtime
+  acceptance or rejection
+- the input is not attacker-influenced in the deployed threat model
+- a stronger invariant is enforced earlier on every path and the changed check is redundant defense in
+  depth
+patch_pattern: "Count newly inserted hashes and reject non-final responses that add no new queue entries."
+
+source_refs:
+- git:cd2fb0905109828028172c84f9c10f1343647ca6
+- eth/downloader/downloader.go:267
+- eth/downloader/queue.go:123
+- eth/sync.go:102
+- eth/downloader/downloader.go:28
+- /testing/go-ethereum/validated-findings/kept/2015-05-15-go-ethereum-core-logic-cd2fb09051.md
+notes:
+- Enriched from the geth-arb corpus import raw finding, preserving conservative phase-4 claim boundaries.
+- Treat stronger exploit claims as unsupported unless separate call-path or incident evidence exists.
