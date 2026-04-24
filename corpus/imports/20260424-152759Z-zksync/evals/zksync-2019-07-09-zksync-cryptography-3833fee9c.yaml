@@ -1,0 +1,21 @@
+id: "zksync-2019-07-09-zksync-cryptography-3833fee9c"
+source_record: "zksync-2019-07-09-zksync-cryptography-3833fee9c.yaml"
+project: "zksync"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "missing-circuit-constraint"
+expected_missing_property: "witness-account-key-binding"
+
+expected_impact_band: "authorization_integrity"
+expected_severity_band: "high_or_medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Do not count formatting-only circuit changes."
+  - "If the same equality was already enforced in another mandatory constraint, the patch may be refactor or defense-in-depth."
+  - "No liveness or malformed-input claim follows from a missing equality constraint alone."
+notes:
+  - "Expected result should identify the generic invariant and avoid claiming impacts beyond the validated evidence."
+  - "A missing circuit constraint in transfer authorization can be high impact, but this case remains likely because the full pre-fix circuit and exploit path were not proven."

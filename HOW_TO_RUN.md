@@ -69,6 +69,7 @@ If you want a practical default order, use:
 9. `13_input_validation_and_invariant_enforcement.md`
 10. `18_authoritative_state_and_boundary_enforcement.md`
 11. `17_checked_arithmetic_and_parameter_bounds.md`
+12. `23_zk_circuit_witness_and_public_data_binding.md`
 
 ## File Discipline
 

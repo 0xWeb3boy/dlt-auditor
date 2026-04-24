@@ -35,6 +35,16 @@ Your task:
   - where syntactic decoding happens,
   - where validator/signature/quorum validation happens,
   - where the attestation is finally counted, persisted, or used to accept a proposal/state transition.
+3b. For ZK rollups or proof-based execution systems, build a field-binding matrix for each operation family:
+  - user/API transaction fields,
+  - SDK or wallet signed payload,
+  - typed-data or raw-message domain fields,
+  - witness struct fields,
+  - pubdata or calldata fields,
+  - circuit constraints and validity flags,
+  - storage/account state consumed by execution,
+  - verifier or contract inputs.
+  For each field, mark which representation is authoritative and where equality, range, nonce, signer, and domain binding is enforced before proof acceptance or state commitment.
 4. List the major lifecycle or state machines.
 5. List places where policy, version, fork, or feature gates are expected.
 6. List the authoritative sources of truth for policy, checkpoints, historical state, fork activation, and head/safe/finalized positions. Distinguish them from caches, local config, watch channels, mirrors, and derived summaries.
@@ -95,6 +105,15 @@ Your task:
   - what witness or auxiliary data must be recorded for later validation,
   - what finalized, safe, validated, or read-progress boundary governs retention and reuse,
   - which sink consumes the recorded data to authorize sequencing, validation, or proof generation.
+  For event-ingestion pipelines, also map the full source event identity:
+  - source chain,
+  - contract or emitter,
+  - block hash and number,
+  - transaction hash or index,
+  - log index or event index,
+  - event type,
+  - payload.
+  Note any progress watermark or duplicate guard and whether it is keyed by the full identity or by a coarser block, batch, height, or timestamp proxy.
 17. Map internally generated follow-on work separately from user-supplied work:
   - retryables, auto-redeems, delayed messages, background challenge moves, queue-drained work, and protocol-generated side effects.
   For each, note:

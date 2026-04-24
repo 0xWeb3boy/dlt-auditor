@@ -1,0 +1,21 @@
+id: "zksync-2021-01-20-zksync-cryptography-ab8697742"
+source_record: "zksync-2021-01-20-zksync-cryptography-ab8697742.yaml"
+project: "zksync"
+
+expected_bug_family: "authz_and_role_gates"
+expected_bug_class: "transaction-authentication-hardening"
+expected_missing_property: "account-auth-mode-consistency"
+
+expected_impact_band: "authorization_hardening"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "If CREATE2 address derivation was already the only accepted authority, rejecting extra signatures may be cleanup."
+  - "A panic in unreachable disabled transaction code is not automatically exploitable."
+  - "Do not classify as cryptographic primitive failure without changed verification math."
+notes:
+  - "Expected result should identify the generic invariant and avoid claiming impacts beyond the validated evidence."
+  - "Rejecting mismatched auth data is security-relevant, but validation did not prove a bypass or remotely triggerable DoS."

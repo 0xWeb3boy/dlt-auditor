@@ -1,0 +1,57 @@
+id: "zksync-2019-09-03-zksync-cryptography-136c8d4e5"
+source_finding: "2019-09-03-zksync-cryptography-136c8d4e5.md"
+project: "zksync"
+date: "2019-09-03"
+language_tags:
+  - "rust"
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "missing-signature-message-binding"
+subsystem: "cryptography"
+architecture_tags:
+  - "zk-circuit"
+  - "proof-system"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "signed-message-field-binding"
+violated_invariant: "The message verified by a signature inside a circuit must be constrained to the same transaction fields that drive the state transition."
+trust_boundary: "User transaction data and prover witness serialization cross into in-circuit signature verification."
+entrypoint_type: "zk_circuit_signature_verification"
+sensitive_sink: "signature-message constraints for transfer-to-new account execution"
+
+attacker_capabilities:
+  - "Provide or influence transaction/witness fields for a transfer-like operation."
+  - "Attempt to decouple signed bytes from the operation fields consumed by the circuit."
+exploit_preconditions:
+  - "The circuit accepted allocated signature-message data without reconstructing it from transaction fields."
+  - "A prover could choose inconsistent message bits and operation fields."
+  - "No outer validation rejected the mismatch before proof acceptance."
+blast_radius: "Could undermine authorization integrity for operations whose signed payload is not bound to constrained state-transition fields."
+
+impact_types:
+  - "integrity"
+  - "authorization"
+severity_guess: "high_or_medium"
+severity_rationale: "Signature-message binding bugs can authorize the wrong operation, but this one is likely rather than confirmed because a concrete accepted exploit was not shown."
+
+code_shape_summary: "The patch reconstructs serialized transaction bits in the circuit and verifies they match allocated signature-message data for transfer-to-new. The reusable pattern is a signature verifier constrained over witness-supplied bytes without proving those bytes equal the transaction being executed."
+search_motifs:
+  - "verify_signature_message_construction introduced near circuit signature checks"
+  - "serialized transaction bits compared to allocated signed message"
+  - "transfer_to_new or account-creation transfer signature message rebuilt in-circuit"
+negative_signals:
+  - "Storage formatting or unrelated cleanup hunks should not support this case."
+  - "If signed bytes are already constrained by a shared helper on all paths, the patch may only deduplicate checks."
+  - "Presence of signature verification alone is not enough; the important signal is binding to operation fields."
+patch_pattern: "Reconstruct the canonical signed message from constrained transaction fields and add equality checks against the bytes used by signature verification."
+
+source_refs:
+  - "/testing/zksync/validated-findings/kept/2019-09-03-zksync-cryptography-136c8d4e5.md"
+notes:
+  - "Enriched from validated finding evidence; keep claims at the validated hardening confidence level."

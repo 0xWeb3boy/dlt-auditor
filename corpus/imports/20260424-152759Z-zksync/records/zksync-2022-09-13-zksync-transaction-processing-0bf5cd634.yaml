@@ -1,0 +1,58 @@
+id: "zksync-2022-09-13-zksync-transaction-processing-0bf5cd634"
+source_finding: "2022-09-13-zksync-transaction-processing-0bf5cd634.md"
+project: "zksync"
+date: "2022-09-13"
+language_tags:
+  - "rust"
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "cross-domain-signature-replay"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "wallet-signature"
+  - "account-abstraction"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "chain-domain-signature-binding"
+violated_invariant: "A signature authorizing account-control changes must be bound to the intended chain/domain and typed action so it cannot be replayed from another network or signing context."
+trust_boundary: "External wallet signature crosses into ChangePubKey transaction authorization and account key-control logic."
+entrypoint_type: "wallet_typed_data_signature"
+sensitive_sink: "ChangePubKey signer recovery and account public-key update authorization"
+
+attacker_capabilities:
+  - "Obtain or reuse a ChangePubKey-related wallet signature."
+  - "Attempt to submit that signature on a different chain/domain or legacy auth variant."
+exploit_preconditions:
+  - "Legacy signing did not bind chain_id through EIP-712 typed data."
+  - "The verifier accepted the legacy authorization in a replay-relevant context."
+  - "The attacker can present the signature to a network or domain where it should not apply."
+blast_radius: "Could affect account-control authorization for ChangePubKey flows; direct theft or account takeover is not proven by the retained evidence."
+
+impact_types:
+  - "replay"
+  - "authorization"
+  - "account-control"
+severity_guess: "medium_or_low"
+severity_rationale: "Replay hardening for account-control signatures is important, but the evidence stops short of a demonstrated exploit or direct fund loss."
+
+code_shape_summary: "ChangePubKey Ethereum authorization moves from raw-message ECDSA toward EIP-712 typed data with an explicit chain_id domain, and the legacy SDK signing path is deprecated. The reusable shape is an account-control signature verified without sufficient domain/action binding."
+search_motifs:
+  - "Eip712Domain::new(chain_id) added near signer recovery"
+  - "sign_typed_data replaces sign_message for account key-change auth"
+  - "legacy ECDSA ChangePubKey method deprecated or hidden"
+negative_signals:
+  - "Do not include broad commit claims like reentrancy unless the hunks support them."
+  - "If legacy signatures are only accepted in a non-production compatibility path, severity is lower."
+  - "EIP-712 adoption is not always a security fix without a replay-sensitive action."
+patch_pattern: "Require chain_id, construct an EIP-712 domain, sign and verify typed transaction data, and steer normal callers away from raw legacy signatures."
+
+source_refs:
+  - "/testing/zksync/validated-findings/kept/2022-09-13-zksync-transaction-processing-0bf5cd634.md"
+notes:
+  - "Enriched from validated finding evidence; keep claims at the validated hardening confidence level."

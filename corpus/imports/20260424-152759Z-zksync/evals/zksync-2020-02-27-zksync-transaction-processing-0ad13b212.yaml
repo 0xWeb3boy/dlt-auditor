@@ -1,0 +1,21 @@
+id: "zksync-2020-02-27-zksync-transaction-processing-0ad13b212"
+source_record: "zksync-2020-02-27-zksync-transaction-processing-0ad13b212.yaml"
+project: "zksync"
+
+expected_bug_family: "authz_and_role_gates"
+expected_bug_class: "authorization-message-domain-separation-hardening"
+expected_missing_property: "human-readable-authorization-domain"
+
+expected_impact_band: "authorization_hardening"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Readable text alone is not a full cryptographic domain separator if verifier semantics are unchanged."
+  - "Do not claim exploitability without evidence the old message could be reused."
+  - "UI/prompt wording changes outside an authorization sink are weaker."
+notes:
+  - "Expected result should identify the generic invariant and avoid claiming impacts beyond the validated evidence."
+  - "Better authorization messaging reduces replay/blind-signing risk, but validation did not prove a concrete forgery or exploit path."

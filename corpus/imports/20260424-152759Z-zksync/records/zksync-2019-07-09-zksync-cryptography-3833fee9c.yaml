@@ -1,0 +1,57 @@
+id: "zksync-2019-07-09-zksync-cryptography-3833fee9c"
+source_finding: "2019-07-09-zksync-cryptography-3833fee9c.md"
+project: "zksync"
+date: "2019-07-09"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "missing-circuit-constraint"
+subsystem: "cryptography"
+architecture_tags:
+  - "zk-circuit"
+  - "proof-system"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "witness-account-key-binding"
+violated_invariant: "A proof circuit must constrain witness-supplied signer identity to the committed source account key before accepting a transfer state transition."
+trust_boundary: "Untrusted prover witness data crosses into the zk circuit constraints that define valid transfer execution."
+entrypoint_type: "zk_proof_witness_and_transaction_execution"
+sensitive_sink: "transfer validity flags and account-state transition proof"
+
+attacker_capabilities:
+  - "Influence transaction witness fields or operation data entering circuit synthesis."
+  - "Attempt to prove a transfer with signer data that differs from source account state."
+exploit_preconditions:
+  - "The signer public key was not constrained elsewhere on the same path."
+  - "A proof generated from inconsistent witness data could be accepted by the verifier."
+  - "The attacker or faulty prover can construct the relevant operation witness."
+blast_radius: "Could affect transfer authorization integrity for the constrained operation family if no redundant check exists."
+
+impact_types:
+  - "integrity"
+  - "authorization"
+severity_guess: "high_or_medium"
+severity_rationale: "A missing circuit constraint in transfer authorization can be high impact, but this case remains likely because the full pre-fix circuit and exploit path were not proven."
+
+code_shape_summary: "The circuit added an equality constraint between the operation signer public key and the source account public key, and included that boolean in transfer validity. The reusable shape is witness data used in a proof without being tied back to committed account state."
+search_motifs:
+  - "CircuitPubkey::equals added between op signer and account pubkey"
+  - "valid_flags push newly computed authorization equality"
+  - "witness signer field compared to committed account state"
+negative_signals:
+  - "Do not count formatting-only circuit changes."
+  - "If the same equality was already enforced in another mandatory constraint, the patch may be refactor or defense-in-depth."
+  - "No liveness or malformed-input claim follows from a missing equality constraint alone."
+patch_pattern: "Add an explicit circuit equality check tying witness signer data to account state and feed the resulting boolean into the operation validity constraint set."
+
+source_refs:
+  - "/testing/zksync/validated-findings/kept/2019-07-09-zksync-cryptography-3833fee9c.md"
+notes:
+  - "Enriched from validated finding evidence; keep claims at the validated hardening confidence level."

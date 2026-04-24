@@ -1,0 +1,58 @@
+id: "zksync-2020-12-10-zksync-transaction-processing-e81d133a7"
+source_finding: "2020-12-10-zksync-transaction-processing-e81d133a7.md"
+project: "zksync"
+date: "2020-12-10"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "insecure-default-secret-detection"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "api-boundary"
+  - "storage"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "production-secret-safety-check"
+violated_invariant: "Non-local deployments must not silently run privileged admin or prover authentication with documented sample secrets."
+trust_boundary: "Deployment configuration crosses into authentication secret material for privileged services."
+entrypoint_type: "configuration_loading_and_startup"
+sensitive_sink: "admin server and prover API shared-secret authentication"
+
+attacker_capabilities:
+  - "Know or guess the sample/default secret."
+  - "Reach an endpoint protected only by that shared secret."
+exploit_preconditions:
+  - "A non-local network is configured with sample auth secrets."
+  - "Operators miss or ignore the startup warning."
+  - "The protected admin/prover endpoint is reachable by an unauthorized actor."
+blast_radius: "Could expose privileged service actions protected by the sample secret; exact impact depends on endpoint exposure and privileges."
+
+impact_types:
+  - "authorization"
+  - "configuration-hardening"
+  - "service-integrity"
+severity_guess: "medium_or_low"
+severity_rationale: "Default-secret detection is valuable hardening, but the patch logs errors rather than proving exploitability or enforcing startup failure."
+
+code_shape_summary: "Configuration loading now detects sample admin/prover auth secrets outside localhost and emits explicit errors. The reusable shape is deployment config accepting known default credentials for privileged services without environment-sensitive safety checks."
+search_motifs:
+  - "ADMIN_SERVER_SECRET_AUTH or PROVER_SECRET_AUTH compared with sample"
+  - "ETH_NETWORK != localhost guard around secret warning"
+  - "startup config validation for default/shared auth secret"
+negative_signals:
+  - "A log-only warning is weaker than refusal to start."
+  - "Sample secrets in tests, localhost, or dev fixtures are expected."
+  - "Panic message improvements in auth code are not the core security fix."
+patch_pattern: "Add environment-aware startup validation that detects known sample secrets for privileged auth configuration and raises explicit operator-visible errors."
+
+source_refs:
+  - "/testing/zksync/validated-findings/kept/2020-12-10-zksync-transaction-processing-e81d133a7.md"
+notes:
+  - "Enriched from validated finding evidence; keep claims at the validated hardening confidence level."

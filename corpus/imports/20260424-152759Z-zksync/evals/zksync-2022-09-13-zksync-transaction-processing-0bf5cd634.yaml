@@ -1,0 +1,21 @@
+id: "zksync-2022-09-13-zksync-transaction-processing-0bf5cd634"
+source_record: "zksync-2022-09-13-zksync-transaction-processing-0bf5cd634.yaml"
+project: "zksync"
+
+expected_bug_family: "signature_binding_and_signer_scope"
+expected_bug_class: "cross-domain-signature-replay"
+expected_missing_property: "chain-domain-signature-binding"
+
+expected_impact_band: "replay_or_account_authorization"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Do not include broad commit claims like reentrancy unless the hunks support them."
+  - "If legacy signatures are only accepted in a non-production compatibility path, severity is lower."
+  - "EIP-712 adoption is not always a security fix without a replay-sensitive action."
+notes:
+  - "Expected result should identify the generic invariant and avoid claiming impacts beyond the validated evidence."
+  - "Replay hardening for account-control signatures is important, but the evidence stops short of a demonstrated exploit or direct fund loss."

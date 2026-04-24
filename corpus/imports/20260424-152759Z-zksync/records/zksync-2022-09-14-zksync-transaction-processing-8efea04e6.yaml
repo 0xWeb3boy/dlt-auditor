@@ -1,0 +1,58 @@
+id: "zksync-2022-09-14-zksync-transaction-processing-8efea04e6"
+source_finding: "2022-09-14-zksync-transaction-processing-8efea04e6.md"
+project: "zksync"
+date: "2022-09-14"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "withdrawal-finalization-ordering"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "event-indexing"
+  - "cross-chain-withdrawals"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "event-identity-idempotency"
+violated_invariant: "Event finalization idempotency must use a unique event identity such as block number plus log index; processing one event must not mark every event in the block as complete."
+trust_boundary: "L1 withdrawal logs cross into L2 withdrawal finalization storage and accounting state."
+entrypoint_type: "blockchain_event_ingestion"
+sensitive_sink: "withdrawal finalization records and fund-availability state"
+
+attacker_capabilities:
+  - "Cause or rely on multiple withdrawal events appearing in the same source-chain block."
+  - "Submit or observe logs whose ordering matters for finalization."
+exploit_preconditions:
+  - "The finalizer deduplicates by block number only."
+  - "Multiple relevant withdrawal logs can occur in one block."
+  - "Skipped later logs affect user-visible withdrawal finalization or accounting."
+blast_radius: "Can delay or skip withdrawal finalization for later events in the same block; arbitrary minting or theft is not established."
+
+impact_types:
+  - "state-integrity"
+  - "fund-availability"
+  - "event-processing"
+severity_guess: "medium_or_low"
+severity_rationale: "Withdrawal finalization is sensitive and same-block event skipping can affect funds availability, but exploitability and theft are not proven."
+
+code_shape_summary: "The finalizer changes from a coarse max-processed-block guard to a per-block max-log-index guard, and parsed withdrawal events now carry log_index. The reusable shape is event idempotency keyed too coarsely for streams where multiple distinct events share a block or batch."
+search_motifs:
+  - "MAX(block_number) replaced with MAX(log_index) scoped by block"
+  - "event parser begins storing log_index or event_index"
+  - "duplicate-processing guard changes from block-level to event-level identity"
+negative_signals:
+  - "If the protocol guarantees at most one relevant event per block, block-level idempotency may be sufficient."
+  - "Parser assert-to-error changes are robustness signals, not proof of exploitability."
+  - "Do not claim theft or arbitrary withdrawal creation without accounting evidence."
+patch_pattern: "Persist the source event log index, query processed progress within the same block, and compare block plus log index before deciding an event is already finalized."
+
+source_refs:
+  - "/testing/zksync/validated-findings/kept/2022-09-14-zksync-transaction-processing-8efea04e6.md"
+notes:
+  - "Enriched from validated finding evidence; keep claims at the validated hardening confidence level."

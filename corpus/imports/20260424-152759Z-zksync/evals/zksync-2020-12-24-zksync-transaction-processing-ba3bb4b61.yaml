@@ -1,0 +1,21 @@
+id: "zksync-2020-12-24-zksync-transaction-processing-ba3bb4b61"
+source_record: "zksync-2020-12-24-zksync-transaction-processing-ba3bb4b61.yaml"
+project: "zksync"
+
+expected_bug_family: "authz_and_role_gates"
+expected_bug_class: "missing-authentication"
+expected_missing_property: "authentication-middleware-enforcement"
+
+expected_impact_band: "auth_bypass_service_integrity"
+expected_severity_band: "high_or_medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "If a reverse proxy or service mesh enforces equivalent auth, code-level missing middleware may be defense-in-depth."
+  - "Logging/failure-handling changes in the same commit should not be treated as auth fixes."
+  - "Public read-only endpoints need different severity than privileged coordination endpoints."
+notes:
+  - "Expected result should identify the generic invariant and avoid claiming impacts beyond the validated evidence."
+  - "This is a confirmed missing middleware installation on a sensitive service API, but exact blast radius depends on network exposure and endpoint capabilities."

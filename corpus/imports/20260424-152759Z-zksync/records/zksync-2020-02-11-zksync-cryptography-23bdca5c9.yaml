@@ -1,0 +1,58 @@
+id: "zksync-2020-02-11-zksync-cryptography-23bdca5c9"
+source_finding: "2020-02-11-zksync-cryptography-23bdca5c9.md"
+project: "zksync"
+date: "2020-02-11"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "nonce-binding-in-circuit"
+subsystem: "cryptography"
+architecture_tags:
+  - "zk-circuit"
+  - "proof-system"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "nonce-state-binding"
+violated_invariant: "A transaction nonce exposed in witness data, public data, or authorization material must be constrained equal to the account nonce consumed by the state transition."
+trust_boundary: "Transaction witness/public-data fields cross into circuit constraints for account key-change execution."
+entrypoint_type: "zk_circuit_transaction_witness"
+sensitive_sink: "ChangePubKey circuit constraints and emitted public data"
+
+attacker_capabilities:
+  - "Influence ChangePubKey transaction witness data."
+  - "Attempt to prove or submit a key-change operation with a nonce inconsistent with account state."
+exploit_preconditions:
+  - "The nonce field was not carried into all witness/public-data structures needed for checking."
+  - "No separate mandatory nonce constraint rejected the mismatch."
+  - "The operation path accepts proofs or public data generated from those fields."
+blast_radius: "Could affect replay/order integrity for account key-change operations if nonce mismatch reaches accepted proofs."
+
+impact_types:
+  - "replay"
+  - "state-integrity"
+  - "authorization"
+severity_guess: "medium_or_low"
+severity_rationale: "Nonce binding is security-relevant, but validation did not prove an accepted replay or unauthorized transition, so severity stays conservative."
+
+code_shape_summary: "The patch carries the ChangePubKey nonce through witness data, operation arguments, and pubdata, then constrains it equal to the current account nonce. The reusable shape is a replay/order field present in transaction semantics but absent or unconstrained in proof/public-data plumbing."
+search_motifs:
+  - "nonce added to witness struct and operation arguments"
+  - "pub_nonce constrained equal to cur.account.nonce"
+  - "pubdata serialization updated to include transaction nonce"
+negative_signals:
+  - "If account nonce was already checked in a parent circuit or mempool gate, this may be consistency hardening only."
+  - "Do not infer direct fund loss without a demonstrated accepted replay."
+  - "Pure serialization refactors without a constraint are weaker signals."
+patch_pattern: "Thread nonce through witness and public-data structures, then add an equality constraint against committed account state."
+
+source_refs:
+  - "/testing/zksync/validated-findings/kept/2020-02-11-zksync-cryptography-23bdca5c9.md"
+notes:
+  - "Enriched from validated finding evidence; keep claims at the validated hardening confidence level."

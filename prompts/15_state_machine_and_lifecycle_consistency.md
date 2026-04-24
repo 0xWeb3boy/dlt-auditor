@@ -50,6 +50,7 @@ Search patterns:
 - locally executed, speculatively executed, or peer-fetched work that is later excluded from the finalized checkpoint, block, batch, or epoch boundary. Finalization must rollback, quarantine, or prove isolation of those effects before durable state can be served or reused
 - in-memory consensus, batching, congestion, or timing state that is reconstructed by replay after restart. If replay reconstructs only a fixed window, check that the committed digest or snapshot covers exactly the state retained across live execution and recovery
 - epoch, checkpoint, or committee transitions where old-epoch messages can arrive while new-epoch state is being initialized. Verify that readiness, signer set, traffic counters, and pending work are fenced by one coherent transition state
+- event ingestion, bridge watcher, withdrawal finalizer, inbox, outbox, receipt, or log-processing watermarks keyed by only block, height, batch, timestamp, or max-seen aggregate when the source can contain multiple distinct relevant events at that coordinate. Duplicate guards should use the full event identity and ordering key required by the source chain
 
 Questions to answer:
 1. What are the legal states and transitions?
@@ -61,6 +62,7 @@ Questions to answer:
 7. Is the policy enforced where the object is actually read, written, or executed?
 8. If a parent operation generates child work, what is the atomicity boundary: parent only, child only, or the whole group?
 9. Are queue wake-up, dequeue, and replay paths revalidating the same round, epoch, finalized boundary, or authorization state that admission checked?
+10. Does every "already processed" or progress watermark use the same identity granularity as the source event stream: block plus transaction, log, or event index where multiple events can share a block?
 
 Severity guidance:
 - Medium for stale-state liveness or integrity issues.

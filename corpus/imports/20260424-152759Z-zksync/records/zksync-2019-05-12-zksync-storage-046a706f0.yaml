@@ -1,0 +1,57 @@
+id: "zksync-2019-05-12-zksync-storage-046a706f0"
+source_finding: "2019-05-12-zksync-storage-046a706f0.md"
+project: "zksync"
+date: "2019-05-12"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "panic-on-missing-storage-record"
+subsystem: "storage"
+architecture_tags:
+  - "api-boundary"
+  - "storage"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "absent-state-handling"
+violated_invariant: "Request-selected storage objects must be treated as optional at API boundaries; a missing canonical record should produce a structured error, not a panic."
+trust_boundary: "Unauthenticated HTTP request parameter crosses into a database-backed block lookup and response builder."
+entrypoint_type: "public_read_api_path_parameter"
+sensitive_sink: "API handler availability and COMMIT-operation block-detail reconstruction"
+
+attacker_capabilities:
+  - "Send a block-detail request with a chosen block identifier."
+  - "Repeat requests against a public or semi-public node API."
+exploit_preconditions:
+  - "The endpoint is reachable by the actor."
+  - "The requested block id parses but has no stored COMMIT operation."
+  - "The panic propagates far enough to disrupt the handler, worker, or service."
+blast_radius: "Availability impact is limited to the API process or worker handling block lookup unless the runtime turns request panics into wider service failure."
+
+impact_types:
+  - "availability"
+  - "denial-of-service"
+severity_guess: "medium_or_low"
+severity_rationale: "A request can plausibly trigger a panic in a public read path, but the evidence does not prove full node shutdown, fund loss, or consensus impact."
+
+code_shape_summary: "A read API handler used a request-derived block id to fetch a required COMMIT operation and called a panic path when the record was absent. The reusable shape is an infallible unwrap/expect at an external API to storage boundary, fixed by returning a typed not-found response before unwrapping."
+search_motifs:
+  - "expect or unwrap after DB lookup keyed by route parameter"
+  - "load_*_by_id result assumed present in HTTP/RPC handler"
+  - "comment or patch replacing panic with not found/error response"
+negative_signals:
+  - "Missing records that are impossible due to an earlier authenticated workflow are less compelling."
+  - "Panics in offline tools, tests, or one-shot migration code are not equivalent to request-path DoS."
+  - "Adjacent response-format or timestamp changes should not be counted as the security fix."
+patch_pattern: "Convert the storage lookup to an optional/result value, branch on absence, return a structured API error, and only unwrap or dereference after the presence check."
+
+source_refs:
+  - "/testing/zksync/validated-findings/kept/2019-05-12-zksync-storage-046a706f0.md"
+notes:
+  - "Enriched from validated finding evidence; keep claims at the validated hardening confidence level."

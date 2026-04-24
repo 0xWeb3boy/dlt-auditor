@@ -1,0 +1,59 @@
+id: "zksync-2020-12-24-zksync-transaction-processing-ba3bb4b61"
+source_finding: "2020-12-24-zksync-transaction-processing-ba3bb4b61.md"
+project: "zksync"
+date: "2020-12-24"
+language_tags:
+  - "rust"
+
+bug_family: "authz_and_role_gates"
+bug_class: "missing-authentication"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "service-api"
+  - "operator-infrastructure"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "authentication-middleware-enforcement"
+violated_invariant: "A sensitive service API must actually install its authentication middleware on the route tree, not merely construct a validator object nearby."
+trust_boundary: "Network HTTP request crosses into witness generator/prover coordination service."
+entrypoint_type: "internal_service_http_api"
+sensitive_sink: "prover-server coordination endpoints guarded by AuthTokenValidator"
+
+attacker_capabilities:
+  - "Reach the prover/witness generator HTTP service."
+  - "Call endpoints without presenting a valid auth token."
+exploit_preconditions:
+  - "The auth middleware line is commented out or omitted in the served app."
+  - "The service is reachable by an actor outside the trusted prover process."
+  - "Endpoints expose work assignment, result submission, or coordination actions."
+blast_radius: "Unauthorized callers may interact with prover coordination endpoints; impact ranges from resource abuse to pipeline disruption depending on endpoint privileges."
+
+impact_types:
+  - "authentication-bypass"
+  - "service-integrity"
+  - "availability"
+severity_guess: "high_or_medium"
+severity_rationale: "This is a confirmed missing middleware installation on a sensitive service API, but exact blast radius depends on network exposure and endpoint capabilities."
+
+code_shape_summary: "The patch restores Actix authentication middleware by changing a commented-out wrap(auth) into an active route wrapper. The reusable shape is security middleware constructed in code but not attached to the application that serves privileged endpoints."
+search_motifs:
+  - "commented restore-auth marker next to .wrap(auth)"
+  - "AuthTokenValidator exists but middleware is not installed"
+  - "route/app builder gains authentication wrapper around prover/admin endpoints"
+negative_signals:
+  - "If a reverse proxy or service mesh enforces equivalent auth, code-level missing middleware may be defense-in-depth."
+  - "Logging/failure-handling changes in the same commit should not be treated as auth fixes."
+  - "Public read-only endpoints need different severity than privileged coordination endpoints."
+patch_pattern: "Attach the existing authentication middleware to the service route/app builder so every sensitive request passes token validation before handler execution."
+
+source_refs:
+  - "/testing/zksync/validated-findings/kept/2020-12-24-zksync-transaction-processing-ba3bb4b61.md"
+notes:
+  - "Enriched from validated finding evidence; keep claims at the validated hardening confidence level."

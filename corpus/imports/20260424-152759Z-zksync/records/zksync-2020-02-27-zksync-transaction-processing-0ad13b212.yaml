@@ -1,0 +1,58 @@
+id: "zksync-2020-02-27-zksync-transaction-processing-0ad13b212"
+source_finding: "2020-02-27-zksync-transaction-processing-0ad13b212.md"
+project: "zksync"
+date: "2020-02-27"
+language_tags:
+  - "rust"
+
+bug_family: "authz_and_role_gates"
+bug_class: "authorization-message-domain-separation-hardening"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "wallet-signature"
+  - "account-abstraction"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "human-readable-authorization-domain"
+violated_invariant: "A wallet signature authorizing account-control changes should clearly bind the protocol, action, account, and new key so users and verifiers are not relying on opaque bytes."
+trust_boundary: "External wallet/user signing flow crosses into account-control authorization for ChangePubKey."
+entrypoint_type: "wallet_signature_authorization"
+sensitive_sink: "ChangePubKey Ethereum authorization accepted by transaction processing"
+
+attacker_capabilities:
+  - "Request or induce a user wallet signature over an authorization payload."
+  - "Replay or repurpose ambiguous authorization bytes if domain/action binding is weak."
+exploit_preconditions:
+  - "The old payload was opaque enough to hide action or domain semantics."
+  - "Verifier accepted that payload as Ethereum authorization for key change."
+  - "The attacker could obtain a signature from the account owner through another context or misleading prompt."
+blast_radius: "Primarily account-control authorization hardening; concrete compromise depends on whether ambiguous signatures were accepted across contexts."
+
+impact_types:
+  - "authorization"
+  - "replay"
+  - "phishing-resistance"
+severity_guess: "medium_or_low"
+severity_rationale: "Better authorization messaging reduces replay/blind-signing risk, but validation did not prove a concrete forgery or exploit path."
+
+code_shape_summary: "The patch changes ChangePubKey Ethereum authorization from opaque raw bytes to a protocol-specific registration message. The reusable pattern is account-control signatures whose prompts or signed payloads lack clear action/domain semantics."
+search_motifs:
+  - "get_eth_signed_data changed from raw bytes to readable registration text"
+  - "ChangePubKey authorization message includes protocol/action/new pubkey context"
+  - "wallet signing path moves away from opaque byte arrays"
+negative_signals:
+  - "Readable text alone is not a full cryptographic domain separator if verifier semantics are unchanged."
+  - "Do not claim exploitability without evidence the old message could be reused."
+  - "UI/prompt wording changes outside an authorization sink are weaker."
+patch_pattern: "Replace opaque account-control authorization bytes with a canonical, protocol-specific, human-readable message that binds the intended registration action."
+
+source_refs:
+  - "/testing/zksync/validated-findings/kept/2020-02-27-zksync-transaction-processing-0ad13b212.md"
+notes:
+  - "Enriched from validated finding evidence; keep claims at the validated hardening confidence level."

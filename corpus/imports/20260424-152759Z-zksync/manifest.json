@@ -1,0 +1,108 @@
+{
+  "repo": "/testing/zksync",
+  "repo_slug": "zksync",
+  "kept_dir": "/testing/zksync/validated-findings/kept",
+  "created_at_utc": "20260424-152759Z",
+  "finding_count": 11,
+  "findings": [
+    {
+      "id": "zksync-2019-05-12-zksync-storage-046a706f0",
+      "source": "/testing/zksync/validated-findings/kept/2019-05-12-zksync-storage-046a706f0.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "panic-on-missing-storage-record",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "zksync-2019-07-09-zksync-cryptography-3833fee9c",
+      "source": "/testing/zksync/validated-findings/kept/2019-07-09-zksync-cryptography-3833fee9c.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-circuit-constraint",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "zksync-2019-09-03-zksync-cryptography-136c8d4e5",
+      "source": "/testing/zksync/validated-findings/kept/2019-09-03-zksync-cryptography-136c8d4e5.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "missing-signature-message-binding",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "zksync-2020-02-11-zksync-cryptography-23bdca5c9",
+      "source": "/testing/zksync/validated-findings/kept/2020-02-11-zksync-cryptography-23bdca5c9.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "nonce-binding-in-circuit",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "zksync-2020-02-27-zksync-transaction-processing-0ad13b212",
+      "source": "/testing/zksync/validated-findings/kept/2020-02-27-zksync-transaction-processing-0ad13b212.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "authorization-message-domain-separation-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "zksync-2020-12-04-zksync-storage-e3a41dec7",
+      "source": "/testing/zksync/validated-findings/kept/2020-12-04-zksync-storage-e3a41dec7.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "missing-prover-api-authentication",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "zksync-2020-12-10-zksync-transaction-processing-e81d133a7",
+      "source": "/testing/zksync/validated-findings/kept/2020-12-10-zksync-transaction-processing-e81d133a7.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "insecure-default-secret-detection",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "zksync-2020-12-24-zksync-transaction-processing-ba3bb4b61",
+      "source": "/testing/zksync/validated-findings/kept/2020-12-24-zksync-transaction-processing-ba3bb4b61.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "missing-authentication",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "authentication"
+    },
+    {
+      "id": "zksync-2021-01-20-zksync-cryptography-ab8697742",
+      "source": "/testing/zksync/validated-findings/kept/2021-01-20-zksync-cryptography-ab8697742.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "transaction-authentication-hardening",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "zksync-2022-09-13-zksync-transaction-processing-0bf5cd634",
+      "source": "/testing/zksync/validated-findings/kept/2022-09-13-zksync-transaction-processing-0bf5cd634.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "cross-domain-signature-replay",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "zksync-2022-09-14-zksync-transaction-processing-8efea04e6",
+      "source": "/testing/zksync/validated-findings/kept/2022-09-14-zksync-transaction-processing-8efea04e6.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "withdrawal-finalization-ordering",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    }
+  ]
+}

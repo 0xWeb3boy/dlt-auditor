@@ -1,0 +1,58 @@
+id: "zksync-2021-01-20-zksync-cryptography-ab8697742"
+source_finding: "2021-01-20-zksync-cryptography-ab8697742.md"
+project: "zksync"
+date: "2021-01-20"
+language_tags:
+  - "rust"
+
+bug_family: "authz_and_role_gates"
+bug_class: "transaction-authentication-hardening"
+subsystem: "cryptography"
+architecture_tags:
+  - "zk-circuit"
+  - "proof-system"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "account-auth-mode-consistency"
+violated_invariant: "Transaction authentication must respect the account creation/control mode; deterministic or CREATE2-derived accounts should not accept unrelated Ethereum signature data as an alternate authority."
+trust_boundary: "User-submitted transaction authentication data crosses into transaction sender signature verification."
+entrypoint_type: "transaction_submission_and_batch_validation"
+sensitive_sink: "transaction admission for CREATE2 account operations and account-id extraction"
+
+attacker_capabilities:
+  - "Submit single or batched transactions with crafted Ethereum signature fields."
+  - "Target an account type whose authority should be derived from CREATE2 metadata rather than arbitrary signatures."
+exploit_preconditions:
+  - "CREATE2 accounts previously tolerated supplied Ethereum signature data on the checked path."
+  - "No later validation rejected the extraneous signature mode."
+  - "The transaction sender path is reachable before state execution."
+blast_radius: "Hardens transaction admission and account-control semantics; concrete authorization bypass or DoS was not proven."
+
+impact_types:
+  - "authorization"
+  - "transaction-integrity"
+  - "availability-hardening"
+severity_guess: "medium_or_low"
+severity_rationale: "Rejecting mismatched auth data is security-relevant, but validation did not prove a bypass or remotely triggerable DoS."
+
+code_shape_summary: "The transaction sender signature path rejects Ethereum signature data for CREATE2 accounts in single and batch checks, and a disabled Close transaction path returns an error instead of panicking. The reusable shape is accepting auth material that is inconsistent with the account authority model."
+search_motifs:
+  - "CREATE2 account branch rejects provided eth_signature"
+  - "single and batch signature check paths both add auth-mode guard"
+  - "account_id extraction changed from panic to recoverable error for disabled tx type"
+negative_signals:
+  - "If CREATE2 address derivation was already the only accepted authority, rejecting extra signatures may be cleanup."
+  - "A panic in unreachable disabled transaction code is not automatically exploitable."
+  - "Do not classify as cryptographic primitive failure without changed verification math."
+patch_pattern: "Add explicit auth-mode rejection for account types that should not carry legacy signature data, and convert disabled transaction panic paths to typed errors."
+
+source_refs:
+  - "/testing/zksync/validated-findings/kept/2021-01-20-zksync-cryptography-ab8697742.md"
+notes:
+  - "Enriched from validated finding evidence; keep claims at the validated hardening confidence level."

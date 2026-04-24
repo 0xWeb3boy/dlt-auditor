@@ -68,6 +68,7 @@ The prompt files are organized by recurring issue family instead of one file per
 - `prompts/20_authenticated_state_proof_and_persistence_integrity.md`
 - `prompts/21_peer_sync_progress_and_response_binding.md`
 - `prompts/22_ledger_accounting_and_invariant_coverage.md`
+- `prompts/23_zk_circuit_witness_and_public_data_binding.md`
 
 ## Intermediate Artifacts
 

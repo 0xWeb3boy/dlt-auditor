@@ -1,0 +1,58 @@
+id: "zksync-2020-12-04-zksync-storage-e3a41dec7"
+source_finding: "2020-12-04-zksync-storage-e3a41dec7.md"
+project: "zksync"
+date: "2020-12-04"
+language_tags:
+  - "rust"
+
+bug_family: "authz_and_role_gates"
+bug_class: "missing-prover-api-authentication"
+subsystem: "storage"
+architecture_tags:
+  - "service-api"
+  - "operator-infrastructure"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "service-to-service-authentication"
+violated_invariant: "Coordinator APIs that assign prover work or accept prover responses should authenticate service clients before exposing privileged coordination state."
+trust_boundary: "Network client crosses into prover server/witness generator coordination endpoints."
+entrypoint_type: "internal_service_http_api"
+sensitive_sink: "prover job assignment, result submission, and coordination state"
+
+attacker_capabilities:
+  - "Reach prover coordination endpoints over the service network."
+  - "Send requests that look like prover client traffic."
+exploit_preconditions:
+  - "The prover server endpoint is reachable outside a fully trusted process boundary."
+  - "No compensating network ACL or mTLS gate blocks unauthorized clients."
+  - "Submitted or fetched prover jobs affect liveness, resource use, or proof pipeline state."
+blast_radius: "Can affect prover pipeline availability or coordination integrity; proof forgery or consensus compromise is not established by the evidence."
+
+impact_types:
+  - "authorization"
+  - "service-integrity"
+  - "availability"
+severity_guess: "medium_or_low"
+severity_rationale: "Unauthenticated internal coordination APIs are important, but the evidence does not prove public exposure or proof validity compromise."
+
+code_shape_summary: "The patch adds bearer-token/JWT validation to prover server/client coordination, and clients attach generated bearer tokens. The reusable shape is a privileged internal service API that previously trusted network reachability or caller convention instead of request authentication."
+search_motifs:
+  - "AuthTokenValidator or JWT validation added to server route setup"
+  - "prover client starts attaching Authorization: Bearer token"
+  - "shared secret/auth config introduced for service-to-service calls"
+negative_signals:
+  - "If the endpoint is bound only to localhost or protected by mTLS/firewall, severity is lower."
+  - "Authentication additions do not prove proof forgery risk without a path from requests to accepted proofs."
+  - "Client-token plumbing alone is incomplete unless server validation is active."
+patch_pattern: "Introduce shared-secret token creation on clients and token validation middleware/server checks on prover coordination endpoints."
+
+source_refs:
+  - "/testing/zksync/validated-findings/kept/2020-12-04-zksync-storage-e3a41dec7.md"
+notes:
+  - "Enriched from validated finding evidence; keep claims at the validated hardening confidence level."

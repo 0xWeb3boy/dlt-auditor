@@ -1,0 +1,21 @@
+id: "zksync-2022-09-14-zksync-transaction-processing-8efea04e6"
+source_record: "zksync-2022-09-14-zksync-transaction-processing-8efea04e6.yaml"
+project: "zksync"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "withdrawal-finalization-ordering"
+expected_missing_property: "event-identity-idempotency"
+
+expected_impact_band: "fund_availability_state_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "If the protocol guarantees at most one relevant event per block, block-level idempotency may be sufficient."
+  - "Parser assert-to-error changes are robustness signals, not proof of exploitability."
+  - "Do not claim theft or arbitrary withdrawal creation without accounting evidence."
+notes:
+  - "Expected result should identify the generic invariant and avoid claiming impacts beyond the validated evidence."
+  - "Withdrawal finalization is sensitive and same-block event skipping can affect funds availability, but exploitability and theft are not proven."

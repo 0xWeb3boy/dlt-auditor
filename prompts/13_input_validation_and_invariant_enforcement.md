@@ -56,6 +56,8 @@ Search patterns:
 - feature, amendment, or fork gates where a field is syntactically valid both before and after activation but has different semantic constraints after activation
 - protobuf, JSON, RLP, or domain-conversion code that turns empty lists, nil roots, absent required fields, or malformed nested structures into valid domain objects. Required consensus and proof fields should fail closed at the conversion boundary, not later through panics, nil sentinels, logs, or partial outputs
 - production safety guards for test, mock, simulation, or fixture-only state mutation helpers. A read path should not lazily mint, top off, or mutate state, and production-network guards should sit on every mutation sink rather than only on constructors
+- public RPC or REST read handlers that use caller-selected ids, heights, hashes, block numbers, account ids, or operation ids to load canonical state and then unwrap, expect, assert, or panic when the object is absent. Missing canonical state should become a structured not-found or validation error unless the protocol proves it cannot be missing
+- production-mode configuration that accepts sample secrets, placeholder keys, fixture tokens, localhost credentials, or default passwords for privileged admin, prover, relayer, sequencer, validator, or bridge endpoints. Prefer fail-closed startup; warnings alone are hardening, not full mitigation
 
 Questions to answer:
 1. What structural invariants does the protocol require?

@@ -1,0 +1,21 @@
+id: "zksync-2020-12-04-zksync-storage-e3a41dec7"
+source_record: "zksync-2020-12-04-zksync-storage-e3a41dec7.yaml"
+project: "zksync"
+
+expected_bug_family: "authz_and_role_gates"
+expected_bug_class: "missing-prover-api-authentication"
+expected_missing_property: "service-to-service-authentication"
+
+expected_impact_band: "operator_service_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "If the endpoint is bound only to localhost or protected by mTLS/firewall, severity is lower."
+  - "Authentication additions do not prove proof forgery risk without a path from requests to accepted proofs."
+  - "Client-token plumbing alone is incomplete unless server validation is active."
+notes:
+  - "Expected result should identify the generic invariant and avoid claiming impacts beyond the validated evidence."
+  - "Unauthenticated internal coordination APIs are important, but the evidence does not prove public exposure or proof validity compromise."

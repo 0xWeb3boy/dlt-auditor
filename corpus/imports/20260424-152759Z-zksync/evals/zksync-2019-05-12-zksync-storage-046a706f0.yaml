@@ -1,0 +1,21 @@
+id: "zksync-2019-05-12-zksync-storage-046a706f0"
+source_record: "zksync-2019-05-12-zksync-storage-046a706f0.yaml"
+project: "zksync"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "panic-on-missing-storage-record"
+expected_missing_property: "absent-state-handling"
+
+expected_impact_band: "availability"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Missing records that are impossible due to an earlier authenticated workflow are less compelling."
+  - "Panics in offline tools, tests, or one-shot migration code are not equivalent to request-path DoS."
+  - "Adjacent response-format or timestamp changes should not be counted as the security fix."
+notes:
+  - "Expected result should identify the generic invariant and avoid claiming impacts beyond the validated evidence."
+  - "A request can plausibly trigger a panic in a public read path, but the evidence does not prove full node shutdown, fund loss, or consensus impact."

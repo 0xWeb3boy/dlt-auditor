@@ -51,6 +51,9 @@ Search patterns:
 - protocol pipelines where emission and ingestion use different commitment, sequence, or signing rules, such as a sender producing one representation while the receiver verifies another or verifies nothing at all
 - account association, address binding, or identity-linking transactions where signer recovery uses a placeholder hash, empty message, legacy compatibility signer, or side-channel message field instead of the exact serialized message the user signed
 - replay-domain checks that differ between legacy and typed transaction formats. Verify that compatibility branches reject unsafe unprotected formats unless an explicit non-production or test mode is active
+- account-control, key-rotation, withdrawal-address, validator-key, or permission-change signatures where SDK signing, node verification, contract verification, and legacy compatibility branches do not bind the same chain/domain, action type, account, nonce, new key or permission, fee/batch context, and time range
+- wallet signing APIs that sign opaque bytes for privileged actions while verification later interprets those bytes as a protocol-specific authorization; prefer typed or canonical messages that make the action and domain explicit
+- account-type or auth-mode branches, such as deterministic accounts, contract accounts, create2-like accounts, multisig accounts, or legacy accounts, where one branch accepts signature material that should be forbidden for that authority model
 
 Questions to answer:
 1. What exact bytes are authenticated?

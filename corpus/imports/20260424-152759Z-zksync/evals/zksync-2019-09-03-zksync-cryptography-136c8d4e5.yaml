@@ -1,0 +1,21 @@
+id: "zksync-2019-09-03-zksync-cryptography-136c8d4e5"
+source_record: "zksync-2019-09-03-zksync-cryptography-136c8d4e5.yaml"
+project: "zksync"
+
+expected_bug_family: "signature_binding_and_signer_scope"
+expected_bug_class: "missing-signature-message-binding"
+expected_missing_property: "signed-message-field-binding"
+
+expected_impact_band: "authorization_integrity"
+expected_severity_band: "high_or_medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Storage formatting or unrelated cleanup hunks should not support this case."
+  - "If signed bytes are already constrained by a shared helper on all paths, the patch may only deduplicate checks."
+  - "Presence of signature verification alone is not enough; the important signal is binding to operation fields."
+notes:
+  - "Expected result should identify the generic invariant and avoid claiming impacts beyond the validated evidence."
+  - "Signature-message binding bugs can authorize the wrong operation, but this one is likely rather than confirmed because a concrete accepted exploit was not shown."

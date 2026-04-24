@@ -1,0 +1,21 @@
+id: "zksync-2020-12-10-zksync-transaction-processing-e81d133a7"
+source_record: "zksync-2020-12-10-zksync-transaction-processing-e81d133a7.yaml"
+project: "zksync"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "insecure-default-secret-detection"
+expected_missing_property: "production-secret-safety-check"
+
+expected_impact_band: "configuration_auth_hardening"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "A log-only warning is weaker than refusal to start."
+  - "Sample secrets in tests, localhost, or dev fixtures are expected."
+  - "Panic message improvements in auth code are not the core security fix."
+notes:
+  - "Expected result should identify the generic invariant and avoid claiming impacts beyond the validated evidence."
+  - "Default-secret detection is valuable hardening, but the patch logs errors rather than proving exploitability or enforcing startup failure."
