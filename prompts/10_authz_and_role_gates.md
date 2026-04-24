@@ -7,6 +7,7 @@
 - Peer authorization gaps on p2p or committee messages.
 - State updates that should require authorization or update verification.
 - Debug or bypass modes that weaken normal admission checks.
+- Delegated, granular, or feature-scoped permissions that must match the exact operation being executed.
 
 ## Prompt
 
@@ -20,6 +21,8 @@ Focus on code paths that already verify syntax or signatures, but may still miss
 - chain, subnet, shard, app, bridge, or runtime-scoped authorization
 - update authorization against existing state
 - feature-gated policy acceptance
+- delegated permission scope
+- generated-side-effect authorization
 
 Prioritize these areas:
 - consensus or ordering handlers
@@ -36,6 +39,10 @@ Search patterns:
 - handlers that decode a request and proceed straight into processing
 - branches that treat debug, simulation, or maintenance modes differently
 - update paths that call Set* or write state without first validating against an existing object
+- delegated or granular permission systems where the grant is valid for one transaction shape but the executed operation can include paths, alternative assets, generated holdings, pseudo-accounts, receiver policy, freeze state, or feature-gated fields outside that shape
+- transaction preflight or admission checks that authorize a broad account or role but do not re-check the exact asset, issuer, destination, domain, state object, or generated side effect at the state-transition sink
+- authorization helpers that infer permission from share ownership, receipt ownership, account flags, vault membership, staking position, or domain metadata without loading the authoritative object that defines the policy
+- cleanup, revoke, delete, close, withdraw, or unstake paths where authority to remove an object is not the same as authority to dispose of its dependent obligations, delegated rights, or generated state
 
 Questions to answer:
 1. Who is supposed to be allowed to call this path?
@@ -43,6 +50,9 @@ Questions to answer:
 3. Is the code checking only cryptographic validity, or also role and scope?
 4. Is authorization bound to the correct chain, epoch, height, committee, validator set, shard, bridge domain, or feature version?
 5. Is there a state-recreation or expired-object path that skips update verification?
+6. Does the permission cover this exact transaction shape, asset class, issuer, destination, receiver policy, and feature or amendment state, or only the transaction type?
+7. If the operation creates a holding, directory entry, delegate object, pseudo-account state, receipt, share, or follow-on state object, is that generated side effect authorized too?
+8. Are sender consent, receiver consent, issuer policy, domain policy, and operator or admin authority treated as separate checks?
 
 Report only candidates where the missing property is concrete.
 

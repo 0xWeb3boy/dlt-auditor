@@ -1,0 +1,58 @@
+id: "rippled-2022-09-13-rippled-transaction-processing-e40e38e8d"
+source_finding: "2022-09-13-rippled-transaction-processing-e40e38e8d.md"
+project: "rippled"
+date: "2022-09-13"
+language_tags:
+  - "cpp"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "unauthorized-resource-consumption"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "ledger"
+  - "transaction-processing"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "resource-accounting"
+violated_invariant: "Ledger accounting updates must preserve balance, reserve, fee, and yield invariants across every accepted transaction shape and lifecycle transition."
+trust_boundary: "externally submitted action -> account, delegate, or role authorization gate"
+entrypoint_type: "authorization-check-path"
+sensitive_sink: "privileged account action, delegated permission, or role-scoped state change"
+
+attacker_capabilities:
+  - "Submit or influence protocol data that reaches the affected validation or state-transition path."
+exploit_preconditions:
+  - "The affected path must be reachable before a stronger downstream check rejects the input."
+  - "The transaction or delegated operation must pass basic syntactic checks and reach the vulnerable semantic gate."
+blast_radius: "Ledger-state impact scoped to affected accounts, assets, offers, reserves, or delegated permissions."
+
+impact_types:
+  - "resource-exhaustion"
+  - "economic-denial-of-service"
+severity_guess: "high"
+severity_rationale: "Confirmed security-fix evidence supports resource-exhaustion, economic-denial-of-service; assigned high because the sink is privileged account action, delegated permission, or role-scoped state change and the validation notes bound the claim to observed patch evidence."
+
+code_shape_summary: "The patch removes the NFTokenMint tfTrustLine capability through the fixRemoveNFTokenAutoTrustLine amendment. Reusable shape: check for resource-accounting was incomplete, late, or split across paths; the fix makes the gate explicit before the sensitive state change."
+search_motifs:
+  - "authorization-check-path missing exact resource-accounting check before privileged account action, delegated permission, or role-scoped state change"
+  - "security-sensitive path reaches privileged account action, delegated permission, or role-scoped state change before rejecting malformed, stale, or unauthorized input"
+  - "Remove or gate a protocol flag that allows future third-party transactions to impose issuer reserve costs without issuer consent."
+negative_signals:
+  - "The supplied snippets do not show the full final conditional logic in NFTokenMint::preflight."
+  - "The exact exploit transaction sequence is described in comments but not demonstrated in provided tests."
+  - "A superficially similar change is lower risk if an earlier mandatory gate already enforces the same property for every reachable path."
+  - "Treat pure refactors, comment-only changes, or tests without a reachable untrusted entrypoint and sensitive sink as non-security."
+patch_pattern: "Remove or gate a protocol flag that allows future third-party transactions to impose issuer reserve costs without issuer consent."
+
+source_refs:
+  - "/testing/rippled/validated-findings/kept/2022-09-13-rippled-transaction-processing-e40e38e8d.md"
+notes:
+  - "Enriched from the kept phase 4 finding and bounded to the validated evidence."
+  - "Do not generalize beyond the stated trust boundary, entrypoint, and sensitive sink without additional repo evidence."

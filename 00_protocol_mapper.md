@@ -101,6 +101,19 @@ Your task:
   - what parent operation spawned it,
   - whether success or failure must revert the whole group,
   - whether replay, recovery, or alternate execution modes rebuild the same group with the same atomicity rules.
+18. Map transaction application phases and invariant enforcement:
+  - preflight, preclaim, signature and authorization checks, execution, generated side effects, invariant visit and finalize hooks, and feature or fork gates.
+  For each transaction family, note:
+  - which ledger, state, or protocol objects can be created, deleted, or mutated indirectly,
+  - where reserves, owner counts, freeze or restriction policy, resource charges, and accounting aggregates are checked,
+  - whether those checks run before the final state write and after generated side effects are known.
+19. Map validator, committee, signer, or trust-list material by namespace:
+  - long-term identity keys, ephemeral signing keys, publisher keys, manifests, revocation caches, validator lists, committee lists, trust-list publishers, quorum or threshold policy, remote fetch policy, and p2p propagation.
+  For each namespace, note:
+  - who is authoritative,
+  - what event invalidates or rotates it,
+  - which cache or mirror stores it,
+  - where namespace equality is checked before accepting signed or trusted artifacts.
 
 Output format:
 - System summary

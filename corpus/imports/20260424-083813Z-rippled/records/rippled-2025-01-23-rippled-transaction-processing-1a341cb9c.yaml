@@ -1,0 +1,58 @@
+id: "rippled-2025-01-23-rippled-transaction-processing-1a341cb9c"
+source_finding: "2025-01-23-rippled-transaction-processing-1a341cb9c.md"
+project: "rippled"
+date: "2025-01-23"
+language_tags:
+  - "cpp"
+
+bug_family: "attestation_trust_and_freshness"
+bug_class: "validator-list-trust-threshold-hardening"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "ledger"
+  - "transaction-processing"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "trust-root-and-freshness-validation"
+violated_invariant: "Externally supplied trust material must be fetched, redirected, cached, and accepted only under the configured trust roots and transport policy."
+trust_boundary: "untrusted transaction -> deterministic ledger state transition"
+entrypoint_type: "transaction-handler"
+sensitive_sink: "ledger state, balance/reserve accounting, or transaction authorization outcome"
+
+attacker_capabilities:
+  - "Control or influence an external endpoint, redirect target, certificate context, or client request consumed by the node."
+exploit_preconditions:
+  - "The affected path must be reachable before a stronger downstream check rejects the input."
+  - "The attacker-controlled data must be considered by a node or validator participating in the relevant consensus or trust workflow."
+blast_radius: "Potentially network-wide safety or trust impact for nodes that accept the affected state or trust decision."
+
+impact_types:
+  - "validator-trust-integrity"
+  - "consensus-safety"
+severity_guess: "high"
+severity_rationale: "Confirmed security-hardening evidence supports validator-trust-integrity, consensus-safety; assigned high because the sink is ledger state, balance/reserve accounting, or transaction authorization outcome and the validation notes bound the claim to observed patch evidence."
+
+code_shape_summary: "The patch adds an optional [validator_list_threshold] configuration and applies a threshold when maintaining trusted validator keys and deciding whether publisher-list availability is sufficient for achievable quorum behavior. Reusable shape: check for trust-root-and-freshness-validation was incomplete, late, or split across paths; the fix makes the gate explicit before the sensitive state change."
+search_motifs:
+  - "transaction-handler missing exact trust-root-and-freshness-validation check before ledger state, balance/reserve accounting, or transaction authorization outcome"
+  - "security-sensitive path reaches ledger state, balance/reserve accounting, or transaction authorization outcome before rejecting malformed, stale, or unauthorized input"
+  - "Add an explicit validator-list publisher endorsement threshold, validate it during configuration/load, and enforce it when deriving trusted validator membership and quorum behavior."
+negative_signals:
+  - "No concrete exploit path is shown."
+  - "No advisory, CVE, or vulnerability description is provided."
+  - "A superficially similar change is lower risk if an earlier mandatory gate already enforces the same property for every reachable path."
+  - "Treat pure refactors, comment-only changes, or tests without a reachable untrusted entrypoint and sensitive sink as non-security."
+patch_pattern: "Add an explicit validator-list publisher endorsement threshold, validate it during configuration/load, and enforce it when deriving trusted validator membership and quorum behavior."
+
+source_refs:
+  - "/testing/rippled/validated-findings/kept/2025-01-23-rippled-transaction-processing-1a341cb9c.md"
+notes:
+  - "Enriched from the kept phase 4 finding and bounded to the validated evidence."
+  - "Do not generalize beyond the stated trust boundary, entrypoint, and sensitive sink without additional repo evidence."

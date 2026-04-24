@@ -1,0 +1,21 @@
+id: "rippled-2022-09-13-rippled-transaction-processing-e40e38e8d"
+source_record: "rippled-2022-09-13-rippled-transaction-processing-e40e38e8d.yaml"
+project: "rippled"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "unauthorized-resource-consumption"
+expected_missing_property: "resource-accounting"
+
+expected_impact_band: "security-impact: resource-exhaustion, economic-denial-of-service"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The supplied snippets do not show the full final conditional logic in NFTokenMint::preflight."
+  - "The exact exploit transaction sequence is described in comments but not demonstrated in provided tests."
+  - "A superficially similar change is lower risk if an earlier mandatory gate already enforces the same property for every reachable path."
+notes:
+  - "Expected detector family should match the missing property and trust boundary, not rippled-specific names."
+  - "Positive only when the candidate has both a reachable entrypoint and the sensitive sink described by the source record."

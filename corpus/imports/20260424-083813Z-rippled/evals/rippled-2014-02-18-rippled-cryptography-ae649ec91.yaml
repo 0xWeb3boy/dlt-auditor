@@ -1,0 +1,21 @@
+id: "rippled-2014-02-18-rippled-cryptography-ae649ec91"
+source_record: "rippled-2014-02-18-rippled-cryptography-ae649ec91.yaml"
+project: "rippled"
+
+expected_bug_family: "signature_binding_and_signer_scope"
+expected_bug_class: "signature-canonicalization-hardening"
+expected_missing_property: "signer-scope-and-domain-binding"
+
+expected_impact_band: "hardening-or-limited-security-impact: transaction-malleability-reduction"
+expected_severity_band: "medium_or_high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "No concrete exploit path is shown."
+  - "No evidence that invalid signatures could previously authorize transactions."
+  - "A superficially similar change is lower risk if an earlier mandatory gate already enforces the same property for every reachable path."
+notes:
+  - "Expected detector family should match the missing property and trust boundary, not rippled-specific names."
+  - "Positive only when the candidate has both a reachable entrypoint and the sensitive sink described by the source record."

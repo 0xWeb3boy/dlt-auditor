@@ -1,0 +1,58 @@
+id: "rippled-2018-10-08-rippled-rpc-client-api-7fe1d4b9c"
+source_finding: "2018-10-08-rippled-rpc-client-api-7fe1d4b9c.md"
+project: "rippled"
+date: "2018-10-08"
+language_tags:
+  - "cpp"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "validator-site-redirect-retry-hardening"
+subsystem: "rpc-client-api"
+architecture_tags:
+  - "ledger"
+  - "rpc-client"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "trust-root-and-freshness-validation"
+violated_invariant: "Externally supplied trust material must be fetched, redirected, cached, and accepted only under the configured trust roots and transport policy."
+trust_boundary: "remote client or configured service endpoint -> local RPC/client trust boundary"
+entrypoint_type: "rpc-or-client-handler"
+sensitive_sink: "node configuration, downloaded trust material, or externally visible service behavior"
+
+attacker_capabilities:
+  - "Control or influence an external endpoint, redirect target, certificate context, or client request consumed by the node."
+exploit_preconditions:
+  - "The affected path must be reachable before a stronger downstream check rejects the input."
+  - "The finding is a hardening case, so practical exploitability depends on surrounding configuration and reachable call paths."
+  - "The attacker-controlled data must be considered by a node or validator participating in the relevant consensus or trust workflow."
+blast_radius: "Protocol-local correctness or hardening impact bounded by the reachable subsystem and surrounding checks."
+
+impact_types:
+  - "availability-hardening"
+  - "bounded-network-fetch"
+severity_guess: "low"
+severity_rationale: "Likely security-hardening evidence supports availability-hardening, bounded-network-fetch; assigned low because the sink is node configuration, downloaded trust material, or externally visible service behavior and the validation notes bound the claim to observed patch evidence."
+
+code_shape_summary: "The patch changes rippled's ValidatorSite fetch path to represent fetch targets as Resource objects, centralize URL parsing and http/https validation, honor redirect-oriented resource state, use per-site refresh intervals, reset redirect counts per cycle, and add explicit... Reusable shape: check for trust-root-and-freshness-validation was incomplete, late, or split across paths; the fix makes the gate explicit before the sensitive state change."
+search_motifs:
+  - "rpc-or-client-handler missing exact trust-root-and-freshness-validation check before node configuration, downloaded trust material, or externally visible service behavior"
+  - "security-sensitive path reaches node configuration, downloaded trust material, or externally visible service behavior before rejecting malformed, stale, or unauthorized input"
+  - "Model validator-site fetch targets as validated Resource objects and keep redirect/retry state explicit and bounded in the scheduler."
+negative_signals:
+  - "No evidence shows an exploitable redirect vulnerability before the patch."
+  - "No evidence shows attacker control over validator-site redirects in normal deployments."
+  - "A superficially similar change is lower risk if an earlier mandatory gate already enforces the same property for every reachable path."
+  - "Treat pure refactors, comment-only changes, or tests without a reachable untrusted entrypoint and sensitive sink as non-security."
+patch_pattern: "Model validator-site fetch targets as validated Resource objects and keep redirect/retry state explicit and bounded in the scheduler."
+
+source_refs:
+  - "/testing/rippled/validated-findings/kept/2018-10-08-rippled-rpc-client-api-7fe1d4b9c.md"
+notes:
+  - "Enriched from the kept phase 4 finding and bounded to the validated evidence."
+  - "Do not generalize beyond the stated trust boundary, entrypoint, and sensitive sink without additional repo evidence."

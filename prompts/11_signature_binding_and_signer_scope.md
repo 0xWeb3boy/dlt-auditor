@@ -39,6 +39,8 @@ Search patterns:
 - proof or challenge flows where the protocol names one challenged root, index, query height, or hash but the code validates a batch, all roots, or the first invalid item
 - enum-based verification branches where one proof type recomputes and compares expected output but another only parses or looks up helper data
 - wrappers that deserialize twice or carry typed values instead of raw authenticated bytes
+- key-rotation or manifest formats where a long-term master key authorizes an ephemeral validation, committee, or signing key. Verify both signatures, revocation status, sequence or epoch, and namespace-specific cache lookups before accepting signed consensus artifacts
+- signed objects whose payload schema can be confused with a different transaction, manifest, validation, proposal, state object, or descriptor type. Include object type and protocol domain in the signed bytes
 - code that checks signer public key equality but not signer membership in the active authorized role set
 - multisig validation that accepts "a signer" instead of "the required signers"
 - startup or constructor paths that can build a consumer without successfully constructing the verifier, signer-scope, or chain-context object that later code assumes exists
@@ -55,6 +57,7 @@ Questions to answer:
 7. Is the code validating the exact challenged or indexed object that governs the decision?
 8. If verifier creation depends on chain context, contract state, signer registries, or feature mode, does startup fail closed when that context is unavailable?
 9. Do emitters and receivers bind the same bytes, metadata, counters, and mode flags, or is one side still using a weaker placeholder representation?
+10. For key-rotation, manifest, or delegation formats, are the long-term identity key, ephemeral signing key, revocation state, sequence, and signer namespace all checked together?
 
 Severity guidance:
 - High for signer-authorization gaps, registration-signature gaps, bridge or validator signature binding failures, or domain-separation failures in consensus-sensitive paths.

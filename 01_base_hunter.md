@@ -36,6 +36,9 @@ Your task:
 18. For multi-stage pipelines, compare extraction, witness recording, validation, pruning, recovery, and live execution. Ask whether later stages assume a witness, accumulator, module root, finalized boundary, or sequence check that earlier stages only record best-effort or under a different progress predicate.
 19. Search for internally generated or cascaded work that should be grouped atomically with its parent operation, such as retryables, auto-redeems, generated proofs, queued privileged submissions, or background follow-on actions. Check whether failure, filtering, replay, or recovery drops only the child work while keeping the parent side effects.
 20. Search for privileged queues or session-bound workers where admission uses one authorization or freshness source but dequeue, replay, or round-transition execution uses another, such as cached controller maps, helper summaries, or stale progress state.
+21. For account-ledger systems, build a before/after accounting model for each transaction family: direct entries, generated entries, reserves, owner counts, fees, supply, shares, receipts, obligations, and invariant finalizers.
+22. For delegated, granular, or feature-scoped authorization systems, compare the permission object to the exact executed transaction shape, asset or domain, receiver policy, and every generated side effect.
+23. For proposal/validation consensus systems, map proposal identity, prior-ledger binding, transaction-set or payload ordering, validator or committee trust, quorum arithmetic, and wrong-ledger, catch-up, or round-transition modes before searching for missing checks.
 
 For each candidate include:
 - Title

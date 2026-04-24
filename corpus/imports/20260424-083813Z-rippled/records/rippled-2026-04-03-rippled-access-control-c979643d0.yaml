@@ -1,0 +1,56 @@
+id: "rippled-2026-04-03-rippled-access-control-c979643d0"
+source_finding: "2026-04-03-rippled-access-control-c979643d0.md"
+project: "rippled"
+date: "2026-04-03"
+language_tags:
+  - "cpp"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "accounting-invariant"
+subsystem: "access-control"
+architecture_tags:
+  - "ledger"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "accounting-integrity"
+violated_invariant: "Ledger accounting updates must preserve balance, reserve, fee, and yield invariants across every accepted transaction shape and lifecycle transition."
+trust_boundary: "externally submitted action -> account, delegate, or role authorization gate"
+entrypoint_type: "authorization-check-path"
+sensitive_sink: "privileged account action, delegated permission, or role-scoped state change"
+
+attacker_capabilities:
+  - "Submit a transaction or delegated action that exercises a permission boundary with attacker-chosen fields."
+exploit_preconditions:
+  - "The affected path must be reachable before a stronger downstream check rejects the input."
+  - "The finding is a hardening case, so practical exploitability depends on surrounding configuration and reachable call paths."
+  - "The transaction or delegated operation must pass basic syntactic checks and reach the vulnerable semantic gate."
+blast_radius: "Ledger-state impact scoped to affected accounts, assets, offers, reserves, or delegated permissions."
+
+impact_types:
+  - "economic-integrity"
+severity_guess: "medium"
+severity_rationale: "Likely security-hardening evidence supports economic-integrity; assigned medium because the sink is privileged account action, delegated permission, or role-scoped state change and the validation notes bound the claim to observed patch evidence."
+
+code_shape_summary: "The patch adds an amendment-gated LoanBroker accounting invariant and makes adjacent lending protocol adjustments. Reusable shape: check for accounting-integrity was incomplete, late, or split across paths; the fix makes the gate explicit before the sensitive state change."
+search_motifs:
+  - "authorization-check-path missing exact accounting-integrity check before privileged account action, delegated permission, or role-scoped state change"
+  - "security-sensitive path reaches privileged account action, delegated permission, or role-scoped state change before rejecting malformed, stale, or unauthorized input"
+  - "Add an amendment-gated invariant check for the missing side of an accounting relationship, while preserving an explicitly documented exceptional transaction case and aligning nearby lending protocol behavior."
+negative_signals:
+  - "No advisory or security note is provided."
+  - "No exploit sequence shows how an invalid LoanBroker state could be created."
+  - "A superficially similar change is lower risk if an earlier mandatory gate already enforces the same property for every reachable path."
+  - "Treat pure refactors, comment-only changes, or tests without a reachable untrusted entrypoint and sensitive sink as non-security."
+patch_pattern: "Add an amendment-gated invariant check for the missing side of an accounting relationship, while preserving an explicitly documented exceptional transaction case and aligning nearby lending protocol behavior."
+
+source_refs:
+  - "/testing/rippled/validated-findings/kept/2026-04-03-rippled-access-control-c979643d0.md"
+notes:
+  - "Enriched from the kept phase 4 finding and bounded to the validated evidence."
+  - "Do not generalize beyond the stated trust boundary, entrypoint, and sensitive sink without additional repo evidence."

@@ -1,0 +1,21 @@
+id: "rippled-2018-03-02-rippled-transaction-processing-8d9dffcf8"
+source_record: "rippled-2018-03-02-rippled-transaction-processing-8d9dffcf8.yaml"
+project: "rippled"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "escrow-condition-validation-hardening"
+expected_missing_property: "input-and-state-invariant-validation"
+
+expected_impact_band: "hardening-or-limited-security-impact: escrow-release-policy-hardening, economic-risk-reduction"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "No evidence of theft, unauthorized signature use, cryptocondition bypass, or ledger corruption is provided."
+  - "The commit says the prior immediate-finish behavior was documented, which weakens a concrete vulnerability claim."
+  - "A superficially similar change is lower risk if an earlier mandatory gate already enforces the same property for every reachable path."
+notes:
+  - "Expected detector family should match the missing property and trust boundary, not rippled-specific names."
+  - "Positive only when the candidate has both a reachable entrypoint and the sensitive sink described by the source record."

@@ -1,0 +1,21 @@
+id: "rippled-2018-08-10-rippled-access-control-38c3a46a3"
+source_record: "rippled-2018-08-10-rippled-access-control-38c3a46a3.yaml"
+project: "rippled"
+
+expected_bug_family: "authz_and_role_gates"
+expected_bug_class: "access-control"
+expected_missing_property: "authorization"
+
+expected_impact_band: "hardening-or-limited-security-impact: privilege-misuse"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "No evidence proves actual seed theft, interception, or transaction forgery occurred."
+  - "No evidence proves all deployments exposed these commands remotely or unauthenticated."
+  - "A superficially similar change is lower risk if an earlier mandatory gate already enforces the same property for every reachable path."
+notes:
+  - "Expected detector family should match the missing property and trust boundary, not rippled-specific names."
+  - "Positive only when the candidate has both a reachable entrypoint and the sensitive sink described by the source record."

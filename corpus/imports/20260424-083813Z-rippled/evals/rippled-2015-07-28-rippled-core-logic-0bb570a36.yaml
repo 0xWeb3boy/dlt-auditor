@@ -1,0 +1,21 @@
+id: "rippled-2015-07-28-rippled-core-logic-0bb570a36"
+source_record: "rippled-2015-07-28-rippled-core-logic-0bb570a36.yaml"
+project: "rippled"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "consensus-ledger-compatibility"
+expected_missing_property: "consensus-safety-invariant"
+
+expected_impact_band: "hardening-or-limited-security-impact: state-consistency, consensus-safety"
+expected_severity_band: "medium_or_high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "No demonstrated exploit path is provided."
+  - "No shown consensus fork, validation failure, or attacker-controlled input path is proven."
+  - "A superficially similar change is lower risk if an earlier mandatory gate already enforces the same property for every reachable path."
+notes:
+  - "Expected detector family should match the missing property and trust boundary, not rippled-specific names."
+  - "Positive only when the candidate has both a reachable entrypoint and the sensitive sink described by the source record."

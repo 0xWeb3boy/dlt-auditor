@@ -1,0 +1,56 @@
+id: "rippled-2024-02-02-rippled-core-logic-828bb64eb"
+source_finding: "2024-02-02-rippled-core-logic-828bb64eb.md"
+project: "rippled"
+date: "2024-02-02"
+language_tags:
+  - "cpp"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "reserve-enforcement-bypass"
+subsystem: "core-logic"
+architecture_tags:
+  - "ledger"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "reserve-enforcement"
+violated_invariant: "A protocol operation must be authorized for the exact account, delegate, asset, role, and feature state before it can reach a privileged ledger-state transition."
+trust_boundary: "protocol-controlled input -> core ledger/application invariant"
+entrypoint_type: "state-transition-or-core-validation-path"
+sensitive_sink: "ledger invariant, protocol state, or node safety decision"
+
+attacker_capabilities:
+  - "Submit or influence protocol data that reaches the affected validation or state-transition path."
+exploit_preconditions:
+  - "The affected path must be reachable before a stronger downstream check rejects the input."
+  - "The finding is a hardening case, so practical exploitability depends on surrounding configuration and reachable call paths."
+blast_radius: "Ledger-state impact scoped to affected accounts, assets, offers, reserves, or delegated permissions."
+
+impact_types:
+  - "state-accounting"
+  - "economic-distortion"
+severity_guess: "medium"
+severity_rationale: "Likely security-hardening evidence supports state-accounting, economic-distortion; assigned medium because the sink is ledger invariant, protocol state, or node safety decision and the validation notes bound the claim to observed patch evidence."
+
+code_shape_summary: "The evidence supports a protocol reserve-enforcement fix in rippled's NFTokenAcceptOffer sell-offer path. Reusable shape: check for reserve-enforcement was incomplete, late, or split across paths; the fix makes the gate explicit before the sensitive state change."
+search_motifs:
+  - "state-transition-or-core-validation-path missing exact reserve-enforcement check before ledger invariant, protocol state, or node safety decision"
+  - "security-sensitive path reaches ledger invariant, protocol state, or node safety decision before rejecting malformed, stale, or unauthorized input"
+  - "Centralize the NFT ownership transfer point and enforce the recipient's post-transfer reserve requirement when the transfer changes OwnerCount or NFTokenPage burden."
+negative_signals:
+  - "Provided snippets do not show the actual OwnerCount or reserve-check logic."
+  - "No supplied evidence demonstrates theft, unauthorized transfer, or direct fund loss."
+  - "A superficially similar change is lower risk if an earlier mandatory gate already enforces the same property for every reachable path."
+  - "Treat pure refactors, comment-only changes, or tests without a reachable untrusted entrypoint and sensitive sink as non-security."
+patch_pattern: "Centralize the NFT ownership transfer point and enforce the recipient's post-transfer reserve requirement when the transfer changes OwnerCount or NFTokenPage burden."
+
+source_refs:
+  - "/testing/rippled/validated-findings/kept/2024-02-02-rippled-core-logic-828bb64eb.md"
+notes:
+  - "Enriched from the kept phase 4 finding and bounded to the validated evidence."
+  - "Do not generalize beyond the stated trust boundary, entrypoint, and sensitive sink without additional repo evidence."

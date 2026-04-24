@@ -1,0 +1,57 @@
+id: "rippled-2023-03-20-rippled-transaction-processing-305c9a8d6"
+source_finding: "2023-03-20-rippled-transaction-processing-305c9a8d6.md"
+project: "rippled"
+date: "2023-03-20"
+language_tags:
+  - "cpp"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "identifier-collision"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "ledger"
+  - "transaction-processing"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "input-and-state-invariant-validation"
+violated_invariant: "Untrusted protocol input must satisfy structural, semantic, and state-dependent invariants before it is admitted to ledger, consensus, storage, or trust-management state."
+trust_boundary: "untrusted transaction -> deterministic ledger state transition"
+entrypoint_type: "transaction-handler"
+sensitive_sink: "ledger state, balance/reserve accounting, or transaction authorization outcome"
+
+attacker_capabilities:
+  - "Submit or influence protocol data that reaches the affected validation or state-transition path."
+exploit_preconditions:
+  - "The affected path must be reachable before a stronger downstream check rejects the input."
+  - "The transaction or delegated operation must pass basic syntactic checks and reach the vulnerable semantic gate."
+blast_radius: "Protocol-local correctness or hardening impact bounded by the reachable subsystem and surrounding checks."
+
+impact_types:
+  - "state-integrity"
+severity_guess: "high"
+severity_rationale: "Confirmed security-fix evidence supports state-integrity; assigned high because the sink is ledger state, balance/reserve accounting, or transaction authorization outcome and the validation notes bound the claim to observed patch evidence."
+
+code_shape_summary: "Confirmed protocol security fix for duplicate NFTokenID creation. The provided commit message and changed code show that the old mint and account deletion rules could allow an issuer to burn an NFT, delete and recreate the account, then mint another NFT with matching ID inputs... Reusable shape: check for input-and-state-invariant-validation was incomplete, late, or split across paths; the fix makes the gate explicit before the sensitive state change."
+search_motifs:
+  - "transaction-handler missing exact input-and-state-invariant-validation check before ledger state, balance/reserve accounting, or transaction authorization outcome"
+  - "security-sensitive path reaches ledger state, balance/reserve accounting, or transaction authorization outcome before rejecting malformed, stale, or unauthorized input"
+  - "Persist the lifecycle state needed for protocol identifier uniqueness and prevent destructive lifecycle transitions until their sequence ranges cannot collide after account recreation."
+negative_signals:
+  - "No supplied evidence proves asset theft, direct monetary loss, or marketplace exploitation."
+  - "No supplied evidence proves consensus failure beyond duplicate NFT identity/state integrity risk."
+  - "A superficially similar change is lower risk if an earlier mandatory gate already enforces the same property for every reachable path."
+  - "Treat pure refactors, comment-only changes, or tests without a reachable untrusted entrypoint and sensitive sink as non-security."
+patch_pattern: "Persist the lifecycle state needed for protocol identifier uniqueness and prevent destructive lifecycle transitions until their sequence ranges cannot collide after account recreation."
+
+source_refs:
+  - "/testing/rippled/validated-findings/kept/2023-03-20-rippled-transaction-processing-305c9a8d6.md"
+notes:
+  - "Enriched from the kept phase 4 finding and bounded to the validated evidence."
+  - "Do not generalize beyond the stated trust boundary, entrypoint, and sensitive sink without additional repo evidence."

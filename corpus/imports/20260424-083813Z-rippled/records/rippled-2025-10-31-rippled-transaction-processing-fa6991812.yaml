@@ -1,0 +1,58 @@
+id: "rippled-2025-10-31-rippled-transaction-processing-fa6991812"
+source_finding: "2025-10-31-rippled-transaction-processing-fa6991812.md"
+project: "rippled"
+date: "2025-10-31"
+language_tags:
+  - "cpp"
+
+bug_family: "authz_and_role_gates"
+bug_class: "improper-authorization"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "ledger"
+  - "transaction-processing"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "authorization"
+violated_invariant: "A protocol operation must be authorized for the exact account, delegate, asset, role, and feature state before it can reach a privileged ledger-state transition."
+trust_boundary: "externally submitted action -> account, delegate, or role authorization gate"
+entrypoint_type: "authorization-check-path"
+sensitive_sink: "privileged account action, delegated permission, or role-scoped state change"
+
+attacker_capabilities:
+  - "Submit a transaction or delegated action that exercises a permission boundary with attacker-chosen fields."
+exploit_preconditions:
+  - "The affected path must be reachable before a stronger downstream check rejects the input."
+  - "The transaction or delegated operation must pass basic syntactic checks and reach the vulnerable semantic gate."
+blast_radius: "Ledger-state impact scoped to affected accounts, assets, offers, reserves, or delegated permissions."
+
+impact_types:
+  - "authorization-bypass"
+  - "unauthorized-delegated-transaction"
+severity_guess: "high"
+severity_rationale: "Confirmed security-fix evidence supports authorization-bypass, unauthorized-delegated-transaction; assigned high because the sink is privileged account action, delegated permission, or role-scoped state change and the validation notes bound the claim to observed patch evidence."
+
+code_shape_summary: "The patch addresses a permission-delegation authorization flaw. The strongest supported claim is that delegated transaction permission checks were not consistently tied to the current amendment-aware delegability rules and the concrete Payment shape. Reusable shape: check for authorization was incomplete, late, or split across paths; the fix makes the gate explicit before the sensitive state change."
+search_motifs:
+  - "authorization-check-path missing exact authorization check before privileged account action, delegated permission, or role-scoped state change"
+  - "security-sensitive path reaches privileged account action, delegated permission, or role-scoped state change before rejecting malformed, stale, or unauthorized input"
+  - "Move delegated-authorization enforcement to amendment-aware permission checks and validate the concrete transaction shape before accepting a delegated transaction."
+negative_signals:
+  - "No full diff or tests are provided to prove the complete exploit scenario."
+  - "No evidence shows exploitation in the wild or actual fund loss."
+  - "A superficially similar change is lower risk if an earlier mandatory gate already enforces the same property for every reachable path."
+  - "Treat pure refactors, comment-only changes, or tests without a reachable untrusted entrypoint and sensitive sink as non-security."
+patch_pattern: "Move delegated-authorization enforcement to amendment-aware permission checks and validate the concrete transaction shape before accepting a delegated transaction."
+
+source_refs:
+  - "/testing/rippled/validated-findings/kept/2025-10-31-rippled-transaction-processing-fa6991812.md"
+notes:
+  - "Enriched from the kept phase 4 finding and bounded to the validated evidence."
+  - "Do not generalize beyond the stated trust boundary, entrypoint, and sensitive sink without additional repo evidence."

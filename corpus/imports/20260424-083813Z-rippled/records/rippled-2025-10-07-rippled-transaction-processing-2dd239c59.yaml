@@ -1,0 +1,57 @@
+id: "rippled-2025-10-07-rippled-transaction-processing-2dd239c59"
+source_finding: "2025-10-07-rippled-transaction-processing-2dd239c59.md"
+project: "rippled"
+date: "2025-10-07"
+language_tags:
+  - "cpp"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "missing-freeze-validation"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "ledger"
+  - "transaction-processing"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "authorization"
+violated_invariant: "A protocol operation must be authorized for the exact account, delegate, asset, role, and feature state before it can reach a privileged ledger-state transition."
+trust_boundary: "untrusted transaction -> deterministic ledger state transition"
+entrypoint_type: "transaction-handler"
+sensitive_sink: "ledger state, balance/reserve accounting, or transaction authorization outcome"
+
+attacker_capabilities:
+  - "Submit or influence protocol data that reaches the affected validation or state-transition path."
+exploit_preconditions:
+  - "The affected path must be reachable before a stronger downstream check rejects the input."
+  - "The transaction or delegated operation must pass basic syntactic checks and reach the vulnerable semantic gate."
+blast_radius: "Protocol-local correctness or hardening impact bounded by the reachable subsystem and surrounding checks."
+
+impact_types:
+  - "freeze-restriction-bypass"
+severity_guess: "medium"
+severity_rationale: "Confirmed security-hardening evidence supports freeze-restriction-bypass; assigned medium because the sink is ledger state, balance/reserve accounting, or transaction authorization outcome and the validation notes bound the claim to observed patch evidence."
+
+code_shape_summary: "The best-supported security finding is incomplete deep-freeze validation in LoanPay::preclaim. Reusable shape: check for authorization was incomplete, late, or split across paths; the fix makes the gate explicit before the sensitive state change."
+search_motifs:
+  - "transaction-handler missing exact authorization check before ledger state, balance/reserve accounting, or transaction authorization outcome"
+  - "security-sensitive path reaches ledger state, balance/reserve accounting, or transaction authorization outcome before rejecting malformed, stale, or unauthorized input"
+  - "Add explicit recipient-complete validation in preclaim before allowing the transaction to proceed, while keeping related accounting corrections scoped to the lending payment calculations."
+negative_signals:
+  - "No exploit scenario or attacker-controlled transaction flow is shown."
+  - "No test excerpt demonstrates a prior successful payment to a deep-frozen broker owner or vault pseudo-account."
+  - "A superficially similar change is lower risk if an earlier mandatory gate already enforces the same property for every reachable path."
+  - "Treat pure refactors, comment-only changes, or tests without a reachable untrusted entrypoint and sensitive sink as non-security."
+patch_pattern: "Add explicit recipient-complete validation in preclaim before allowing the transaction to proceed, while keeping related accounting corrections scoped to the lending payment calculations."
+
+source_refs:
+  - "/testing/rippled/validated-findings/kept/2025-10-07-rippled-transaction-processing-2dd239c59.md"
+notes:
+  - "Enriched from the kept phase 4 finding and bounded to the validated evidence."
+  - "Do not generalize beyond the stated trust boundary, entrypoint, and sensitive sink without additional repo evidence."

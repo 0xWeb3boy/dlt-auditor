@@ -1,0 +1,58 @@
+id: "rippled-2026-04-20-rippled-transaction-processing-519d9057a"
+source_finding: "2026-04-20-rippled-transaction-processing-519d9057a.md"
+project: "rippled"
+date: "2026-04-20"
+language_tags:
+  - "cpp"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "invariant-enforcement"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "ledger"
+  - "transaction-processing"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "input-and-state-invariant-validation"
+violated_invariant: "Untrusted protocol input must satisfy structural, semantic, and state-dependent invariants before it is admitted to ledger, consensus, storage, or trust-management state."
+trust_boundary: "untrusted transaction -> deterministic ledger state transition"
+entrypoint_type: "transaction-handler"
+sensitive_sink: "ledger state, balance/reserve accounting, or transaction authorization outcome"
+
+attacker_capabilities:
+  - "Submit or influence protocol data that reaches the affected validation or state-transition path."
+exploit_preconditions:
+  - "The affected path must be reachable before a stronger downstream check rejects the input."
+  - "The finding is a hardening case, so practical exploitability depends on surrounding configuration and reachable call paths."
+  - "The transaction or delegated operation must pass basic syntactic checks and reach the vulnerable semantic gate."
+blast_radius: "Protocol-local correctness or hardening impact bounded by the reachable subsystem and surrounding checks."
+
+impact_types:
+  - "ledger-integrity"
+  - "permission-boundary-hardening"
+severity_guess: "low"
+severity_rationale: "Likely security-hardening evidence supports ledger-integrity, permission-boundary-hardening; assigned low because the sink is ledger state, balance/reserve accounting, or transaction authorization outcome and the validation notes bound the claim to observed patch evidence."
+
+code_shape_summary: "The patch improves Permissioned Domain invariant checking in rippled by changing how affected Permissioned Domain ledger entries are recorded and finalized. Reusable shape: check for input-and-state-invariant-validation was incomplete, late, or split across paths; the fix makes the gate explicit before the sensitive state change."
+search_motifs:
+  - "transaction-handler missing exact input-and-state-invariant-validation check before ledger state, balance/reserve accounting, or transaction authorization outcome"
+  - "security-sensitive path reaches ledger state, balance/reserve accounting, or transaction authorization outcome before rejecting malformed, stale, or unauthorized input"
+  - "Broaden invariant checking from a narrow transaction-type/result gate to amendment-gated validation based on affected Permissioned Domain ledger entries."
+negative_signals:
+  - "No concrete attacker-controlled transaction sequence is shown."
+  - "No demonstrated authorization bypass or missing permission check is shown."
+  - "A superficially similar change is lower risk if an earlier mandatory gate already enforces the same property for every reachable path."
+  - "Treat pure refactors, comment-only changes, or tests without a reachable untrusted entrypoint and sensitive sink as non-security."
+patch_pattern: "Broaden invariant checking from a narrow transaction-type/result gate to amendment-gated validation based on affected Permissioned Domain ledger entries."
+
+source_refs:
+  - "/testing/rippled/validated-findings/kept/2026-04-20-rippled-transaction-processing-519d9057a.md"
+notes:
+  - "Enriched from the kept phase 4 finding and bounded to the validated evidence."
+  - "Do not generalize beyond the stated trust boundary, entrypoint, and sensitive sink without additional repo evidence."

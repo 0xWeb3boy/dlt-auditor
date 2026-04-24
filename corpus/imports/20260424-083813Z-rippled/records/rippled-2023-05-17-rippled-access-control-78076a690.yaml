@@ -1,0 +1,56 @@
+id: "rippled-2023-05-17-rippled-access-control-78076a690"
+source_finding: "2023-05-17-rippled-access-control-78076a690.md"
+project: "rippled"
+date: "2023-05-17"
+language_tags:
+  - "cpp"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "improper-input-acceptance"
+subsystem: "access-control"
+architecture_tags:
+  - "ledger"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "input-and-state-invariant-validation"
+violated_invariant: "Untrusted protocol input must satisfy structural, semantic, and state-dependent invariants before it is admitted to ledger, consensus, storage, or trust-management state."
+trust_boundary: "externally submitted action -> account, delegate, or role authorization gate"
+entrypoint_type: "authorization-check-path"
+sensitive_sink: "privileged account action, delegated permission, or role-scoped state change"
+
+attacker_capabilities:
+  - "Submit a transaction or delegated action that exercises a permission boundary with attacker-chosen fields."
+exploit_preconditions:
+  - "The affected path must be reachable before a stronger downstream check rejects the input."
+  - "The transaction or delegated operation must pass basic syntactic checks and reach the vulnerable semantic gate."
+blast_radius: "Protocol-local correctness or hardening impact bounded by the reachable subsystem and surrounding checks."
+
+impact_types:
+  - "credential-exposure-risk"
+severity_guess: "medium"
+severity_rationale: "Confirmed security-hardening evidence supports credential-exposure-risk; assigned medium because the sink is privileged account action, delegated permission, or role-scoped state change and the validation notes bound the claim to observed patch evidence."
+
+code_shape_summary: "The change hardens rippled RPC account parsing by removing legacy RPC::accountFromString handling from multiple account-query handlers and requiring parseBase58<AccountID> instead. Reusable shape: check for input-and-state-invariant-validation was incomplete, late, or split across paths; the fix makes the gate explicit before the sensitive state change."
+search_motifs:
+  - "authorization-check-path missing exact input-and-state-invariant-validation check before privileged account action, delegated permission, or role-scoped state change"
+  - "security-sensitive path reaches privileged account action, delegated permission, or role-scoped state change before rejecting malformed, stale, or unauthorized input"
+  - "Replace permissive legacy credential-aware parsing at RPC boundaries with strict account-ID parsing, and remove obsolete strict controls once non-account identifiers are no longer accepted."
+negative_signals:
+  - "No evidence shows secrets were actually written to logs, errors, or responses."
+  - "No evidence shows an authorization bypass or access to protected account data."
+  - "A superficially similar change is lower risk if an earlier mandatory gate already enforces the same property for every reachable path."
+  - "Treat pure refactors, comment-only changes, or tests without a reachable untrusted entrypoint and sensitive sink as non-security."
+patch_pattern: "Replace permissive legacy credential-aware parsing at RPC boundaries with strict account-ID parsing, and remove obsolete strict controls once non-account identifiers are no longer accepted."
+
+source_refs:
+  - "/testing/rippled/validated-findings/kept/2023-05-17-rippled-access-control-78076a690.md"
+notes:
+  - "Enriched from the kept phase 4 finding and bounded to the validated evidence."
+  - "Do not generalize beyond the stated trust boundary, entrypoint, and sensitive sink without additional repo evidence."

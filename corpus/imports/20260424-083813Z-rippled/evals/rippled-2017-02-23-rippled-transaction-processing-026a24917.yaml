@@ -1,0 +1,21 @@
+id: "rippled-2017-02-23-rippled-transaction-processing-026a24917"
+source_record: "rippled-2017-02-23-rippled-transaction-processing-026a24917.yaml"
+project: "rippled"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "transaction-invariant-enforcement"
+expected_missing_property: "input-and-state-invariant-validation"
+
+expected_impact_band: "hardening-or-limited-security-impact: ledger-integrity, consensus-safety"
+expected_severity_band: "medium_or_high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "No concrete invariant predicates are shown in the supplied hunks."
+  - "No specific pre-patch invalid ledger state or exploit path is demonstrated."
+  - "A superficially similar change is lower risk if an earlier mandatory gate already enforces the same property for every reachable path."
+notes:
+  - "Expected detector family should match the missing property and trust boundary, not rippled-specific names."
+  - "Positive only when the candidate has both a reachable entrypoint and the sensitive sink described by the source record."

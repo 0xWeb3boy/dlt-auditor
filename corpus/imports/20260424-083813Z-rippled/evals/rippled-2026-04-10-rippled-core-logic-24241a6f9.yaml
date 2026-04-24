@@ -1,0 +1,21 @@
+id: "rippled-2026-04-10-rippled-core-logic-24241a6f9"
+source_record: "rippled-2026-04-10-rippled-core-logic-24241a6f9.yaml"
+project: "rippled"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "asset-restriction-enforcement"
+expected_missing_property: "input-validation"
+
+expected_impact_band: "hardening-or-limited-security-impact: policy-bypass"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "No advisory, issue text, or commit body explicitly states a security vulnerability."
+  - "No proof that the prior behavior enabled theft, unauthorized minting or burning, or unauthorized asset movement."
+  - "A superficially similar change is lower risk if an earlier mandatory gate already enforces the same property for every reachable path."
+notes:
+  - "Expected detector family should match the missing property and trust boundary, not rippled-specific names."
+  - "Positive only when the candidate has both a reachable entrypoint and the sensitive sink described by the source record."

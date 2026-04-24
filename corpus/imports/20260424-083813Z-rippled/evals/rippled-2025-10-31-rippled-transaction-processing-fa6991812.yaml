@@ -1,0 +1,21 @@
+id: "rippled-2025-10-31-rippled-transaction-processing-fa6991812"
+source_record: "rippled-2025-10-31-rippled-transaction-processing-fa6991812.yaml"
+project: "rippled"
+
+expected_bug_family: "authz_and_role_gates"
+expected_bug_class: "improper-authorization"
+expected_missing_property: "authorization"
+
+expected_impact_band: "security-impact: authorization-bypass, unauthorized-delegated-transaction"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "No full diff or tests are provided to prove the complete exploit scenario."
+  - "No evidence shows exploitation in the wild or actual fund loss."
+  - "A superficially similar change is lower risk if an earlier mandatory gate already enforces the same property for every reachable path."
+notes:
+  - "Expected detector family should match the missing property and trust boundary, not rippled-specific names."
+  - "Positive only when the candidate has both a reachable entrypoint and the sensitive sink described by the source record."

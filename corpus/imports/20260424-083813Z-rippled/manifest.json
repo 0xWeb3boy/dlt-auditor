@@ -1,0 +1,666 @@
+{
+  "repo": "/testing/rippled",
+  "repo_slug": "rippled",
+  "kept_dir": "/testing/rippled/validated-findings/kept",
+  "created_at_utc": "20260424-083813Z",
+  "finding_count": 73,
+  "findings": [
+    {
+      "id": "rippled-2012-05-15-rippled-transaction-processing-9bbbf24f4",
+      "source": "/testing/rippled/validated-findings/kept/2012-05-15-rippled-transaction-processing-9bbbf24f4.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-claim-authority-proof",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2012-06-19-rippled-p2p-networking-75f85ae51",
+      "source": "/testing/rippled/validated-findings/kept/2012-06-19-rippled-p2p-networking-75f85ae51.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "consensus-role-gating",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "rippled-2012-06-25-rippled-core-logic-93ad67c24",
+      "source": "/testing/rippled/validated-findings/kept/2012-06-25-rippled-core-logic-93ad67c24.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "hash-domain-separation",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "rippled-2012-09-01-rippled-cryptography-3bd054748",
+      "source": "/testing/rippled/validated-findings/kept/2012-09-01-rippled-cryptography-3bd054748.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-proposal-duplicate-suppression-bypass",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2013-01-18-rippled-access-control-bda80d414",
+      "source": "/testing/rippled/validated-findings/kept/2013-01-18-rippled-access-control-bda80d414.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "access-control",
+      "subsystem": "access-control",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "rippled-2013-01-19-rippled-transaction-processing-308ca21b9",
+      "source": "/testing/rippled/validated-findings/kept/2013-01-19-rippled-transaction-processing-308ca21b9.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "reserve-enforcement-bypass",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2013-02-26-rippled-consensus-bd3d28c2f",
+      "source": "/testing/rippled/validated-findings/kept/2013-02-26-rippled-consensus-bd3d28c2f.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-safety",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2014-02-18-rippled-cryptography-ae649ec91",
+      "source": "/testing/rippled/validated-findings/kept/2014-02-18-rippled-cryptography-ae649ec91.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "signature-canonicalization-hardening",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "rippled-2015-07-28-rippled-core-logic-0bb570a36",
+      "source": "/testing/rippled/validated-findings/kept/2015-07-28-rippled-core-logic-0bb570a36.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-ledger-compatibility",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2016-02-03-rippled-cryptography-b55edfa8f",
+      "source": "/testing/rippled/validated-findings/kept/2016-02-03-rippled-cryptography-b55edfa8f.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "validator-manifest-signature-hardening",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "rippled-2016-04-21-rippled-rpc-client-api-b5dbd7942",
+      "source": "/testing/rippled/validated-findings/kept/2016-04-21-rippled-rpc-client-api-b5dbd7942.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "failed-handshake-resource-accounting",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2017-01-24-rippled-cryptography-b4a16b165",
+      "source": "/testing/rippled/validated-findings/kept/2017-01-24-rippled-cryptography-b4a16b165.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "validator-key-revocation-handling",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2017-02-23-rippled-transaction-processing-026a24917",
+      "source": "/testing/rippled/validated-findings/kept/2017-02-23-rippled-transaction-processing-026a24917.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "transaction-invariant-enforcement",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2017-08-07-rippled-consensus-d90a0647d",
+      "source": "/testing/rippled/validated-findings/kept/2017-08-07-rippled-consensus-d90a0647d.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-safety",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2017-11-17-rippled-access-control-a4a43a4de",
+      "source": "/testing/rippled/validated-findings/kept/2017-11-17-rippled-access-control-a4a43a4de.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "tls-sni-hostname-setup",
+      "subsystem": "access-control",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2018-03-02-rippled-transaction-processing-8d9dffcf8",
+      "source": "/testing/rippled/validated-findings/kept/2018-03-02-rippled-transaction-processing-8d9dffcf8.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "escrow-condition-validation-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2018-04-17-rippled-transaction-processing-2ac1c2b43",
+      "source": "/testing/rippled/validated-findings/kept/2018-04-17-rippled-transaction-processing-2ac1c2b43.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "fee-accounting-invariant",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2018-07-27-rippled-consensus-945493d9c",
+      "source": "/testing/rippled/validated-findings/kept/2018-07-27-rippled-consensus-945493d9c.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "censorship-detection-observability",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2018-08-10-rippled-access-control-38c3a46a3",
+      "source": "/testing/rippled/validated-findings/kept/2018-08-10-rippled-access-control-38c3a46a3.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "access-control",
+      "subsystem": "access-control",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "rippled-2018-10-08-rippled-rpc-client-api-7fe1d4b9c",
+      "source": "/testing/rippled/validated-findings/kept/2018-10-08-rippled-rpc-client-api-7fe1d4b9c.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "validator-site-redirect-retry-hardening",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2018-10-23-rippled-cryptography-c1a02440d",
+      "source": "/testing/rippled/validated-findings/kept/2018-10-23-rippled-cryptography-c1a02440d.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "validator-list-redirect-scheme-hardening",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2018-10-31-rippled-rpc-client-api-6bdc9e7b3",
+      "source": "/testing/rippled/validated-findings/kept/2018-10-31-rippled-rpc-client-api-6bdc9e7b3.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "wrong-revocation-cache",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2019-03-05-rippled-transaction-processing-c5a938de5",
+      "source": "/testing/rippled/validated-findings/kept/2019-03-05-rippled-transaction-processing-c5a938de5.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "regular-key-authorization-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "rippled-2019-08-05-rippled-p2p-networking-9213c49ca",
+      "source": "/testing/rippled/validated-findings/kept/2019-08-05-rippled-p2p-networking-9213c49ca.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "tls-client-config-hardening",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2020-05-18-rippled-consensus-df29e98ea",
+      "source": "/testing/rippled/validated-findings/kept/2020-05-18-rippled-consensus-df29e98ea.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-threshold-rounding",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2021-02-19-rippled-p2p-networking-b4699c3b4",
+      "source": "/testing/rippled/validated-findings/kept/2021-02-19-rippled-p2p-networking-b4699c3b4.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "validator-misbehavior-detection-gap",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2022-05-30-rippled-core-logic-0ecfc7cb1",
+      "source": "/testing/rippled/validated-findings/kept/2022-05-30-rippled-core-logic-0ecfc7cb1.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "hardening-or-correctness-fix",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2022-06-22-rippled-transaction-processing-8266d9d59",
+      "source": "/testing/rippled/validated-findings/kept/2022-06-22-rippled-transaction-processing-8266d9d59.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "negative-amount-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2022-09-13-rippled-transaction-processing-e40e38e8d",
+      "source": "/testing/rippled/validated-findings/kept/2022-09-13-rippled-transaction-processing-e40e38e8d.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "unauthorized-resource-consumption",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2023-03-20-rippled-transaction-processing-305c9a8d6",
+      "source": "/testing/rippled/validated-findings/kept/2023-03-20-rippled-transaction-processing-305c9a8d6.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "identifier-collision",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2023-05-17-rippled-access-control-78076a690",
+      "source": "/testing/rippled/validated-findings/kept/2023-05-17-rippled-access-control-78076a690.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "improper-input-acceptance",
+      "subsystem": "access-control",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2023-08-18-rippled-consensus-e8a7b2a1f",
+      "source": "/testing/rippled/validated-findings/kept/2023-08-18-rippled-consensus-e8a7b2a1f.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-state-management",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2023-09-11-rippled-p2p-networking-f259cc1ab",
+      "source": "/testing/rippled/validated-findings/kept/2023-09-11-rippled-p2p-networking-f259cc1ab.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-state-hardening",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2024-02-02-rippled-core-logic-828bb64eb",
+      "source": "/testing/rippled/validated-findings/kept/2024-02-02-rippled-core-logic-828bb64eb.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "reserve-enforcement-bypass",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2024-03-22-rippled-consensus-cea43099d",
+      "source": "/testing/rippled/validated-findings/kept/2024-03-22-rippled-consensus-cea43099d.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-desync-hardening",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2024-03-24-rippled-storage-a7c4a4772",
+      "source": "/testing/rippled/validated-findings/kept/2024-03-24-rippled-storage-a7c4a4772.md",
+      "bug_family": "checked_arithmetic_and_parameter_bounds",
+      "bug_class": "amm-offer-overflow-hardening",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "arithmetic-bounds"
+    },
+    {
+      "id": "rippled-2024-04-22-rippled-core-logic-3f7ce939c",
+      "source": "/testing/rippled/validated-findings/kept/2024-04-22-rippled-core-logic-3f7ce939c.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "amm-rounding-invariant-hardening",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2024-11-05-rippled-core-logic-ec61f5e9d",
+      "source": "/testing/rippled/validated-findings/kept/2024-11-05-rippled-core-logic-ec61f5e9d.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-reserve-check",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2025-01-23-rippled-transaction-processing-1a341cb9c",
+      "source": "/testing/rippled/validated-findings/kept/2025-01-23-rippled-transaction-processing-1a341cb9c.md",
+      "bug_family": "attestation_trust_and_freshness",
+      "bug_class": "validator-list-trust-threshold-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "freshness"
+    },
+    {
+      "id": "rippled-2025-01-23-rippled-transaction-processing-5fbee8c82",
+      "source": "/testing/rippled/validated-findings/kept/2025-01-23-rippled-transaction-processing-5fbee8c82.md",
+      "bug_family": "attestation_trust_and_freshness",
+      "bug_class": "validator-list-trust-policy-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "freshness"
+    },
+    {
+      "id": "rippled-2025-03-11-rippled-core-logic-3715d7e2e",
+      "source": "/testing/rippled/validated-findings/kept/2025-03-11-rippled-core-logic-3715d7e2e.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "access-control",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "rippled-2025-04-07-rippled-access-control-f839049de",
+      "source": "/testing/rippled/validated-findings/kept/2025-04-07-rippled-access-control-f839049de.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "authorization-recursion-boundary",
+      "subsystem": "access-control",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "rippled-2025-04-11-rippled-transaction-processing-da10ba6fd",
+      "source": "/testing/rippled/validated-findings/kept/2025-04-11-rippled-transaction-processing-da10ba6fd.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "ledger-state-integrity",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2025-04-14-rippled-core-logic-d6d07e6fc",
+      "source": "/testing/rippled/validated-findings/kept/2025-04-14-rippled-core-logic-d6d07e6fc.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "authorization-correctness",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "rippled-2025-04-30-rippled-access-control-ceeb11aee",
+      "source": "/testing/rippled/validated-findings/kept/2025-04-30-rippled-access-control-ceeb11aee.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "ledger-state-invariant-hardening",
+      "subsystem": "access-control",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2025-05-05-rippled-transaction-processing-9a8660241",
+      "source": "/testing/rippled/validated-findings/kept/2025-05-05-rippled-transaction-processing-9a8660241.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "ledger-accounting-invariant-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2025-06-02-rippled-transaction-processing-7e24adbdd",
+      "source": "/testing/rippled/validated-findings/kept/2025-06-02-rippled-transaction-processing-7e24adbdd.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "access-control",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "rippled-2025-09-10-rippled-transaction-processing-61d628d65",
+      "source": "/testing/rippled/validated-findings/kept/2025-09-10-rippled-transaction-processing-61d628d65.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "access-control",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "rippled-2025-09-16-rippled-consensus-159d7311d",
+      "source": "/testing/rippled/validated-findings/kept/2025-09-16-rippled-consensus-159d7311d.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-ordering-hardening",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2025-09-30-rippled-transaction-processing-e1b234cc5",
+      "source": "/testing/rippled/validated-findings/kept/2025-09-30-rippled-transaction-processing-e1b234cc5.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "signature-object-confusion-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "rippled-2025-10-07-rippled-transaction-processing-2dd239c59",
+      "source": "/testing/rippled/validated-findings/kept/2025-10-07-rippled-transaction-processing-2dd239c59.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-freeze-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2025-10-09-rippled-core-logic-1efc532b2",
+      "source": "/testing/rippled/validated-findings/kept/2025-10-09-rippled-core-logic-1efc532b2.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "receiver-authorization-hardening",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "rippled-2025-10-21-rippled-transaction-processing-5ebc29c48",
+      "source": "/testing/rippled/validated-findings/kept/2025-10-21-rippled-transaction-processing-5ebc29c48.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "reserve-enforcement-bypass",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2025-10-21-rippled-transaction-processing-83ee3788e",
+      "source": "/testing/rippled/validated-findings/kept/2025-10-21-rippled-transaction-processing-83ee3788e.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-reserve-check",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2025-10-31-rippled-transaction-processing-fa6991812",
+      "source": "/testing/rippled/validated-findings/kept/2025-10-31-rippled-transaction-processing-fa6991812.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "improper-authorization",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "rippled-2025-11-04-rippled-core-logic-aed8e2b16",
+      "source": "/testing/rippled/validated-findings/kept/2025-11-04-rippled-core-logic-aed8e2b16.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "accounting-invariant-enforcement",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2025-11-07-rippled-transaction-processing-8e56af20e",
+      "source": "/testing/rippled/validated-findings/kept/2025-11-07-rippled-transaction-processing-8e56af20e.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "numeric-representability-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2025-11-14-rippled-core-logic-362ecbd1c",
+      "source": "/testing/rippled/validated-findings/kept/2025-11-14-rippled-core-logic-362ecbd1c.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "resource-accounting",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2025-11-14-rippled-core-logic-b195011ef",
+      "source": "/testing/rippled/validated-findings/kept/2025-11-14-rippled-core-logic-b195011ef.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "resource-accounting",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2025-11-16-rippled-core-logic-248d267f2",
+      "source": "/testing/rippled/validated-findings/kept/2025-11-16-rippled-core-logic-248d267f2.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "numeric-validation",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2026-01-15-rippled-transaction-processing-c0b671206",
+      "source": "/testing/rippled/validated-findings/kept/2026-01-15-rippled-transaction-processing-c0b671206.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "rounding-accounting-yield-theft",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2026-03-09-rippled-transaction-processing-803ab67fc",
+      "source": "/testing/rippled/validated-findings/kept/2026-03-09-rippled-transaction-processing-803ab67fc.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-input-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2026-03-21-rippled-core-logic-311719dae",
+      "source": "/testing/rippled/validated-findings/kept/2026-03-21-rippled-core-logic-311719dae.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "invariant-state-overwrite",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2026-04-02-rippled-access-control-111edef28",
+      "source": "/testing/rippled/validated-findings/kept/2026-04-02-rippled-access-control-111edef28.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "ledger-accounting-invariant",
+      "subsystem": "access-control",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2026-04-03-rippled-access-control-b30b4e1d6",
+      "source": "/testing/rippled/validated-findings/kept/2026-04-03-rippled-access-control-b30b4e1d6.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "protocol-accounting-invariant",
+      "subsystem": "access-control",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2026-04-03-rippled-access-control-c0ee81366",
+      "source": "/testing/rippled/validated-findings/kept/2026-04-03-rippled-access-control-c0ee81366.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "ledger-accounting-invariant",
+      "subsystem": "access-control",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2026-04-03-rippled-access-control-c979643d0",
+      "source": "/testing/rippled/validated-findings/kept/2026-04-03-rippled-access-control-c979643d0.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "accounting-invariant",
+      "subsystem": "access-control",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2026-04-09-rippled-staking-6eaf0bf18",
+      "source": "/testing/rippled/validated-findings/kept/2026-04-09-rippled-staking-6eaf0bf18.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "authorization-lifecycle-cleanup",
+      "subsystem": "staking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "rippled-2026-04-09-rippled-storage-87e951470",
+      "source": "/testing/rippled/validated-findings/kept/2026-04-09-rippled-storage-87e951470.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "access-control",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "rippled-2026-04-10-rippled-core-logic-24241a6f9",
+      "source": "/testing/rippled/validated-findings/kept/2026-04-10-rippled-core-logic-24241a6f9.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "asset-restriction-enforcement",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2026-04-20-rippled-transaction-processing-519d9057a",
+      "source": "/testing/rippled/validated-findings/kept/2026-04-20-rippled-transaction-processing-519d9057a.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "invariant-enforcement",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2026-04-21-rippled-transaction-processing-5ad05918f",
+      "source": "/testing/rippled/validated-findings/kept/2026-04-21-rippled-transaction-processing-5ad05918f.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "insufficient-structural-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "rippled-2026-04-22-rippled-transaction-processing-2794a7503",
+      "source": "/testing/rippled/validated-findings/kept/2026-04-22-rippled-transaction-processing-2794a7503.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "invariant-check-state-overwrite",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    }
+  ]
+}

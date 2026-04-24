@@ -1,0 +1,21 @@
+id: "rippled-2025-10-09-rippled-core-logic-1efc532b2"
+source_record: "rippled-2025-10-09-rippled-core-logic-1efc532b2.yaml"
+project: "rippled"
+
+expected_bug_family: "authz_and_role_gates"
+expected_bug_class: "receiver-authorization-hardening"
+expected_missing_property: "authorization"
+
+expected_impact_band: "hardening-or-limited-security-impact: authorization-policy-enforcement, asset-transfer-eligibility"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "No exploit scenario or attacker-controlled transaction sequence is provided."
+  - "No evidence shows that the old behavior was reachable in a released configuration."
+  - "A superficially similar change is lower risk if an earlier mandatory gate already enforces the same property for every reachable path."
+notes:
+  - "Expected detector family should match the missing property and trust boundary, not rippled-specific names."
+  - "Positive only when the candidate has both a reachable entrypoint and the sensitive sink described by the source record."

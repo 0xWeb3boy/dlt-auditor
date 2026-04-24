@@ -1,0 +1,57 @@
+id: "rippled-2018-10-31-rippled-rpc-client-api-6bdc9e7b3"
+source_finding: "2018-10-31-rippled-rpc-client-api-6bdc9e7b3.md"
+project: "rippled"
+date: "2018-10-31"
+language_tags:
+  - "cpp"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "wrong-revocation-cache"
+subsystem: "rpc-client-api"
+architecture_tags:
+  - "ledger"
+  - "rpc-client"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "signer-scope-and-domain-binding"
+violated_invariant: "Signed or hashed protocol objects must bind the intended signer, object type, domain, and revocation state before the object is trusted."
+trust_boundary: "remote client or configured service endpoint -> local RPC/client trust boundary"
+entrypoint_type: "rpc-or-client-handler"
+sensitive_sink: "node configuration, downloaded trust material, or externally visible service behavior"
+
+attacker_capabilities:
+  - "Control or influence an external endpoint, redirect target, certificate context, or client request consumed by the node."
+exploit_preconditions:
+  - "The affected path must be reachable before a stronger downstream check rejects the input."
+blast_radius: "Protocol-local correctness or hardening impact bounded by the reachable subsystem and surrounding checks."
+
+impact_types:
+  - "revocation-bypass"
+  - "trust-validation-bypass"
+severity_guess: "high"
+severity_rationale: "Confirmed security-fix evidence supports revocation-bypass, trust-validation-bypass; assigned high because the sink is node configuration, downloaded trust material, or externally visible service behavior and the validation notes bound the claim to observed patch evidence."
+
+code_shape_summary: "The grounded security fix is in ValidatorList::load: a configured validator-list publisher key was checked with validatorManifests_.revoked(id) before the patch and is checked with publisherManifests_.revoked(id) after the patch. Reusable shape: check for signer-scope-and-domain-binding was incomplete, late, or split across paths; the fix makes the gate explicit before the sensitive state change."
+search_motifs:
+  - "rpc-or-client-handler missing exact signer-scope-and-domain-binding check before node configuration, downloaded trust material, or externally visible service behavior"
+  - "security-sensitive path reaches node configuration, downloaded trust material, or externally visible service behavior before rejecting malformed, stale, or unauthorized input"
+  - "Use the revocation cache corresponding to the identity type being authorized."
+negative_signals:
+  - "No test contents are provided to show the exact regression scenario."
+  - "No evidence shows live exploitation or production impact."
+  - "A superficially similar change is lower risk if an earlier mandatory gate already enforces the same property for every reachable path."
+  - "Treat pure refactors, comment-only changes, or tests without a reachable untrusted entrypoint and sensitive sink as non-security."
+patch_pattern: "Use the revocation cache corresponding to the identity type being authorized."
+
+source_refs:
+  - "/testing/rippled/validated-findings/kept/2018-10-31-rippled-rpc-client-api-6bdc9e7b3.md"
+notes:
+  - "Enriched from the kept phase 4 finding and bounded to the validated evidence."
+  - "Do not generalize beyond the stated trust boundary, entrypoint, and sensitive sink without additional repo evidence."

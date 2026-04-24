@@ -1,0 +1,57 @@
+id: "rippled-2012-06-19-rippled-p2p-networking-75f85ae51"
+source_finding: "2012-06-19-rippled-p2p-networking-75f85ae51.md"
+project: "rippled"
+date: "2012-06-19"
+language_tags:
+  - "cpp"
+
+bug_family: "authz_and_role_gates"
+bug_class: "consensus-role-gating"
+subsystem: "p2p-networking"
+architecture_tags:
+  - "ledger"
+  - "p2p"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "authorization"
+violated_invariant: "A protocol operation must be authorized for the exact account, delegate, asset, role, and feature state before it can reach a privileged ledger-state transition."
+trust_boundary: "remote peer message -> local node networking/resource manager"
+entrypoint_type: "p2p-message-handler"
+sensitive_sink: "peer session state, fetch scheduling, handshake slots, or local resource accounting"
+
+attacker_capabilities:
+  - "Operate or spoof a peer that can send crafted network messages, handshakes, or announcements to the node."
+exploit_preconditions:
+  - "The affected path must be reachable before a stronger downstream check rejects the input."
+  - "The finding is a hardening case, so practical exploitability depends on surrounding configuration and reachable call paths."
+  - "The peer connection or message must survive enough admission handling to allocate local work or update peer state."
+blast_radius: "Potentially network-wide safety or trust impact for nodes that accept the affected state or trust decision."
+
+impact_types:
+  - "consensus-integrity"
+severity_guess: "medium"
+severity_rationale: "Likely security-hardening evidence supports consensus-integrity; assigned medium because the sink is peer session state, fetch scheduling, handshake slots, or local resource accounting and the validation notes bound the claim to observed patch evidence."
+
+code_shape_summary: "The patch adds explicit mValidating and mProposing state in LedgerConsensus and gates proposal updates, initial proposal publication, and validation creation/relay on those flags. Reusable shape: check for authorization was incomplete, late, or split across paths; the fix makes the gate explicit before the sensitive state change."
+search_motifs:
+  - "p2p-message-handler missing exact authorization check before peer session state, fetch scheduling, handshake slots, or local resource accounting"
+  - "security-sensitive path reaches peer session state, fetch scheduling, handshake slots, or local resource accounting before rejecting malformed, stale, or unauthorized input"
+  - "Introduce explicit local role flags and guard authority-bearing consensus actions with those flags."
+negative_signals:
+  - "No Arthur bug report details are provided."
+  - "No peer-side acceptance or rejection rules for validations/proposals are shown."
+  - "A superficially similar change is lower risk if an earlier mandatory gate already enforces the same property for every reachable path."
+  - "Treat pure refactors, comment-only changes, or tests without a reachable untrusted entrypoint and sensitive sink as non-security."
+patch_pattern: "Introduce explicit local role flags and guard authority-bearing consensus actions with those flags."
+
+source_refs:
+  - "/testing/rippled/validated-findings/kept/2012-06-19-rippled-p2p-networking-75f85ae51.md"
+notes:
+  - "Enriched from the kept phase 4 finding and bounded to the validated evidence."
+  - "Do not generalize beyond the stated trust boundary, entrypoint, and sensitive sink without additional repo evidence."

@@ -1,0 +1,58 @@
+id: "rippled-2019-03-05-rippled-transaction-processing-c5a938de5"
+source_finding: "2019-03-05-rippled-transaction-processing-c5a938de5.md"
+project: "rippled"
+date: "2019-03-05"
+language_tags:
+  - "cpp"
+
+bug_family: "authz_and_role_gates"
+bug_class: "regular-key-authorization-hardening"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "ledger"
+  - "transaction-processing"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "authorization"
+violated_invariant: "A protocol operation must be authorized for the exact account, delegate, asset, role, and feature state before it can reach a privileged ledger-state transition."
+trust_boundary: "externally submitted action -> account, delegate, or role authorization gate"
+entrypoint_type: "authorization-check-path"
+sensitive_sink: "privileged account action, delegated permission, or role-scoped state change"
+
+attacker_capabilities:
+  - "Submit a transaction or delegated action that exercises a permission boundary with attacker-chosen fields."
+exploit_preconditions:
+  - "The affected path must be reachable before a stronger downstream check rejects the input."
+  - "The transaction or delegated operation must pass basic syntactic checks and reach the vulnerable semantic gate."
+blast_radius: "Protocol-local correctness or hardening impact bounded by the reachable subsystem and surrounding checks."
+
+impact_types:
+  - "authorization-integrity"
+  - "key-management-integrity"
+severity_guess: "medium"
+severity_rationale: "Confirmed security-hardening evidence supports authorization-integrity, key-management-integrity; assigned medium because the sink is privileged account action, delegated permission, or role-scoped state change and the validation notes bound the claim to observed patch evidence."
+
+code_shape_summary: "The patch changes transaction authorization and SetRegularKey validation so that, under the fixMasterKeyAsRegularKey amendment, an account cannot set sfRegularKey to the same account ID as sfAccount and master-key disable handling is separated from regular-key authorization. Reusable shape: check for authorization was incomplete, late, or split across paths; the fix makes the gate explicit before the sensitive state change."
+search_motifs:
+  - "authorization-check-path missing exact authorization check before privileged account action, delegated permission, or role-scoped state change"
+  - "security-sensitive path reaches privileged account action, delegated permission, or role-scoped state change before rejecting malformed, stale, or unauthorized input"
+  - "Add explicit preflight validation for an invalid key configuration and separate master-key disable checks from regular-key authorization in the single-sign path."
+negative_signals:
+  - "No evidence shows an unauthorized third party could set another account's regular key."
+  - "No evidence demonstrates transaction forgery, account takeover, or direct fund loss."
+  - "A superficially similar change is lower risk if an earlier mandatory gate already enforces the same property for every reachable path."
+  - "Treat pure refactors, comment-only changes, or tests without a reachable untrusted entrypoint and sensitive sink as non-security."
+patch_pattern: "Add explicit preflight validation for an invalid key configuration and separate master-key disable checks from regular-key authorization in the single-sign path."
+
+source_refs:
+  - "/testing/rippled/validated-findings/kept/2019-03-05-rippled-transaction-processing-c5a938de5.md"
+notes:
+  - "Enriched from the kept phase 4 finding and bounded to the validated evidence."
+  - "Do not generalize beyond the stated trust boundary, entrypoint, and sensitive sink without additional repo evidence."

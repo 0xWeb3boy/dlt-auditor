@@ -1,0 +1,56 @@
+id: "rippled-2012-09-01-rippled-cryptography-3bd054748"
+source_finding: "2012-09-01-rippled-cryptography-3bd054748.md"
+project: "rippled"
+date: "2012-09-01"
+language_tags:
+  - "cpp"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-proposal-duplicate-suppression-bypass"
+subsystem: "cryptography"
+architecture_tags:
+  - "ledger"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "consensus-safety-invariant"
+violated_invariant: "Consensus participants must only advance local safety or liveness state from messages that satisfy the current quorum, ordering, timing, and validator-role rules."
+trust_boundary: "signed object or key material -> local trust and verification decision"
+entrypoint_type: "signature-verification-path"
+sensitive_sink: "accepted signature, signer identity, manifest, or replay-sensitive object"
+
+attacker_capabilities:
+  - "Send or influence validator, proposal, validation, or ledger-close data that participates in consensus decisions."
+exploit_preconditions:
+  - "The affected path must be reachable before a stronger downstream check rejects the input."
+blast_radius: "Potentially network-wide safety or trust impact for nodes that accept the affected state or trust decision."
+
+impact_types:
+  - "consensus-message-suppression"
+  - "denial-of-service"
+severity_guess: "high"
+severity_rationale: "Confirmed security-fix evidence supports consensus-message-suppression, denial-of-service; assigned high because the sink is accepted signature, signer identity, manifest, or replay-sensitive object and the validation notes bound the claim to observed patch evidence."
+
+code_shape_summary: "The patch fixes duplicate suppression in NetworkOPs::recvPropose. Before the change, the preliminary duplicate key used only proposal sequence, current ledger ID, and public key. Reusable shape: check for consensus-safety-invariant was incomplete, late, or split across paths; the fix makes the gate explicit before the sensitive state change."
+search_motifs:
+  - "signature-verification-path missing exact consensus-safety-invariant check before accepted signature, signer identity, manifest, or replay-sensitive object"
+  - "security-sensitive path reaches accepted signature, signer identity, manifest, or replay-sensitive object before rejecting malformed, stale, or unauthorized input"
+  - "Build replay-sensitive or duplicate-suppression keys from the full message identity needed to distinguish valid protocol messages from malformed variants, before allowing a message to suppress later processing."
+negative_signals:
+  - "No tests are supplied showing the malformed-proposal scenario."
+  - "No surrounding validity-check code is supplied to prove the exact ordering of duplicate suppression versus validation."
+  - "A superficially similar change is lower risk if an earlier mandatory gate already enforces the same property for every reachable path."
+  - "Treat pure refactors, comment-only changes, or tests without a reachable untrusted entrypoint and sensitive sink as non-security."
+patch_pattern: "Build replay-sensitive or duplicate-suppression keys from the full message identity needed to distinguish valid protocol messages from malformed variants, before allowing a message to suppress later processing."
+
+source_refs:
+  - "/testing/rippled/validated-findings/kept/2012-09-01-rippled-cryptography-3bd054748.md"
+notes:
+  - "Enriched from the kept phase 4 finding and bounded to the validated evidence."
+  - "Do not generalize beyond the stated trust boundary, entrypoint, and sensitive sink without additional repo evidence."

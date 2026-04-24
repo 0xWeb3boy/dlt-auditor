@@ -1,0 +1,56 @@
+id: "rippled-2024-11-05-rippled-core-logic-ec61f5e9d"
+source_finding: "2024-11-05-rippled-core-logic-ec61f5e9d.md"
+project: "rippled"
+date: "2024-11-05"
+language_tags:
+  - "cpp"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "missing-reserve-check"
+subsystem: "core-logic"
+architecture_tags:
+  - "ledger"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "reserve-enforcement"
+violated_invariant: "A protocol operation must be authorized for the exact account, delegate, asset, role, and feature state before it can reach a privileged ledger-state transition."
+trust_boundary: "protocol-controlled input -> core ledger/application invariant"
+entrypoint_type: "state-transition-or-core-validation-path"
+sensitive_sink: "ledger invariant, protocol state, or node safety decision"
+
+attacker_capabilities:
+  - "Submit or influence protocol data that reaches the affected validation or state-transition path."
+exploit_preconditions:
+  - "The affected path must be reachable before a stronger downstream check rejects the input."
+  - "The finding is a hardening case, so practical exploitability depends on surrounding configuration and reachable call paths."
+blast_radius: "Ledger-state impact scoped to affected accounts, assets, offers, reserves, or delegated permissions."
+
+impact_types:
+  - "reserve-enforcement"
+  - "protocol-invariant"
+severity_guess: "medium"
+severity_rationale: "Likely security-hardening evidence supports reserve-enforcement, protocol-invariant; assigned medium because the sink is ledger invariant, protocol state, or node safety decision and the validation notes bound the claim to observed patch evidence."
+
+code_shape_summary: "The supported finding is that fixAMMv1_2 adds an amendment-gated reserve check in AMMWithdraw before sending a second withdrawn non-XRP issued asset. Reusable shape: check for reserve-enforcement was incomplete, late, or split across paths; the fix makes the gate explicit before the sensitive state change."
+search_motifs:
+  - "state-transition-or-core-validation-path missing exact reserve-enforcement check before ledger invariant, protocol state, or node safety decision"
+  - "security-sensitive path reaches ledger invariant, protocol state, or node safety decision before rejecting malformed, stale, or unauthorized input"
+  - "Add an amendment-gated precondition check before state-changing AMM withdrawal send logic so issued-asset withdrawals that may create trustlines are rejected when reserve requirements are not satisfied."
+negative_signals:
+  - "No full helper body is provided showing the exact reserve calculation and error behavior."
+  - "No accountSend implementation evidence proves the prior path always missed reserve enforcement."
+  - "A superficially similar change is lower risk if an earlier mandatory gate already enforces the same property for every reachable path."
+  - "Treat pure refactors, comment-only changes, or tests without a reachable untrusted entrypoint and sensitive sink as non-security."
+patch_pattern: "Add an amendment-gated precondition check before state-changing AMM withdrawal send logic so issued-asset withdrawals that may create trustlines are rejected when reserve requirements are not satisfied."
+
+source_refs:
+  - "/testing/rippled/validated-findings/kept/2024-11-05-rippled-core-logic-ec61f5e9d.md"
+notes:
+  - "Enriched from the kept phase 4 finding and bounded to the validated evidence."
+  - "Do not generalize beyond the stated trust boundary, entrypoint, and sensitive sink without additional repo evidence."

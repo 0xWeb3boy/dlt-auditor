@@ -1,0 +1,56 @@
+id: "rippled-2018-10-23-rippled-cryptography-c1a02440d"
+source_finding: "2018-10-23-rippled-cryptography-c1a02440d.md"
+project: "rippled"
+date: "2018-10-23"
+language_tags:
+  - "cpp"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "validator-list-redirect-scheme-hardening"
+subsystem: "cryptography"
+architecture_tags:
+  - "ledger"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "trust-root-and-freshness-validation"
+violated_invariant: "Externally supplied trust material must be fetched, redirected, cached, and accepted only under the configured trust roots and transport policy."
+trust_boundary: "signed object or key material -> local trust and verification decision"
+entrypoint_type: "signature-verification-path"
+sensitive_sink: "accepted signature, signer identity, manifest, or replay-sensitive object"
+
+attacker_capabilities:
+  - "Control or influence an external endpoint, redirect target, certificate context, or client request consumed by the node."
+exploit_preconditions:
+  - "The affected path must be reachable before a stronger downstream check rejects the input."
+  - "The finding is a hardening case, so practical exploitability depends on surrounding configuration and reachable call paths."
+  - "The attacker-controlled data must be considered by a node or validator participating in the relevant consensus or trust workflow."
+blast_radius: "Potentially network-wide safety or trust impact for nodes that accept the affected state or trust decision."
+
+impact_types:
+  - "validator-list-source-integrity"
+severity_guess: "low"
+severity_rationale: "Likely security-hardening evidence supports validator-list-source-integrity; assigned low because the sink is accepted signature, signer identity, manifest, or replay-sensitive object and the validation notes bound the claim to observed patch evidence."
+
+code_shape_summary: "The draft correctly rejects the unsupported replay/signature-validation theory. The grounded change is that validator-site redirects now reject schemes other than http and https while the commit adds explicit configured file:// validator-list support. Reusable shape: check for trust-root-and-freshness-validation was incomplete, late, or split across paths; the fix makes the gate explicit before the sensitive state change."
+search_motifs:
+  - "signature-verification-path missing exact trust-root-and-freshness-validation check before accepted signature, signer identity, manifest, or replay-sensitive object"
+  - "security-sensitive path reaches accepted signature, signer identity, manifest, or replay-sensitive object before rejecting malformed, stale, or unauthorized input"
+  - "Add an explicit URL-scheme allowlist on redirect handling and use explicit error-code-based file reads for configuration inputs."
+negative_signals:
+  - "No proof that an attacker could control a validator-list redirect in a meaningful threat model."
+  - "No proof of local file disclosure, validator-list validation bypass, replay, signature bypass, or consensus compromise."
+  - "A superficially similar change is lower risk if an earlier mandatory gate already enforces the same property for every reachable path."
+  - "Treat pure refactors, comment-only changes, or tests without a reachable untrusted entrypoint and sensitive sink as non-security."
+patch_pattern: "Add an explicit URL-scheme allowlist on redirect handling and use explicit error-code-based file reads for configuration inputs."
+
+source_refs:
+  - "/testing/rippled/validated-findings/kept/2018-10-23-rippled-cryptography-c1a02440d.md"
+notes:
+  - "Enriched from the kept phase 4 finding and bounded to the validated evidence."
+  - "Do not generalize beyond the stated trust boundary, entrypoint, and sensitive sink without additional repo evidence."

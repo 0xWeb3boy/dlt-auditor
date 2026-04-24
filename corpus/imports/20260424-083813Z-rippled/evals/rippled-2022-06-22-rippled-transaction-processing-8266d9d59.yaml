@@ -1,0 +1,21 @@
+id: "rippled-2022-06-22-rippled-transaction-processing-8266d9d59"
+source_record: "rippled-2022-06-22-rippled-transaction-processing-8266d9d59.yaml"
+project: "rippled"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "negative-amount-validation"
+expected_missing_property: "numeric-bounds"
+
+expected_impact_band: "hardening-or-limited-security-impact: invalid-transaction-acceptance, protocol-invariant-enforcement"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "No concrete exploit path is shown beyond brokered negative offers improperly succeeding."
+  - "No ledger-state consequence of a successful negative brokered offer is provided."
+  - "A superficially similar change is lower risk if an earlier mandatory gate already enforces the same property for every reachable path."
+notes:
+  - "Expected detector family should match the missing property and trust boundary, not rippled-specific names."
+  - "Positive only when the candidate has both a reachable entrypoint and the sensitive sink described by the source record."

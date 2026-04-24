@@ -1,0 +1,21 @@
+id: "rippled-2019-08-05-rippled-p2p-networking-9213c49ca"
+source_record: "rippled-2019-08-05-rippled-p2p-networking-9213c49ca.yaml"
+project: "rippled"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "tls-client-config-hardening"
+expected_missing_property: "trust-root-and-freshness-validation"
+
+expected_impact_band: "hardening-or-limited-security-impact: outbound-tls-verification-hardening"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "No issue text for #2990 is provided."
+  - "No exploit scenario or attacker-controlled network path is shown."
+  - "A superficially similar change is lower risk if an earlier mandatory gate already enforces the same property for every reachable path."
+notes:
+  - "Expected detector family should match the missing property and trust boundary, not rippled-specific names."
+  - "Positive only when the candidate has both a reachable entrypoint and the sensitive sink described by the source record."

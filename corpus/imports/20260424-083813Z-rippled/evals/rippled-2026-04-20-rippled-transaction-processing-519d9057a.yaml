@@ -1,0 +1,21 @@
+id: "rippled-2026-04-20-rippled-transaction-processing-519d9057a"
+source_record: "rippled-2026-04-20-rippled-transaction-processing-519d9057a.yaml"
+project: "rippled"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "invariant-enforcement"
+expected_missing_property: "input-and-state-invariant-validation"
+
+expected_impact_band: "hardening-or-limited-security-impact: ledger-integrity, permission-boundary-hardening"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "No concrete attacker-controlled transaction sequence is shown."
+  - "No demonstrated authorization bypass or missing permission check is shown."
+  - "A superficially similar change is lower risk if an earlier mandatory gate already enforces the same property for every reachable path."
+notes:
+  - "Expected detector family should match the missing property and trust boundary, not rippled-specific names."
+  - "Positive only when the candidate has both a reachable entrypoint and the sensitive sink described by the source record."

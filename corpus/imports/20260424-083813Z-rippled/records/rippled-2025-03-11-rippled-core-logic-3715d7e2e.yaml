@@ -1,0 +1,55 @@
+id: "rippled-2025-03-11-rippled-core-logic-3715d7e2e"
+source_finding: "2025-03-11-rippled-core-logic-3715d7e2e.md"
+project: "rippled"
+date: "2025-03-11"
+language_tags:
+  - "cpp"
+
+bug_family: "authz_and_role_gates"
+bug_class: "access-control"
+subsystem: "core-logic"
+architecture_tags:
+  - "ledger"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-fix"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "authorization"
+violated_invariant: "A protocol operation must be authorized for the exact account, delegate, asset, role, and feature state before it can reach a privileged ledger-state transition."
+trust_boundary: "protocol-controlled input -> core ledger/application invariant"
+entrypoint_type: "state-transition-or-core-validation-path"
+sensitive_sink: "ledger invariant, protocol state, or node safety decision"
+
+attacker_capabilities:
+  - "Submit or influence protocol data that reaches the affected validation or state-transition path."
+exploit_preconditions:
+  - "The affected path must be reachable before a stronger downstream check rejects the input."
+  - "The finding is a hardening case, so practical exploitability depends on surrounding configuration and reachable call paths."
+blast_radius: "Protocol-local correctness or hardening impact bounded by the reachable subsystem and surrounding checks."
+
+impact_types:
+  - "privilege-misuse"
+severity_guess: "low"
+severity_rationale: "Likely security-fix evidence supports privilege-misuse; assigned low because the sink is ledger invariant, protocol state, or node safety decision and the validation notes bound the claim to observed patch evidence."
+
+code_shape_summary: "The patch likely fixes access-control bugs in vault deposit and shared MPToken authorization logic. Reusable shape: check for authorization was incomplete, late, or split across paths; the fix makes the gate explicit before the sensitive state change."
+search_motifs:
+  - "state-transition-or-core-validation-path missing exact authorization check before ledger invariant, protocol state, or node safety decision"
+  - "security-sensitive path reaches ledger invariant, protocol state, or node safety decision before rejecting malformed, stale, or unauthorized input"
+  - "Replace exact flag comparisons with bitwise flag checks, make the shared authorization helper enforce the authorized-token bit consistently, and ensure required MPToken state is present on related deposit paths."
+negative_signals:
+  - "No advisory, issue discussion, or exploit report is provided."
+  - "Tests are mentioned but their assertions are not included in the supplied evidence."
+  - "A superficially similar change is lower risk if an earlier mandatory gate already enforces the same property for every reachable path."
+  - "Treat pure refactors, comment-only changes, or tests without a reachable untrusted entrypoint and sensitive sink as non-security."
+patch_pattern: "Replace exact flag comparisons with bitwise flag checks, make the shared authorization helper enforce the authorized-token bit consistently, and ensure required MPToken state is present on related deposit paths."
+
+source_refs:
+  - "/testing/rippled/validated-findings/kept/2025-03-11-rippled-core-logic-3715d7e2e.md"
+notes:
+  - "Enriched from the kept phase 4 finding and bounded to the validated evidence."
+  - "Do not generalize beyond the stated trust boundary, entrypoint, and sensitive sink without additional repo evidence."

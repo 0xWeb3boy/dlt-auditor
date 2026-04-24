@@ -1,0 +1,21 @@
+id: "rippled-2018-10-08-rippled-rpc-client-api-7fe1d4b9c"
+source_record: "rippled-2018-10-08-rippled-rpc-client-api-7fe1d4b9c.yaml"
+project: "rippled"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "validator-site-redirect-retry-hardening"
+expected_missing_property: "trust-root-and-freshness-validation"
+
+expected_impact_band: "hardening-or-limited-security-impact: availability-hardening, bounded-network-fetch"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "No evidence shows an exploitable redirect vulnerability before the patch."
+  - "No evidence shows attacker control over validator-site redirects in normal deployments."
+  - "A superficially similar change is lower risk if an earlier mandatory gate already enforces the same property for every reachable path."
+notes:
+  - "Expected detector family should match the missing property and trust boundary, not rippled-specific names."
+  - "Positive only when the candidate has both a reachable entrypoint and the sensitive sink described by the source record."

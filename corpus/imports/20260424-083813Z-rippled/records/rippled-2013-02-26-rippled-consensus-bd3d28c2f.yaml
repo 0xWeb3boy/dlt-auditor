@@ -1,0 +1,58 @@
+id: "rippled-2013-02-26-rippled-consensus-bd3d28c2f"
+source_finding: "2013-02-26-rippled-consensus-bd3d28c2f.md"
+project: "rippled"
+date: "2013-02-26"
+language_tags:
+  - "cpp"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-safety"
+subsystem: "consensus"
+architecture_tags:
+  - "ledger"
+  - "validator-based"
+  - "consensus"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-fix"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "consensus-safety-invariant"
+violated_invariant: "Consensus participants must only advance local safety or liveness state from messages that satisfy the current quorum, ordering, timing, and validator-role rules."
+trust_boundary: "peer/validator consensus data -> local consensus and ledger-close machinery"
+entrypoint_type: "consensus-message-or-ledger-close-path"
+sensitive_sink: "ledger close decision, validator set decision, or consensus safety state"
+
+attacker_capabilities:
+  - "Send or influence validator, proposal, validation, or ledger-close data that participates in consensus decisions."
+exploit_preconditions:
+  - "The affected path must be reachable before a stronger downstream check rejects the input."
+  - "The finding is a hardening case, so practical exploitability depends on surrounding configuration and reachable call paths."
+  - "The attacker-controlled data must be considered by a node or validator participating in the relevant consensus or trust workflow."
+blast_radius: "Potentially network-wide safety or trust impact for nodes that accept the affected state or trust decision."
+
+impact_types:
+  - "consensus-failure"
+severity_guess: "medium"
+severity_rationale: "Likely security-fix evidence supports consensus-failure; assigned medium because the sink is ledger close decision, validator set decision, or consensus safety state and the validation notes bound the claim to observed patch evidence."
+
+code_shape_summary: "The patch likely fixes a security-relevant consensus correctness bug: a race during consensus startup could let the node begin consensus with the wrong last closed ledger. Reusable shape: check for consensus-safety-invariant was incomplete, late, or split across paths; the fix makes the gate explicit before the sensitive state change."
+search_motifs:
+  - "consensus-message-or-ledger-close-path missing exact consensus-safety-invariant check before ledger close decision, validator set decision, or consensus safety state"
+  - "security-sensitive path reaches ledger close decision, validator set decision, or consensus safety state before rejecting malformed, stale, or unauthorized input"
+  - "Centralize timing-sensitive consensus startup behind a shared helper that rechecks network last-closed-ledger state immediately before starting consensus."
+negative_signals:
+  - "No proof that an untrusted peer can reliably trigger the race."
+  - "No tests, traces, or incident notes demonstrating practical exploitation."
+  - "A superficially similar change is lower risk if an earlier mandatory gate already enforces the same property for every reachable path."
+  - "Treat pure refactors, comment-only changes, or tests without a reachable untrusted entrypoint and sensitive sink as non-security."
+patch_pattern: "Centralize timing-sensitive consensus startup behind a shared helper that rechecks network last-closed-ledger state immediately before starting consensus."
+
+source_refs:
+  - "/testing/rippled/validated-findings/kept/2013-02-26-rippled-consensus-bd3d28c2f.md"
+notes:
+  - "Enriched from the kept phase 4 finding and bounded to the validated evidence."
+  - "Do not generalize beyond the stated trust boundary, entrypoint, and sensitive sink without additional repo evidence."

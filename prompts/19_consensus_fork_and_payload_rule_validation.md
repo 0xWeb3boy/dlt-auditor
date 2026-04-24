@@ -33,6 +33,9 @@ Search patterns:
 - Fork-aware hashing, signing, opcode decoding, and header sanity paths where the canonical object shape changes by fork. Check that every verifier, signer, replay path, and helper includes exactly the fields active for that fork and rejects fields forbidden before or after the fork.
 - Consensus validation that depends on an external chain or consensus client. Check that time-based or latest queries are first pinned to a deterministic height/hash/finality boundary, and that all validators would query the same snapshot for the same local block.
 - ABCI, consensus API, proposal-building, or proposal-processing paths that embed or consume validator vote extensions, side votes, committee votes, or aggregate approvals. Check that every path validates signer identity, signature, duplicate votes, voting power, quorum, height, round, proposer, and block/domain context before proposal acceptance or tallying.
+- proposal/validation consensus systems where agreement is over transaction sets, close times, trusted validator or committee validations, and prior-ledger identity rather than only block payloads. Check that proposal duplicate suppression, transaction-set ordering, wrong-ledger mode, and switch-ledger or catch-up mode bind proposal hash, prior state, sequence, signer, and active rules
+- amendment, fork, or feature activation votes where quorum or majority thresholds are computed by integer or rounded arithmetic. Test boundary values just below and above the policy threshold and ensure small validator sets cannot produce impossible or unsafe quorum requirements
+- consensus observability or misbehavior detectors that only watch trusted participants or only the happy path. Hardening should cover untrusted reports, laggards, censorship suspicion, invalid proposals, and desync or catch-up transitions without changing consensus rules
 
 Questions to answer:
 1. Which protocol rule is authoritative for this block, payload, fork, method version, chain variant, and timestamp or height?
@@ -41,6 +44,8 @@ Questions to answer:
 4. Do special-case or compatibility branches preserve core identity checks such as block hash, parent relation, state root, transaction root, receipt root, gas semantics, and fork-specific fields?
 5. Can invalid ancestry, unknown head, inconsistent safe/finalized state, or known-invalid payload state be downgraded into syncing, generic error, or success?
 6. If the protocol allows equal-strength competitors, is the tie-break deterministic and policy-correct, or is security-sensitive selection hidden inside randomness or a local heuristic?
+7. For proposal/validation consensus, are proposal identity, prior state, transaction-set identity, signer identity, sequence, round, and active rules bound together at every acceptance and duplicate-suppression point?
+8. Are quorum, threshold, and amendment or feature activation calculations safe at exact boundary fractions and small validator or committee sets?
 
 Severity guidance:
 - High if malformed consensus data can be accepted as canonical, finalized, valid, or execution-ready.

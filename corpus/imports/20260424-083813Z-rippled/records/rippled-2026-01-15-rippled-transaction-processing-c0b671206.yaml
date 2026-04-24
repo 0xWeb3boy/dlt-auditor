@@ -1,0 +1,58 @@
+id: "rippled-2026-01-15-rippled-transaction-processing-c0b671206"
+source_finding: "2026-01-15-rippled-transaction-processing-c0b671206.md"
+project: "rippled"
+date: "2026-01-15"
+language_tags:
+  - "cpp"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "rounding-accounting-yield-theft"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "ledger"
+  - "transaction-processing"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-fix"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "accounting-integrity"
+violated_invariant: "Ledger accounting updates must preserve balance, reserve, fee, and yield invariants across every accepted transaction shape and lifecycle transition."
+trust_boundary: "untrusted transaction -> deterministic ledger state transition"
+entrypoint_type: "transaction-handler"
+sensitive_sink: "ledger state, balance/reserve accounting, or transaction authorization outcome"
+
+attacker_capabilities:
+  - "Submit or influence protocol data that reaches the affected validation or state-transition path."
+exploit_preconditions:
+  - "The affected path must be reachable before a stronger downstream check rejects the input."
+  - "The finding is a hardening case, so practical exploitability depends on surrounding configuration and reachable call paths."
+  - "The transaction or delegated operation must pass basic syntactic checks and reach the vulnerable semantic gate."
+blast_radius: "Ledger-state impact scoped to affected accounts, assets, offers, reserves, or delegated permissions."
+
+impact_types:
+  - "economic-value-theft"
+  - "accounting-integrity"
+severity_guess: "medium"
+severity_rationale: "Likely security-fix evidence supports economic-value-theft, accounting-integrity; assigned medium because the sink is ledger state, balance/reserve accounting, or transaction authorization outcome and the validation notes bound the claim to observed patch evidence."
+
+code_shape_summary: "Likely security fix in rippled's lending LoanPay path. The strongest evidence is the commit message saying a new test covers \"Yield Theft via Rounding Manipulation\" and now verifies no yield theft occurs, together with changes around rounded vault payments, assets-... Reusable shape: check for accounting-integrity was incomplete, late, or split across paths; the fix makes the gate explicit before the sensitive state change."
+search_motifs:
+  - "transaction-handler missing exact accounting-integrity check before ledger state, balance/reserve accounting, or transaction authorization outcome"
+  - "security-sensitive path reaches ledger state, balance/reserve accounting, or transaction authorization outcome before rejecting malformed, stale, or unauthorized input"
+  - "Make post-rounding accounting state explicit, validate local vault-accounting invariants after rounding, handle zero-or-rounded-to-zero payment cases gracefully, and add regression coverage for the rounding-manipulation scenario."
+negative_signals:
+  - "Full regression test body is not provided."
+  - "Exact STAmount.h and LendingHelpers.cpp changes are not shown."
+  - "A superficially similar change is lower risk if an earlier mandatory gate already enforces the same property for every reachable path."
+  - "Treat pure refactors, comment-only changes, or tests without a reachable untrusted entrypoint and sensitive sink as non-security."
+patch_pattern: "Make post-rounding accounting state explicit, validate local vault-accounting invariants after rounding, handle zero-or-rounded-to-zero payment cases gracefully, and add regression coverage for the rounding-manipulation scenario."
+
+source_refs:
+  - "/testing/rippled/validated-findings/kept/2026-01-15-rippled-transaction-processing-c0b671206.md"
+notes:
+  - "Enriched from the kept phase 4 finding and bounded to the validated evidence."
+  - "Do not generalize beyond the stated trust boundary, entrypoint, and sensitive sink without additional repo evidence."

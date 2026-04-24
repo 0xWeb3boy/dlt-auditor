@@ -27,6 +27,9 @@ Search patterns:
 - test code that only exercises small values
 - consensus-significant numeric fields parsed as arbitrary precision, RLP integers, decimal strings, or big integers and then narrowed to fixed-width types before checking canonical representability
 - block numbers, timestamps, epochs, milestone numbers, fork heights, and confirmation offsets where adding, subtracting, or converting across signed and unsigned widths can turn invalid future, past, or impossible values into plausible local state
+- fixed-point, decimal, AMM, lending, vault, interest, yield, reserve, or fee calculations where rounding direction itself is a security invariant. Compare the exact mathematical target, rounded ledger amount, remainder handling, and stored aggregate field
+- numeric wrapper types that distinguish validity, canonicality, and representability under the active protocol rules. Valid-but-unrepresentable intermediate values must not reach persisted state fields
+- threshold arithmetic for validator quorums, amendment or fork activation, voting windows, signer-set policy, or trust-list policy. Test boundary values just below and above the required fraction, especially with small signer sets
 
 Questions to answer:
 1. Is the parameter attacker-controlled, governance-controlled, or state-derived?
@@ -35,6 +38,8 @@ Questions to answer:
 4. Should this constructor or state update be fallible?
 5. Are all call sites prepared to handle invalid parameters?
 6. Is the code checking representability and canonical encoding before narrowing or comparing, and do sanity checks enforce the same width as consensus verification?
+7. Is rounding direction specified by the protocol, and who receives or loses any remainder?
+8. Are threshold calculations achievable, monotonic, and safe at small set sizes and exact boundary fractions?
 
 Severity guidance:
 - Medium by default.

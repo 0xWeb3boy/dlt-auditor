@@ -1,0 +1,21 @@
+id: "rippled-2025-01-23-rippled-transaction-processing-5fbee8c82"
+source_record: "rippled-2025-01-23-rippled-transaction-processing-5fbee8c82.yaml"
+project: "rippled"
+
+expected_bug_family: "attestation_trust_and_freshness"
+expected_bug_class: "validator-list-trust-policy-hardening"
+expected_missing_property: "trust-root-and-freshness-validation"
+
+expected_impact_band: "hardening-or-limited-security-impact: validator-trust-policy, unl-membership-integrity, quorum-readiness-policy"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "No attacker path or exploit scenario is shown."
+  - "No evidence of signature, manifest, or authentication bypass is shown."
+  - "A superficially similar change is lower risk if an earlier mandatory gate already enforces the same property for every reachable path."
+notes:
+  - "Expected detector family should match the missing property and trust boundary, not rippled-specific names."
+  - "Positive only when the candidate has both a reachable entrypoint and the sensitive sink described by the source record."

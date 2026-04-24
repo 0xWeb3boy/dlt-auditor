@@ -46,6 +46,8 @@ Search patterns:
 - parent operations that spawn derived work where the parent is charged, finalized, or committed before the child work proves cleanly met the same accounting or filter rules
 - historical-range, log, trace, fee-history, proof, or witness APIs where the configured range limit is checked in one entrypoint but not in stored-filter replay, chain-specific variants, symbolic latest/pending/finalized selectors, or helper paths that construct the same expensive query
 - background verification, sync-maintenance, pruning, and repair loops that derive their work window from current head minus a checkpoint, milestone, or finalized boundary. Check that the trusted boundary is fresh, the window is capped before materializing work, and missing boundary data disables or defers the loop instead of scanning an unbounded range
+- transaction types that auto-create trust lines, holdings, directories, tickets, delegate objects, shares, receipts, or other state entries as a side effect. Check that reserve, owner-count, spam-cost, and quota accounting is enforced before the auto-created object reaches durable state
+- failed protocol handshakes, upgrades, peer sessions, or admission attempts where resource or session accounting is allocated before verification. Rejection paths must release or charge the same resource state as successful handoff paths
 
 Questions to answer:
 1. What resource is the protocol trying to meter: gas, fees, bytes, weight, queue slots, proving budget, bridge capacity, committee size, or sender concurrency?
@@ -57,6 +59,8 @@ Questions to answer:
 7. Can a peer or caller keep the system busy without making forward progress or consuming the same reservation accounting as successful work?
 8. If work crosses a subsystem boundary, which layer is authoritative for charging the consumed budget, and does that layer learn the post-execution remaining budget instead of assuming the callee charged it correctly?
 9. If the code retries after a fault, what prevents repeated resource growth or repeated expensive recovery for the same failing invocation?
+10. Can one user action create derived state entries or sessions that consume reserve, ownership slots, queue capacity, or cleanup work not charged to the actor?
+11. Do failed handshake or admission paths release exactly the same reservations, sessions, and per-peer counters that success paths transfer to the next owner?
 
 Severity guidance:
 - Medium by default for DoS, fee bypass, and resource exhaustion.

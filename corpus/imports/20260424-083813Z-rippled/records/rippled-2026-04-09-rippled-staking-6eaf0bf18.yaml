@@ -1,0 +1,57 @@
+id: "rippled-2026-04-09-rippled-staking-6eaf0bf18"
+source_finding: "2026-04-09-rippled-staking-6eaf0bf18.md"
+project: "rippled"
+date: "2026-04-09"
+language_tags:
+  - "cpp"
+
+bug_family: "authz_and_role_gates"
+bug_class: "authorization-lifecycle-cleanup"
+subsystem: "staking"
+architecture_tags:
+  - "ledger"
+  - "staking"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "authorization"
+violated_invariant: "A protocol operation must be authorized for the exact account, delegate, asset, role, and feature state before it can reach a privileged ledger-state transition."
+trust_boundary: "externally submitted action -> account, delegate, or role authorization gate"
+entrypoint_type: "authorization-check-path"
+sensitive_sink: "privileged account action, delegated permission, or role-scoped state change"
+
+attacker_capabilities:
+  - "Submit a transaction or delegated action that exercises a permission boundary with attacker-chosen fields."
+exploit_preconditions:
+  - "The affected path must be reachable before a stronger downstream check rejects the input."
+  - "The finding is a hardening case, so practical exploitability depends on surrounding configuration and reachable call paths."
+blast_radius: "Protocol-local correctness or hardening impact bounded by the reachable subsystem and surrounding checks."
+
+impact_types:
+  - "stale-authorization-state"
+  - "incomplete-account-cleanup"
+severity_guess: "medium"
+severity_rationale: "Likely security-hardening evidence supports stale-authorization-state, incomplete-account-cleanup; assigned medium because the sink is privileged account action, delegated permission, or role-scoped state change and the validation notes bound the claim to observed patch evidence."
+
+code_shape_summary: "The patch adds bidirectional owner-directory tracking for Delegate ledger entries. Creation now inserts the Delegate object into the authorized account's owner directory and stores the page in optional sfDestinationNode; deletion now removes the object from that authorized... Reusable shape: check for authorization was incomplete, late, or split across paths; the fix makes the gate explicit before the sensitive state change."
+search_motifs:
+  - "authorization-check-path missing exact authorization check before privileged account action, delegated permission, or role-scoped state change"
+  - "security-sensitive path reaches privileged account action, delegated permission, or role-scoped state change before rejecting malformed, stale, or unauthorized input"
+  - "Maintain directory indexes for both accounts involved in a two-account ledger relationship, and persist the secondary directory page so deletion can remove the object from every directory where it was inserted."
+negative_signals:
+  - "No AccountDelete.cpp hunk is provided to show the exact cleanup path using the new index."
+  - "No test hunk or output demonstrates an exploitable stale Delegate scenario."
+  - "A superficially similar change is lower risk if an earlier mandatory gate already enforces the same property for every reachable path."
+  - "Treat pure refactors, comment-only changes, or tests without a reachable untrusted entrypoint and sensitive sink as non-security."
+patch_pattern: "Maintain directory indexes for both accounts involved in a two-account ledger relationship, and persist the secondary directory page so deletion can remove the object from every directory where it was inserted."
+
+source_refs:
+  - "/testing/rippled/validated-findings/kept/2026-04-09-rippled-staking-6eaf0bf18.md"
+notes:
+  - "Enriched from the kept phase 4 finding and bounded to the validated evidence."
+  - "Do not generalize beyond the stated trust boundary, entrypoint, and sensitive sink without additional repo evidence."

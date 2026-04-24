@@ -1,0 +1,21 @@
+id: "rippled-2026-01-15-rippled-transaction-processing-c0b671206"
+source_record: "rippled-2026-01-15-rippled-transaction-processing-c0b671206.yaml"
+project: "rippled"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "rounding-accounting-yield-theft"
+expected_missing_property: "accounting-integrity"
+
+expected_impact_band: "hardening-or-limited-security-impact: economic-value-theft, accounting-integrity"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Full regression test body is not provided."
+  - "Exact STAmount.h and LendingHelpers.cpp changes are not shown."
+  - "A superficially similar change is lower risk if an earlier mandatory gate already enforces the same property for every reachable path."
+notes:
+  - "Expected detector family should match the missing property and trust boundary, not rippled-specific names."
+  - "Positive only when the candidate has both a reachable entrypoint and the sensitive sink described by the source record."

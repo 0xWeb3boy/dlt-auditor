@@ -50,6 +50,10 @@ Search patterns:
 - equivalent execution paths, such as serial, parallel, stateless, replay, simulation, or recovery processors, where one path validates receipt counts, generated system work, unsupported fields, or post-execution invariants and another path only trusts helper output
 - range, checkpoint, epoch, batch, span, or proof-window objects where the code rejects old or overlapping starts but does not require the next start to be the exact successor of the stored end when the protocol expects contiguous progression
 - create, join, register, or bind operations that infer uniqueness from getter failures instead of using an explicit canonical key-existence check before writing identity, signer, operator, validator, or committee state
+- transaction type or state-entry helpers represented with generic arrays, enums, optional fields, or builder APIs where present, absent, empty, or multi-entry fields have different protocol meaning. Require exact cardinality and type-specific field compatibility before state transition
+- protocol object IDs that can be burned, deleted, recreated, or recomputed from account, sequence, issuer, asset, domain, or fork-scoped fields. Check uniqueness against canonical identity and lifecycle state, not just current object existence
+- invariant scanners that visit many affected state entries but store only the last result, reset earlier detections, or treat absence or empty lists as success when the protocol requires explicit evidence
+- feature, amendment, or fork gates where a field is syntactically valid both before and after activation but has different semantic constraints after activation
 
 Questions to answer:
 1. What structural invariants does the protocol require?
@@ -60,6 +64,8 @@ Questions to answer:
 6. Is the code validating the real artifact, or only a proxy for it?
 7. Does every consumer assert exact consumption and exact structural bounds, or can extra or mismatched data survive validation?
 8. If the same protocol fact appears in more than one field or layer, does the code canonicalize them and enforce equality before continuing?
+9. If an invariant checker visits multiple entries, does any violation latch until finalization, or can later clean entries overwrite earlier failures?
+10. Does the protocol object's canonical identity include lifecycle, issuer, owner, sequence, feature, or domain fields that are not checked at creation or recreation?
 
 Severity guidance:
 - High if bad validation can corrupt privileged committee, validator, bridge, prover, or secret-management behavior.

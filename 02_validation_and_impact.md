@@ -54,6 +54,11 @@ For the candidate under review:
    - attestation quorum/context binding
    - exact range-continuity enforcement
    - explicit registry key-existence validation
+   - ledger accounting invariant coverage
+   - reserve and owner-count enforcement
+   - amendment, fork, or feature-scoped authorization
+   - validator-list or trust-list threshold achievability
+   - generated-side-effect authorization
 4. Search for compensating controls elsewhere in the codebase.
 5. Decide whether the issue is:
    - confirmed
@@ -73,6 +78,9 @@ Then assess impact:
 9. If the issue involves finalization or generated system work, distinguish unsupported-field rejection, generated-work mismatch, receipt/accounting mismatch, and state-root divergence.
 10. If the issue involves validator votes, vote extensions, side votes, or committee attestations, distinguish syntactic validity, signature validity, validator-set membership, voting-power quorum, freshness, and domain separation. Do not treat one property as proof of the others.
 11. If the issue involves ranges such as checkpoints, epochs, spans, batches, or proof windows, distinguish overlap prevention, exact continuity, gap tolerance by design, and downstream enforcement by another verifier or contract.
+12. If the issue involves ledger accounting, distinguish nominal amount, charged fee, delivered amount, reserve or owner-count changes, generated objects, aggregate obligations, and invariant-detector coverage. Do not call it theft unless the state transition demonstrably lets value, debt, reserve burden, or obligations move incorrectly.
+13. If the issue involves amendments, forks, or feature gates, decide whether the bug is pre-activation acceptance, post-activation missing enforcement, or cross-version compatibility hardening.
+14. If the issue involves delegated permissions, identify the exact transaction sub-shape, asset, issuer, destination, receiver policy, and generated side effects covered by the grant.
 
 Assign severity using this baseline:
 - Critical: direct consensus break, forged finalized state acceptance, bridge or settlement compromise, unauthorized mint or burn, or broad secret compromise.
