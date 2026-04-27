@@ -4,12 +4,53 @@ This is the short operator guide for using the audit system.
 
 ## Single-Agent Workflow
 
+### Max Audit Command
+
+To set up the full workflow and the autonomous driver prompt for a target repo, run:
+
+```bash
+dlt-ai-audit-system/bin/dlt-ai-audit-system /path/to/blockchain-repo
+```
+
+From this Sherlock workspace, for example:
+
+```bash
+dlt-ai-audit-system/bin/dlt-ai-audit-system .
+```
+
+When there is an intended upgrade or contest diff, provide refs:
+
+```bash
+dlt-ai-audit-system/bin/dlt-ai-audit-system . --previous-ref <old-ref> --current-ref HEAD
+```
+
+The command creates a timestamped folder under `dlt-ai-audit-system/runs/` with:
+
+- `agent-prompts/00-RUN-AUTONOMOUS-MAX-AUDIT.md`
+- `repo-context.md`
+- `feature-coverage.md`
+- `verification-log.md`
+- one `family-scan-*.md` file for every prompt family
+- `candidate-index.md`
+- `rejected-candidates.md`
+- `FINAL_AUDIT_REPORT.md`
+- manual fallback prompts under `agent-prompts/`
+- `MAX_AUDIT_CHECKLIST.md`
+
+For a one-pass AI audit, give your agent `agent-prompts/00-RUN-AUTONOMOUS-MAX-AUDIT.md`. That prompt instructs the agent to map the repository, establish the diff baseline, fill feature coverage, run every family scan, validate plausible Medium-or-higher candidates, deduplicate findings, log rejected ideas, record build/test attempts or blockers, run final coverage, and fill the final report. A PoC is not required by the generated workflow.
+
+For manual operation, start with `agent-prompts/00-protocol-mapper.md`, then run every family prompt, validate candidates, and finish with `agent-prompts/99-final-coverage-pass.md`.
+
+Old example reports should live in `previous-runs/` and should not be mixed into a fresh run unless you intentionally want calibration examples.
+
+### Manual Workflow
+
 1. Create a run folder under [runs](/testing/dlt-ai-audit-system/runs).
    Example: `dlt-ai-audit-system/runs/2026-04-22-example-chain/`
 
 2. Copy [repo-context-template.md](/testing/dlt-ai-audit-system/templates/repo-context-template.md) to `repo-context.md`.
 
-3. Run [00_protocol_mapper.md](/testing/dlt-ai-audit-system/00_protocol_mapper.md) and have the agent fill `repo-context.md`.
+3. Run [00_protocol_mapper.md](/testing/dlt-ai-audit-system/00_protocol_mapper.md) and have the agent fill `repo-context.md`, `feature-coverage.md`, and `verification-log.md`.
 
 4. Pick one prompt family from [prompts](/testing/dlt-ai-audit-system/prompts).
 

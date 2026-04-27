@@ -31,6 +31,43 @@ Different systems implement these differently, but most serious bugs fit somewhe
 
 ## Recommended Sequence
 
+### One-Command Max Setup
+
+For the deepest repeatable workflow, scaffold every audit artifact and an autonomous max-audit driver prompt:
+
+```bash
+dlt-ai-audit-system/bin/dlt-ai-audit-system /path/to/blockchain-repo
+```
+
+From a workspace that contains this tool, this is usually:
+
+```bash
+dlt-ai-audit-system/bin/dlt-ai-audit-system .
+```
+
+For a diff-aware audit, pass the previous and current refs when you know them:
+
+```bash
+dlt-ai-audit-system/bin/dlt-ai-audit-system . --previous-ref <old-ref> --current-ref HEAD
+```
+
+The command creates `runs/<timestamp>-<target>-max-audit/` with:
+
+- `agent-prompts/00-RUN-AUTONOMOUS-MAX-AUDIT.md`, the one-shot prompt to give an AI auditor so it runs the full pipeline automatically,
+- a repo-context file,
+- `feature-coverage.md` for per-feature coverage accounting,
+- `verification-log.md` for build/test entry points, attempts, and blockers,
+- one family scan file for every prompt family,
+- validation and final-coverage prompts for manual fallback,
+- `candidate-index.md`,
+- `rejected-candidates.md`,
+- `FINAL_AUDIT_REPORT.md`,
+- and `MAX_AUDIT_CHECKLIST.md`.
+
+Start with `agent-prompts/00-RUN-AUTONOMOUS-MAX-AUDIT.md` when you want one AI agent to map the repo, establish the diff baseline, fill feature coverage, run every family scan, validate candidates, deduplicate results, log rejected ideas, record build/test attempts or blockers, perform a final coverage pass, and produce the final report. The command does not treat old run reports as live input; keep those under `previous-runs/` and use them only as examples when you intentionally want calibration. A PoC is not required by the generated workflow.
+
+### Manual Sequence
+
 1. Create a run folder, for example `runs/<date>-<target>/`.
    Purpose: keep all intermediate artifacts for one audit together.
 
@@ -80,6 +117,12 @@ For better audit quality, especially on large repos or multi-agent runs, keep a 
 - `family-scan-<family>.md`
   Purpose: one file per bug family with candidate code paths, suspicious asymmetries, and ranked hypotheses.
 
+- `feature-coverage.md`
+  Purpose: per-feature coverage accounting across changed files, reviewed functions, tests searched, candidates, rejected ideas, and residual risk.
+
+- `verification-log.md`
+  Purpose: build/test entry points, commands attempted, test references reviewed, and blockers.
+
 - `candidate-<id>.md`
   Purpose: one deep validation dossier per candidate issue.
 
@@ -94,11 +137,17 @@ dlt-ai-audit-system/
   runs/
     2026-04-22-target-name/
       repo-context.md
+      feature-coverage.md
+      verification-log.md
       family-scan-authz.md
       family-scan-signatures.md
       family-scan-state-machine.md
+      candidate-index.md
+      rejected-candidates.md
       candidate-01.md
       candidate-02.md
+      final-coverage-report.md
+      FINAL_AUDIT_REPORT.md
 ```
 
 You do not need every file for every run. The important thing is that all agents in the same audit read from the same `repo-context.md` and write short, structured outputs.

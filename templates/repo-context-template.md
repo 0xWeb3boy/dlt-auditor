@@ -7,6 +7,16 @@
 - Audit date:
 - Agent or operator:
 
+## Scope And Diff Baseline
+
+- Declared audit scope:
+- Previous ref:
+- Current ref:
+- Diff status:
+- Diff commands or discovery steps:
+- Changed or newly reachable high-risk files:
+- Scope blockers:
+
 ## System Summary
 
 - One-paragraph summary of what the system does:
@@ -53,6 +63,34 @@
 - File:
   Function or type:
   Why high risk:
+
+## Feature Coverage Seeds
+
+- Feature or surface:
+  Files/functions:
+  Tests:
+  Equivalent paths to compare:
+  Initial risk:
+- Feature or surface:
+  Files/functions:
+  Tests:
+  Equivalent paths to compare:
+  Initial risk:
+
+## Build And Test Entry Points
+
+- Build command or entry point:
+  How found:
+  Relevance:
+- Test command or entry point:
+  How found:
+  Relevance:
+
+## Coverage Status
+
+- Surfaces fully mapped:
+- Surfaces partially mapped:
+- Surfaces blocked or not yet mapped:
 
 ## Open Questions
 

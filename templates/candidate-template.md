@@ -17,6 +17,11 @@
 
 - Missing property:
 
+## Upgrade Or Change Linkage
+
+- Changed file, amendment, migration, compatibility path, or newly reachable behavior:
+- Linkage confidence:
+
 ## Entry Point
 
 - Entry point:
@@ -30,6 +35,22 @@
 - Untrusted input source:
 - Key intermediate functions:
 - Final sink:
+
+## Line-Level Evidence
+
+- File:
+  Lines or function:
+  Evidence:
+- File:
+  Lines or function:
+  Evidence:
+
+## Reachability
+
+- Required feature or amendment state:
+- Required transaction, RPC, peer message, admin action, or recovery path:
+- Attacker-controlled fields:
+- Preconditions:
 
 ## Existing Checks
 
@@ -66,6 +87,13 @@
 ## What Would Strengthen Confidence
 
 - Test, proof, or reproduction idea:
+
+## Verification Notes
+
+- Existing tests reviewed:
+- Build/test command attempted:
+- Result or blocker:
+- PoC status: not required for this run
 
 ## Final Notes
 
