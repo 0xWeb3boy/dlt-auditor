@@ -1,0 +1,17 @@
+id: "firedancer-2025-12-01-firedancer-core-logic-d94e26080"
+source_record: "firedancer-2025-12-01-firedancer-core-logic-d94e26080.yaml"
+project: "firedancer"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "malformed-input-bounds-hardening"
+expected_missing_property: "nested-block-length-validation"
+
+expected_impact_band: "low"
+expected_severity_band: "low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: ["No concrete exploit path is shown.", "No proof of attacker-controlled production reachability is supplied."]
+notes:
+  - "Enriched against the validated kept corpus entry and its raw finding narrative."

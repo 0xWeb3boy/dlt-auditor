@@ -1,0 +1,17 @@
+id: "firedancer-2026-04-14-firedancer-staking-22a2fea5d"
+source_record: "firedancer-2026-04-14-firedancer-staking-22a2fea5d.yaml"
+project: "firedancer"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "missing-owner-check"
+expected_missing_property: "owner-program-validation"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: ["No evidence shows that an attacker can create or route a non-vote-owned account into these paths.", "No regression test or exploit scenario is supplied demonstrating the bad pre-patch behavior."]
+notes:
+  - "Enriched against the validated kept corpus entry and its raw finding narrative."

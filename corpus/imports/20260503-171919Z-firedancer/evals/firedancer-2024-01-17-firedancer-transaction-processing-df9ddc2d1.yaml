@@ -1,0 +1,17 @@
+id: "firedancer-2024-01-17-firedancer-transaction-processing-df9ddc2d1"
+source_record: "firedancer-2024-01-17-firedancer-transaction-processing-df9ddc2d1.yaml"
+project: "firedancer"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "signing-isolation-hardening"
+expected_missing_property: "role-scoped-signing-authorization"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: ["No evidence that the previous shred signing path accepted attacker-controlled signing requests.", "No evidence of arbitrary payload signing before the patch."]
+notes:
+  - "Enriched against the validated kept corpus entry and its raw finding narrative."

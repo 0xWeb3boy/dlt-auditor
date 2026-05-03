@@ -1,0 +1,38 @@
+id: "firedancer-2026-03-04-firedancer-staking-5036dd7fc"
+source_finding: "2026-03-04-firedancer-staking-5036dd7fc.md"
+project: "firedancer"
+date: "2026-03-04"
+language_tags: ["c"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "bounds-check-hardening"
+subsystem: "staking"
+architecture_tags: ["stake-accounting"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "stake-index-capacity-validation"
+violated_invariant: "Consensus-sensitive reward arrays must validate delegation indexes against capacity before indexing fixed result buffers."
+trust_boundary: "Stake-delegation metadata crossing into reward distribution arrays."
+entrypoint_type: "reward-calculation path"
+sensitive_sink: "stake result array indexing"
+
+attacker_capabilities: ["Feed malformed ledger, transaction, or state inputs into a consensus-sensitive bookkeeping path.", "Trigger edge cases where counters, ownership, or replay state drift from the concrete source of truth."]
+exploit_preconditions: ["The affected logic runs on consensus-critical or validator-critical state transitions.", "The implementation derives counters, owners, or replay state from intermediate data without reconciling it to the concrete state."]
+blast_radius: "Out-of-capacity delegations can trigger crashes or reward-calculation corruption in a validator."
+
+impact_types: ["memory-safety"]
+severity_guess: "medium"
+severity_rationale: "The evidence supports a real security-relevant failure mode, but the corpus stops short of proving universal compromise or direct asset loss; the practical risk is best captured as medium severity for memory-safety."
+
+code_shape_summary: "Reward code indexed a fixed result array directly from delegation metadata even when capacity-derived indexes could exceed the expected range."
+search_motifs: ["idx compared against expected stake-account capacity", "fallback local result buffer used for overflow case", "fixed reward array indexed from external delegation metadata"]
+negative_signals: ["No supplied evidence proves an externally triggerable exploit path.", "No supplied evidence proves actual memory corruption, crash, or consensus divergence occurred pre-patch.", "The commit subject and body describe decoupling work rather than an explicit vulnerability fix."]
+patch_pattern: "Check the delegation index against capacity first, then use a safe fallback path instead of indexing the fixed array directly."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/20260503-171919Z-firedancer/raw-findings/2026-03-04-firedancer-staking-5036dd7fc.md", "git:5036dd7fcddde0acd1f415aa88bb6baacd65144f"]
+notes:
+  - "Enriched from the validated raw finding, source evidence, and corpus import metadata."

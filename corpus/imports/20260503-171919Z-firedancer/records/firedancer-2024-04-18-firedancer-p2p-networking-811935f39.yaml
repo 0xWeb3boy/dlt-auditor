@@ -1,0 +1,38 @@
+id: "firedancer-2024-04-18-firedancer-p2p-networking-811935f39"
+source_finding: "2024-04-18-firedancer-p2p-networking-811935f39.md"
+project: "firedancer"
+date: "2024-04-18"
+language_tags: ["c"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "null-dereference"
+subsystem: "p2p-networking"
+architecture_tags: ["network-ingress"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-fix"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "state-presence-validation"
+violated_invariant: "Protocol handlers must fail closed when required connection state is absent before dereferencing peer or connection pointers."
+trust_boundary: "Unauthenticated network Retry packets crossing into the QUIC state machine."
+entrypoint_type: "network handshake packet handler"
+sensitive_sink: "connection-state dereference in Retry handling"
+
+attacker_capabilities: ["Supply malformed bytes, headers, lengths, or offsets that reach the affected parser or decode path.", "Control the field values that are interpreted before the implementation proves they fit the backing buffer."]
+exploit_preconditions: ["The target must parse attacker-influenced bytes on the affected path.", "Derived lengths, counts, or pointers are used before the implementation proves they are within bounds."]
+blast_radius: "A malformed or out-of-context Retry packet can crash the networking path and reduce availability."
+
+impact_types: ["availability", "denial-of-service"]
+severity_guess: "medium"
+severity_rationale: "The evidence supports a real security-relevant failure mode, but the corpus stops short of proving universal compromise or direct asset loss; the practical risk is best captured as medium severity for availability, denial-of-service."
+
+code_shape_summary: "The Retry handler continued into a peer/connection dereference even when the surrounding connection object was missing."
+search_motifs: ["handler uses conn->... after nullable lookup", "protocol path lacks early return when state object missing", "network parser reaches state dereference before state existence gate"]
+negative_signals: ["No proof of arbitrary code execution or memory corruption beyond a likely null dereference.", "No exploit trace or test case is provided showing a remotely delivered packet causing the crash.", "No confidentiality, integrity, authentication, or cryptographic bypass impact is shown."]
+patch_pattern: "Insert an early null-state check and return a fail-closed parse error before any state-dependent access."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/20260503-171919Z-firedancer/raw-findings/2024-04-18-firedancer-p2p-networking-811935f39.md", "git:811935f39eeb4c9e70d837af18321f64d09bc31e"]
+notes:
+  - "Enriched from the validated raw finding, source evidence, and corpus import metadata."

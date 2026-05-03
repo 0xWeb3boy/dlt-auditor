@@ -1,0 +1,38 @@
+id: "firedancer-2025-12-01-firedancer-core-logic-d94e26080"
+source_finding: "2025-12-01-firedancer-core-logic-d94e26080.md"
+project: "firedancer"
+date: "2025-12-01"
+language_tags: ["c"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "malformed-input-bounds-hardening"
+subsystem: "core-logic"
+architecture_tags: ["parser-core"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "nested-block-length-validation"
+violated_invariant: "Nested capture blocks and option records must prove their declared lengths fit the buffered input before advancing parse offsets."
+trust_boundary: "Malformed capture or tooling input crossing into a block-based parser."
+entrypoint_type: "block/option parser"
+sensitive_sink: "block length advancement and option iteration"
+
+attacker_capabilities: ["Supply malformed bytes, headers, lengths, or offsets that reach the affected parser or decode path.", "Control the field values that are interpreted before the implementation proves they fit the backing buffer."]
+exploit_preconditions: ["The target must parse attacker-influenced bytes on the affected path.", "Derived lengths, counts, or pointers are used before the implementation proves they are within bounds."]
+blast_radius: "Malformed files can cause parse failure, out-of-bounds behavior, or unstable tooling execution."
+
+impact_types: ["memory-safety-hardening", "parser-robustness"]
+severity_guess: "low"
+severity_rationale: "This bundle entry is mostly hardening or edge-case correctness around memory-safety-hardening, parser-robustness, so similar cases are usually low severity unless paired with a second bug."
+
+code_shape_summary: "A block-oriented parser trusted nested record lengths just enough to advance internal offsets before all backing-buffer checks were complete."
+search_motifs: ["block length compared to buffered size before advancing", "option parser adds bounds check before loop", "simple packet block parsing tightened around minimum length"]
+negative_signals: ["No concrete exploit path is shown.", "No proof of attacker-controlled production reachability is supplied.", "No demonstrated pre-patch out-of-bounds read, write, crash, or consensus impact is provided."]
+patch_pattern: "Validate block and option lengths at each nesting level and refuse to advance offsets when any sub-record exceeds the buffered input."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/20260503-171919Z-firedancer/raw-findings/2025-12-01-firedancer-core-logic-d94e26080.md", "git:d94e260806e70dd23265dfd0e62843a077e9df8e"]
+notes:
+  - "Enriched from the validated raw finding, source evidence, and corpus import metadata."

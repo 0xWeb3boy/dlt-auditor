@@ -1,0 +1,38 @@
+id: "firedancer-2026-03-31-firedancer-transaction-processing-b74ff1c82"
+source_finding: "2026-03-31-firedancer-transaction-processing-b74ff1c82.md"
+project: "firedancer"
+date: "2026-03-31"
+language_tags: ["c"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "resource-capacity-invariant-violation"
+subsystem: "transaction-processing"
+architecture_tags: ["runtime-execution"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "buffer-capacity-versus-frame-size-validation"
+violated_invariant: "A framed receive state machine must reject headers whose declared frame size can never fit within the configured receive buffer."
+trust_boundary: "Peer-controlled HTTP/2 frame headers crossing into the local receive buffer state machine."
+entrypoint_type: "framed network receive state machine"
+sensitive_sink: "frame assembly progress and receive buffer capacity accounting"
+
+attacker_capabilities: ["Send malformed frame headers whose declared size exceeds the configured receive buffer.", "Drive the receiver into edge cases where progress depends on an impossible buffer/frame-size relationship."]
+exploit_preconditions: ["The implementation accepts peer-controlled frame sizes before reconciling them with buffer capacity.", "The receive loop waits for more progress instead of failing immediately when the configured capacity is insufficient."]
+blast_radius: "The local node can deadlock or hang an HTTP/2 receive path even without direct memory corruption."
+
+impact_types: ["availability-hardening", "correctness-or-hardening"]
+severity_guess: "low"
+severity_rationale: "This entry is mostly hardening or edge-case correctness around availability-hardening, correctness-or-hardening, so similar cases are usually low severity unless paired with a second bug."
+
+code_shape_summary: "The receive state machine assumed the configured buffer was always large enough for any accepted non-DATA frame, so an impossible header-plus-payload size relationship could stall progress indefinitely."
+search_motifs: ["non-DATA frame size compared against receive buffer capacity", "state machine waits forever on a header plus payload that can never fit", "frame parser adds an impossible-capacity fail-fast check"]
+negative_signals: ["No evidence that current production deployments were vulnerable; commit says production buffers are currently sized properly.", "No proof of remote exploitability unless a deployment can accept frames larger than its rx buffer capacity.", "No evidence of memory corruption, privilege escalation, consensus failure, or transaction-state divergence."]
+patch_pattern: "Validate declared frame size against configured receive capacity up front and fail closed instead of waiting on impossible progress."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/20260503-171919Z-firedancer/raw-findings/2026-03-31-firedancer-transaction-processing-b74ff1c82.md", "git:b74ff1c8216773c14d94449ed80b72eead88caba"]
+notes:
+  - "Enriched from the validated raw finding, source evidence, and corpus import metadata."

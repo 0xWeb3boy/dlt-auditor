@@ -1,0 +1,38 @@
+id: "firedancer-2023-09-29-firedancer-access-control-7cbb71919"
+source_finding: "2023-09-29-firedancer-access-control-7cbb71919.md"
+project: "firedancer"
+date: "2023-09-29"
+language_tags: ["c"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "parser-bounds-hardening"
+subsystem: "access-control"
+architecture_tags: ["key-management"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "buffer-length-threading"
+violated_invariant: "A packet parser must thread the actual backing-buffer length through every decode step and derive payload spans from validated parsed size fields."
+trust_boundary: "Untrusted shred bytes crossing into the validator packet parser."
+entrypoint_type: "network packet parser"
+sensitive_sink: "payload-size derivation and buffer-backed structure parsing"
+
+attacker_capabilities: ["Supply malformed bytes, headers, lengths, or offsets that reach the affected parser or decode path.", "Control the field values that are interpreted before the implementation proves they fit the backing buffer."]
+exploit_preconditions: ["The target must parse attacker-influenced bytes on the affected path.", "Derived lengths, counts, or pointers are used before the implementation proves they are within bounds."]
+blast_radius: "Malformed shred input can desynchronize size accounting and create downstream parsing or availability failures."
+
+impact_types: ["input-validation-hardening"]
+severity_guess: "medium"
+severity_rationale: "The evidence supports a real security-relevant failure mode, but the corpus stops short of proving universal compromise or direct asset loss; the practical risk is best captured as medium severity for input-validation-hardening."
+
+code_shape_summary: "The parser relied on protocol-derived size information without consistently threading the actual buffer length through shred decoding and payload accounting."
+search_motifs: ["parser API that omits actual buffer length", "payload size derived from parsed struct instead of validated input span", "minimum-size checks that do not match real packet layout"]
+negative_signals: ["No concrete vulnerable caller path is shown for short or malformed buffers.", "No before-version implementation is provided showing an actual out-of-bounds read or write.", "No crash, exploit, consensus divergence, or denial-of-service trigger is demonstrated."]
+patch_pattern: "Pass the true input length into the parser, distinguish actual from maximum packet sizes, and derive payload slices only after successful decode."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/20260503-171919Z-firedancer/raw-findings/2023-09-29-firedancer-access-control-7cbb71919.md", "git:7cbb71919ec9b8045c247957280e5b15d1e0cb85"]
+notes:
+  - "Enriched from the validated raw finding, source evidence, and corpus import metadata."

@@ -1,0 +1,17 @@
+id: "firedancer-2024-05-28-firedancer-cryptography-32b9530a2"
+source_record: "firedancer-2024-05-28-firedancer-cryptography-32b9530a2.yaml"
+project: "firedancer"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "retry-token-forgery"
+expected_missing_property: "server-secret-token-authentication"
+
+expected_impact_band: "high"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: ["No full exploit trace or proof-of-concept is provided.", "No evidence shows which deployments or configurations enabled Retry tokens."]
+notes:
+  - "Enriched against the validated kept corpus entry and its raw finding narrative."

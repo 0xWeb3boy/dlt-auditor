@@ -1,0 +1,38 @@
+id: "firedancer-2025-09-19-firedancer-transaction-processing-3d4cbe567"
+source_finding: "2025-09-19-firedancer-transaction-processing-3d4cbe567.md"
+project: "firedancer"
+date: "2025-09-19"
+language_tags: ["c"]
+
+bug_family: "checked_arithmetic_and_parameter_bounds"
+bug_class: "stack-buffer-overflow"
+subsystem: "transaction-processing"
+architecture_tags: ["runtime-execution"]
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "parser-output-buffer-sizing"
+violated_invariant: "Callers must allocate parser output buffers to the parser’s maximum contract size, not the apparent size of one parsed view type."
+trust_boundary: "Transaction bytes crossing into a parser that writes structured output."
+entrypoint_type: "transaction parser call site"
+sensitive_sink: "stack-local parser output buffer"
+
+attacker_capabilities: ["Supply malformed bytes, headers, lengths, or offsets that reach the affected parser or decode path.", "Control the field values that are interpreted before the implementation proves they fit the backing buffer."]
+exploit_preconditions: ["The target must parse attacker-influenced bytes on the affected path.", "Derived lengths, counts, or pointers are used before the implementation proves they are within bounds."]
+blast_radius: "An undersized output buffer can trigger stack corruption when attacker-controlled inputs exercise the full parser contract."
+
+impact_types: ["memory-corruption"]
+severity_guess: "high"
+severity_rationale: "The affected path reaches a memory write, authenticity check, or privilege gate on attacker-shaped input, so similar cases usually deserve high severity when reachable; the corpus evidence points to memory-corruption."
+
+code_shape_summary: "The call site handed a parser a stack-local object rather than a maximum-sized output buffer, even though the parser contract could write more bytes."
+search_motifs: ["FD_TXN_MAX_SZ or max parser output size introduced at call site", "parser writes into typed object replaced with byte array", "caller allocates header struct where parser expects flexible output buffer"]
+negative_signals: ["No fd_txn_parse contract or documentation is provided to prove the exact required output size.", "No malformed transaction proof of concept is provided.", "No evidence shows attacker control over these exact inputs."]
+patch_pattern: "Allocate a correctly aligned maximum-size buffer at the call site and parse into that buffer instead of a too-small typed object."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/20260503-171919Z-firedancer/raw-findings/2025-09-19-firedancer-transaction-processing-3d4cbe567.md", "git:3d4cbe567f064724f30afa70f3a07e7e7c36da99"]
+notes:
+  - "Enriched from the validated raw finding, source evidence, and corpus import metadata."

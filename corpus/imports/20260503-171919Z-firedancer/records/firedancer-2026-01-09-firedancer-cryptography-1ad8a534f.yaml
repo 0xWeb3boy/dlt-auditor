@@ -1,0 +1,38 @@
+id: "firedancer-2026-01-09-firedancer-cryptography-1ad8a534f"
+source_finding: "2026-01-09-firedancer-cryptography-1ad8a534f.md"
+project: "firedancer"
+date: "2026-01-09"
+language_tags: ["c"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "merkle-root-validation-hardening"
+subsystem: "cryptography"
+architecture_tags: ["crypto-validation"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "confirmed-root-consistency-checking"
+violated_invariant: "Repair logic must not combine or continue validating data shreds once a conflicting merkle root is observed for the same FEC context."
+trust_boundary: "Peer-supplied repair shreds crossing into repaired-FEC validation state."
+entrypoint_type: "repair shred ingestion"
+sensitive_sink: "confirmed-root state and repaired FEC completion"
+
+attacker_capabilities: ["Send crafted handshake, proof, token, or cryptographic input to the validator.", "Exploit places where authenticity, transcript, or verifier inputs are weaker than the protocol expects."]
+exploit_preconditions: ["The target accepts attacker-controlled protocol material on the affected path.", "The verifier or state machine consumes malformed, unauthenticated, or unchecked inputs before rejecting them."]
+blast_radius: "Conflicting repaired data can poison local validation state or undermine replay correctness."
+
+impact_types: ["consensus-integrity", "data-integrity"]
+severity_guess: "medium"
+severity_rationale: "The evidence supports a real security-relevant failure mode, but the corpus stops short of proving universal compromise or direct asset loss; the practical risk is best captured as medium severity for consensus-integrity, data-integrity."
+
+code_shape_summary: "Repair/FEC logic accepted new shreds without binding them tightly enough to a previously confirmed merkle root for that set."
+search_motifs: ["confirmed merkle root tracked in repair state", "reject incoming shred when root conflicts with confirmed root", "verify chained roots before resuming incomplete FEC"]
+negative_signals: ["No concrete attacker flow or exploit sequence is shown.", "No evidence of signature forgery or cryptographic primitive failure is provided.", "No proof that conflicting shreds previously reached finalized consensus or caused validator compromise is shown."]
+patch_pattern: "Persist the confirmed root, reject conflicting shreds, and require every resumed validation step to chain from the already confirmed root."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/20260503-171919Z-firedancer/raw-findings/2026-01-09-firedancer-cryptography-1ad8a534f.md", "git:1ad8a534fb2ad5bdbf67ed701695f17022e1f2f9"]
+notes:
+  - "Enriched from the validated raw finding, source evidence, and corpus import metadata."

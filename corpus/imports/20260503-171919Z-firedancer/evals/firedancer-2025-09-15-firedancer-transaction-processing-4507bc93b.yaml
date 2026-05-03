@@ -1,0 +1,17 @@
+id: "firedancer-2025-09-15-firedancer-transaction-processing-4507bc93b"
+source_record: "firedancer-2025-09-15-firedancer-transaction-processing-4507bc93b.yaml"
+project: "firedancer"
+
+expected_bug_family: "checked_arithmetic_and_parameter_bounds"
+expected_bug_class: "buffer-overflow"
+expected_missing_property: "destination-capacity-validation"
+
+expected_impact_band: "high"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: ["Complete body of the oversized-buffer rejection path is not shown.", "No proof is provided that malformed FEC/residual state is attacker-controllable."]
+notes:
+  - "Enriched against the validated kept corpus entry and its raw finding narrative."

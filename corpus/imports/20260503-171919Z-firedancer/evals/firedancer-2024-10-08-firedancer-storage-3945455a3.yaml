@@ -1,0 +1,17 @@
+id: "firedancer-2024-10-08-firedancer-storage-3945455a3"
+source_record: "firedancer-2024-10-08-firedancer-storage-3945455a3.yaml"
+project: "firedancer"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "runtime-program-admissibility"
+expected_missing_property: "pre-dispatch-program-admissibility"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: ["Exact blacklist entries and matching logic are not shown.", "No end-to-end attacker-controlled exploit path is shown."]
+notes:
+  - "Enriched against the validated kept corpus entry and its raw finding narrative."

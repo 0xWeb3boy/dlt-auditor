@@ -1,0 +1,38 @@
+id: "firedancer-2026-01-22-firedancer-cryptography-b76fbe370"
+source_finding: "2026-01-22-firedancer-cryptography-b76fbe370.md"
+project: "firedancer"
+date: "2026-01-22"
+language_tags: ["c"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-poh-validation"
+subsystem: "cryptography"
+architecture_tags: ["crypto-validation"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "pre-execution-tick-verification"
+violated_invariant: "Replay must verify PoH tick and hash constraints before a completed block is emitted for normal execution."
+trust_boundary: "Ledger and snapshot PoH metadata crossing into block completion."
+entrypoint_type: "replay scheduler / block completion"
+sensitive_sink: "block-end task emission and bank death/continuation decisions"
+
+attacker_capabilities: ["Feed malformed ledger, transaction, or state inputs into a consensus-sensitive bookkeeping path.", "Trigger edge cases where counters, ownership, or replay state drift from the concrete source of truth."]
+exploit_preconditions: ["The affected logic runs on consensus-critical or validator-critical state transitions.", "The implementation derives counters, owners, or replay state from intermediate data without reconciling it to the concrete state."]
+blast_radius: "Invalid blocks or malformed snapshot PoH metadata can survive deeper into replay than intended."
+
+impact_types: ["consensus-integrity"]
+severity_guess: "medium"
+severity_rationale: "The evidence supports a real security-relevant failure mode, but the corpus stops short of proving universal compromise or direct asset loss; the practical risk is best captured as medium severity for consensus-integrity."
+
+code_shape_summary: "Block completion treated PoH verification as an implicit later assumption instead of a required gate before normal replay progression."
+search_motifs: ["verify_ticks called before block-end emission", "block marked dead when tick verification fails", "snapshot hashes_per_tick default changed to preserve verification semantics"]
+negative_signals: ["No concrete exploit path or attacker-controlled input flow is shown.", "No proof that invalid PoH or tick structure previously reached finalized consensus state is supplied.", "No evidence of signature forgery, transaction authorization bypass, or cryptographic primitive weakness is shown."]
+patch_pattern: "Move tick verification directly into the block-completion gate and preserve exact PoH parameters instead of substituting permissive defaults."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/20260503-171919Z-firedancer/raw-findings/2026-01-22-firedancer-cryptography-b76fbe370.md", "git:b76fbe370bfdc856ffb5f420f3630d7db9fa2ae8"]
+notes:
+  - "Enriched from the validated raw finding, source evidence, and corpus import metadata."

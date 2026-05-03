@@ -1,0 +1,17 @@
+id: "firedancer-2026-01-09-firedancer-cryptography-1ad8a534f"
+source_record: "firedancer-2026-01-09-firedancer-cryptography-1ad8a534f.yaml"
+project: "firedancer"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "merkle-root-validation-hardening"
+expected_missing_property: "confirmed-root-consistency-checking"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: ["No concrete attacker flow or exploit sequence is shown.", "No evidence of signature forgery or cryptographic primitive failure is provided."]
+notes:
+  - "Enriched against the validated kept corpus entry and its raw finding narrative."

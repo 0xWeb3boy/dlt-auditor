@@ -1,0 +1,38 @@
+id: "firedancer-2025-12-02-firedancer-core-logic-52a2cbfda"
+source_finding: "2025-12-02-firedancer-core-logic-52a2cbfda.md"
+project: "firedancer"
+date: "2025-12-02"
+language_tags: ["c"]
+
+bug_family: "checked_arithmetic_and_parameter_bounds"
+bug_class: "content-length-integer-overflow"
+subsystem: "core-logic"
+architecture_tags: ["parser-core"]
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "narrowing-conversion-bound-check"
+violated_invariant: "Parsed Content-Length values must fit the destination integer type before allocation, copy, or read sizing uses them."
+trust_boundary: "HTTP header text crossing into RPC/genesis content-length parsing."
+entrypoint_type: "HTTP header parser"
+sensitive_sink: "buffer sizing and read length derived from narrowed content length"
+
+attacker_capabilities: ["Supply malformed bytes, headers, lengths, or offsets that reach the affected parser or decode path.", "Control the field values that are interpreted before the implementation proves they fit the backing buffer."]
+exploit_preconditions: ["The target must parse attacker-influenced bytes on the affected path.", "Derived lengths, counts, or pointers are used before the implementation proves they are within bounds."]
+blast_radius: "Oversized headers can trigger out-of-bounds reads or mis-sized buffers in validator-side tooling paths."
+
+impact_types: ["out-of-bounds-read"]
+severity_guess: "high"
+severity_rationale: "The affected path reaches a memory write, authenticity check, or privilege gate on attacker-shaped input, so similar cases usually deserve high severity when reachable; the corpus evidence points to out-of-bounds-read."
+
+code_shape_summary: "The parser accepted any successfully parsed unsigned value, then later narrowed it to a smaller integer type without an upper-bound check."
+search_motifs: ["strtoul result compared against UINT_MAX after parse", "Content-Length parsed into wider type then narrowed", "header parser only checked for at least one digit before using size"]
+negative_signals: ["No downstream buffer access or read site is shown in the supplied patch evidence.", "No proof of remote exploitability beyond crafted header handling is provided.", "No evidence supports write impact, code execution, authentication bypass, or consensus impact."]
+patch_pattern: "Parse into a wide type, reject values above the destination limit, and only then use the result for allocation or copy sizing."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/20260503-171919Z-firedancer/raw-findings/2025-12-02-firedancer-core-logic-52a2cbfda.md", "git:52a2cbfdae26503d47def686168901350ad4b312"]
+notes:
+  - "Enriched from the validated raw finding, source evidence, and corpus import metadata."

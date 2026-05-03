@@ -1,0 +1,38 @@
+id: "firedancer-2026-02-23-firedancer-cryptography-3e0535b19"
+source_finding: "2026-02-23-firedancer-cryptography-3e0535b19.md"
+project: "firedancer"
+date: "2026-02-23"
+language_tags: ["c"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "malformed-block-resource-exhaustion"
+subsystem: "cryptography"
+architecture_tags: ["crypto-validation"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "saturating-progress-accounting"
+violated_invariant: "Replay progress counters must saturate or reject malformed tick/hash counts before arithmetic wraparound can hide excess work."
+trust_boundary: "Malformed block progress and tick/hash counts crossing into replay scheduler accounting."
+entrypoint_type: "replay scheduler progress update"
+sensitive_sink: "tick/hash accumulation and block validation progress"
+
+attacker_capabilities: ["Feed malformed ledger, transaction, or state inputs into a consensus-sensitive bookkeeping path.", "Trigger edge cases where counters, ownership, or replay state drift from the concrete source of truth."]
+exploit_preconditions: ["The affected logic runs on consensus-critical or validator-critical state transitions.", "The implementation derives counters, owners, or replay state from intermediate data without reconciling it to the concrete state."]
+blast_radius: "Malformed blocks can evade resource limits or tie up replay work until availability suffers."
+
+impact_types: ["denial-of-service", "resource-exhaustion"]
+severity_guess: "medium"
+severity_rationale: "The evidence supports a real security-relevant failure mode, but the corpus stops short of proving universal compromise or direct asset loss; the practical risk is best captured as medium severity for denial-of-service, resource-exhaustion."
+
+code_shape_summary: "Replay accounting used ordinary unsigned accumulation in a path where malformed block input could make the counter wrap and mask excessive work."
+search_motifs: ["saturating add replaces plain unsigned add", "eager tick/hash validation moved earlier in scheduler path", "resource counter overflow could hide malformed-block cost"]
+negative_signals: ["No proof of a concrete exploit path or attacker-controlled delivery boundary beyond malformed block data is shown.", "No evidence supports signature forgery, replay-authentication bypass, or access-control impact.", "No test, advisory, or vulnerability reference is provided."]
+patch_pattern: "Validate malformed progress conditions early and use saturating arithmetic so excessive work cannot be hidden by wraparound."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/20260503-171919Z-firedancer/raw-findings/2026-02-23-firedancer-cryptography-3e0535b19.md", "git:3e0535b190d0fc0f9ef002546132b9afb4b33c15"]
+notes:
+  - "Enriched from the validated raw finding, source evidence, and corpus import metadata."

@@ -1,0 +1,17 @@
+id: "firedancer-2025-12-02-firedancer-core-logic-52a2cbfda"
+source_record: "firedancer-2025-12-02-firedancer-core-logic-52a2cbfda.yaml"
+project: "firedancer"
+
+expected_bug_family: "checked_arithmetic_and_parameter_bounds"
+expected_bug_class: "content-length-integer-overflow"
+expected_missing_property: "narrowing-conversion-bound-check"
+
+expected_impact_band: "high"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: ["No downstream buffer access or read site is shown in the supplied patch evidence.", "No proof of remote exploitability beyond crafted header handling is provided."]
+notes:
+  - "Enriched against the validated kept corpus entry and its raw finding narrative."

@@ -1,0 +1,38 @@
+id: "firedancer-2024-01-17-firedancer-transaction-processing-df9ddc2d1"
+source_finding: "2024-01-17-firedancer-transaction-processing-df9ddc2d1.md"
+project: "firedancer"
+date: "2024-01-17"
+language_tags: ["c"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "signing-isolation-hardening"
+subsystem: "transaction-processing"
+architecture_tags: ["runtime-execution"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "role-scoped-signing-authorization"
+violated_invariant: "Only explicitly authorized request types may cross into an isolated signing service, and signing keys should stay behind that boundary."
+trust_boundary: "Validator runtime components crossing into the isolated signing/keyguard service."
+entrypoint_type: "inter-process signing request"
+sensitive_sink: "validator-key signature generation"
+
+attacker_capabilities: ["Reach a signing or key-loading path from a less-trusted runtime component.", "Influence which request, buffer, or role crosses into the isolated signing boundary."]
+exploit_preconditions: ["Sensitive key material or signing authority is reachable from non-isolated runtime code.", "The system relies on process boundaries or role tags to confine signing rights."]
+blast_radius: "A boundary mistake could widen signing authority or expose validator signing operations to less-trusted code paths."
+
+impact_types: ["privilege-reduction", "signing-boundary-hardening"]
+severity_guess: "medium"
+severity_rationale: "The evidence supports a real security-relevant failure mode, but the corpus stops short of proving universal compromise or direct asset loss; the practical risk is best captured as medium severity for privilege-reduction, signing-boundary-hardening."
+
+code_shape_summary: "The hardening introduces a dedicated remote-signing path with role-aware authorization and seccomp isolation so signing requests are mediated instead of implicit."
+search_motifs: ["signing request routed through isolated helper", "role-tag or opcode gate on signing RPC", "seccomp or sandbox profile added to signing worker"]
+negative_signals: ["No evidence that the previous shred signing path accepted attacker-controlled signing requests.", "No evidence of arbitrary payload signing before the patch.", "No evidence of private key disclosure or direct key compromise."]
+patch_pattern: "Route signing through a dedicated client or tile, add explicit request-type authorization, and isolate the signer process with a tighter sandbox."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/20260503-171919Z-firedancer/raw-findings/2024-01-17-firedancer-transaction-processing-df9ddc2d1.md", "git:df9ddc2d10eba3fee308805904ba98fc28a90ef0"]
+notes:
+  - "Enriched from the validated raw finding, source evidence, and corpus import metadata."

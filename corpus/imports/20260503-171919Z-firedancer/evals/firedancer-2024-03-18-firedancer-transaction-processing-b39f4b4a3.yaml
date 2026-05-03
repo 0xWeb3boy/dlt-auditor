@@ -1,0 +1,17 @@
+id: "firedancer-2024-03-18-firedancer-transaction-processing-b39f4b4a3"
+source_record: "firedancer-2024-03-18-firedancer-transaction-processing-b39f4b4a3.yaml"
+project: "firedancer"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "vm-syscall-bounds-validation"
+expected_missing_property: "syscall-argument-and-budget-validation"
+
+expected_impact_band: "high"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: ["No full sol_log_data implementation diff is provided.", "No concrete before/after code for the slice_cnt overflow fix is shown."]
+notes:
+  - "Enriched against the validated kept corpus entry and its raw finding narrative."

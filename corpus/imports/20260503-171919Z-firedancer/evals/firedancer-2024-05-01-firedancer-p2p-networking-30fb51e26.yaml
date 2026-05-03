@@ -1,0 +1,17 @@
+id: "firedancer-2024-05-01-firedancer-p2p-networking-30fb51e26"
+source_record: "firedancer-2024-05-01-firedancer-p2p-networking-30fb51e26.yaml"
+project: "firedancer"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "protocol-input-validation"
+expected_missing_property: "wire-format-length-validation"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: ["No advisory, CVE, exploit, test case, or commit body explains a concrete security impact.", "No evidence shows resource exhaustion, connection hijacking, authentication bypass, or memory corruption."]
+notes:
+  - "Enriched against the validated kept corpus entry and its raw finding narrative."

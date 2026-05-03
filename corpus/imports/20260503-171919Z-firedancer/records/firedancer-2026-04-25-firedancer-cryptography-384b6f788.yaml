@@ -1,0 +1,38 @@
+id: "firedancer-2026-04-25-firedancer-cryptography-384b6f788"
+source_finding: "2026-04-25-firedancer-cryptography-384b6f788.md"
+project: "firedancer"
+date: "2026-04-25"
+language_tags: ["c"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "cryptographic-transcript-validation"
+subsystem: "cryptography"
+architecture_tags: ["crypto-validation"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "protocol-specified-transcript-construction"
+violated_invariant: "Cryptographic proof verification must hash exactly the transcript shape mandated by the protocol and bound the message size it accepts."
+trust_boundary: "Peer- or state-supplied proof bytes crossing into a BLS proof-of-possession verifier."
+entrypoint_type: "cryptographic proof verifier"
+sensitive_sink: "proof acceptance against a public key"
+
+attacker_capabilities: ["Submit crafted proof-of-possession material and public-key inputs to the verifier.", "Exploit places where the implementation hashes a different transcript than the protocol expects."]
+exploit_preconditions: ["The target accepts attacker-controlled proof material on the affected path.", "The verifier constructs or bounds the signed transcript differently from the protocol specification."]
+blast_radius: "Transcript mismatches can weaken proof validation and blur which identities are actually authenticated."
+
+impact_types: ["signature-validation-bypass-risk", "cryptographic-correctness"]
+severity_guess: "medium"
+severity_rationale: "The evidence supports a real security-relevant failure mode, but the corpus stops short of proving universal compromise or direct asset loss; the practical risk is best captured as medium severity for signature-validation-bypass-risk, cryptographic-correctness."
+
+code_shape_summary: "The verifier built its hash input differently from the documented protocol transcript and lacked an explicit bound on the message size it hashed."
+search_motifs: ["H(msg || public_key, DST) alignment change in verifier", "proof verifier transcript shape adjusted to match upstream spec", "verifier adds explicit current-message-size cap"]
+negative_signals: ["No exploit path through the vote program is shown.", "No evidence demonstrates prior acceptance of an attacker-controlled invalid proof.", "No consensus failure, request forgery, replay, or validator-impact example is provided."]
+patch_pattern: "Construct the transcript exactly as specified, then bound the message size before hashing and verification."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/20260503-171919Z-firedancer/raw-findings/2026-04-25-firedancer-cryptography-384b6f788.md", "git:384b6f7884dbe33f24117330377dae3bcb2a6d29"]
+notes:
+  - "Enriched from the validated raw finding, source evidence, and corpus import metadata."

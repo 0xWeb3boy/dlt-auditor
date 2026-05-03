@@ -1,0 +1,351 @@
+{
+  "repo": "/work/firedancer",
+  "repo_slug": "firedancer",
+  "kept_dir": "/work/firedancer/validated-findings/kept",
+  "created_at_utc": "20260503-171919Z",
+  "finding_count": 38,
+  "findings": [
+    {
+      "id": "firedancer-2023-01-30-firedancer-core-logic-4f66d0180",
+      "source": "/work/firedancer/validated-findings/kept/2023-01-30-firedancer-core-logic-4f66d0180.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "malformed-archive-metadata-parsing",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "firedancer-2023-09-29-firedancer-access-control-7cbb71919",
+      "source": "/work/firedancer/validated-findings/kept/2023-09-29-firedancer-access-control-7cbb71919.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "parser-bounds-hardening",
+      "subsystem": "access-control",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "firedancer-2023-11-28-firedancer-core-logic-e341db750",
+      "source": "/work/firedancer/validated-findings/kept/2023-11-28-firedancer-core-logic-e341db750.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "elf-loader-memory-safety-hardening",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "firedancer-2024-01-17-firedancer-transaction-processing-df9ddc2d1",
+      "source": "/work/firedancer/validated-findings/kept/2024-01-17-firedancer-transaction-processing-df9ddc2d1.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "signing-isolation-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "firedancer-2024-01-24-firedancer-transaction-processing-d17e587ca",
+      "source": "/work/firedancer/validated-findings/kept/2024-01-24-firedancer-transaction-processing-d17e587ca.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "signing-key-isolation-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "firedancer-2024-03-13-firedancer-transaction-processing-97c481ffb",
+      "source": "/work/firedancer/validated-findings/kept/2024-03-13-firedancer-transaction-processing-97c481ffb.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "access-control",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "firedancer-2024-03-18-firedancer-transaction-processing-b39f4b4a3",
+      "source": "/work/firedancer/validated-findings/kept/2024-03-18-firedancer-transaction-processing-b39f4b4a3.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "vm-syscall-bounds-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "firedancer-2024-03-19-firedancer-cryptography-863698b5d",
+      "source": "/work/firedancer/validated-findings/kept/2024-03-19-firedancer-cryptography-863698b5d.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-liveness-failure",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "firedancer-2024-04-18-firedancer-p2p-networking-811935f39",
+      "source": "/work/firedancer/validated-findings/kept/2024-04-18-firedancer-p2p-networking-811935f39.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "null-dereference",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "firedancer-2024-04-29-firedancer-transaction-processing-cf108c124",
+      "source": "/work/firedancer/validated-findings/kept/2024-04-29-firedancer-transaction-processing-cf108c124.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "access-control",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "firedancer-2024-05-01-firedancer-p2p-networking-30fb51e26",
+      "source": "/work/firedancer/validated-findings/kept/2024-05-01-firedancer-p2p-networking-30fb51e26.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "protocol-input-validation",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "firedancer-2024-05-28-firedancer-cryptography-32b9530a2",
+      "source": "/work/firedancer/validated-findings/kept/2024-05-28-firedancer-cryptography-32b9530a2.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "retry-token-forgery",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "firedancer-2024-06-12-firedancer-access-control-8b8649322",
+      "source": "/work/firedancer/validated-findings/kept/2024-06-12-firedancer-access-control-8b8649322.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "secret-memory-hardening",
+      "subsystem": "access-control",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "firedancer-2024-06-28-firedancer-cryptography-7bc1ac0dc",
+      "source": "/work/firedancer/validated-findings/kept/2024-06-28-firedancer-cryptography-7bc1ac0dc.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "unchecked-cryptographic-rng-failure",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "firedancer-2024-07-15-firedancer-cryptography-22a0ab7f8",
+      "source": "/work/firedancer/validated-findings/kept/2024-07-15-firedancer-cryptography-22a0ab7f8.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "quic-packet-validation-hardening",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "firedancer-2024-08-13-firedancer-transaction-processing-6cefb1ded",
+      "source": "/work/firedancer/validated-findings/kept/2024-08-13-firedancer-transaction-processing-6cefb1ded.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "executor-accounting-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "firedancer-2024-10-08-firedancer-storage-3945455a3",
+      "source": "/work/firedancer/validated-findings/kept/2024-10-08-firedancer-storage-3945455a3.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "runtime-program-admissibility",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "firedancer-2024-11-27-firedancer-storage-2bc30f00b",
+      "source": "/work/firedancer/validated-findings/kept/2024-11-27-firedancer-storage-2bc30f00b.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "crypto-precompile-input-validation-hardening",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "firedancer-2025-01-10-firedancer-consensus-63a0855e2",
+      "source": "/work/firedancer/validated-findings/kept/2025-01-10-firedancer-consensus-63a0855e2.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "nonce-state-persistence",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "firedancer-2025-02-06-firedancer-transaction-processing-4d173a092",
+      "source": "/work/firedancer/validated-findings/kept/2025-02-06-firedancer-transaction-processing-4d173a092.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "resource-accounting-mismatch",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "firedancer-2025-03-05-firedancer-consensus-97c08c390",
+      "source": "/work/firedancer/validated-findings/kept/2025-03-05-firedancer-consensus-97c08c390.md",
+      "bug_family": "checked_arithmetic_and_parameter_bounds",
+      "bug_class": "arithmetic-bound-hardening",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "arithmetic-bounds"
+    },
+    {
+      "id": "firedancer-2025-03-21-firedancer-transaction-processing-f35407b68",
+      "source": "/work/firedancer/validated-findings/kept/2025-03-21-firedancer-transaction-processing-f35407b68.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "memory-lifetime",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "firedancer-2025-09-15-firedancer-transaction-processing-4507bc93b",
+      "source": "/work/firedancer/validated-findings/kept/2025-09-15-firedancer-transaction-processing-4507bc93b.md",
+      "bug_family": "checked_arithmetic_and_parameter_bounds",
+      "bug_class": "buffer-overflow",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "arithmetic-bounds"
+    },
+    {
+      "id": "firedancer-2025-09-19-firedancer-transaction-processing-3d4cbe567",
+      "source": "/work/firedancer/validated-findings/kept/2025-09-19-firedancer-transaction-processing-3d4cbe567.md",
+      "bug_family": "checked_arithmetic_and_parameter_bounds",
+      "bug_class": "stack-buffer-overflow",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "arithmetic-bounds"
+    },
+    {
+      "id": "firedancer-2025-10-01-firedancer-core-logic-fd99d9175",
+      "source": "/work/firedancer/validated-findings/kept/2025-10-01-firedancer-core-logic-fd99d9175.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "hardening-or-correctness-fix",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "firedancer-2025-10-01-firedancer-transaction-processing-63751c1d6",
+      "source": "/work/firedancer/validated-findings/kept/2025-10-01-firedancer-transaction-processing-63751c1d6.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "race-condition",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "firedancer-2025-11-21-firedancer-transaction-processing-48feae326",
+      "source": "/work/firedancer/validated-findings/kept/2025-11-21-firedancer-transaction-processing-48feae326.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "out-of-bounds-read",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "firedancer-2025-12-01-firedancer-core-logic-d94e26080",
+      "source": "/work/firedancer/validated-findings/kept/2025-12-01-firedancer-core-logic-d94e26080.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "malformed-input-bounds-hardening",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "firedancer-2025-12-02-firedancer-core-logic-52a2cbfda",
+      "source": "/work/firedancer/validated-findings/kept/2025-12-02-firedancer-core-logic-52a2cbfda.md",
+      "bug_family": "checked_arithmetic_and_parameter_bounds",
+      "bug_class": "content-length-integer-overflow",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "arithmetic-bounds"
+    },
+    {
+      "id": "firedancer-2026-01-09-firedancer-cryptography-1ad8a534f",
+      "source": "/work/firedancer/validated-findings/kept/2026-01-09-firedancer-cryptography-1ad8a534f.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "merkle-root-validation-hardening",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "firedancer-2026-01-22-firedancer-cryptography-b76fbe370",
+      "source": "/work/firedancer/validated-findings/kept/2026-01-22-firedancer-cryptography-b76fbe370.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-poh-validation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "firedancer-2026-02-11-firedancer-consensus-953e40003",
+      "source": "/work/firedancer/validated-findings/kept/2026-02-11-firedancer-consensus-953e40003.md",
+      "bug_family": "checked_arithmetic_and_parameter_bounds",
+      "bug_class": "missing-bounds-check-buffer-overflow",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "arithmetic-bounds"
+    },
+    {
+      "id": "firedancer-2026-02-23-firedancer-cryptography-3e0535b19",
+      "source": "/work/firedancer/validated-findings/kept/2026-02-23-firedancer-cryptography-3e0535b19.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "malformed-block-resource-exhaustion",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "firedancer-2026-03-04-firedancer-staking-5036dd7fc",
+      "source": "/work/firedancer/validated-findings/kept/2026-03-04-firedancer-staking-5036dd7fc.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "bounds-check-hardening",
+      "subsystem": "staking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "firedancer-2026-03-31-firedancer-transaction-processing-b74ff1c82",
+      "source": "/work/firedancer/validated-findings/kept/2026-03-31-firedancer-transaction-processing-b74ff1c82.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "resource-capacity-invariant-violation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "firedancer-2026-04-14-firedancer-staking-22a2fea5d",
+      "source": "/work/firedancer/validated-findings/kept/2026-04-14-firedancer-staking-22a2fea5d.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-owner-check",
+      "subsystem": "staking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "firedancer-2026-04-25-firedancer-cryptography-384b6f788",
+      "source": "/work/firedancer/validated-findings/kept/2026-04-25-firedancer-cryptography-384b6f788.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "cryptographic-transcript-validation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "firedancer-2026-04-29-firedancer-storage-4c4abcf43",
+      "source": "/work/firedancer/validated-findings/kept/2026-04-29-firedancer-storage-4c4abcf43.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "http-content-length-input-validation",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    }
+  ]
+}

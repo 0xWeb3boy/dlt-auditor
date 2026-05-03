@@ -1,0 +1,38 @@
+id: "firedancer-2024-03-19-firedancer-cryptography-863698b5d"
+source_finding: "2024-03-19-firedancer-cryptography-863698b5d.md"
+project: "firedancer"
+date: "2024-03-19"
+language_tags: ["c"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-liveness-failure"
+subsystem: "cryptography"
+architecture_tags: ["crypto-validation"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "tick-state-transition-validation"
+violated_invariant: "Leader-transition and skipped-slot handling must preserve monotonic PoH tick state so replay sees completed blocks with the correct tick history."
+trust_boundary: "Consensus/replay state transitioning from skipped slots into leader production."
+entrypoint_type: "leader transition / replay state update"
+sensitive_sink: "tick-height tracking and fork/complete-block decisions"
+
+attacker_capabilities: ["Feed malformed ledger, transaction, or state inputs into a consensus-sensitive bookkeeping path.", "Trigger edge cases where counters, ownership, or replay state drift from the concrete source of truth."]
+exploit_preconditions: ["The affected logic runs on consensus-critical or validator-critical state transitions.", "The implementation derives counters, owners, or replay state from intermediate data without reconciling it to the concrete state."]
+blast_radius: "The local validator can stall, mis-fork, or repeatedly build from the wrong parent after skipped slots."
+
+impact_types: ["consensus-liveness"]
+severity_guess: "medium"
+severity_rationale: "The evidence supports a real security-relevant failure mode, but the corpus stops short of proving universal compromise or direct asset loss; the practical risk is best captured as medium severity for consensus-liveness."
+
+code_shape_summary: "Replay state failed to carry enough skipped-slot tick information into the first leader slot, leaving later completeness checks with stale tick context."
+search_motifs: ["recent tick hashes not persisted across skipped-slot transitions", "leader handoff state derived from partial PoH history", "block completeness check using stale tick counters"]
+negative_signals: ["No demonstrated remote exploit path beyond skipped-slot conditions.", "No evidence of transaction forgery, signature bypass, or replay attack.", "No proof of funds loss or direct account-state corruption."]
+patch_pattern: "Persist recent tick hashes across non-leader periods and explicitly register skipped ticks before starting the next leader slot."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/20260503-171919Z-firedancer/raw-findings/2024-03-19-firedancer-cryptography-863698b5d.md", "git:863698b5df52213ed40d29bee3089bc7d0ca6b95"]
+notes:
+  - "Enriched from the validated raw finding, source evidence, and corpus import metadata."

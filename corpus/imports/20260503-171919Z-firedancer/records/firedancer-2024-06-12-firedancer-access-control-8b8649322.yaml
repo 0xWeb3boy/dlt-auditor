@@ -1,0 +1,38 @@
+id: "firedancer-2024-06-12-firedancer-access-control-8b8649322"
+source_finding: "2024-06-12-firedancer-access-control-8b8649322.md"
+project: "firedancer"
+date: "2024-06-12"
+language_tags: ["c"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "secret-memory-hardening"
+subsystem: "access-control"
+architecture_tags: ["key-management"]
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "guarded-secret-memory-residency"
+violated_invariant: "Private key material should live in guarded, non-swappable memory and remain isolated from less-trusted child processes and optional sandbox gaps."
+trust_boundary: "Key-loading and runtime sandbox setup crossing into long-lived secret-memory residency."
+entrypoint_type: "key-loading / signer initialization"
+sensitive_sink: "private-key memory allocation and sandbox activation"
+
+attacker_capabilities: ["Reach a signing or key-loading path from a less-trusted runtime component.", "Influence which request, buffer, or role crosses into the isolated signing boundary."]
+exploit_preconditions: ["Sensitive key material or signing authority is reachable from non-isolated runtime code.", "The system relies on process boundaries or role tags to confine signing rights."]
+blast_radius: "Weak secret-memory confinement can enlarge accidental key-exposure risk across crashes, swaps, or forked children."
+
+impact_types: ["secret-exposure-reduction", "sandbox-hardening"]
+severity_guess: "low"
+severity_rationale: "This bundle entry is mostly hardening or edge-case correctness around secret-exposure-reduction, sandbox-hardening, so similar cases are usually low severity unless paired with a second bug."
+
+code_shape_summary: "The hardening adds a dedicated protected-memory allocator for key material and surfaces when an optional sandbox layer is unavailable, rather than proving an existing exploit path."
+search_motifs: ["guard-page allocator for secret buffers", "mlock/core-dump/fork protections around key memory", "runtime warning when optional sandbox layer unavailable"]
+negative_signals: ["No concrete prior vulnerability or exploit path is shown.", "No attacker-controlled input path is connected to the changed code.", "No evidence supports remote denial of service or resource exhaustion."]
+patch_pattern: "Allocate secret memory inside guarded pages, disable swap/core-dump inheritance where possible, and expose missing sandbox layers to operators."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/20260503-171919Z-firedancer/raw-findings/2024-06-12-firedancer-access-control-8b8649322.md", "git:8b864932211b894ff713ac41926684d95c0ab7ee"]
+notes:
+  - "Enriched from the validated raw finding, source evidence, and corpus import metadata."

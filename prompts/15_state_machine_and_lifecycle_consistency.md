@@ -28,6 +28,7 @@ Search patterns:
 - comments that refer to one coordinate while the code keys data by another
 - role-dependent thresholds routed through generic queues
 - state replacement that does not invalidate derived or cached state
+- transitions from non-leader to leader, pre-finalize to finalize, success to failure, or live to replay mode where continuity state such as ticks, roots, nonce state, reservation counters, or snapshot handles is updated on one path but not the others
 - request IDs, session IDs, or operation IDs stored globally instead of per in-flight object
 - merge or eviction logic that can evict the object currently being traversed
 - cached checkpoint, request, config, or game state reused on retry without revalidation against current authoritative state
@@ -42,6 +43,7 @@ Search patterns:
 - fork, reorg, retry, failed-prewarm, abort, or recovery paths that reuse caches from a prior parent hash, verifier state, peer state, or execution context
 - rollback paths in authenticated or persisted state that restore a nearby object but not the exact mutated coordinate
 - invalid, syncing, timeout, empty-response, and already-known states that update state in one path but not the analogous path
+- paths that validate authority, reserve state, or prepared state early but persist the authoritative result only on success, leaving failure, replay, or abort paths with stale lifecycle, nonce, or replay state
 - parent operations that queue or spawn protocol-generated child work, where failure or filtering of the child should rewind the parent group but the code only drops the child result
 - round, epoch, or session scoped privileged work queues where enqueue, wake-up, dequeue, and replay use different freshness or authorization sources
 - startup, constructor, and background-maintenance paths that initialize security-sensitive loops from persisted state. Oversized, stale, impossible, or fork-incompatible persisted values should be sanitized or rejected before they drive reorg, milestone, sync, verifier, or peer-churn decisions
@@ -51,6 +53,7 @@ Search patterns:
 - in-memory consensus, batching, congestion, or timing state that is reconstructed by replay after restart. If replay reconstructs only a fixed window, check that the committed digest or snapshot covers exactly the state retained across live execution and recovery
 - epoch, checkpoint, or committee transitions where old-epoch messages can arrive while new-epoch state is being initialized. Verify that readiness, signer set, traffic counters, and pending work are fenced by one coherent transition state
 - event ingestion, bridge watcher, withdrawal finalizer, inbox, outbox, receipt, or log-processing watermarks keyed by only block, height, batch, timestamp, or max-seen aggregate when the source can contain multiple distinct relevant events at that coordinate. Duplicate guards should use the full event identity and ordering key required by the source chain
+- state machines that wait for progress on an object that can never fit, complete, or become valid under the current local capacity or configuration. Fail closed or tear down the object instead of suppressing forever
 
 Questions to answer:
 1. What are the legal states and transitions?

@@ -1,0 +1,38 @@
+id: "firedancer-2026-04-29-firedancer-storage-4c4abcf43"
+source_finding: "2026-04-29-firedancer-storage-4c4abcf43.md"
+project: "firedancer"
+date: "2026-04-29"
+language_tags: ["c"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "http-content-length-input-validation"
+subsystem: "storage"
+architecture_tags: ["state-ingest"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "strict-positive-content-length-validation"
+violated_invariant: "Snapshot restore should only trust strictly valid, positive Content-Length metadata before accepting or allocating around a response body."
+trust_boundary: "HTTP response headers and snapshot size metadata crossing into restore logic."
+entrypoint_type: "snapshot HTTP header parser"
+sensitive_sink: "snapshot size metadata and restore-state transitions"
+
+attacker_capabilities: ["Send malformed or zero Content-Length metadata in snapshot HTTP responses.", "Drive the restore path with size metadata that was previously accepted by permissive integer parsing."]
+exploit_preconditions: ["The restore logic accepts remote or untrusted snapshot metadata.", "The parser treats permissive numeric parsing as sufficient proof that the size is usable."]
+blast_radius: "Malformed responses can waste work, desynchronize restore state, or feed invalid size assumptions into snapshot ingestion."
+
+impact_types: ["snapshot-restore-integrity-hardening", "input-validation-hardening"]
+severity_guess: "medium"
+severity_rationale: "The evidence supports a real security-relevant failure mode, but the corpus stops short of proving universal compromise or direct asset loss; the practical risk is best captured as medium severity for snapshot-restore-integrity-hardening, input-validation-hardening."
+
+code_shape_summary: "Restore logic used permissive Content-Length parsing and accepted zero or malformed values as if they were valid snapshot sizes."
+search_motifs: ["strict content-length parser introduced for snapshot restore", "zero content length rejected for snapshot metadata", "invalid HTTP response canceled on malformed size header"]
+negative_signals: ["No proof that an unauthenticated or remote attacker can control the snapshot HTTP response source.", "No demonstrated memory corruption, out-of-bounds access, or integer overflow from the old parser.", "No demonstrated consensus failure, snapshot integrity bypass, or persistent state corruption."]
+patch_pattern: "Use a strict parser, reject zero or malformed values, and abort restore processing before any body handling depends on the size."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/20260503-171919Z-firedancer/raw-findings/2026-04-29-firedancer-storage-4c4abcf43.md", "git:4c4abcf430d4d9393dc693e7d7f6a81f917ddc79"]
+notes:
+  - "Enriched from the validated raw finding, source evidence, and corpus import metadata."

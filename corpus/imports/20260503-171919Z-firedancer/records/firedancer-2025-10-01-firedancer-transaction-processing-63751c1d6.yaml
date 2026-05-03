@@ -1,0 +1,38 @@
+id: "firedancer-2025-10-01-firedancer-transaction-processing-63751c1d6"
+source_finding: "2025-10-01-firedancer-transaction-processing-63751c1d6.md"
+project: "firedancer"
+date: "2025-10-01"
+language_tags: ["c"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "race-condition"
+subsystem: "transaction-processing"
+architecture_tags: ["runtime-execution"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "slot-scoped-state-snapshot-binding"
+violated_invariant: "State lookups must bind to the exact slot or transaction snapshot they intend to observe, and fail closed if that snapshot is unavailable."
+trust_boundary: "Concurrent replay and bank state crossing into address lookup table resolution."
+entrypoint_type: "address lookup table resolution path"
+sensitive_sink: "address lookup against mutable shared state"
+
+attacker_capabilities: ["Feed malformed ledger, transaction, or state inputs into a consensus-sensitive bookkeeping path.", "Trigger edge cases where replay swaps the observed root or bank state between validation and use."]
+exploit_preconditions: ["The affected logic runs on validator-critical replay or lookup state.", "The implementation resolves lookups against shared mutable state rather than a slot-scoped snapshot."]
+blast_radius: "Lookup results can drift with concurrent state changes, producing inconsistent execution, dropped work, or replay confusion."
+
+impact_types: ["state-consistency", "correctness-or-hardening"]
+severity_guess: "medium"
+severity_rationale: "The evidence supports a real security-relevant failure mode, but the corpus stops short of proving universal compromise or direct asset loss; the practical risk is best captured as medium severity for state-consistency, correctness-or-hardening."
+
+code_shape_summary: "The lookup path relied on a root or null transaction context even though replay could swap the underlying state before the address table read completed."
+search_motifs: ["comments or code mention TOCTOU or root-swap near a lookup path", "slot-derived transaction snapshot replaces a NULL or root state handle", "path drops work when the contextual bank or snapshot is unavailable"]
+negative_signals: ["No advisory, issue discussion, or commit body states a security vulnerability.", "No exploit path or attacker-controlled timing is shown.", "No evidence of consensus divergence, funds impact, or production incident is provided."]
+patch_pattern: "Resolve lookups against a slot-scoped snapshot handle and fail closed whenever the required bank state is unavailable."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/20260503-171919Z-firedancer/raw-findings/2025-10-01-firedancer-transaction-processing-63751c1d6.md", "git:63751c1d608593fecae2b6fe08c9523aff7be356"]
+notes:
+  - "Enriched from the validated raw finding, source evidence, and corpus import metadata."

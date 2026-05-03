@@ -1,0 +1,17 @@
+id: "firedancer-2023-11-28-firedancer-core-logic-e341db750"
+source_record: "firedancer-2023-11-28-firedancer-core-logic-e341db750.yaml"
+project: "firedancer"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "elf-loader-memory-safety-hardening"
+expected_missing_property: "loader-section-bounds-validation"
+
+expected_impact_band: "high"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: ["No proof that malformed ELF input is attacker-controlled in a deployed configuration.", "No concrete crash, exploit, or vulnerability demonstration is supplied."]
+notes:
+  - "Enriched against the validated kept corpus entry and its raw finding narrative."

@@ -1,0 +1,38 @@
+id: "firedancer-2024-03-13-firedancer-transaction-processing-97c481ffb"
+source_finding: "2024-03-13-firedancer-transaction-processing-97c481ffb.md"
+project: "firedancer"
+date: "2024-03-13"
+language_tags: ["c"]
+
+bug_family: "authz_and_role_gates"
+bug_class: "access-control"
+subsystem: "transaction-processing"
+architecture_tags: ["runtime-execution"]
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "exact-account-instance-authorization"
+violated_invariant: "A mutation gate must validate writability and privilege on the exact account instance being modified, not on any aliased account with the same address."
+trust_boundary: "Transaction-supplied instruction account metadata crossing into runtime mutation checks."
+entrypoint_type: "instruction account authorization gate"
+sensitive_sink: "mutable account access in runtime program execution"
+
+attacker_capabilities: ["Shape transaction account metadata, aliases, or authority placement so the guard evaluates the wrong account instance.", "Reach the guarded instruction path with attacker-chosen signer, writable, or owner metadata."]
+exploit_preconditions: ["The attacker can submit a transaction that reaches the guarded instruction path.", "The runtime trusts metadata-derived signer, writable, or owner state without re-validating the exact account instance."]
+blast_radius: "Alias-driven metadata confusion can allow unauthorized mutation of protected state."
+
+impact_types: ["privilege-misuse"]
+severity_guess: "high"
+severity_rationale: "The affected path reaches a memory write, authenticity check, or privilege gate on attacker-shaped input, so similar cases usually deserve high severity when reachable; the corpus evidence points to privilege-misuse."
+
+code_shape_summary: "The runtime answered “is this writable?” by searching for any writable alias of the same address instead of checking the exact indexed instruction account being mutated."
+search_motifs: ["same-address alias searched during writability check", "helper rewritten from address-based to index-based authorization", "authorization answer derived from any matching account instead of exact instruction account"]
+negative_signals: ["No exploit transaction or reproduction is provided.", "No concrete asset theft, lamport loss, or consensus impact is shown.", "The supplied hunks do not show the full new fd_account_set_owner implementation checks."]
+patch_pattern: "Bind helper APIs to the concrete instruction-account index and perform mutability or ownership checks on that exact indexed entry."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/20260503-171919Z-firedancer/raw-findings/2024-03-13-firedancer-transaction-processing-97c481ffb.md", "git:97c481ffbc7f1be618fae61c08b88012d3c823ca"]
+notes:
+  - "Enriched from the validated raw finding, source evidence, and corpus import metadata."

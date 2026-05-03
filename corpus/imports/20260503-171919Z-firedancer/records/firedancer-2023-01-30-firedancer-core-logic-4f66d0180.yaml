@@ -1,0 +1,38 @@
+id: "firedancer-2023-01-30-firedancer-core-logic-4f66d0180"
+source_finding: "2023-01-30-firedancer-core-logic-4f66d0180.md"
+project: "firedancer"
+date: "2023-01-30"
+language_tags: ["c"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "malformed-archive-metadata-parsing"
+subsystem: "core-logic"
+architecture_tags: ["parser-core"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "bounded-metadata-parsing"
+violated_invariant: "Archive metadata fields must parse to finite, non-negative values within their fixed-width field boundaries before iterator state advances."
+trust_boundary: "Untrusted archive bytes crossing into a local archive parser and iterator."
+entrypoint_type: "file-format metadata parser"
+sensitive_sink: "iterator advancement and size-based buffer slicing"
+
+attacker_capabilities: ["Supply malformed bytes, headers, lengths, or offsets that reach the affected parser or decode path.", "Control the field values that are interpreted before the implementation proves they fit the backing buffer."]
+exploit_preconditions: ["The target must parse attacker-influenced bytes on the affected path.", "Derived lengths, counts, or pointers are used before the implementation proves they are within bounds."]
+blast_radius: "Parser desynchronization, infinite-loop behavior, or downstream out-of-bounds processing on attacker-controlled archive input."
+
+impact_types: ["denial-of-service"]
+severity_guess: "medium"
+severity_rationale: "The evidence supports a real security-relevant failure mode, but the corpus stops short of proving universal compromise or direct asset loss; the practical risk is best captured as medium severity for denial-of-service."
+
+code_shape_summary: "A fixed-width metadata parser trusted whitespace-only or negative numeric fields before proving the parsed values were valid and bounded."
+search_motifs: ["fixed-width header parsed with strtol-style APIs", "negative or whitespace-only size fields accepted", "iterator progress derived from unvalidated archive metadata"]
+negative_signals: ["No full parser implementation diff is provided showing exact bounds checks or rejection logic.", "No concrete remote or attacker-controlled input path is established.", "No memory corruption primitive is directly demonstrated in the snippets."]
+patch_pattern: "Constrain numeric parsing to the field width, reject blank or negative sizes, and refuse to advance iterator state on malformed metadata."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/20260503-171919Z-firedancer/raw-findings/2023-01-30-firedancer-core-logic-4f66d0180.md", "git:4f66d018010faa4f59a736091d7e5bd4fa2e66dd"]
+notes:
+  - "Enriched from the validated raw finding, source evidence, and corpus import metadata."

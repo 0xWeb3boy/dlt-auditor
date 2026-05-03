@@ -66,6 +66,10 @@ For the candidate under review:
    - amendment, fork, or feature-scoped authorization
    - validator-list or trust-list threshold achievability
    - generated-side-effect authorization
+   - exact caller/callee buffer contract
+   - lifetime-safe ownership across nested or async execution
+   - destination/source length equality before copy-back
+   - local progress-invariant feasibility under configured capacity
 4. Search for compensating controls elsewhere in the codebase.
 5. Decide whether the issue is:
    - confirmed

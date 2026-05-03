@@ -1,0 +1,38 @@
+id: "firedancer-2025-09-15-firedancer-transaction-processing-4507bc93b"
+source_finding: "2025-09-15-firedancer-transaction-processing-4507bc93b.md"
+project: "firedancer"
+date: "2025-09-15"
+language_tags: ["c"]
+
+bug_family: "checked_arithmetic_and_parameter_bounds"
+bug_class: "buffer-overflow"
+subsystem: "transaction-processing"
+architecture_tags: ["runtime-execution"]
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "destination-capacity-validation"
+violated_invariant: "Residual bytes plus a newly received payload must fit the destination buffer before compaction or append."
+trust_boundary: "Peer-controlled network/FEC bytes crossing into a reusable scheduler buffer."
+entrypoint_type: "buffered network ingest path"
+sensitive_sink: "memmove/memcpy into a fixed residual buffer"
+
+attacker_capabilities: ["Supply malformed bytes, headers, lengths, or offsets that reach the affected parser or decode path.", "Control the field values that are interpreted before the implementation proves they fit the backing buffer."]
+exploit_preconditions: ["The target must parse attacker-influenced bytes on the affected path.", "Derived lengths, counts, or pointers are used before the implementation proves they are within bounds."]
+blast_radius: "Oversized input can overwrite buffer memory and crash the validator or corrupt runtime state."
+
+impact_types: ["memory-corruption", "denial-of-service"]
+severity_guess: "high"
+severity_rationale: "The affected path reaches a memory write, authenticity check, or privilege gate on attacker-shaped input, so similar cases usually deserve high severity when reachable; the corpus evidence points to memory-corruption, denial-of-service."
+
+code_shape_summary: "The ingest path compacted residual bytes and appended a new payload without first proving the combined length stayed within the backing buffer."
+search_motifs: ["residual+incoming size compared to buffer capacity", "source offset asserted before memmove", "append path guarded by explicit destination size check"]
+negative_signals: ["Complete body of the oversized-buffer rejection path is not shown.", "No proof is provided that malformed FEC/residual state is attacker-controllable.", "No exploit demonstration, memory corruption primitive, or consensus-divergence scenario is shown."]
+patch_pattern: "Assert source offsets, compute the combined residual-plus-incoming length, and reject oversized input before any copy occurs."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/20260503-171919Z-firedancer/raw-findings/2025-09-15-firedancer-transaction-processing-4507bc93b.md", "git:4507bc93b15bed10f98f1f5296d301365ee34b8d"]
+notes:
+  - "Enriched from the validated raw finding, source evidence, and corpus import metadata."

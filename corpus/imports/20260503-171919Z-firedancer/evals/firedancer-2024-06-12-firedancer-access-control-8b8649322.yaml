@@ -1,0 +1,17 @@
+id: "firedancer-2024-06-12-firedancer-access-control-8b8649322"
+source_record: "firedancer-2024-06-12-firedancer-access-control-8b8649322.yaml"
+project: "firedancer"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "secret-memory-hardening"
+expected_missing_property: "guarded-secret-memory-residency"
+
+expected_impact_band: "low"
+expected_severity_band: "low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: ["No concrete prior vulnerability or exploit path is shown.", "No attacker-controlled input path is connected to the changed code."]
+notes:
+  - "Enriched against the validated kept corpus entry and its raw finding narrative."

@@ -1,0 +1,17 @@
+id: "firedancer-2026-02-11-firedancer-consensus-953e40003"
+source_record: "firedancer-2026-02-11-firedancer-consensus-953e40003.yaml"
+project: "firedancer"
+
+expected_bug_family: "checked_arithmetic_and_parameter_bounds"
+expected_bug_class: "missing-bounds-check-buffer-overflow"
+expected_missing_property: "copy-back-length-equality-check"
+
+expected_impact_band: "high"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: ["No proof of remote exploitability or attacker-controlled code execution.", "No evidence of privilege bypass or access-control failure."]
+notes:
+  - "Enriched against the validated kept corpus entry and its raw finding narrative."

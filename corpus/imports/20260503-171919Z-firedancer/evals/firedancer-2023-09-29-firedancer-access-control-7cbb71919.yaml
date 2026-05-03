@@ -1,0 +1,17 @@
+id: "firedancer-2023-09-29-firedancer-access-control-7cbb71919"
+source_record: "firedancer-2023-09-29-firedancer-access-control-7cbb71919.yaml"
+project: "firedancer"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "parser-bounds-hardening"
+expected_missing_property: "buffer-length-threading"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: ["No concrete vulnerable caller path is shown for short or malformed buffers.", "No before-version implementation is provided showing an actual out-of-bounds read or write."]
+notes:
+  - "Enriched against the validated kept corpus entry and its raw finding narrative."

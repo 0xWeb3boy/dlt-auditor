@@ -1,0 +1,17 @@
+id: "firedancer-2024-04-18-firedancer-p2p-networking-811935f39"
+source_record: "firedancer-2024-04-18-firedancer-p2p-networking-811935f39.yaml"
+project: "firedancer"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "null-dereference"
+expected_missing_property: "state-presence-validation"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: ["No proof of arbitrary code execution or memory corruption beyond a likely null dereference.", "No exploit trace or test case is provided showing a remotely delivered packet causing the crash."]
+notes:
+  - "Enriched against the validated kept corpus entry and its raw finding narrative."

@@ -1,0 +1,17 @@
+id: "firedancer-2025-10-01-firedancer-core-logic-fd99d9175"
+source_record: "firedancer-2025-10-01-firedancer-core-logic-fd99d9175.yaml"
+project: "firedancer"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "hardening-or-correctness-fix"
+expected_missing_property: "definite-initialization-before-helper-use"
+
+expected_impact_band: "low"
+expected_severity_band: "low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: ["No macro or helper implementation is provided to show the exact field read before initialization.", "No exploit path, attacker-controlled stale stack data, or privilege impact is demonstrated."]
+notes:
+  - "Enriched against the validated kept corpus entry and its raw finding narrative."

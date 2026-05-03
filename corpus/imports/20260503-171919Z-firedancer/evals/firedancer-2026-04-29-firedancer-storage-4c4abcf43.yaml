@@ -1,0 +1,17 @@
+id: "firedancer-2026-04-29-firedancer-storage-4c4abcf43"
+source_record: "firedancer-2026-04-29-firedancer-storage-4c4abcf43.yaml"
+project: "firedancer"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "http-content-length-input-validation"
+expected_missing_property: "strict-positive-content-length-validation"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: ["No proof that an unauthenticated or remote attacker can control the snapshot HTTP response source.", "No demonstrated memory corruption, out-of-bounds access, or integer overflow from the old parser."]
+notes:
+  - "Enriched against the validated kept corpus entry and its raw finding narrative."

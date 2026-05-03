@@ -1,0 +1,17 @@
+id: "firedancer-2024-04-29-firedancer-transaction-processing-cf108c124"
+source_record: "firedancer-2024-04-29-firedancer-transaction-processing-cf108c124.yaml"
+project: "firedancer"
+
+expected_bug_family: "authz_and_role_gates"
+expected_bug_class: "access-control"
+expected_missing_property: "exact-authority-signer-validation"
+
+expected_impact_band: "high"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: ["No full exploit scenario is provided showing unauthorized deployment in practice.", "Test contents are not provided, only test file metadata."]
+notes:
+  - "Enriched against the validated kept corpus entry and its raw finding narrative."

@@ -1,0 +1,17 @@
+id: "firedancer-2026-02-23-firedancer-cryptography-3e0535b19"
+source_record: "firedancer-2026-02-23-firedancer-cryptography-3e0535b19.yaml"
+project: "firedancer"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "malformed-block-resource-exhaustion"
+expected_missing_property: "saturating-progress-accounting"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: ["No proof of a concrete exploit path or attacker-controlled delivery boundary beyond malformed block data is shown.", "No evidence supports signature forgery, replay-authentication bypass, or access-control impact."]
+notes:
+  - "Enriched against the validated kept corpus entry and its raw finding narrative."

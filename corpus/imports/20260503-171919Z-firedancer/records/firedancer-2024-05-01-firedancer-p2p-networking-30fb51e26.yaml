@@ -1,0 +1,38 @@
+id: "firedancer-2024-05-01-firedancer-p2p-networking-30fb51e26"
+source_finding: "2024-05-01-firedancer-p2p-networking-30fb51e26.md"
+project: "firedancer"
+date: "2024-05-01"
+language_tags: ["c"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "protocol-input-validation"
+subsystem: "p2p-networking"
+architecture_tags: ["network-ingress"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "wire-format-length-validation"
+violated_invariant: "Protocol state must reject wire-format identifiers whose lengths violate the handshake specification before state is updated."
+trust_boundary: "Peer-controlled Retry packet fields crossing into QUIC handshake processing."
+entrypoint_type: "network handshake packet"
+sensitive_sink: "Retry packet acceptance and connection-state update"
+
+attacker_capabilities: ["Send crafted handshake, proof, token, or cryptographic input to the validator.", "Exploit places where authenticity, transcript, or verifier inputs are weaker than the protocol expects."]
+exploit_preconditions: ["The target accepts attacker-controlled protocol material on the affected path.", "The verifier or state machine consumes malformed, unauthenticated, or unchecked inputs before rejecting them."]
+blast_radius: "Malformed handshake input can confuse retry processing or cause local availability loss."
+
+impact_types: ["protocol-hardening"]
+severity_guess: "medium"
+severity_rationale: "The evidence supports a real security-relevant failure mode, but the corpus stops short of proving universal compromise or direct asset loss; the practical risk is best captured as medium severity for protocol-hardening."
+
+code_shape_summary: "Handshake logic consumed Retry-related connection IDs before proving their encoded lengths matched protocol limits."
+search_motifs: ["connection ID length check added before handshake state update", "protocol parser distinguishes actual wire length from allowed maximum", "Retry-token or CID fields accepted without explicit size gate"]
+negative_signals: ["No advisory, CVE, exploit, test case, or commit body explains a concrete security impact.", "No evidence shows resource exhaustion, connection hijacking, authentication bypass, or memory corruption.", "Connection-close debug logging hunks do not support a security finding."]
+patch_pattern: "Add explicit per-field length checks and reject malformed Retry packets before any stateful processing."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/20260503-171919Z-firedancer/raw-findings/2024-05-01-firedancer-p2p-networking-30fb51e26.md", "git:30fb51e2634d8ca80de34e497169bf8a0f6183a7"]
+notes:
+  - "Enriched from the validated raw finding, source evidence, and corpus import metadata."

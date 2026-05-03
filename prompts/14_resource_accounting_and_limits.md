@@ -37,6 +37,7 @@ Search patterns:
 - compressed protocol input should enforce output limits at the decompression boundary, including partial-output and repeated-read behavior. Do not rely only on later parsers to discover that decompressed bytes exceeded the channel, batch, or message cap
 - per-item parsing failures in derived input streams should be isolated when the protocol allows skipping or reporting bad items; one malformed child object should not abort a whole parent batch unless that is the consensus rule
 - multi-dimensional limits where one path enforces count but not bytes, bytes but not count, or uses `both limits exceeded` where the policy says `any limit exceeded`
+- admission, scheduling, and execution paths that meter different resource dimensions for the same operation, such as execution units vs loaded-account-data cost, trace growth vs stack depth, or declared frame size vs actual receive-buffer capacity
 - cleanup or truncation paths that use a weaker predicate than insertion/admission paths
 - cache-hit paths that return stored execution or precompile result objects containing gas, quota, reservoir, refund, or caller-local accounting state
 - batch-mode decisions that choose clean, incremental, bounded, or unbounded work based only on the next local window instead of the full remaining range
@@ -53,6 +54,7 @@ Search patterns:
 - traffic-control, rate-limit, spam-weight, or peer-penalty systems where only successful submissions are attributed. Invalid, duplicate, rejected, timeout, already-known, and consensus-output paths should update resource or accounting state symmetrically when they consume comparable work
 - transaction or message resubmission caches where the key is a digest, object ID, sender, peer, or client address. Check that all ingress paths propagate the same attribution key and that paths without attribution cannot bypass the limiter
 - consensus proposal builders and consensus verifiers that enforce related limits independently. Count, byte, per-item, aggregate-byte, recursion-depth, and per-author limits must match between production and validation, with any-limit-exceeded rejection rather than partial enforcement
+- counters, sizes, or quotas derived from protocol state that use ordinary addition, subtraction, or narrowing where saturation, checked arithmetic, or explicit rejection is required. Overflow or narrowing must not turn an over-limit condition into apparent progress or admissibility
 - lifecycle-triggered contract execution, precompile execution, and block hook callbacks that swap gas meters, temporary stores, or execution contexts. The temporary meter must inherit the parent bound, and expected out-of-gas errors should fail closed without hiding unexpected panics
 - long-lived subscriptions, listeners, peer maps, and stream state where the allocation or registration point is separate from config parsing. Enforce limits under the same lock or reservation policy that mutates the retained collection
 

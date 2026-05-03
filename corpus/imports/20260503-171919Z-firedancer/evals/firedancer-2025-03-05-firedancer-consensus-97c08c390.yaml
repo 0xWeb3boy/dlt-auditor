@@ -1,0 +1,17 @@
+id: "firedancer-2025-03-05-firedancer-consensus-97c08c390"
+source_record: "firedancer-2025-03-05-firedancer-consensus-97c08c390.yaml"
+project: "firedancer"
+
+expected_bug_family: "checked_arithmetic_and_parameter_bounds"
+expected_bug_class: "arithmetic-bound-hardening"
+expected_missing_property: "counter-clamping-before-exponentiation"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: ["No proof that normal execution can produce confirmation_count greater than MAX_LOCKOUT_HISTORY.", "No concrete exploit path or attacker-controlled input flow is shown."]
+notes:
+  - "Enriched against the validated kept corpus entry and its raw finding narrative."

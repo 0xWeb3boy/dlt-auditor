@@ -1,0 +1,17 @@
+id: "firedancer-2025-02-06-firedancer-transaction-processing-4d173a092"
+source_record: "firedancer-2025-02-06-firedancer-transaction-processing-4d173a092.yaml"
+project: "firedancer"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "resource-accounting-mismatch"
+expected_missing_property: "multi-dimension-resource-accounting"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: ["No concrete exploit scenario is shown.", "No evidence shows replay protection or signature validation was affected."]
+notes:
+  - "Enriched against the validated kept corpus entry and its raw finding narrative."

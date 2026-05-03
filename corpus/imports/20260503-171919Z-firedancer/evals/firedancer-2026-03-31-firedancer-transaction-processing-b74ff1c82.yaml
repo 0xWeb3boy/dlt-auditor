@@ -1,0 +1,17 @@
+id: "firedancer-2026-03-31-firedancer-transaction-processing-b74ff1c82"
+source_record: "firedancer-2026-03-31-firedancer-transaction-processing-b74ff1c82.yaml"
+project: "firedancer"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "resource-capacity-invariant-violation"
+expected_missing_property: "buffer-capacity-versus-frame-size-validation"
+
+expected_impact_band: "low"
+expected_severity_band: "low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: ["No evidence that current production deployments were vulnerable; commit says production buffers are currently sized properly.", "No proof of remote exploitability unless a deployment can accept frames larger than its rx buffer capacity."]
+notes:
+  - "Enriched against the validated kept corpus entry and its raw finding narrative."

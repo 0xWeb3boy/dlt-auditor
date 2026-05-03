@@ -44,6 +44,8 @@ Your task:
 24. Compare adapter entrypoints against their canonical native entrypoints. For every precompile, cross-runtime query helper, legacy RPC adapter, or compatibility transaction path, ask whether it reuses the same validation, address association, chain or replay domain, message type, and final sink as the native path.
 25. Search for early side effects that are recorded before final admission or success: pending nonces, peer penalties, callback writes, accounting deltas, generated receipts, cached proposal blocks, and temporary store writes. Check whether every later rejection, timeout, panic, or failed acknowledgement rolls them back or avoids recording them until acceptance.
 26. In consensus and p2p lifecycles, compare the predicate that verifies an object with the predicate that later mutates state from it. A certificate, peer response, stream discriminator, or proposal that was not needed or verified for the current transition must not still drive stored state, emitted votes, or allocation.
+27. Search caller/callee contract edges, not just protocol invariants. Compare what helpers, parsers, VM syscalls, copy-back routines, and cryptographic decoders document as their required backing span, output-buffer size, ownership lifetime, and exact destination-length contract against what call sites actually provide.
+28. Treat typed stack locals, missing sentinel bytes, escaped local metadata, fixed-capacity receive buffers, and post-execution memcpy or copy-back without exact length equality as high-signal candidates.
 
 For each candidate include:
 - Title

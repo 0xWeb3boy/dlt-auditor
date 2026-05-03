@@ -1,0 +1,38 @@
+id: "firedancer-2025-03-05-firedancer-consensus-97c08c390"
+source_finding: "2025-03-05-firedancer-consensus-97c08c390.md"
+project: "firedancer"
+date: "2025-03-05"
+language_tags: ["c"]
+
+bug_family: "checked_arithmetic_and_parameter_bounds"
+bug_class: "arithmetic-bound-hardening"
+subsystem: "consensus"
+architecture_tags: ["consensus-runtime"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "counter-clamping-before-exponentiation"
+violated_invariant: "State-derived counters must be clamped to protocol bounds before powering, shifting, or indexing with them."
+trust_boundary: "Vote-state confirmation counts crossing into lockout math."
+entrypoint_type: "vote-state processing"
+sensitive_sink: "lockout exponentiation and duration calculation"
+
+attacker_capabilities: ["Feed malformed ledger, transaction, or state inputs into a consensus-sensitive bookkeeping path.", "Trigger edge cases where counters, ownership, or replay state drift from the concrete source of truth."]
+exploit_preconditions: ["The affected logic runs on consensus-critical or validator-critical state transitions.", "The implementation derives counters, owners, or replay state from intermediate data without reconciling it to the concrete state."]
+blast_radius: "Arithmetic overflow can corrupt consensus-sensitive liveness state or crash the validator."
+
+impact_types: ["consensus-hardening"]
+severity_guess: "medium"
+severity_rationale: "The evidence supports a real security-relevant failure mode, but the corpus stops short of proving universal compromise or direct asset loss; the practical risk is best captured as medium severity for consensus-hardening."
+
+code_shape_summary: "Consensus math fed a confirmation counter into power-of-two logic before proving it was within the protocol’s lockout history bound."
+search_motifs: ["pow2/shift applied to state-derived counter", "MAX_* history bound introduced before exponentiation", "confirmation count or lockout level clamped before arithmetic"]
+negative_signals: ["No proof that normal execution can produce confirmation_count greater than MAX_LOCKOUT_HISTORY.", "No concrete exploit path or attacker-controlled input flow is shown.", "No evidence of actual validator divergence, consensus failure, or chain safety impact."]
+patch_pattern: "Clamp the counter to the protocol maximum before any arithmetic that can overflow or allocate oversized state."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/20260503-171919Z-firedancer/raw-findings/2025-03-05-firedancer-consensus-97c08c390.md", "git:97c08c390c7888ef4d0f7761a1538ee6bd75b772"]
+notes:
+  - "Enriched from the validated raw finding, source evidence, and corpus import metadata."

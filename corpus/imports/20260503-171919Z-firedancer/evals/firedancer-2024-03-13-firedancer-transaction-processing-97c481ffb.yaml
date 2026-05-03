@@ -1,0 +1,17 @@
+id: "firedancer-2024-03-13-firedancer-transaction-processing-97c481ffb"
+source_record: "firedancer-2024-03-13-firedancer-transaction-processing-97c481ffb.yaml"
+project: "firedancer"
+
+expected_bug_family: "authz_and_role_gates"
+expected_bug_class: "access-control"
+expected_missing_property: "exact-account-instance-authorization"
+
+expected_impact_band: "high"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: ["No exploit transaction or reproduction is provided.", "No concrete asset theft, lamport loss, or consensus impact is shown."]
+notes:
+  - "Enriched against the validated kept corpus entry and its raw finding narrative."

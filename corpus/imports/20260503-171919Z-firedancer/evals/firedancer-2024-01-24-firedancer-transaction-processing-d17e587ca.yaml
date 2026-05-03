@@ -1,0 +1,17 @@
+id: "firedancer-2024-01-24-firedancer-transaction-processing-d17e587ca"
+source_record: "firedancer-2024-01-24-firedancer-transaction-processing-d17e587ca.yaml"
+project: "firedancer"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "signing-key-isolation-hardening"
+expected_missing_property: "keyguard-mediated-signing"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: ["No proof that private keys were exposed before the patch.", "No proof that arbitrary payload signing or signature forgery was possible before the patch."]
+notes:
+  - "Enriched against the validated kept corpus entry and its raw finding narrative."

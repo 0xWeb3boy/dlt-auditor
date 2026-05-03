@@ -1,0 +1,38 @@
+id: "firedancer-2025-10-01-firedancer-core-logic-fd99d9175"
+source_finding: "2025-10-01-firedancer-core-logic-fd99d9175.md"
+project: "firedancer"
+date: "2025-10-01"
+language_tags: ["c"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "hardening-or-correctness-fix"
+subsystem: "core-logic"
+architecture_tags: ["parser-core"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "definite-initialization-before-helper-use"
+violated_invariant: "Guard or borrow wrappers passed into helper macros must be fully initialized before any helper reads their fields."
+trust_boundary: "Runtime account metadata crossing into helper macros that borrow or validate account state."
+entrypoint_type: "account-borrow helper setup"
+sensitive_sink: "guarded borrow helper macros"
+
+attacker_capabilities: ["Feed malformed ledger, transaction, or state inputs into a consensus-sensitive bookkeeping path.", "Trigger edge cases where counters, ownership, or replay state drift from the concrete source of truth."]
+exploit_preconditions: ["The affected logic runs on consensus-critical or validator-critical state transitions.", "The implementation derives counters, owners, or replay state from intermediate data without reconciling it to the concrete state."]
+blast_radius: "Uninitialized helper state can produce unstable validation results or memory-safety-adjacent behavior in runtime code."
+
+impact_types: ["correctness-or-hardening"]
+severity_guess: "low"
+severity_rationale: "This bundle entry is mostly hardening or edge-case correctness around correctness-or-hardening, so similar cases are usually low severity unless paired with a second bug."
+
+code_shape_summary: "Stack-local borrowed-account wrappers were passed to helper macros without deterministic zero-initialization, leaving helper behavior dependent on stale stack bytes."
+search_motifs: ["stack-local guard struct zeroed before helper macro", "borrow wrapper initialized with {0}", "helper reads fields before explicit initialization"]
+negative_signals: ["No macro or helper implementation is provided to show the exact field read before initialization.", "No exploit path, attacker-controlled stale stack data, or privilege impact is demonstrated.", "No evidence proves account theft, unauthorized mutation, denial of service, or consensus divergence."]
+patch_pattern: "Zero-initialize helper structs at declaration time so every later helper path sees a consistent baseline state."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/20260503-171919Z-firedancer/raw-findings/2025-10-01-firedancer-core-logic-fd99d9175.md", "git:fd99d91752315661eb76deedbb253707902574e5"]
+notes:
+  - "Enriched from the validated raw finding, source evidence, and corpus import metadata."

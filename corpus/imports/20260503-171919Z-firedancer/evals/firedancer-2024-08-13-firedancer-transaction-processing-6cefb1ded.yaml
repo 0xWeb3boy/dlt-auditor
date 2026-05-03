@@ -1,0 +1,17 @@
+id: "firedancer-2024-08-13-firedancer-transaction-processing-6cefb1ded"
+source_record: "firedancer-2024-08-13-firedancer-transaction-processing-6cefb1ded.yaml"
+project: "firedancer"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "executor-accounting-hardening"
+expected_missing_property: "execution-trace-and-stack-accounting"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: ["No test assertions are supplied showing the prior behavior was exploitable or consensus-critical.", "No definition or sizing evidence is supplied for instr_trace or FD_MAX_INSTRUCTION_TRACE_LENGTH beyond the added check."]
+notes:
+  - "Enriched against the validated kept corpus entry and its raw finding narrative."

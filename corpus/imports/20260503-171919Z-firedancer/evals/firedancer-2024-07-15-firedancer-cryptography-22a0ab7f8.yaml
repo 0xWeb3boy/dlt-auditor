@@ -1,0 +1,17 @@
+id: "firedancer-2024-07-15-firedancer-cryptography-22a0ab7f8"
+source_record: "firedancer-2024-07-15-firedancer-cryptography-22a0ab7f8.yaml"
+project: "firedancer"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "quic-packet-validation-hardening"
+expected_missing_property: "packet-length-and-number-validation"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: ["No advisory, CVE, exploit, or security-labeled commit message is provided.", "No supplied hunk proves out-of-bounds read, write, packet forgery, nonce reuse, or plaintext exposure."]
+notes:
+  - "Enriched against the validated kept corpus entry and its raw finding narrative."

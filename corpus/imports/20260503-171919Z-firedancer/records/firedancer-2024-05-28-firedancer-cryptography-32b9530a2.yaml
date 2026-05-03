@@ -1,0 +1,38 @@
+id: "firedancer-2024-05-28-firedancer-cryptography-32b9530a2"
+source_finding: "2024-05-28-firedancer-cryptography-32b9530a2.md"
+project: "firedancer"
+date: "2024-05-28"
+language_tags: ["c"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "retry-token-forgery"
+subsystem: "cryptography"
+architecture_tags: ["crypto-validation"]
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "server-secret-token-authentication"
+violated_invariant: "Stateless retry tokens must be cryptographically bound to a server secret so clients cannot mint acceptable tokens offline."
+trust_boundary: "Unauthenticated client token material crossing into server retry-token validation."
+entrypoint_type: "handshake token validation"
+sensitive_sink: "acceptance of Retry-protected connection state"
+
+attacker_capabilities: ["Send crafted handshake, proof, token, or cryptographic input to the validator.", "Exploit places where authenticity, transcript, or verifier inputs are weaker than the protocol expects."]
+exploit_preconditions: ["The target accepts attacker-controlled protocol material on the affected path.", "The verifier or state machine consumes malformed, unauthenticated, or unchecked inputs before rejecting them."]
+blast_radius: "Client-spoofed tokens can bypass intended address-validation or anti-abuse logic."
+
+impact_types: ["address-validation-bypass", "token-spoofing"]
+severity_guess: "high"
+severity_rationale: "The affected path reaches a memory write, authenticity check, or privilege gate on attacker-shaped input, so similar cases usually deserve high severity when reachable; the corpus evidence points to address-validation-bypass, token-spoofing."
+
+code_shape_summary: "Retry token encryption and decryption lacked per-instance secret binding, so token acceptance depended on predictable structure rather than server-held authenticity material."
+search_motifs: ["retry token encrypt/decrypt missing server secret", "stateless token accepted without instance-specific key", "anti-abuse token derived only from public packet data"]
+negative_signals: ["No full exploit trace or proof-of-concept is provided.", "No evidence shows which deployments or configurations enabled Retry tokens.", "No broader compromise of QUIC packet encryption or TLS authentication is shown."]
+patch_pattern: "Introduce a per-instance secret at initialization and thread it through every token encryption and validation call."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/20260503-171919Z-firedancer/raw-findings/2024-05-28-firedancer-cryptography-32b9530a2.md", "git:32b9530a2115b282b6bb8078b077b81c9cd9019e"]
+notes:
+  - "Enriched from the validated raw finding, source evidence, and corpus import metadata."

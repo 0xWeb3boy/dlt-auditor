@@ -1,0 +1,38 @@
+id: "firedancer-2026-04-14-firedancer-staking-22a2fea5d"
+source_finding: "2026-04-14-firedancer-staking-22a2fea5d.md"
+project: "firedancer"
+date: "2026-04-14"
+language_tags: ["c"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "missing-owner-check"
+subsystem: "staking"
+architecture_tags: ["stake-accounting"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "owner-program-validation"
+violated_invariant: "Account contents must not be interpreted as vote-state data unless the owning program matches the expected vote program."
+trust_boundary: "Runtime account metadata crossing into staking refresh logic."
+entrypoint_type: "account refresh and vote-account validation helper"
+sensitive_sink: "vote-state parsing inside a stake refresh path"
+
+attacker_capabilities: ["Supply account metadata with plausible vote-like contents but the wrong owner program.", "Reach a staking refresh path that previously trusted account shape before owner validation."]
+exploit_preconditions: ["The validator consumes account data from a consensus-sensitive refresh path.", "The affected path checks structure or initialization state before confirming the owner program."]
+blast_radius: "Wrong-owner accounts can poison vote-derived staking state or produce incorrect stake accounting."
+
+impact_types: ["state-integrity", "correctness-or-hardening"]
+severity_guess: "medium"
+severity_rationale: "The evidence supports a real security-relevant failure mode, but the corpus stops short of proving universal compromise or direct asset loss; the practical risk is best captured as medium severity for state-integrity, correctness-or-hardening."
+
+code_shape_summary: "The refresh path trusted account shape and initialization state before checking the owner program, so non-vote accounts could be interpreted as vote-state data."
+search_motifs: ["owner-aware helper added before vote-state parsing", "vote-account validation now checks owner program", "metadata parser consumes account contents before owner gate"]
+negative_signals: ["No evidence shows that an attacker can create or route a non-vote-owned account into these paths.", "No regression test or exploit scenario is supplied demonstrating the bad pre-patch behavior.", "No evidence establishes concrete impact such as consensus divergence, reward manipulation, or state corruption."]
+patch_pattern: "Centralize owner-aware validation and reject accounts from the wrong program before parsing their inner state."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/20260503-171919Z-firedancer/raw-findings/2026-04-14-firedancer-staking-22a2fea5d.md", "git:22a2fea5d66e7dc7d4933c2c40bebfc2b78264ad"]
+notes:
+  - "Enriched from the validated raw finding, source evidence, and corpus import metadata."

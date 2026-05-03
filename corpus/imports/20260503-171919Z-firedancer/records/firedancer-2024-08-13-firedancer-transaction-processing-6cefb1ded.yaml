@@ -1,0 +1,38 @@
+id: "firedancer-2024-08-13-firedancer-transaction-processing-6cefb1ded"
+source_finding: "2024-08-13-firedancer-transaction-processing-6cefb1ded.md"
+project: "firedancer"
+date: "2024-08-13"
+language_tags: ["c"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "executor-accounting-hardening"
+subsystem: "transaction-processing"
+architecture_tags: ["runtime-execution"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "execution-trace-and-stack-accounting"
+violated_invariant: "Execution shortcuts and nested instruction paths must preserve trace-length and stack-accounting invariants before returning early."
+trust_boundary: "Transaction-driven execution flow crossing into runtime accounting state."
+entrypoint_type: "instruction execution path"
+sensitive_sink: "trace buffer limits and execution stack accounting"
+
+attacker_capabilities: ["Feed malformed ledger, transaction, or state inputs into a consensus-sensitive bookkeeping path.", "Trigger edge cases where counters, ownership, or replay state drift from the concrete source of truth."]
+exploit_preconditions: ["The affected logic runs on consensus-critical or validator-critical state transitions.", "The implementation derives counters, owners, or replay state from intermediate data without reconciling it to the concrete state."]
+blast_radius: "Bookkeeping drift can undercount resources or destabilize validator execution under adversarial transactions."
+
+impact_types: ["resource-bound-enforcement", "execution-accounting-correctness"]
+severity_guess: "medium"
+severity_rationale: "The evidence supports a real security-relevant failure mode, but the corpus stops short of proving universal compromise or direct asset loss; the practical risk is best captured as medium severity for resource-bound-enforcement, execution-accounting-correctness."
+
+code_shape_summary: "The runtime updated execution counters and stack state too loosely around precompile shortcuts and trace growth, leaving room for inconsistent accounting."
+search_motifs: ["max trace length check added near execution loop", "stack counter decremented before early return", "resource bookkeeping adjusted around precompile shortcut"]
+negative_signals: ["No test assertions are supplied showing the prior behavior was exploitable or consensus-critical.", "No definition or sizing evidence is supplied for instr_trace or FD_MAX_INSTRUCTION_TRACE_LENGTH beyond the added check.", "No concrete attacker-controlled transaction path or denial-of-service scenario is demonstrated."]
+patch_pattern: "Check trace and stack limits before returning or skipping work, and make all counter transitions explicit at each control-flow exit."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/20260503-171919Z-firedancer/raw-findings/2024-08-13-firedancer-transaction-processing-6cefb1ded.md", "git:6cefb1dedfd0c784db6718606a938bdd9077651d"]
+notes:
+  - "Enriched from the validated raw finding, source evidence, and corpus import metadata."

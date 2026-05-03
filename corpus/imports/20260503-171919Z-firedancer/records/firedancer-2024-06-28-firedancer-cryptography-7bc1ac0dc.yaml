@@ -1,0 +1,38 @@
+id: "firedancer-2024-06-28-firedancer-cryptography-7bc1ac0dc"
+source_finding: "2024-06-28-firedancer-cryptography-7bc1ac0dc.md"
+project: "firedancer"
+date: "2024-06-28"
+language_tags: ["c"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "unchecked-cryptographic-rng-failure"
+subsystem: "cryptography"
+architecture_tags: ["crypto-validation"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "rng-failure-handling"
+violated_invariant: "Randomly generated identifiers used in protocol state must abort the operation if entropy generation fails."
+trust_boundary: "OS or helper RNG results crossing into connection-ID generation."
+entrypoint_type: "connection initialization helper"
+sensitive_sink: "connection ID issuance and state setup"
+
+attacker_capabilities: ["Send crafted handshake, proof, token, or cryptographic input to the validator.", "Exploit places where authenticity, transcript, or verifier inputs are weaker than the protocol expects."]
+exploit_preconditions: ["The target accepts attacker-controlled protocol material on the affected path.", "The verifier or state machine consumes malformed, unauthenticated, or unchecked inputs before rejecting them."]
+blast_radius: "Unchecked RNG failure can create invalid or weak protocol identifiers and destabilize connection setup."
+
+impact_types: ["connection-id-randomness-integrity", "fail-open-on-rng-failure"]
+severity_guess: "medium"
+severity_rationale: "The evidence supports a real security-relevant failure mode, but the corpus stops short of proving universal compromise or direct asset loss; the practical risk is best captured as medium severity for connection-id-randomness-integrity, fail-open-on-rng-failure."
+
+code_shape_summary: "Protocol setup called a random-byte helper for connection identifiers without checking the documented failure path."
+search_motifs: ["random-byte helper return value ignored", "connection ID or nonce generated without fail-closed path", "protocol state initialized even when entropy helper can fail"]
+negative_signals: ["No evidence that an attacker can cause fd_rng_secure or getrandom failure.", "No evidence of observed duplicate, zero, predictable, or reused connection IDs in production.", "Old fd_quic_create_conn_id implementation is not included, so the client-side prior behavior is only partially supported."]
+patch_pattern: "Wrap randomness generation in a checked helper and abort or error-return immediately if entropy generation fails."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/20260503-171919Z-firedancer/raw-findings/2024-06-28-firedancer-cryptography-7bc1ac0dc.md", "git:7bc1ac0dc65f187f617b4911ed57120ee1a5ce30"]
+notes:
+  - "Enriched from the validated raw finding, source evidence, and corpus import metadata."

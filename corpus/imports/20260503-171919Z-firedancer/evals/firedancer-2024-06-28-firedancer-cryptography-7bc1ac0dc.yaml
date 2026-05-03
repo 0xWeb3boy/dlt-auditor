@@ -1,0 +1,17 @@
+id: "firedancer-2024-06-28-firedancer-cryptography-7bc1ac0dc"
+source_record: "firedancer-2024-06-28-firedancer-cryptography-7bc1ac0dc.yaml"
+project: "firedancer"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "unchecked-cryptographic-rng-failure"
+expected_missing_property: "rng-failure-handling"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: ["No evidence that an attacker can cause fd_rng_secure or getrandom failure.", "No evidence of observed duplicate, zero, predictable, or reused connection IDs in production."]
+notes:
+  - "Enriched against the validated kept corpus entry and its raw finding narrative."

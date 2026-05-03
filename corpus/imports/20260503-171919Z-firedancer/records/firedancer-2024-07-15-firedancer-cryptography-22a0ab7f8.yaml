@@ -1,0 +1,38 @@
+id: "firedancer-2024-07-15-firedancer-cryptography-22a0ab7f8"
+source_finding: "2024-07-15-firedancer-cryptography-22a0ab7f8.md"
+project: "firedancer"
+date: "2024-07-15"
+language_tags: ["c"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "quic-packet-validation-hardening"
+subsystem: "cryptography"
+architecture_tags: ["crypto-validation"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "packet-length-and-number-validation"
+violated_invariant: "Wire-format packet lengths and packet-number state must be validated before they feed crypto, decoding, or stateful packet handling."
+trust_boundary: "Peer-controlled QUIC packet bytes crossing into crypto and decode logic."
+entrypoint_type: "network packet decode path"
+sensitive_sink: "packet-number derivation and IPv4/UDP length-backed reads"
+
+attacker_capabilities: ["Send crafted handshake, proof, token, or cryptographic input to the validator.", "Exploit places where authenticity, transcript, or verifier inputs are weaker than the protocol expects."]
+exploit_preconditions: ["The target accepts attacker-controlled protocol material on the affected path.", "The verifier or state machine consumes malformed, unauthenticated, or unchecked inputs before rejecting them."]
+blast_radius: "Malformed packet input can confuse protocol state, trigger crashes, or weaken packet-authenticity assumptions."
+
+impact_types: ["protocol-correctness", "input-validation-hardening"]
+severity_guess: "medium"
+severity_rationale: "The evidence supports a real security-relevant failure mode, but the corpus stops short of proving universal compromise or direct asset loss; the practical risk is best captured as medium severity for protocol-correctness, input-validation-hardening."
+
+code_shape_summary: "Protocol helpers consumed packet-number and packet-length state before proving the wire-format sizes and backing transport lengths were coherent."
+search_motifs: ["packet-number reconstruction adjusted near decode path", "IPv4 or UDP length check added before packet use", "wire-format size gate added near crypto or AEAD processing"]
+negative_signals: ["No advisory, CVE, exploit, or security-labeled commit message is provided.", "No supplied hunk proves out-of-bounds read, write, packet forgery, nonce reuse, or plaintext exposure.", "No regression test shown demonstrating attacker-controlled malformed packet behavior."]
+patch_pattern: "Tighten packet-number handling and add explicit transport-length validation before decode and crypto state updates."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/20260503-171919Z-firedancer/raw-findings/2024-07-15-firedancer-cryptography-22a0ab7f8.md", "git:22a0ab7f8ab69be4bedc8b139f57e8cc97960d34"]
+notes:
+  - "Enriched from the validated raw finding, source evidence, and corpus import metadata."

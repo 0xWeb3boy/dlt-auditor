@@ -1,0 +1,38 @@
+id: "firedancer-2024-10-08-firedancer-storage-3945455a3"
+source_finding: "2024-10-08-firedancer-storage-3945455a3.md"
+project: "firedancer"
+date: "2024-10-08"
+language_tags: ["c"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "runtime-program-admissibility"
+subsystem: "storage"
+architecture_tags: ["state-ingest"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "pre-dispatch-program-admissibility"
+violated_invariant: "A runtime must validate that every candidate program account is executable and admissible before dispatching it."
+trust_boundary: "Transaction-selected program accounts crossing into the executor dispatch path."
+entrypoint_type: "transaction pre-execution check"
+sensitive_sink: "program dispatch and execution"
+
+attacker_capabilities: ["Feed malformed ledger, transaction, or state inputs into a consensus-sensitive bookkeeping path.", "Trigger edge cases where counters, ownership, or replay state drift from the concrete source of truth."]
+exploit_preconditions: ["The affected logic runs on consensus-critical or validator-critical state transitions.", "The implementation derives counters, owners, or replay state from intermediate data without reconciling it to the concrete state."]
+blast_radius: "Invalid or blacklisted programs can reach execution state that should have been rejected before side effects begin."
+
+impact_types: ["invalid-program-execution", "consensus-integrity"]
+severity_guess: "medium"
+severity_rationale: "The evidence supports a real security-relevant failure mode, but the corpus stops short of proving universal compromise or direct asset loss; the practical risk is best captured as medium severity for invalid-program-execution, consensus-integrity."
+
+code_shape_summary: "The execution path lacked a dedicated admissibility gate and trusted downstream logic to notice invalid program accounts too late."
+search_motifs: ["pre-execution executable-program check added", "transaction aborted before dispatch on invalid program account", "runtime admissibility helper inserted ahead of interpreter entry"]
+negative_signals: ["Exact blacklist entries and matching logic are not shown.", "No end-to-end attacker-controlled exploit path is shown.", "No evidence supports replay or signature-validation impact."]
+patch_pattern: "Add a pre-dispatch admissibility helper and fail the transaction before any execution state is initialized."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/20260503-171919Z-firedancer/raw-findings/2024-10-08-firedancer-storage-3945455a3.md", "git:3945455a38ce4868ae2d1332bc091f4680aea452"]
+notes:
+  - "Enriched from the validated raw finding, source evidence, and corpus import metadata."

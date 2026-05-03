@@ -1,0 +1,38 @@
+id: "firedancer-2024-01-24-firedancer-transaction-processing-d17e587ca"
+source_finding: "2024-01-24-firedancer-transaction-processing-d17e587ca.md"
+project: "firedancer"
+date: "2024-01-24"
+language_tags: ["c"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "signing-key-isolation-hardening"
+subsystem: "transaction-processing"
+architecture_tags: ["runtime-execution"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "keyguard-mediated-signing"
+violated_invariant: "Private keys should remain behind a dedicated keyguard boundary, and network-facing components should request signatures instead of signing directly."
+trust_boundary: "QUIC/TLS or shred-producing components crossing into the keyguard client boundary."
+entrypoint_type: "network-facing signing request path"
+sensitive_sink: "private-key backed handshake or shred signature generation"
+
+attacker_capabilities: ["Reach a signing or key-loading path from a less-trusted runtime component.", "Influence which request, buffer, or role crosses into the isolated signing boundary."]
+exploit_preconditions: ["Sensitive key material or signing authority is reachable from non-isolated runtime code.", "The system relies on process boundaries or role tags to confine signing rights."]
+blast_radius: "A missing mediation layer could expose raw key use to broader runtime code or topology mistakes."
+
+impact_types: ["key-exposure-risk-reduction", "unauthorized-signing-risk-reduction"]
+severity_guess: "medium"
+severity_rationale: "The evidence supports a real security-relevant failure mode, but the corpus stops short of proving universal compromise or direct asset loss; the practical risk is best captured as medium severity for key-exposure-risk-reduction, unauthorized-signing-risk-reduction."
+
+code_shape_summary: "The change reroutes protocol and shred signing through a keyguard client so key-holding behavior is removed from direct protocol handlers."
+search_motifs: ["direct signing replaced with keyguard client", "topology adds signer input link", "private-key operations moved out of protocol worker"]
+negative_signals: ["No proof that private keys were exposed before the patch.", "No proof that arbitrary payload signing or signature forgery was possible before the patch.", "No exploit path, attacker model, or externally reachable abuse condition is shown."]
+patch_pattern: "Insert a keyguard-mediated client boundary, validate the required topology wiring, and keep raw signing out of protocol-facing code."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/20260503-171919Z-firedancer/raw-findings/2024-01-24-firedancer-transaction-processing-d17e587ca.md", "git:d17e587caa772ee794ab99357505b23c7eb7fbf2"]
+notes:
+  - "Enriched from the validated raw finding, source evidence, and corpus import metadata."

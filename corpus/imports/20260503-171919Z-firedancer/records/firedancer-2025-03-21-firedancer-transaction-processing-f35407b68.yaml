@@ -1,0 +1,38 @@
+id: "firedancer-2025-03-21-firedancer-transaction-processing-f35407b68"
+source_finding: "2025-03-21-firedancer-transaction-processing-f35407b68.md"
+project: "firedancer"
+date: "2025-03-21"
+language_tags: ["c"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "memory-lifetime"
+subsystem: "transaction-processing"
+architecture_tags: ["runtime-execution"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "lifetime-safe-owned-metadata-storage"
+violated_invariant: "Metadata referenced across nested execution must live in storage owned by the transaction or call context, not a transient stack frame."
+trust_boundary: "Caller-controlled nested execution state crossing from setup code into later CPI use."
+entrypoint_type: "nested call / CPI setup path"
+sensitive_sink: "instruction-info pointer dereference after scope exit"
+
+attacker_capabilities: ["Supply malformed bytes, headers, lengths, or offsets that reach the affected parser or decode path.", "Control the field values that are interpreted before the implementation proves they fit the backing buffer."]
+exploit_preconditions: ["The target must parse attacker-influenced bytes on the affected path.", "Derived lengths, counts, or pointers are used before the implementation proves they are within bounds."]
+blast_radius: "Use-after-scope behavior can corrupt runtime state or crash the validator under crafted nested execution."
+
+impact_types: ["memory-safety"]
+severity_guess: "high"
+severity_rationale: "The affected path reaches a memory write, authenticity check, or privilege gate on attacker-shaped input, so similar cases usually deserve high severity when reachable; the corpus evidence points to memory-safety."
+
+code_shape_summary: "The runtime stored CPI instruction metadata in a stack-local object even though later execution paths continued using it after the setup frame returned."
+search_motifs: ["stack-local metadata replaced with txn-owned array", "counter introduced for transaction-owned CPI info slots", "pointer to local struct escapes into later execution"]
+negative_signals: ["No concrete exploit path or attacker-controlled trigger is shown.", "No proof of consensus divergence, ledger corruption, or state-integrity violation is provided.", "No bounds enforcement for cpi_instr_info_cnt is shown in the supplied evidence."]
+patch_pattern: "Move escaped metadata into transaction-owned storage and make the ownership/lifetime explicit in setup and teardown code."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/20260503-171919Z-firedancer/raw-findings/2025-03-21-firedancer-transaction-processing-f35407b68.md", "git:f35407b68d2db3f892707dbc02025e60b2a1242c"]
+notes:
+  - "Enriched from the validated raw finding, source evidence, and corpus import metadata."

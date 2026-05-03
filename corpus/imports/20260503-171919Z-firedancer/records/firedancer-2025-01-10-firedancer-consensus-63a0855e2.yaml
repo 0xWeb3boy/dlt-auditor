@@ -1,0 +1,38 @@
+id: "firedancer-2025-01-10-firedancer-consensus-63a0855e2"
+source_finding: "2025-01-10-firedancer-consensus-63a0855e2.md"
+project: "firedancer"
+date: "2025-01-10"
+language_tags: ["c"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "nonce-state-persistence"
+subsystem: "consensus"
+architecture_tags: ["consensus-runtime"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "failure-path-nonce-finalization"
+violated_invariant: "Once durable nonce authority checks pass, the runtime must persist the correct nonce-account state on both success and failure paths."
+trust_boundary: "Transaction-driven durable nonce use crossing into persisted account finalization."
+entrypoint_type: "nonce authorization / transaction finalizer"
+sensitive_sink: "durable nonce account persistence"
+
+attacker_capabilities: ["Feed malformed ledger, transaction, or state inputs into a consensus-sensitive bookkeeping path.", "Trigger edge cases where counters, ownership, or replay state drift from the concrete source of truth."]
+exploit_preconditions: ["The affected logic runs on consensus-critical or validator-critical state transitions.", "The implementation derives counters, owners, or replay state from intermediate data without reconciling it to the concrete state."]
+blast_radius: "Nonce replay protection can drift from actual execution outcome, enabling reuse or state inconsistency."
+
+impact_types: ["replay-protection", "state-integrity"]
+severity_guess: "medium"
+severity_rationale: "The evidence supports a real security-relevant failure mode, but the corpus stops short of proving universal compromise or direct asset loss; the practical risk is best captured as medium severity for replay-protection, state-integrity."
+
+code_shape_summary: "The runtime validated nonce authority but returned through paths that did not consistently preserve or advance the nonce account state."
+search_motifs: ["authorized nonce account tracked for finalization", "prepared nonce failure state persisted on error", "nonce advance or rollback logic moved into common finalizer"]
+negative_signals: ["No concrete attacker workflow or replay transaction is shown.", "No failing test output or regression case is provided in the input.", "No proof is provided that the old behavior caused accepted replay, consensus split, or funds loss."]
+patch_pattern: "Record the relevant nonce account after validation and finalize that account explicitly on both success and failure paths."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/20260503-171919Z-firedancer/raw-findings/2025-01-10-firedancer-consensus-63a0855e2.md", "git:63a0855e226a3753f4dc188aa059a95b418f59a2"]
+notes:
+  - "Enriched from the validated raw finding, source evidence, and corpus import metadata."

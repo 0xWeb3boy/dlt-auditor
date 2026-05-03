@@ -1,0 +1,17 @@
+id: "firedancer-2025-01-10-firedancer-consensus-63a0855e2"
+source_record: "firedancer-2025-01-10-firedancer-consensus-63a0855e2.yaml"
+project: "firedancer"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "nonce-state-persistence"
+expected_missing_property: "failure-path-nonce-finalization"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: ["No concrete attacker workflow or replay transaction is shown.", "No failing test output or regression case is provided in the input."]
+notes:
+  - "Enriched against the validated kept corpus entry and its raw finding narrative."

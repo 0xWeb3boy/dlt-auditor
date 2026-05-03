@@ -1,0 +1,17 @@
+id: "firedancer-2026-01-22-firedancer-cryptography-b76fbe370"
+source_record: "firedancer-2026-01-22-firedancer-cryptography-b76fbe370.yaml"
+project: "firedancer"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "consensus-poh-validation"
+expected_missing_property: "pre-execution-tick-verification"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: ["No concrete exploit path or attacker-controlled input flow is shown.", "No proof that invalid PoH or tick structure previously reached finalized consensus state is supplied."]
+notes:
+  - "Enriched against the validated kept corpus entry and its raw finding narrative."

@@ -1,0 +1,38 @@
+id: "firedancer-2024-11-27-firedancer-storage-2bc30f00b"
+source_finding: "2024-11-27-firedancer-storage-2bc30f00b.md"
+project: "firedancer"
+date: "2024-11-27"
+language_tags: ["c"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "crypto-precompile-input-validation-hardening"
+subsystem: "storage"
+architecture_tags: ["state-ingest"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "precompile-point-and-scalar-validation"
+violated_invariant: "Cryptographic precompiles must validate scalar widths, point encodings, and coordinate choices before verification or decompression work."
+trust_boundary: "Instruction-supplied precompile bytes crossing into secp256r1 verification helpers."
+entrypoint_type: "precompile input parser"
+sensitive_sink: "scalar deserialization and public-key recovery/verification"
+
+attacker_capabilities: ["Send crafted handshake, proof, token, or cryptographic input to the validator.", "Exploit places where authenticity, transcript, or verifier inputs are weaker than the protocol expects."]
+exploit_preconditions: ["The target accepts attacker-controlled protocol material on the affected path.", "The verifier or state machine consumes malformed, unauthenticated, or unchecked inputs before rejecting them."]
+blast_radius: "Malformed precompile input can destabilize verification or, in the worst case, accept invalid cryptographic material."
+
+impact_types: ["malformed-input-acceptance", "signature-verification-integrity"]
+severity_guess: "medium"
+severity_rationale: "The evidence supports a real security-relevant failure mode, but the corpus stops short of proving universal compromise or direct asset loss; the practical risk is best captured as medium severity for malformed-input-acceptance, signature-verification-integrity."
+
+code_shape_summary: "The precompile path decoded secp256r1 scalars and compressed keys with weaker format discipline than the verifier contract expected."
+search_motifs: ["scalar byte copy fixed in precompile parser", "compressed key y-coordinate handling corrected", "cryptographic deserializer tightened before verify call"]
+negative_signals: ["No end-to-end transaction or exploit proof shows that invalid signatures were accepted before the patch.", "No demonstrated consensus divergence, funds-at-risk, privilege bypass, or authentication bypass is provided.", "No protocol reference is supplied proving the removed zero-signature success case was exploitable rather than merely nonconforming."]
+patch_pattern: "Validate scalar widths and point encodings up front, then feed only normalized values into the cryptographic verifier."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/20260503-171919Z-firedancer/raw-findings/2024-11-27-firedancer-storage-2bc30f00b.md", "git:2bc30f00b6bee4a7055ec16d29846d6decb728d6"]
+notes:
+  - "Enriched from the validated raw finding, source evidence, and corpus import metadata."

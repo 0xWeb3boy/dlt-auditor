@@ -1,0 +1,17 @@
+id: "firedancer-2024-03-19-firedancer-cryptography-863698b5d"
+source_record: "firedancer-2024-03-19-firedancer-cryptography-863698b5d.yaml"
+project: "firedancer"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "consensus-liveness-failure"
+expected_missing_property: "tick-state-transition-validation"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: ["No demonstrated remote exploit path beyond skipped-slot conditions.", "No evidence of transaction forgery, signature bypass, or replay attack."]
+notes:
+  - "Enriched against the validated kept corpus entry and its raw finding narrative."

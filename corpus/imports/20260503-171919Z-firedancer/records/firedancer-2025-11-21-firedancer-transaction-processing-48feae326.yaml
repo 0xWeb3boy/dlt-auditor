@@ -1,0 +1,38 @@
+id: "firedancer-2025-11-21-firedancer-transaction-processing-48feae326"
+source_finding: "2025-11-21-firedancer-transaction-processing-48feae326.md"
+project: "firedancer"
+date: "2025-11-21"
+language_tags: ["c"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "out-of-bounds-read"
+subsystem: "transaction-processing"
+architecture_tags: ["runtime-execution"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "terminator-aware-length-validation"
+violated_invariant: "Parsers whose API requires a trailing byte must be given a backing span that includes that byte or use a length-safe variant."
+trust_boundary: "Operator- or peer-supplied JSON/config bytes crossing into a generic parser API."
+entrypoint_type: "config or JSON parser"
+sensitive_sink: "parser read past end of the provided buffer"
+
+attacker_capabilities: ["Supply malformed bytes, headers, lengths, or offsets that reach the affected parser or decode path.", "Control the field values that are interpreted before the implementation proves they fit the backing buffer."]
+exploit_preconditions: ["The target must parse attacker-influenced bytes on the affected path.", "Derived lengths, counts, or pointers are used before the implementation proves they are within bounds."]
+blast_radius: "Exact-fit inputs can trigger overreads, crashes, or undefined parser behavior in a validator process."
+
+impact_types: ["memory-safety"]
+severity_guess: "medium"
+severity_rationale: "The evidence supports a real security-relevant failure mode, but the corpus stops short of proving universal compromise or direct asset loss; the practical risk is best captured as medium severity for memory-safety."
+
+code_shape_summary: "The code passed a parser a length-limited buffer even though the specific API still required one byte beyond the logical payload."
+search_motifs: ["json_str_sz changed to json_str_sz+1", "WITH_NULL buffer variant introduced for parser path", "ParseWithLength API documented to require sentinel byte"]
+negative_signals: ["No crash trace, sanitizer report, PoC, or exploit scenario is provided.", "No evidence that the overread crosses a sensitive boundary or leaks data.", "No evidence of consensus-critical state corruption or transaction-processing impact."]
+patch_pattern: "Provide an extra terminator byte or switch to an API whose contract matches the available backing span."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/20260503-171919Z-firedancer/raw-findings/2025-11-21-firedancer-transaction-processing-48feae326.md", "git:48feae326263be3f73fcbbac5e11bbadb00a7d4b"]
+notes:
+  - "Enriched from the validated raw finding, source evidence, and corpus import metadata."

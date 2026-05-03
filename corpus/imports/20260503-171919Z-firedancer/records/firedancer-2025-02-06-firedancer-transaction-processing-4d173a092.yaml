@@ -1,0 +1,38 @@
+id: "firedancer-2025-02-06-firedancer-transaction-processing-4d173a092"
+source_finding: "2025-02-06-firedancer-transaction-processing-4d173a092.md"
+project: "firedancer"
+date: "2025-02-06"
+language_tags: ["c"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "resource-accounting-mismatch"
+subsystem: "transaction-processing"
+architecture_tags: ["runtime-execution"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "multi-dimension-resource-accounting"
+violated_invariant: "Consensus-critical schedulers must charge compute units and loaded-account-data costs in the same dimensions used for admission and execution limits."
+trust_boundary: "Transaction resource usage crossing into pack/bank admission accounting."
+entrypoint_type: "resource metering / admission control"
+sensitive_sink: "bank cost totals and pack scheduling decisions"
+
+attacker_capabilities: ["Feed malformed ledger, transaction, or state inputs into a consensus-sensitive bookkeeping path.", "Trigger edge cases where counters, ownership, or replay state drift from the concrete source of truth."]
+exploit_preconditions: ["The affected logic runs on consensus-critical or validator-critical state transitions.", "The implementation derives counters, owners, or replay state from intermediate data without reconciling it to the concrete state."]
+blast_radius: "Mis-accounted transactions can overconsume resources or diverge from the admission policy expected by the validator."
+
+impact_types: ["consensus-resource-accounting"]
+severity_guess: "medium"
+severity_rationale: "The evidence supports a real security-relevant failure mode, but the corpus stops short of proving universal compromise or direct asset loss; the practical risk is best captured as medium severity for consensus-resource-accounting."
+
+code_shape_summary: "The scheduler folded different resource dimensions together too loosely, leaving loaded-account data cost and execution cost out of sync."
+search_motifs: ["loaded account data cost split from execution CU accounting", "consumed-cost bucket names changed in consensus-critical code", "admission logic charges extra dimension that executor also tracks"]
+negative_signals: ["No concrete exploit scenario is shown.", "No evidence shows replay protection or signature validation was affected.", "No proof that invalid transactions could execute before the patch."]
+patch_pattern: "Make each resource dimension explicit and charge it once in the same place the limit is enforced."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/20260503-171919Z-firedancer/raw-findings/2025-02-06-firedancer-transaction-processing-4d173a092.md", "git:4d173a0927af12fc840bd4755530eb1bb845058a"]
+notes:
+  - "Enriched from the validated raw finding, source evidence, and corpus import metadata."

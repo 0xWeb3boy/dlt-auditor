@@ -1,0 +1,17 @@
+id: "firedancer-2025-09-19-firedancer-transaction-processing-3d4cbe567"
+source_record: "firedancer-2025-09-19-firedancer-transaction-processing-3d4cbe567.yaml"
+project: "firedancer"
+
+expected_bug_family: "checked_arithmetic_and_parameter_bounds"
+expected_bug_class: "stack-buffer-overflow"
+expected_missing_property: "parser-output-buffer-sizing"
+
+expected_impact_band: "high"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions: ["No fd_txn_parse contract or documentation is provided to prove the exact required output size.", "No malformed transaction proof of concept is provided."]
+notes:
+  - "Enriched against the validated kept corpus entry and its raw finding narrative."
