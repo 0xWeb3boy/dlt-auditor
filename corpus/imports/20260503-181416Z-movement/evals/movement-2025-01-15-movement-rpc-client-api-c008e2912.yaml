@@ -1,0 +1,21 @@
+id: "movement-2025-01-15-movement-rpc-client-api-c008e2912"
+source_record: "movement-2025-01-15-movement-rpc-client-api-c008e2912.yaml"
+project: "movement"
+
+expected_bug_family: "signature_binding_and_signer_scope"
+expected_bug_class: "missing-signature-verification"
+expected_missing_property: "known-signer-verification-before-response"
+
+expected_impact_band: "integrity_high"
+expected_severity_band: "high_or_medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Do not flag if the upstream stream already enforces the same known-signer verifier and passes only verified types."
+  - "Do not claim transaction signature bypass unless the returned blob is used as transaction authorization."
+  - "A public mirror endpoint may intentionally return unverified raw data if it is clearly typed and documented as untrusted."
+notes:
+  - "Expected answer should preserve the Phase 4 confidence level: confirmed, security-hardening."
+  - "This is confirmed by Phase 4 and sits at a trust boundary where unverified external DA data was returned to clients; severity can be high when clients rely on the response for protocol state."

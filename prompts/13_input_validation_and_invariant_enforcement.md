@@ -38,8 +38,10 @@ Search patterns:
 - archive, artifact, or bundle extraction paths should reject absolute paths, traversal components, unsafe links, and output paths that escape the selected destination before creating files
 - duplicate parsers or encoders that reconstruct the same semantics in multiple places instead of one canonical path
 - variable-length lists, blob streams, or nested objects that are consumed without asserting exact count, exact byte use, or no leftovers
+- fixed-width cryptographic encodings parsed before checking exact length, and compressed or decoded blob representations accepted before enforcing output-size limits
 - boundary code that aborts on malformed lengths, variants, or encodings instead of returning an ordinary validation failure
 - state updates that derive the next value from request fields without first reading and comparing the current authoritative stored value
+- account nonce, sequence, ticket, or replay counters checked only against committed state while local pending, in-flight, reserved, or recently-used state can be ahead of the chain. Validate duplicate and stale rejection separately from future-window acceptance.
 - code that computes, derives, parses, or canonicalizes a protocol value but does not compare it against the declared value before acceptance
 - protocol objects whose validity depends on sidecar data, proof data, parent data, or fork context that may be missing in revalidation, reorg, reinjection, or recovery paths
 - transaction or header types represented with a generic enum that can express forms forbidden for that type

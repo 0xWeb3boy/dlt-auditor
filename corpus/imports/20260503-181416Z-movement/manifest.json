@@ -1,0 +1,72 @@
+{
+  "repo": "/work/movement",
+  "repo_slug": "movement",
+  "kept_dir": "/work/movement/validated-findings/kept",
+  "created_at_utc": "20260503-181416Z",
+  "finding_count": 7,
+  "findings": [
+    {
+      "id": "movement-2024-10-02-movement-transaction-processing-3bf63c914",
+      "source": "/work/movement/validated-findings/kept/2024-10-02-movement-transaction-processing-3bf63c914.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "transaction-sequence-number-reuse",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "movement-2024-10-04-movement-p2p-networking-cc8857336",
+      "source": "/work/movement/validated-findings/kept/2024-10-04-movement-p2p-networking-cc8857336.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "transaction-sequence-validation",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "movement-2024-10-21-movement-transaction-processing-4aae3dcb9",
+      "source": "/work/movement/validated-findings/kept/2024-10-21-movement-transaction-processing-4aae3dcb9.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "transaction-sequence-number-admission",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "movement-2024-11-20-movement-cryptography-3f265410b",
+      "source": "/work/movement/validated-findings/kept/2024-11-20-movement-cryptography-3f265410b.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "signed-field-not-bound",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "movement-2025-01-15-movement-rpc-client-api-c008e2912",
+      "source": "/work/movement/validated-findings/kept/2025-01-15-movement-rpc-client-api-c008e2912.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "missing-signature-verification",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "movement-2025-01-21-movement-cryptography-39db1ab68",
+      "source": "/work/movement/validated-findings/kept/2025-01-21-movement-cryptography-39db1ab68.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "input-validation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "movement-2025-04-24-movement-cryptography-d16aa9e0d",
+      "source": "/work/movement/validated-findings/kept/2025-04-24-movement-cryptography-d16aa9e0d.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "transaction-validation-bypass",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "authorization"
+    }
+  ]
+}

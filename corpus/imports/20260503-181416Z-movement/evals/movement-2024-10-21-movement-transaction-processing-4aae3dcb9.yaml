@@ -1,0 +1,21 @@
+id: "movement-2024-10-21-movement-transaction-processing-4aae3dcb9"
+source_record: "movement-2024-10-21-movement-transaction-processing-4aae3dcb9.yaml"
+project: "movement"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "transaction-sequence-number-admission"
+expected_missing_property: "centralized-duplicate-sequence-admission-guard"
+
+expected_impact_band: "integrity_or_replay_hardening"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Do not treat every refactor to a helper as security without duplicate or pending-state evidence."
+  - "Do not claim consensus failure when the finding only proves admission hardening."
+  - "Duplicate signed transaction handling can be benign if downstream deduplication is guaranteed and cheap."
+notes:
+  - "Expected answer should preserve the Phase 4 confidence level: likely, security-hardening."
+  - "The evidence includes duplicate-submission test expectations and a shared validation helper, but not a proven DoS, consensus break, or economic exploit."

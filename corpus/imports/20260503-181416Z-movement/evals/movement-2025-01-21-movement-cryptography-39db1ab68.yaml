@@ -1,0 +1,21 @@
+id: "movement-2025-01-21-movement-cryptography-39db1ab68"
+source_record: "movement-2025-01-21-movement-cryptography-39db1ab68.yaml"
+project: "movement"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "input-validation"
+expected_missing_property: "decoded-blob-size-and-signature-length-validation"
+
+expected_impact_band: "availability_hardening"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Do not claim zstd decompression exploit unless decompression code or expansion path is shown."
+  - "Do not classify as authentication bypass from a signature-length guard alone."
+  - "If MAX_BLOB_LEN is enforced earlier on every external path, this constructor change may be defense in depth."
+notes:
+  - "Expected answer should preserve the Phase 4 confidence level: likely, security-hardening."
+  - "The patch targets resource-control and panic avoidance in DA cryptographic parsing, but the raw evidence does not prove a remotely exploitable zstd bomb or crash."

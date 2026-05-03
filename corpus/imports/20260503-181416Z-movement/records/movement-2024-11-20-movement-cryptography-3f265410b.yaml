@@ -1,0 +1,56 @@
+id: "movement-2024-11-20-movement-cryptography-3f265410b"
+source_finding: "2024-11-20-movement-cryptography-3f265410b.md"
+project: "movement"
+date: "2024-11-20"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "signed-field-not-bound"
+subsystem: "cryptography"
+architecture_tags:
+  - "data-availability"
+  - "signed-blob"
+  - "cryptographic-verification"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "signed-message-field-binding"
+violated_invariant: "A signature over a structured protocol object must cover every field that affects object identity, routing, replay domain, or authorization decisions."
+trust_boundary: "Signed DA blob wrapper crossing from producer-controlled serialization into verifier-trusted blob identity."
+entrypoint_type: "signed blob verification / DA ingestion"
+sensitive_sink: "acceptance of a verified blob identity for downstream DA processing"
+
+attacker_capabilities:
+  - "construct or relay signed blob wrappers"
+  - "alter unsigned wrapper metadata while preserving signed inner data"
+exploit_preconditions:
+  - "A wrapper-level identifier influences downstream interpretation or identity."
+  - "Verification delegates to inner data without hashing that wrapper identifier into the signed digest."
+blast_radius: "Integrity of DA blob identity and replay/domain binding; concrete downstream impact was not proven in the preserved evidence."
+
+impact_types:
+  - "integrity-hardening"
+  - "replay-domain-binding"
+  - "signature-binding"
+severity_guess: "medium"
+severity_rationale: "Missing signed-field binding is a classic integrity issue in cryptographic protocols, but Phase 4 kept this as likely because no downstream exploit path was shown."
+
+code_shape_summary: "The signature digest for a DA signed blob covered inner blob data and timestamp but not the wrapper id. The fix signs and verifies a digest that includes blob, timestamp, and id, binding the wrapper identity to the signature."
+search_motifs:
+  - "verify wrapper by delegating to self.data.try_verify without wrapper fields"
+  - "signature digest omits id, namespace, chain id, height, or domain field"
+  - "patch adds wrapper field to hash before ECDSA verification"
+  - "tests or constructors distinguish inner data from signed envelope metadata"
+negative_signals:
+  - "Do not flag omitted fields that are purely cached or recomputable and never influence trust decisions."
+  - "Do not claim forgery if the omitted field is independently authenticated elsewhere."
+  - "Formatting-only verifier hunks are not evidence of a cryptographic bug."
+patch_pattern: "Build the signed digest at the envelope layer and include all security-relevant wrapper fields before signature generation and verification."
+
+source_refs: ["/work/movement/validated-findings/kept/2024-11-20-movement-cryptography-3f265410b.md"]
+notes:
+  - "Enriched from the Phase 4 kept finding; likely cases preserve the original uncertainty boundaries."

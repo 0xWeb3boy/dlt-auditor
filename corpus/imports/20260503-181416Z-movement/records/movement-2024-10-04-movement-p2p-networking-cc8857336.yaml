@@ -1,0 +1,55 @@
+id: "movement-2024-10-04-movement-p2p-networking-cc8857336"
+source_finding: "2024-10-04-movement-p2p-networking-cc8857336.md"
+project: "movement"
+date: "2024-10-04"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "transaction-sequence-validation"
+subsystem: "p2p-networking"
+architecture_tags:
+  - "mempool"
+  - "transaction-admission"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "committed-state-bounded-future-sequence-window"
+violated_invariant: "The upper bound for future transaction sequence numbers must be anchored to committed account state plus a fixed tolerance; attacker-influenced local or default sequence state must not widen that future window."
+trust_boundary: "Network or client-submitted transactions entering the node transaction admission path."
+entrypoint_type: "transaction gossip/RPC admission into mempool validation"
+sensitive_sink: "too-new transaction acceptance and resource allocation in transaction admission"
+
+attacker_capabilities:
+  - "submit transactions with high future sequence numbers"
+  - "influence local used-sequence state through submitted transactions"
+exploit_preconditions:
+  - "Too-new validation uses max(local_used_sequence, committed_sequence) as its upper-bound base."
+  - "The local/default used sequence can exceed committed state before the account actually advances."
+blast_radius: "Node-local availability and mempool resource pressure; potentially broader if peers propagate transactions that should have been rejected as too-new."
+
+impact_types:
+  - "denial-of-service"
+  - "resource-exhaustion"
+  - "transaction-admission-hardening"
+severity_guess: "medium-low"
+severity_rationale: "The patch is in a DoS-relevant transaction admission boundary, but the raw evidence does not show the full resource exhaustion path or gas_dos test behavior."
+
+code_shape_summary: "The too-new sequence-number ceiling used the same max(local used sequence, committed sequence) base as the stale lower bound. The fix separates those sources: local state can raise the stale lower bound, but the future upper bound stays committed_sequence_number plus tolerance."
+search_motifs:
+  - "max_sequence_number derived from max(used_sequence_number, committed_sequence_number)"
+  - "future nonce tolerance uses pending/local state instead of committed state"
+  - "TOO_NEW_TOLERANCE applied after attacker-influenced default value"
+  - "gas DoS regression added near sequence validation"
+negative_signals:
+  - "Do not flag if local used_sequence_number is cryptographically or consensus-derived and cannot be influenced by submitted transactions."
+  - "Do not classify as funds loss or signature bypass from this pattern alone."
+  - "Large future-nonce queues may be intentional if separately bounded by account and global quotas."
+patch_pattern: "Use local used-sequence state for stale lower-bound checks only, compute the too-new ceiling from committed state plus tolerance, and log the computed bounds for diagnosis."
+
+source_refs: ["/work/movement/validated-findings/kept/2024-10-04-movement-p2p-networking-cc8857336.md"]
+notes:
+  - "Enriched from the Phase 4 kept finding; likely cases preserve the original uncertainty boundaries."

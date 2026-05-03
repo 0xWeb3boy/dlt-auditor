@@ -1,0 +1,21 @@
+id: "movement-2024-11-20-movement-cryptography-3f265410b"
+source_record: "movement-2024-11-20-movement-cryptography-3f265410b.yaml"
+project: "movement"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "signed-field-not-bound"
+expected_missing_property: "signed-message-field-binding"
+
+expected_impact_band: "integrity_hardening"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Do not flag omitted fields that are purely cached or recomputable and never influence trust decisions."
+  - "Do not claim forgery if the omitted field is independently authenticated elsewhere."
+  - "Formatting-only verifier hunks are not evidence of a cryptographic bug."
+notes:
+  - "Expected answer should preserve the Phase 4 confidence level: likely, security-hardening."
+  - "Missing signed-field binding is a classic integrity issue in cryptographic protocols, but Phase 4 kept this as likely because no downstream exploit path was shown."

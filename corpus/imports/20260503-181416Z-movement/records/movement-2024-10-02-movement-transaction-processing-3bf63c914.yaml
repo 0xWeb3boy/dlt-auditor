@@ -1,0 +1,55 @@
+id: "movement-2024-10-02-movement-transaction-processing-3bf63c914"
+source_finding: "2024-10-02-movement-transaction-processing-3bf63c914.md"
+project: "movement"
+date: "2024-10-02"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "transaction-sequence-number-reuse"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "mempool"
+  - "transaction-admission"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-fix"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "local-sequence-reservation-check"
+violated_invariant: "A transaction admission path must reject an account sequence number that is already pending, reserved, or recently used locally; committed checkpoint state alone is not enough while local mempool state is ahead of durable state."
+trust_boundary: "Externally submitted signed transactions crossing from mempool/RPC ingestion into the execution transaction pipe."
+entrypoint_type: "transaction submission / mempool admission"
+sensitive_sink: "core mempool insertion and forwarding into the execution pipeline"
+
+attacker_capabilities:
+  - "submit signed transactions for an account"
+  - "repeat or race transactions before committed state advances"
+exploit_preconditions:
+  - "Sequence-number validation reads committed state while local pending state may contain the same sender sequence number."
+  - "No independent local reservation or used-sequence check rejects duplicates before mempool acceptance."
+blast_radius: "Primarily affects transaction ordering and replay protection for the submitting account and any node path that forwards duplicate sequence numbers before state catches up."
+
+impact_types:
+  - "replay-protection"
+  - "transaction-ordering"
+  - "state-consistency"
+severity_guess: "medium"
+severity_rationale: "Likely security fix in a replay-sensitive admission path, but the preserved evidence does not prove consensus failure, theft, or an end-to-end exploit."
+
+code_shape_summary: "Sequence-number admission relied on committed checkpoint state and did not visibly account for locally pending or reserved sequence numbers. The fix centralizes validation through a helper that checks a used-sequence-number pool before falling back to committed state, with TTL-based garbage collection for local reservations."
+search_motifs:
+  - "transaction.sequence_number checked only against latest committed account state"
+  - "mempool admission accepts duplicate sender sequence before commit"
+  - "used/pending nonce pool added beside core mempool garbage collection"
+  - "helper returns invalid status before transaction forwarding"
+negative_signals:
+  - "Do not flag if another path atomically reserves sender sequence numbers before this check."
+  - "Do not claim confirmed exploitability without insertion behavior, tests, or an advisory."
+  - "A rejected duplicate for the same signer may be ordinary nonce handling unless the old path could forward or execute it."
+patch_pattern: "Add a local used-sequence reservation pool, route admission through one helper that checks local and committed state, reject invalid sequence numbers before forwarding, and garbage-collect reservations on the mempool GC cadence."
+
+source_refs: ["/work/movement/validated-findings/kept/2024-10-02-movement-transaction-processing-3bf63c914.md"]
+notes:
+  - "Enriched from the Phase 4 kept finding; likely cases preserve the original uncertainty boundaries."

@@ -1,0 +1,21 @@
+id: "movement-2024-10-04-movement-p2p-networking-cc8857336"
+source_record: "movement-2024-10-04-movement-p2p-networking-cc8857336.yaml"
+project: "movement"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "transaction-sequence-validation"
+expected_missing_property: "committed-state-bounded-future-sequence-window"
+
+expected_impact_band: "availability_hardening"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Do not flag if local used_sequence_number is cryptographically or consensus-derived and cannot be influenced by submitted transactions."
+  - "Do not classify as funds loss or signature bypass from this pattern alone."
+  - "Large future-nonce queues may be intentional if separately bounded by account and global quotas."
+notes:
+  - "Expected answer should preserve the Phase 4 confidence level: likely, security-hardening."
+  - "The patch is in a DoS-relevant transaction admission boundary, but the raw evidence does not show the full resource exhaustion path or gas_dos test behavior."

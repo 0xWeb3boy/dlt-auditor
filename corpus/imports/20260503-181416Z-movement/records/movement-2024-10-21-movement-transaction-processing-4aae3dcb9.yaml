@@ -1,0 +1,55 @@
+id: "movement-2024-10-21-movement-transaction-processing-4aae3dcb9"
+source_finding: "2024-10-21-movement-transaction-processing-4aae3dcb9.md"
+project: "movement"
+date: "2024-10-21"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "transaction-sequence-number-admission"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "mempool"
+  - "transaction-admission"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "centralized-duplicate-sequence-admission-guard"
+violated_invariant: "Every transaction admission route must apply the same sender sequence-number validity check before forwarding or storing a transaction; duplicate submissions should not bypass the shared guard."
+trust_boundary: "User transaction submission crossing from client/test harness into execution mempool forwarding."
+entrypoint_type: "transaction submission path"
+sensitive_sink: "mempool forwarding or downstream execution scheduling"
+
+attacker_capabilities:
+  - "submit the same signed transaction more than once"
+  - "submit conflicting transactions before prior submissions commit"
+exploit_preconditions:
+  - "The old inline check only visibly rejected too-old committed-state sequence numbers."
+  - "Duplicate pending submissions were not covered by a shared invalid-sequence helper on the shown path."
+blast_radius: "Node-local transaction duplication and replay/order hardening; broader impact depends on whether duplicates leave local mempool or reach execution."
+
+impact_types:
+  - "replay-protection"
+  - "duplicate-admission-hardening"
+  - "transaction-ordering"
+severity_guess: "low-medium"
+severity_rationale: "The evidence includes duplicate-submission test expectations and a shared validation helper, but not a proven DoS, consensus break, or economic exploit."
+
+code_shape_summary: "An inline committed-state sequence check was replaced by a shared has_invalid_sequence_number helper, and tests were updated so duplicate submissions are not forwarded again. The reusable pattern is centralizing nonce/sequence validation so all admission routes enforce pending-state and committed-state constraints consistently."
+search_motifs:
+  - "inline sequence_number < committed_sequence_number check in submit path"
+  - "duplicate transaction test changes from forwarded twice to not forwarded again"
+  - "new shared nonce/sequence validation helper used before mempool insertion"
+  - "local pending sequence state consulted during admission"
+negative_signals:
+  - "Do not treat every refactor to a helper as security without duplicate or pending-state evidence."
+  - "Do not claim consensus failure when the finding only proves admission hardening."
+  - "Duplicate signed transaction handling can be benign if downstream deduplication is guaranteed and cheap."
+patch_pattern: "Replace ad hoc committed-state checks with a shared invalid-sequence helper, invoke it before acceptance, and update regression tests around duplicate submission behavior."
+
+source_refs: ["/work/movement/validated-findings/kept/2024-10-21-movement-transaction-processing-4aae3dcb9.md"]
+notes:
+  - "Enriched from the Phase 4 kept finding; likely cases preserve the original uncertainty boundaries."

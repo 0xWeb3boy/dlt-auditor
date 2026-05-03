@@ -126,6 +126,12 @@ Your task:
   - which ledger, state, or protocol objects can be created, deleted, or mutated indirectly,
   - where reserves, owner counts, freeze or restriction policy, resource charges, and accounting aggregates are checked,
   - whether those checks run before the final state write and after generated side effects are known.
+  For transaction admission and mempool-like systems, map committed account state separately from local pending, in-flight, reserved, or recently-used transaction state. For each sender nonce, sequence number, ticket, or replay coordinate, identify:
+  - the stale lower bound,
+  - the too-new upper bound,
+  - duplicate guards,
+  - insertion, forwarding, and execution-scheduling points,
+  - cleanup, expiry, or garbage-collection policy.
 19. Map validator, committee, signer, or trust-list material by namespace:
   - long-term identity keys, ephemeral signing keys, publisher keys, manifests, revocation caches, validator lists, committee lists, trust-list publishers, quorum or threshold policy, remote fetch policy, and p2p propagation.
   For each namespace, note:

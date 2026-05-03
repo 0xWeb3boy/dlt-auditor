@@ -1,0 +1,56 @@
+id: "movement-2025-01-21-movement-cryptography-39db1ab68"
+source_finding: "2025-01-21-movement-cryptography-39db1ab68.md"
+project: "movement"
+date: "2025-01-21"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "input-validation"
+subsystem: "cryptography"
+architecture_tags:
+  - "data-availability"
+  - "signed-blob"
+  - "cryptographic-verification"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "decoded-blob-size-and-signature-length-validation"
+violated_invariant: "Untrusted encoded or decoded DA blob data must be size-bounded before acceptance, and fixed-width cryptographic encodings must be length-checked before parser conversion."
+trust_boundary: "Celestia DA blob and signature bytes crossing from network/storage input into signed blob verification."
+entrypoint_type: "DA blob deserialization and signature verification"
+sensitive_sink: "allocation, decompression-adjacent blob representation, and ECDSA signature parsing"
+
+attacker_capabilities:
+  - "provide oversized blob payloads"
+  - "provide malformed fixed-size signatures"
+exploit_preconditions:
+  - "Blob constructors accept arbitrary byte length without returning an error."
+  - "Signature parsing is reached before checking the expected fixed-width signature length."
+blast_radius: "Availability hardening for verifier or light-node processes; malformed inputs should fail as validation errors instead of excessive allocation or panic-prone parsing."
+
+impact_types:
+  - "availability-hardening"
+  - "resource-exhaustion"
+  - "panic-avoidance"
+severity_guess: "medium-low"
+severity_rationale: "The patch targets resource-control and panic avoidance in DA cryptographic parsing, but the raw evidence does not prove a remotely exploitable zstd bomb or crash."
+
+code_shape_summary: "A signed DA blob data constructor became fallible and rejects blobs above MAX_BLOB_LEN. The verifier also checks signature length before ECDSA parsing, with a regression test ensuring wrong-length signatures return errors instead of panicking."
+search_motifs:
+  - "constructor new(blob: Vec<u8>) stores unbounded bytes"
+  - "patch renames new to try_new and returns Result on oversized input"
+  - "ECDSA Signature::from_bytes called before checking signature.len"
+  - "regression test named does_not_panic_on_wrong_signature_len"
+negative_signals:
+  - "Do not claim zstd decompression exploit unless decompression code or expansion path is shown."
+  - "Do not classify as authentication bypass from a signature-length guard alone."
+  - "If MAX_BLOB_LEN is enforced earlier on every external path, this constructor change may be defense in depth."
+patch_pattern: "Make blob construction fallible with an explicit maximum length, propagate constructor errors, and reject malformed fixed-size signatures before cryptographic parser conversion."
+
+source_refs: ["/work/movement/validated-findings/kept/2025-01-21-movement-cryptography-39db1ab68.md"]
+notes:
+  - "Enriched from the Phase 4 kept finding; likely cases preserve the original uncertainty boundaries."

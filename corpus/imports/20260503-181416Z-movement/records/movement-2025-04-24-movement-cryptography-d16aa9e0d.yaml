@@ -1,0 +1,56 @@
+id: "movement-2025-04-24-movement-cryptography-d16aa9e0d"
+source_finding: "2025-04-24-movement-cryptography-d16aa9e0d.md"
+project: "movement"
+date: "2025-04-24"
+language_tags:
+  - "rust"
+
+bug_family: "authz_and_role_gates"
+bug_class: "transaction-validation-bypass"
+subsystem: "cryptography"
+architecture_tags:
+  - "sequencer"
+  - "transaction-validation"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-fix"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "mandatory-baseline-transaction-prevalidation"
+violated_invariant: "Optional policy configuration such as a signer whitelist must not decide whether baseline transaction validation runs; validation of encoding and signatures must be mandatory on every ingestion path."
+trust_boundary: "Submitted DA light-node sequencer transactions crossing from external batch_write input into accepted sequencer batches."
+entrypoint_type: "sequencer batch_write transaction ingestion"
+sensitive_sink: "acceptance of submitted transactions into the DA sequencer batch"
+
+attacker_capabilities:
+  - "submit transactions to a no-whitelist sequencer deployment"
+  - "provide malformed or unauthorized transactions that rely on skipped baseline prevalidation"
+exploit_preconditions:
+  - "The deployment has no signer whitelist configured."
+  - "The old constructor sets prevalidator to None in that mode."
+  - "batch_write accepts transactions through a branch that can skip prevalidate."
+blast_radius: "Integrity of sequencer-admitted transactions in no-whitelist deployments; impact is bounded by what the omitted prevalidator would have rejected."
+
+impact_types:
+  - "integrity"
+  - "validation-bypass"
+  - "authorization-hardening"
+severity_guess: "medium"
+severity_rationale: "A validation bypass at sequencer ingestion is security-relevant, but Phase 4 did not prove an end-to-end exploit or consensus break."
+
+code_shape_summary: "Baseline Aptos transaction prevalidation was coupled to optional whitelist configuration. With no whitelist, the sequencer installed no prevalidator and batch_write could skip validation. The fix always constructs a validator and makes whitelist enforcement an optional mode inside it."
+search_motifs:
+  - "prevalidator: Option<Validator> set to None when whitelist config is absent"
+  - "batch_write matches on optional prevalidator before accepting transactions"
+  - "patch creates Validator::new for no-whitelist mode"
+  - "whitelist policy moved inside validator rather than around validator existence"
+negative_signals:
+  - "Do not flag if no-whitelist mode is unreachable or explicitly trusted/admin-only."
+  - "Do not claim whitelist enforcement was broken when a whitelist was configured."
+  - "Do not claim signature forgery without showing what prevalidate checks and what downstream accepts."
+patch_pattern: "Always instantiate and invoke the baseline transaction validator, use with_whitelist only to add optional sender policy, and accept only Prevalidated transactions while discarding validation errors."
+
+source_refs: ["/work/movement/validated-findings/kept/2025-04-24-movement-cryptography-d16aa9e0d.md"]
+notes:
+  - "Enriched from the Phase 4 kept finding; likely cases preserve the original uncertainty boundaries."

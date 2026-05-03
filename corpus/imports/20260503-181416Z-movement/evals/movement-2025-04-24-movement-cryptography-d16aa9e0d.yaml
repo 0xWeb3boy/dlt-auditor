@@ -1,0 +1,21 @@
+id: "movement-2025-04-24-movement-cryptography-d16aa9e0d"
+source_record: "movement-2025-04-24-movement-cryptography-d16aa9e0d.yaml"
+project: "movement"
+
+expected_bug_family: "authz_and_role_gates"
+expected_bug_class: "transaction-validation-bypass"
+expected_missing_property: "mandatory-baseline-transaction-prevalidation"
+
+expected_impact_band: "integrity_medium"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Do not flag if no-whitelist mode is unreachable or explicitly trusted/admin-only."
+  - "Do not claim whitelist enforcement was broken when a whitelist was configured."
+  - "Do not claim signature forgery without showing what prevalidate checks and what downstream accepts."
+notes:
+  - "Expected answer should preserve the Phase 4 confidence level: likely, security-fix."
+  - "A validation bypass at sequencer ingestion is security-relevant, but Phase 4 did not prove an end-to-end exploit or consensus break."

@@ -1,0 +1,21 @@
+id: "movement-2024-10-02-movement-transaction-processing-3bf63c914"
+source_record: "movement-2024-10-02-movement-transaction-processing-3bf63c914.yaml"
+project: "movement"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "transaction-sequence-number-reuse"
+expected_missing_property: "local-sequence-reservation-check"
+
+expected_impact_band: "integrity_or_replay_hardening"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Do not flag if another path atomically reserves sender sequence numbers before this check."
+  - "Do not claim confirmed exploitability without insertion behavior, tests, or an advisory."
+  - "A rejected duplicate for the same signer may be ordinary nonce handling unless the old path could forward or execute it."
+notes:
+  - "Expected answer should preserve the Phase 4 confidence level: likely, security-fix."
+  - "Likely security fix in a replay-sensitive admission path, but the preserved evidence does not prove consensus failure, theft, or an end-to-end exploit."
