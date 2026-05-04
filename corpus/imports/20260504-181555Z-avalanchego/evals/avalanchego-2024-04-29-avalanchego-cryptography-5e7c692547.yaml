@@ -1,0 +1,28 @@
+id: "avalanchego-2024-04-29-avalanchego-cryptography-5e7c692547"
+source_record: "avalanchego-2024-04-29-avalanchego-cryptography-5e7c692547.yaml"
+project: "avalanchego"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "incomplete-header-validation"
+expected_missing_property: "fork-dependent-header-field-validation"
+
+expected_impact_band: "medium_high_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+attacker_capability_model:
+  - "Can propose or relay block headers"
+  - "Can set fork-dependent header fields such as beacon root or blob gas fields"
+exploit_preconditions:
+  - "A fork changes required/forbidden header fields"
+  - "The validator lacks an explicit check for a field at that fork boundary"
+  - "Blocks reach validation with attacker-selected header values"
+false_positive_cautions:
+  - "Dummy consensus changes alone may be test infrastructure"
+  - "Do not claim cryptographic failure from ordinary header field validation"
+  - "If a downstream verifier always rejects the field, an upstream missing check may be defense-in-depth only"
+notes:
+  - "Expected answer should identify the generic missing property and preserve the phase-4 claim boundary."
+  - "Do not require the model to claim a proven exploit for likely hardening records."

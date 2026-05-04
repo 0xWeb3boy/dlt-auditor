@@ -1,0 +1,66 @@
+id: "avalanchego-2025-12-09-avalanchego-storage-e7bd4fb988"
+source_finding: "2025-12-09-avalanchego-storage-e7bd4fb988.md"
+project: "avalanchego"
+date: "2025-12-09"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "range-proof-boundary-hardening"
+subsystem: "storage"
+architecture_tags:
+  - "storage"
+  - "requested-boundary-proof-binding"
+  - "blockchain-core"
+  - "merkle-trie"
+  - "range-proof"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "requested-boundary-proof-binding"
+violated_invariant: "Range proofs over authenticated state must prove the caller-requested boundaries, including absent boundary keys, not only the first and last returned keys."
+trust_boundary: "A state proof request crosses from a client/query API into authenticated Merkle or trie proof generation."
+entrypoint_type: "range proof generation for trie/Merkle state"
+sensitive_sink: "proof material returned to clients for verification of key-value range completeness"
+
+attacker_capabilities:
+  - "Can request ranges with absent start or end keys"
+  - "May rely on incomplete boundary proofs to make returned data appear complete"
+exploit_preconditions:
+  - "The proof generator derives boundary proofs from yielded keys"
+  - "Requested range bounds may not themselves exist in the trie"
+  - "Clients use the proof to decide completeness or absence"
+blast_radius: "Limited to the affected validation/accounting path unless the unchecked object can enter consensus, block acceptance, shared storage, or public RPC resource consumption."
+
+impact_types:
+  - "proof-verification-integrity"
+  - "absence-proof-correctness"
+severity_guess: "medium_high"
+severity_rationale: "Authenticated data structure boundary mistakes can affect proof integrity, but this record does not prove client acceptance of forged state."
+
+code_shape_summary: "Range proof boundaries were changed to bind requested start/end keys instead of only yielded keys. The reusable shape is proof generation where absence at range edges must be proven explicitly, especially when no exact boundary key exists."
+search_motifs:
+  - "start_proof computed from requested start_key rather than first yielded key"
+  - "comments about proving a gap between requested bound and returned key"
+  - "range iterator filtering coupled with Merkle proof construction"
+negative_signals:
+  - "If clients never verify absence/completeness, impact may be correctness-only"
+  - "Exact-key proof fixes are not necessarily range-boundary fixes"
+  - "Do not claim forged state unless verifier behavior is shown"
+patch_pattern: "Generate boundary proofs for requested bounds and filter iteration to the requested range so both inclusion and edge absence are represented."
+
+source_refs:
+  - "/work/dlt-ai-audit-system/corpus/imports/20260504-181555Z-avalanchego/raw-findings/2025-12-09-avalanchego-storage-e7bd4fb988.md"
+  - "git:e7bd4fb988f2c04749458298c1f6b4a5b7161d5d"
+  - "firewood/src/merkle/mod.rs:396"
+  - "firewood/src/merkle/merge.rs:40"
+  - "firewood/src/iter.rs:970"
+  - "firewood/src/merkle/merge.rs:168"
+notes:
+  - "Enriched from the validated finding; preserve claim boundaries from phase 4."
+  - "Treat likely hardening records as retrieval exemplars, not proof of an exploitable vulnerability, unless the raw finding is confirmed."

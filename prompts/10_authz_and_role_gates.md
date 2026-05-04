@@ -47,6 +47,7 @@ Search patterns:
 - authorization helpers that answer "is any alias writable, signer, or owner-correct?" instead of "is this exact indexed object authorized for this sink?"
 - state parsers or transition helpers that inspect account, object, or record contents before verifying the authoritative owner program, module, namespace, or registry entry allowed to define that state type
 - cleanup, revoke, delete, close, withdraw, or unstake paths where authority to remove an object is not the same as authority to dispose of its dependent obligations, delegated rights, or generated state
+- lifecycle operations such as stop, revoke, rotate, close, withdraw, unregister, renew, or disable where the authority to manage the object may differ from reward owner, fee recipient, namespace owner, issuer, creator, or broad admin ownership. Load the target object and authorize against its explicit management or controller authority before mutating lifecycle state.
 - authorization predicates that combine a boolean result with an error result. Errors from role, owner, policy, or registry lookup should fail closed and must not be treated as proof of access.
 - sensitive sinks that accept a caller-supplied destination, recipient, authority, fee recipient, aggregator, controller, or round value when the sink can derive that value from authoritative state.
 - privileged queues where admission checks authorization, owner, policy, or round freshness but dequeue, replay, retry, or execution uses cached state or a weaker predicate.

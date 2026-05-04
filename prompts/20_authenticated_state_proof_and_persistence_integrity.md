@@ -19,6 +19,7 @@ Search patterns:
 - State overlays, providers, or caches keyed by block number, range, or implicit current head where competing forks can share that coordinate.
 - In rollup or cross-chain supervisors, inspect persisted source/derived block pairs. Reorg, reset, rewind, and frontier-advance paths should bind both sides of the pair by hash, number, parent, timestamp, and canonical source status before promoting or deleting state.
 - Proof builders that return an empty proof for absence instead of explicit empty-root or non-existence evidence.
+- Range proof generators where requested start/end bounds may be absent from the tree. The proof should bind the requested boundaries and explicit absence/gap evidence, not only the first and last returned keys. Check empty ranges, missing lower bound, missing upper bound, and range edges with neighboring keys just outside the request.
 - Pruning or compression that changes node representation without invalidating revealed paths, proof caches, or derived metadata.
 - Mutate-then-validate flows in authenticated trees where rollback may not restore the exact node, subtrie, path, or account that was changed.
 - Canonical persistence paths that assume trie updates, state diffs, or derived roots exist for fork ancestry instead of detecting and recomputing missing data.

@@ -33,6 +33,7 @@ Search patterns:
 - numeric wrapper types that distinguish validity, canonicality, and representability under the active protocol rules. Valid-but-unrepresentable intermediate values must not reach persisted state fields
 - threshold arithmetic for validator quorums, amendment or fork activation, voting windows, signer-set policy, or trust-list policy. Test boundary values just below and above the required fraction, especially with small signer sets
 - fallible conversion helpers that return `(value, error)` or equivalent status but are used inline as arguments to staking, reserve, balance, delegation, validator-weight, or accounting mutators. The conversion result should be checked before any state-changing sink observes the narrowed or unit-converted value.
+- reconstructed protocol accounting values built from persisted base values plus accrued, deferred, pending, or reward metadata. If the derived value is installed into validator weight, voting power, stake, reserves, supply, fees, or quotas, use checked arithmetic and reject unrepresentable sums before updating state.
 
 Questions to answer:
 1. Is the parameter attacker-controlled, governance-controlled, or state-derived?

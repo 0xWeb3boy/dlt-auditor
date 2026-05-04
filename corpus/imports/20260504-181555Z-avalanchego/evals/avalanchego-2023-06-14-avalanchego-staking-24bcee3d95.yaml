@@ -1,0 +1,28 @@
+id: "avalanchego-2023-06-14-avalanchego-staking-24bcee3d95"
+source_record: "avalanchego-2023-06-14-avalanchego-staking-24bcee3d95.yaml"
+project: "avalanchego"
+
+expected_bug_family: "authz_and_role_gates"
+expected_bug_class: "access-control"
+expected_missing_property: "management-key-authorization"
+
+expected_impact_band: "medium_or_low_hardening"
+expected_severity_band: "high_or_medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+attacker_capability_model:
+  - "Can submit a stop-staker transaction referencing an existing staker"
+  - "May control unrelated reward-owner or subnet-owner credentials"
+exploit_preconditions:
+  - "The target staking transaction has a management key distinct from reward/subnet ownership"
+  - "Verification derives authority from the wrong owner field"
+  - "Stopping the staker changes validator lifecycle state"
+false_positive_cautions:
+  - "If reward owner and management key are always identical by construction, the issue may collapse to refactoring"
+  - "Do not flag read-only staker lookups as authorization sinks"
+  - "Unsupported transaction type rejection is only security-relevant when it gates a state-changing action"
+notes:
+  - "Expected answer should identify the generic missing property and preserve the phase-4 claim boundary."
+  - "Do not require the model to claim a proven exploit for likely hardening records."

@@ -1,0 +1,66 @@
+id: "avalanchego-2023-09-27-avalanchego-transaction-processing-8e6f2f83e6"
+source_finding: "2023-09-27-avalanchego-transaction-processing-8e6f2f83e6.md"
+project: "avalanchego"
+date: "2023-09-27"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "hardening-or-correctness-fix"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "transaction-processing"
+  - "required-context-presence"
+  - "blockchain-core"
+  - "hardening-or-correctness-fix"
+  - "correctness-or-hardening"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "required-context-presence"
+violated_invariant: "A verifier that requires external execution context must fail closed when that context is absent or incomplete."
+trust_boundary: "Transaction predicate data crosses from block execution context into predicate verification."
+entrypoint_type: "predicate validation during transaction or block processing"
+sensitive_sink: "predicate verification result used to admit transaction execution"
+
+attacker_capabilities:
+  - "Can submit transactions requiring predicate verification"
+  - "May influence whether block/proposer context is present in a validation call path"
+exploit_preconditions:
+  - "Some transactions require predicate context"
+  - "The verifier can be invoked with nil or incomplete context"
+  - "Missing context previously was not rejected before verification proceeded"
+blast_radius: "Limited to the affected validation/accounting path unless the unchecked object can enter consensus, block acceptance, shared storage, or public RPC resource consumption."
+
+impact_types:
+  - "validation-hardening"
+  - "consensus-correctness"
+severity_guess: "medium"
+severity_rationale: "Fail-closed context checks protect validation integrity, but this finding does not prove a bypass or chain impact."
+
+code_shape_summary: "Predicate checking gained explicit missing-context errors before verification-sensitive logic continues. The reusable shape is a validation function that accepts optional context but must require it whenever the checked object depends on it."
+search_motifs:
+  - "nil PredicateContext checks added near predicate verification"
+  - "ErrMissingPredicateContext or fail-closed context errors"
+  - "early return only when no predicates are present"
+negative_signals:
+  - "No-predicate transactions may intentionally skip context"
+  - "A nil check in test scaffolding is not a vulnerability by itself"
+  - "Do not claim bypass unless required predicates can be evaluated without context"
+patch_pattern: "Preserve early exits for objects that do not need context, but reject nil or incomplete context before verifying objects that do."
+
+source_refs:
+  - "/work/dlt-ai-audit-system/corpus/imports/20260504-181555Z-avalanchego/raw-findings/2023-09-27-avalanchego-transaction-processing-8e6f2f83e6.md"
+  - "git:8e6f2f83e6b330050605bf21c389520964e86a2f"
+  - "core/predicate_check_test.go:311"
+  - "core/predicate_check.go:39"
+  - "core/predicate_check_test.go:111"
+  - "core/predicate_check_test.go:78"
+notes:
+  - "Enriched from the validated finding; preserve claim boundaries from phase 4."
+  - "Treat likely hardening records as retrieval exemplars, not proof of an exploitable vulnerability, unless the raw finding is confirmed."

@@ -1,0 +1,66 @@
+id: "avalanchego-2022-11-29-avalanchego-transaction-processing-652572ecf7"
+source_finding: "2022-11-29-avalanchego-transaction-processing-652572ecf7.md"
+project: "avalanchego"
+date: "2022-11-29"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "replay-protection-bypass-hardening"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "transaction-processing"
+  - "transaction-scoped-replay-exception"
+  - "evm"
+  - "rpc"
+  - "replay-protection"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "transaction-scoped-replay-exception"
+violated_invariant: "Replay-protection exceptions must be scoped to explicitly identified transactions rather than enabling all unprotected transactions globally."
+trust_boundary: "Externally submitted EVM transactions cross RPC or mempool admission into transaction validation policy."
+entrypoint_type: "RPC or backend transaction admission for unprotected EVM transactions"
+sensitive_sink: "acceptance of an unprotected transaction despite replay-protection policy"
+
+attacker_capabilities:
+  - "Can submit legacy unprotected transactions"
+  - "Can choose transaction hash and signing/protection mode"
+exploit_preconditions:
+  - "The chain normally rejects unprotected transactions"
+  - "A compatibility exception is needed for known historical transactions"
+  - "A global allow flag would be too broad for normal admission"
+blast_radius: "Limited to the affected validation/accounting path unless the unchecked object can enter consensus, block acceptance, shared storage, or public RPC resource consumption."
+
+impact_types:
+  - "replay-risk-reduction"
+  - "transaction-policy-integrity"
+severity_guess: "low_medium"
+severity_rationale: "The change narrows a risky compatibility exception, but the finding does not prove arbitrary replay acceptance in the default configuration."
+
+code_shape_summary: "A coarse global unprotected-transaction flag was replaced with a transaction-aware allowlist. The reusable shape is replay-policy code where legacy compatibility should be keyed to exact transaction identity, not a process-wide bypass."
+search_motifs:
+  - "UnprotectedAllowed changes from no-arg boolean to tx-aware predicate"
+  - "allowUnprotectedTxHashes or known legacy transaction hash maps"
+  - "tests around EIP-155 or legacy replay-protection exceptions"
+negative_signals:
+  - "A global flag used only in private dev networks may be intentional"
+  - "Allowlisting a fixed historical transaction is not itself a bypass"
+  - "Do not claim replay theft without a default unsafe acceptance path"
+patch_pattern: "Replace global allow-all replay exceptions with an exact transaction hash allowlist while preserving an explicit operator override."
+
+source_refs:
+  - "/work/dlt-ai-audit-system/corpus/imports/20260504-181555Z-avalanchego/raw-findings/2022-11-29-avalanchego-transaction-processing-652572ecf7.md"
+  - "git:652572ecf7627229da6ce3c76f0603cb8205149f"
+  - "eth/api_backend.go:393"
+  - "core/types/transaction_signing_test.go:122"
+  - "plugin/evm/config.go:120"
+  - "eth/backend.go:239"
+notes:
+  - "Enriched from the validated finding; preserve claim boundaries from phase 4."
+  - "Treat likely hardening records as retrieval exemplars, not proof of an exploitable vulnerability, unless the raw finding is confirmed."

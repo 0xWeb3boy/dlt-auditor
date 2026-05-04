@@ -1,0 +1,28 @@
+id: "avalanchego-2026-04-30-avalanchego-p2p-networking-a9c2157265"
+source_record: "avalanchego-2026-04-30-avalanchego-p2p-networking-a9c2157265.yaml"
+project: "avalanchego"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "mempool-allowlist-admission-gap"
+expected_missing_property: "admission-policy-enforcement"
+
+expected_impact_band: "medium_high_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+attacker_capability_model:
+  - "Can submit transactions to the tx gossip or RPC-backed admission path"
+  - "May use accounts or transaction types outside the configured allowlist"
+exploit_preconditions:
+  - "An allowlist or admission policy is configured"
+  - "At least one txpool forwarding path does not call the policy hook"
+  - "The txpool accepts forwarded transactions without rechecking the same policy"
+false_positive_cautions:
+  - "If the backing txpool independently enforces the same allowlist, the missing hook is duplication"
+  - "Policy disabled or nil admitter paths may intentionally preserve legacy behavior"
+  - "Do not claim block inclusion unless proposer execution uses the same unchecked path"
+notes:
+  - "Expected answer should identify the generic missing property and preserve the phase-4 claim boundary."
+  - "Do not require the model to claim a proven exploit for likely hardening records."

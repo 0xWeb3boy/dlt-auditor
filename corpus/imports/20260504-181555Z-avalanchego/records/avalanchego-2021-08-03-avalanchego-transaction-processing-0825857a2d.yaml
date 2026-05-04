@@ -1,0 +1,67 @@
+id: "avalanchego-2021-08-03-avalanchego-transaction-processing-0825857a2d"
+source_finding: "2021-08-03-avalanchego-transaction-processing-0825857a2d.md"
+project: "avalanchego"
+date: "2021-08-03"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "fork-rule-activation-mismatch"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "transaction-processing"
+  - "fork-activation-rule-binding"
+  - "evm"
+  - "contract-creation"
+  - "fork-rules"
+  - "eip-3541"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "fork-activation-rule-binding"
+violated_invariant: "Consensus validation rules must activate at the exact fork height/phase specified by the protocol, not one upgrade earlier or later."
+trust_boundary: "Externally supplied transactions and contract-creation results cross into fork-gated EVM state transition validation."
+entrypoint_type: "contract creation transaction validation during fork activation"
+sensitive_sink: "acceptance of contract bytecode under active consensus rules"
+
+attacker_capabilities:
+  - "Can submit contract-creation transactions around a protocol upgrade boundary"
+  - "Can choose returned initcode/runtime bytecode shape"
+exploit_preconditions:
+  - "A fork-gated invalid-code rule exists"
+  - "The implementation checks the wrong fork predicate"
+  - "Peers evaluate blocks containing contract creation under local consensus rules"
+blast_radius: "Limited to the affected validation/accounting path unless the unchecked object can enter consensus, block acceptance, shared storage, or public RPC resource consumption."
+
+impact_types:
+  - "consensus-integrity"
+  - "state-integrity"
+severity_guess: "medium"
+severity_rationale: "Wrong fork activation in state transition validation can cause invalid state acceptance, though this record does not prove an exploit beyond the corrected predicate."
+
+code_shape_summary: "A consensus rule for rejecting invalid contract code was tied to the wrong fork predicate. The reusable shape is any fork-gated validation check whose implementation uses an adjacent upgrade flag rather than the protocol activation flag."
+search_motifs:
+  - "IsForkNPlusOne used around code that implements a ForkN rule"
+  - "contract creation validity checks guarded by upgrade predicates"
+  - "tests for transactions valid before a fork and invalid immediately after it"
+negative_signals:
+  - "Feature flags in dummy/test engines may be support plumbing only"
+  - "A wrong-looking predicate is non-security if the fork phases are aliases"
+  - "Do not claim consensus split without showing divergent validation across nodes"
+patch_pattern: "Move the validation guard to the exact activation predicate and add fork-boundary tests for before, at, and after activation."
+
+source_refs:
+  - "/work/dlt-ai-audit-system/corpus/imports/20260504-181555Z-avalanchego/raw-findings/2021-08-03-avalanchego-transaction-processing-0825857a2d.md"
+  - "git:0825857a2d8ad9f108a198b319c6076d9973f9c2"
+  - "consensus/dummy/consensus.go:176"
+  - "core/vm/evm.go:524"
+  - "consensus/dummy/consensus.go:42"
+  - "consensus/dummy/consensus.go:35"
+notes:
+  - "Enriched from the validated finding; preserve claim boundaries from phase 4."
+  - "Treat likely hardening records as retrieval exemplars, not proof of an exploitable vulnerability, unless the raw finding is confirmed."

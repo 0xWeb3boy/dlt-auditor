@@ -1,0 +1,28 @@
+id: "avalanchego-2025-01-27-avalanchego-storage-9e729ab76c"
+source_record: "avalanchego-2025-01-27-avalanchego-storage-9e729ab76c.yaml"
+project: "avalanchego"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "rpc-resource-control"
+expected_missing_property: "rpc-parameter-cardinality-bound"
+
+expected_impact_band: "medium_availability"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+attacker_capability_model:
+  - "Can call the RPC method repeatedly"
+  - "Can supply a large rewardPercentiles array"
+exploit_preconditions:
+  - "The method processes each supplied percentile"
+  - "No cardinality bound is checked before processing"
+  - "The RPC endpoint is reachable to untrusted or semi-trusted callers"
+false_positive_cautions:
+  - "Public endpoints behind strict gateway limits may reduce severity"
+  - "Small fixed-size arrays or server-generated arrays are not matches"
+  - "Do not conflate copy-initialization refactors with RPC resource controls"
+notes:
+  - "Expected answer should identify the generic missing property and preserve the phase-4 claim boundary."
+  - "Do not require the model to claim a proven exploit for likely hardening records."

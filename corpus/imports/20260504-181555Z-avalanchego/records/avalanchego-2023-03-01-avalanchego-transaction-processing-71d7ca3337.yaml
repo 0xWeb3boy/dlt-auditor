@@ -1,0 +1,66 @@
+id: "avalanchego-2023-03-01-avalanchego-transaction-processing-71d7ca3337"
+source_finding: "2023-03-01-avalanchego-transaction-processing-71d7ca3337.md"
+project: "avalanchego"
+date: "2023-03-01"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "protocol-resource-metering"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "transaction-processing"
+  - "protocol-resource-metering"
+  - "evm"
+  - "resource-limits"
+  - "gas-accounting"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "protocol-resource-metering"
+violated_invariant: "Protocol resource limits must be enforced consistently at mempool admission, state transition validation, intrinsic gas calculation, and VM execution."
+trust_boundary: "User-supplied contract creation transactions cross from network/RPC admission into EVM execution and block inclusion."
+entrypoint_type: "contract creation transaction admission and execution"
+sensitive_sink: "execution of oversized or underpriced initcode"
+
+attacker_capabilities:
+  - "Can submit contract creation transactions"
+  - "Can choose large initcode payloads and CREATE/CREATE2 paths"
+exploit_preconditions:
+  - "A fork introduces size or per-word gas rules"
+  - "At least one validation layer lacks the new limit or metering"
+  - "Nodes process the payload before charging or rejecting it"
+blast_radius: "Limited to the affected validation/accounting path unless the unchecked object can enter consensus, block acceptance, shared storage, or public RPC resource consumption."
+
+impact_types:
+  - "resource-exhaustion"
+  - "denial-of-service"
+severity_guess: "medium"
+severity_rationale: "Missing size and gas metering can create resource pressure; the record is hardening because no concrete DoS reproduction is included."
+
+code_shape_summary: "Initcode size and gas metering rules were added across admission, intrinsic gas, state transition, and VM creation paths. The reusable shape is resource accounting that must be duplicated consistently across all ways a payload reaches execution."
+search_motifs:
+  - "MaxInitCodeSize checks added in txpool and state transition"
+  - "IntrinsicGas or CREATE gas calculations gain per-word charges"
+  - "fork-gated EIP resource rules applied in multiple layers"
+negative_signals:
+  - "A single missing check may be harmless if a stricter earlier layer always dominates"
+  - "Do not flag test-only gas helpers without production admission impact"
+  - "Performance optimizations are not resource controls unless they enforce a limit"
+patch_pattern: "Add fork-gated size validation and gas charging at every admission and execution boundary that can process contract initcode."
+
+source_refs:
+  - "/work/dlt-ai-audit-system/corpus/imports/20260504-181555Z-avalanchego/raw-findings/2023-03-01-avalanchego-transaction-processing-71d7ca3337.md"
+  - "git:71d7ca33371a81eb1b29c41ab00523ccc5f10178"
+  - "core/tx_pool.go:678"
+  - "core/state_transition.go:353"
+  - "core/state_transition.go:157"
+  - "core/vm/gas_table.go:348"
+notes:
+  - "Enriched from the validated finding; preserve claim boundaries from phase 4."
+  - "Treat likely hardening records as retrieval exemplars, not proof of an exploitable vulnerability, unless the raw finding is confirmed."

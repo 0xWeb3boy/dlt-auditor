@@ -1,0 +1,28 @@
+id: "avalanchego-2023-10-23-avalanchego-transaction-processing-3a0283f107"
+source_record: "avalanchego-2023-10-23-avalanchego-transaction-processing-3a0283f107.yaml"
+project: "avalanchego"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "mempool-resource-validation"
+expected_missing_property: "mempool-admission-resource-validation"
+
+expected_impact_band: "medium_availability"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+attacker_capability_model:
+  - "Can submit or gossip atomic transactions"
+  - "Can choose transaction size, gas usage, and malformed resource parameters"
+exploit_preconditions:
+  - "A shared mempool insertion helper is reachable for non-forced remote submissions"
+  - "Resource checks are outside or after that helper"
+  - "Rejected transactions can otherwise be retried or propagated"
+false_positive_cautions:
+  - "Forced insertion paths may intentionally bypass checks for trusted local recovery"
+  - "Do not flag duplicate validation if an earlier mandatory layer rejects all invalid remote txs"
+  - "Caching rejected txs is support evidence, not the root cause"
+notes:
+  - "Expected answer should identify the generic missing property and preserve the phase-4 claim boundary."
+  - "Do not require the model to claim a proven exploit for likely hardening records."

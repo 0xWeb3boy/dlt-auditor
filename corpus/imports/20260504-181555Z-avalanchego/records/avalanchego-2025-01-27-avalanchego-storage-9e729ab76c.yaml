@@ -1,0 +1,67 @@
+id: "avalanchego-2025-01-27-avalanchego-storage-9e729ab76c"
+source_finding: "2025-01-27-avalanchego-storage-9e729ab76c.md"
+project: "avalanchego"
+date: "2025-01-27"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "rpc-resource-control"
+subsystem: "storage"
+architecture_tags:
+  - "storage"
+  - "rpc-parameter-cardinality-bound"
+  - "rpc"
+  - "resource-control"
+  - "input-validation"
+  - "fee-history"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "rpc-parameter-cardinality-bound"
+violated_invariant: "Caller-controlled RPC arrays must be bounded before repeated processing, allocation, or per-element computation."
+trust_boundary: "Remote RPC parameters cross into backend fee-history computation."
+entrypoint_type: "RPC fee history query"
+sensitive_sink: "looping, allocation, or percentile computation over caller-controlled reward percentile inputs"
+
+attacker_capabilities:
+  - "Can call the RPC method repeatedly"
+  - "Can supply a large rewardPercentiles array"
+exploit_preconditions:
+  - "The method processes each supplied percentile"
+  - "No cardinality bound is checked before processing"
+  - "The RPC endpoint is reachable to untrusted or semi-trusted callers"
+blast_radius: "Limited to the affected validation/accounting path unless the unchecked object can enter consensus, block acceptance, shared storage, or public RPC resource consumption."
+
+impact_types:
+  - "availability"
+  - "resource-exhaustion"
+severity_guess: "low_medium"
+severity_rationale: "Unbounded RPC arrays can cause avoidable resource usage, but the evidence does not quantify a denial of service."
+
+code_shape_summary: "A maxQueryLimit check was added for caller-supplied reward percentiles before fee-history processing. The reusable shape is an RPC endpoint that bounds array cardinality independently of per-element validation."
+search_motifs:
+  - "len(userArray) > maxQueryLimit near RPC entry"
+  - "rewardPercentiles or similar arrays processed in fee history/oracle code"
+  - "errInvalidPercentile or query limit errors added before loops"
+negative_signals:
+  - "Public endpoints behind strict gateway limits may reduce severity"
+  - "Small fixed-size arrays or server-generated arrays are not matches"
+  - "Do not conflate copy-initialization refactors with RPC resource controls"
+patch_pattern: "Reject oversized caller-controlled arrays at RPC entry using an existing query limit before per-element validation or computation."
+
+source_refs:
+  - "/work/dlt-ai-audit-system/corpus/imports/20260504-181555Z-avalanchego/raw-findings/2025-01-27-avalanchego-storage-9e729ab76c.md"
+  - "git:9e729ab76cf15cdba734c09530cb4651136260c8"
+  - "eth/gasprice/feehistory.go:178"
+  - "core/state/statedb.go:885"
+  - "core/state/statedb.go:875"
+  - "core/state/snapshot/snapshot.go:925"
+notes:
+  - "Enriched from the validated finding; preserve claim boundaries from phase 4."
+  - "Treat likely hardening records as retrieval exemplars, not proof of an exploitable vulnerability, unless the raw finding is confirmed."

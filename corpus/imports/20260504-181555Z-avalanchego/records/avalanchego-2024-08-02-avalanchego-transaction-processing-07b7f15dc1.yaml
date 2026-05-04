@@ -1,0 +1,67 @@
+id: "avalanchego-2024-08-02-avalanchego-transaction-processing-07b7f15dc1"
+source_finding: "2024-08-02-avalanchego-transaction-processing-07b7f15dc1.md"
+project: "avalanchego"
+date: "2024-08-02"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "invalid-header-validation"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "transaction-processing"
+  - "local-protocol-header-invariant"
+  - "consensus"
+  - "header-validation"
+  - "eip-4844"
+  - "blob-gas"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "local-protocol-header-invariant"
+violated_invariant: "Header validation must enforce local chain invariants even when the upstream fork format permits a broader field domain."
+trust_boundary: "Peer-supplied Cancun/EIP-4844-style headers cross into Avalanche EVM block validation."
+entrypoint_type: "EVM block/header syntactic verification"
+sensitive_sink: "acceptance of a block header violating the local no-blobs rule"
+
+attacker_capabilities:
+  - "Can propose or relay headers containing blob gas fields"
+  - "Can set BlobGasUsed to a positive value"
+exploit_preconditions:
+  - "The chain adopts a fork format but disables a feature such as blobs"
+  - "Generic fork validation checks field shape but not the local value invariant"
+  - "The block can reach local syntactic validation"
+blast_radius: "Limited to the affected validation/accounting path unless the unchecked object can enter consensus, block acceptance, shared storage, or public RPC resource consumption."
+
+impact_types:
+  - "consensus-integrity"
+  - "protocol-validity"
+severity_guess: "medium_high"
+severity_rationale: "Accepting headers that violate local protocol invariants can become consensus-relevant, though the finding remains likely hardening absent a demonstrated split."
+
+code_shape_summary: "Header validation now rejects positive BlobGasUsed despite generic Cancun field support. The reusable shape is a chain-specific invariant layered on top of inherited fork-format validation."
+search_motifs:
+  - "BlobGasUsed must be nil before fork and zero after fork"
+  - "local no-blobs rule enforced after EIP-4844 field checks"
+  - "dummy consensus and production verifier gain the same positive-value rejection"
+negative_signals:
+  - "Do not flag chains that actually enable blobs"
+  - "A nil/non-nil field-shape check is insufficient evidence for a local value invariant"
+  - "If execution payload normalization overwrites positive values before validation, impact may be lower"
+patch_pattern: "After generic fork field validation, add local value checks that reject feature fields forbidden by the chain configuration."
+
+source_refs:
+  - "/work/dlt-ai-audit-system/corpus/imports/20260504-181555Z-avalanchego/raw-findings/2024-08-02-avalanchego-transaction-processing-07b7f15dc1.md"
+  - "git:07b7f15dc1a8f6be9acb13e295ae1525052ec7df"
+  - "plugin/evm/block_verification.go:288"
+  - "consensus/dummy/consensus.go:264"
+  - "plugin/evm/vm_test.go:4093"
+  - "core/state_processor_test.go:118"
+notes:
+  - "Enriched from the validated finding; preserve claim boundaries from phase 4."
+  - "Treat likely hardening records as retrieval exemplars, not proof of an exploitable vulnerability, unless the raw finding is confirmed."

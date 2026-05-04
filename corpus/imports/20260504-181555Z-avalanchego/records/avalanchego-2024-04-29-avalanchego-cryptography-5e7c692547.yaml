@@ -1,0 +1,67 @@
+id: "avalanchego-2024-04-29-avalanchego-cryptography-5e7c692547"
+source_finding: "2024-04-29-avalanchego-cryptography-5e7c692547.md"
+project: "avalanchego"
+date: "2024-04-29"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "incomplete-header-validation"
+subsystem: "cryptography"
+architecture_tags:
+  - "cryptography"
+  - "fork-dependent-header-field-validation"
+  - "consensus"
+  - "block-validation"
+  - "header-validation"
+  - "fork-validation"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "fork-dependent-header-field-validation"
+violated_invariant: "Block header fields introduced or removed by a fork must be accepted, rejected, or required according to the active fork rules."
+trust_boundary: "Peer-supplied EVM block headers cross into syntactic block validation."
+entrypoint_type: "EVM block/header syntactic verification"
+sensitive_sink: "block acceptance under fork-specific header rules"
+
+attacker_capabilities:
+  - "Can propose or relay block headers"
+  - "Can set fork-dependent header fields such as beacon root or blob gas fields"
+exploit_preconditions:
+  - "A fork changes required/forbidden header fields"
+  - "The validator lacks an explicit check for a field at that fork boundary"
+  - "Blocks reach validation with attacker-selected header values"
+blast_radius: "Limited to the affected validation/accounting path unless the unchecked object can enter consensus, block acceptance, shared storage, or public RPC resource consumption."
+
+impact_types:
+  - "protocol-validity"
+  - "consensus-integrity"
+severity_guess: "medium"
+severity_rationale: "Header validation gaps can become consensus-relevant, but this record is hardening because no divergent acceptance exploit is shown."
+
+code_shape_summary: "Fork-aware header validation was expanded to cover a previously incomplete field check. The reusable shape is block syntactic validation where each fork-dependent field needs explicit nil/value handling on both sides of activation."
+search_motifs:
+  - "ParentBeaconRoot or blob gas checks guarded by Cancun activation"
+  - "pre-fork forbidden field and post-fork required field tests"
+  - "header validation split between dummy consensus and production block verifier"
+negative_signals:
+  - "Dummy consensus changes alone may be test infrastructure"
+  - "Do not claim cryptographic failure from ordinary header field validation"
+  - "If a downstream verifier always rejects the field, an upstream missing check may be defense-in-depth only"
+patch_pattern: "Add explicit fork-aware required/forbidden checks at block syntactic validation boundaries and mirror them in consensus-engine test paths."
+
+source_refs:
+  - "/work/dlt-ai-audit-system/corpus/imports/20260504-181555Z-avalanchego/raw-findings/2024-04-29-avalanchego-cryptography-5e7c692547.md"
+  - "git:5e7c6925470c1ffde7c4bb6ded6a2731732a0f91"
+  - "consensus/dummy/consensus.go:237"
+  - "plugin/evm/block_verification.go:156"
+  - "plugin/evm/gossip_test.go:76"
+  - "sync/syncutils/test_trie.go:37"
+notes:
+  - "Enriched from the validated finding; preserve claim boundaries from phase 4."
+  - "Treat likely hardening records as retrieval exemplars, not proof of an exploitable vulnerability, unless the raw finding is confirmed."

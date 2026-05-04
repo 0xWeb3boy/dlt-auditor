@@ -1,0 +1,28 @@
+id: "avalanchego-2024-11-13-avalanchego-p2p-networking-910a2b2392"
+source_record: "avalanchego-2024-11-13-avalanchego-p2p-networking-910a2b2392.yaml"
+project: "avalanchego"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "missing-protocol-message-verification"
+expected_missing_property: "protocol-message-verification"
+
+expected_impact_band: "medium_or_low_hardening"
+expected_severity_band: "high_or_medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+attacker_capability_model:
+  - "Can submit transactions or blocks containing protocol messages"
+  - "May craft messages with invalid network, validator, or height context"
+exploit_preconditions:
+  - "Protocol messages are optional payloads attached to otherwise valid objects"
+  - "A verification call is missing at one or more ingress points"
+  - "The message can influence state or acceptance if unchecked"
+false_positive_cautions:
+  - "Feature implementation commits may add first-time verification rather than fix a reachable bypass"
+  - "Do not claim cross-chain forgery unless unchecked messages affected state"
+  - "Messages ignored by the VM are not sensitive sinks"
+notes:
+  - "Expected answer should identify the generic missing property and preserve the phase-4 claim boundary."
+  - "Do not require the model to claim a proven exploit for likely hardening records."

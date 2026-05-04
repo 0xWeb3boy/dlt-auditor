@@ -1,0 +1,28 @@
+id: "avalanchego-2023-09-27-avalanchego-transaction-processing-8e6f2f83e6"
+source_record: "avalanchego-2023-09-27-avalanchego-transaction-processing-8e6f2f83e6.yaml"
+project: "avalanchego"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "hardening-or-correctness-fix"
+expected_missing_property: "required-context-presence"
+
+expected_impact_band: "medium_high_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+attacker_capability_model:
+  - "Can submit transactions requiring predicate verification"
+  - "May influence whether block/proposer context is present in a validation call path"
+exploit_preconditions:
+  - "Some transactions require predicate context"
+  - "The verifier can be invoked with nil or incomplete context"
+  - "Missing context previously was not rejected before verification proceeded"
+false_positive_cautions:
+  - "No-predicate transactions may intentionally skip context"
+  - "A nil check in test scaffolding is not a vulnerability by itself"
+  - "Do not claim bypass unless required predicates can be evaluated without context"
+notes:
+  - "Expected answer should identify the generic missing property and preserve the phase-4 claim boundary."
+  - "Do not require the model to claim a proven exploit for likely hardening records."

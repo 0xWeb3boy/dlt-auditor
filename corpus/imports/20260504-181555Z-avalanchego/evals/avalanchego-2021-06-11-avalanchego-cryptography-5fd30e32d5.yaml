@@ -1,0 +1,28 @@
+id: "avalanchego-2021-06-11-avalanchego-cryptography-5fd30e32d5"
+source_record: "avalanchego-2021-06-11-avalanchego-cryptography-5fd30e32d5.yaml"
+project: "avalanchego"
+
+expected_bug_family: "signature_binding_and_signer_scope"
+expected_bug_class: "signature-canonicalization-mismatch"
+expected_missing_property: "canonical-signature-binding"
+
+expected_impact_band: "medium_high_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+attacker_capability_model:
+  - "Can submit or relay proposer blocks to validators"
+  - "May exploit mismatched serialized/header representations if construction and verification disagree"
+exploit_preconditions:
+  - "The protocol has multiple in-memory or serialized representations for the signed object"
+  - "Signing or parent lookup reads different fields than verification or serialization"
+  - "Validators rely on the signature to authenticate proposer block authorship"
+false_positive_cautions:
+  - "Pure field renames without a signed serialization boundary are likely non-security"
+  - "If tests prove both representations are normalized before signing, the mismatch may be cosmetic"
+  - "Do not infer signature forgery without evidence that verification accepted noncanonical bytes"
+notes:
+  - "Expected answer should identify the generic missing property and preserve the phase-4 claim boundary."
+  - "Do not require the model to claim a proven exploit for likely hardening records."

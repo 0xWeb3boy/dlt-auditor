@@ -147,6 +147,14 @@ Your task:
   - which generated side effects or internal transactions are added by the variant,
   - which base-client caches, pools, signers, or state journals are reused by the variant,
   - where the variant's authoritative source of truth overrides or augments base-client assumptions.
+  For inherited upstream features, build a variant-rule matrix:
+  - upstream rule or field,
+  - local feature enabled/disabled status,
+  - authoritative fork coordinate,
+  - expected field presence before activation,
+  - expected field presence and value after activation,
+  - every admission, block-building, replay, recovery, and syntactic-validation path that must enforce it.
+  Treat "upstream fork support exists" as distinct from "this chain enables every upstream feature."
 21. Map all cross-runtime adapter surfaces separately:
   - precompiles,
   - wasm or smart-contract query payload builders,

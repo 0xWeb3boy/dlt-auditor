@@ -1,0 +1,67 @@
+id: "avalanchego-2024-11-13-avalanchego-p2p-networking-910a2b2392"
+source_finding: "2024-11-13-avalanchego-p2p-networking-910a2b2392.md"
+project: "avalanchego"
+date: "2024-11-13"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "missing-protocol-message-verification"
+subsystem: "p2p-networking"
+architecture_tags:
+  - "p2p-networking"
+  - "protocol-message-verification"
+  - "blockchain-core"
+  - "platformvm"
+  - "warp-messages"
+  - "validator-state"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "protocol-message-verification"
+violated_invariant: "Cross-chain or protocol-extension messages must be verified against network identity, validator state, and the relevant chain height before they affect transaction or block acceptance."
+trust_boundary: "Messages embedded in transactions or blocks cross from peer/builder input into PlatformVM state transition."
+entrypoint_type: "PlatformVM transaction packing, manager verification, and block verification"
+sensitive_sink: "acceptance of transactions or blocks carrying unverified Warp messages"
+
+attacker_capabilities:
+  - "Can submit transactions or blocks containing protocol messages"
+  - "May craft messages with invalid network, validator, or height context"
+exploit_preconditions:
+  - "Protocol messages are optional payloads attached to otherwise valid objects"
+  - "A verification call is missing at one or more ingress points"
+  - "The message can influence state or acceptance if unchecked"
+blast_radius: "Limited to the affected validation/accounting path unless the unchecked object can enter consensus, block acceptance, shared storage, or public RPC resource consumption."
+
+impact_types:
+  - "protocol-integrity"
+  - "cross-chain-message-integrity"
+severity_guess: "medium_high"
+severity_rationale: "Missing protocol message verification is security-sensitive; this record is hardening because the evidence shows added verification but not a concrete exploit."
+
+code_shape_summary: "Warp message verification was wired into transaction and block acceptance paths. The reusable shape is an extension message whose validity depends on external network and validator context and must be checked everywhere the enclosing object is accepted."
+search_motifs:
+  - "VerifyWarpMessages added in builder, manager, or block verifier"
+  - "message verification uses network ID, P-Chain height, and validator state"
+  - "block or tx paths fail closed on protocol message verification errors"
+negative_signals:
+  - "Feature implementation commits may add first-time verification rather than fix a reachable bypass"
+  - "Do not claim cross-chain forgery unless unchecked messages affected state"
+  - "Messages ignored by the VM are not sensitive sinks"
+patch_pattern: "Call protocol-message verification at each transaction and block ingress point with the correct network, height, and validator-state context."
+
+source_refs:
+  - "/work/dlt-ai-audit-system/corpus/imports/20260504-181555Z-avalanchego/raw-findings/2024-11-13-avalanchego-p2p-networking-910a2b2392.md"
+  - "git:910a2b239271a68e780f2c89d46af64a0a53d3f2"
+  - "vms/platformvm/block/builder/builder.go:550"
+  - "vms/platformvm/block/builder/builder.go:284"
+  - "vms/platformvm/block/executor/manager.go:124"
+  - "vms/platformvm/block/executor/block.go:30"
+notes:
+  - "Enriched from the validated finding; preserve claim boundaries from phase 4."
+  - "Treat likely hardening records as retrieval exemplars, not proof of an exploitable vulnerability, unless the raw finding is confirmed."

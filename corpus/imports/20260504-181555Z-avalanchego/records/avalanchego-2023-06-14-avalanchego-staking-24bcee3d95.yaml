@@ -1,0 +1,66 @@
+id: "avalanchego-2023-06-14-avalanchego-staking-24bcee3d95"
+source_finding: "2023-06-14-avalanchego-staking-24bcee3d95.md"
+project: "avalanchego"
+date: "2023-06-14"
+language_tags:
+  - "go"
+
+bug_family: "authz_and_role_gates"
+bug_class: "access-control"
+subsystem: "staking"
+architecture_tags:
+  - "staking"
+  - "management-key-authorization"
+  - "validator-ops"
+  - "authorization"
+  - "continuous-staking"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "management-key-authorization"
+violated_invariant: "Lifecycle operations on validator or staking objects must be authorized by the explicit management authority of the target object."
+trust_boundary: "A submitted staking management transaction crosses from user-controlled transaction data into validator lifecycle state changes."
+entrypoint_type: "staking stop-management transaction verification"
+sensitive_sink: "stopping or modifying an active continuous staker"
+
+attacker_capabilities:
+  - "Can submit a stop-staker transaction referencing an existing staker"
+  - "May control unrelated reward-owner or subnet-owner credentials"
+exploit_preconditions:
+  - "The target staking transaction has a management key distinct from reward/subnet ownership"
+  - "Verification derives authority from the wrong owner field"
+  - "Stopping the staker changes validator lifecycle state"
+blast_radius: "Limited to the affected validation/accounting path unless the unchecked object can enter consensus, block acceptance, shared storage, or public RPC resource consumption."
+
+impact_types:
+  - "unauthorized-staker-stop"
+  - "validator-lifecycle-integrity"
+severity_guess: "high_medium"
+severity_rationale: "Unauthorized validator lifecycle changes are high impact, but this record is likely hardening because exploitability is inferred from the authority change rather than proven end-to-end."
+
+code_shape_summary: "Stop-staker authorization was changed to require the target continuous staker management key. The reusable shape is a lifecycle operation that previously authorized against adjacent owner fields instead of the object-specific management authority."
+search_motifs:
+  - "StopStaker authorization using reward owner or subnet owner"
+  - "type checks for ContinuousStaker before permission verification"
+  - "ManagementKey introduced as the authorization source"
+negative_signals:
+  - "If reward owner and management key are always identical by construction, the issue may collapse to refactoring"
+  - "Do not flag read-only staker lookups as authorization sinks"
+  - "Unsupported transaction type rejection is only security-relevant when it gates a state-changing action"
+patch_pattern: "Type-check the referenced staker, extract its explicit management key, and verify the submitted credentials against that key before applying lifecycle changes."
+
+source_refs:
+  - "/work/dlt-ai-audit-system/corpus/imports/20260504-181555Z-avalanchego/raw-findings/2023-06-14-avalanchego-staking-24bcee3d95.md"
+  - "git:24bcee3d957546fed520a85bb43996ffbe502c38"
+  - "vms/platformvm/txs/executor/staker_tx_verification.go:1225"
+  - "vms/platformvm/state/staker.go:207"
+  - "vms/platformvm/txs/executor/staker_tx_verification.go:1121"
+  - "vms/platformvm/txs/executor/staker_tx_verification.go:1126"
+notes:
+  - "Enriched from the validated finding; preserve claim boundaries from phase 4."
+  - "Treat likely hardening records as retrieval exemplars, not proof of an exploitable vulnerability, unless the raw finding is confirmed."

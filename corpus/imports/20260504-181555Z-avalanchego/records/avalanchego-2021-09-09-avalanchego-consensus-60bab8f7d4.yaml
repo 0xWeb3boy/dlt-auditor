@@ -1,0 +1,67 @@
+id: "avalanchego-2021-09-09-avalanchego-consensus-60bab8f7d4"
+source_finding: "2021-09-09-avalanchego-consensus-60bab8f7d4.md"
+project: "avalanchego"
+date: "2021-09-09"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-safety"
+subsystem: "consensus"
+architecture_tags:
+  - "consensus"
+  - "fork-boundary-state-consistency"
+  - "blockchain-core"
+  - "consensus-safety"
+  - "consensus-failure"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "fork-boundary-state-consistency"
+violated_invariant: "Block verification must reject objects whose type, parent state, and fork activation status are mutually inconsistent."
+trust_boundary: "Peer-supplied blocks cross from network gossip into consensus verification and accepted state."
+entrypoint_type: "proposer VM block verification at fork transition"
+sensitive_sink: "accepted post-fork/pre-fork block relationship and consensus state update"
+
+attacker_capabilities:
+  - "Can relay crafted blocks near a fork boundary"
+  - "Can choose block parentage that exercises oracle/pre-fork exceptions"
+exploit_preconditions:
+  - "Fork transition has both pre-fork and post-fork block types"
+  - "Verification has an exception for oracle or parent-shaped blocks"
+  - "Accepted state is consulted to classify parent/fork status"
+blast_radius: "Limited to the affected validation/accounting path unless the unchecked object can enter consensus, block acceptance, shared storage, or public RPC resource consumption."
+
+impact_types:
+  - "consensus-failure"
+  - "consensus-integrity"
+severity_guess: "high"
+severity_rationale: "This is the only confirmed security fix in the bundle; fork-boundary verification errors can affect consensus safety if invalid block relationships are accepted."
+
+code_shape_summary: "The verifier accepted a fork-boundary child based on block shape without enough state checks for the parent fork status. The reusable shape is transition logic that must combine type checks with accepted-state facts before allowing compatibility exceptions."
+search_motifs:
+  - "verifyPreForkChild or similar transition helpers"
+  - "oracle block exceptions near activation time"
+  - "accepted state lookups added to block-type validation"
+negative_signals:
+  - "Rejecting malformed historical blocks is not enough if the path cannot affect current consensus"
+  - "If activation has not occurred, post-fork state checks may not apply"
+  - "Do not generalize to all fork code without a parent/type/state inconsistency"
+patch_pattern: "Add fail-closed state checks at the fork-boundary verifier so parent status, accepted post-fork state, and block type agree before a child is accepted."
+
+source_refs:
+  - "/work/dlt-ai-audit-system/corpus/imports/20260504-181555Z-avalanchego/raw-findings/2021-09-09-avalanchego-consensus-60bab8f7d4.md"
+  - "git:60bab8f7d4f5b987eab985cac81ea440ad507f1c"
+  - "vms/proposervm/pre_fork_block.go:73"
+  - "vms/proposervm/vm_byzantine_test.go:295"
+  - "vms/proposervm/vm_byzantine_test.go:198"
+  - "vms/proposervm/vm_byzantine_test.go:180"
+notes:
+  - "Enriched from the validated finding; preserve claim boundaries from phase 4."
+  - "Treat likely hardening records as retrieval exemplars, not proof of an exploitable vulnerability, unless the raw finding is confirmed."

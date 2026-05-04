@@ -1,0 +1,67 @@
+id: "avalanchego-2026-04-30-avalanchego-p2p-networking-a9c2157265"
+source_finding: "2026-04-30-avalanchego-p2p-networking-a9c2157265.md"
+project: "avalanchego"
+date: "2026-04-30"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "mempool-allowlist-admission-gap"
+subsystem: "p2p-networking"
+architecture_tags:
+  - "p2p-networking"
+  - "admission-policy-enforcement"
+  - "transaction-admission"
+  - "mempool"
+  - "allowlist"
+  - "access-control"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "admission-policy-enforcement"
+violated_invariant: "Every untrusted transaction path into a mempool or txpool must apply the configured admission policy before forwarding the transaction to shared storage or gossip."
+trust_boundary: "RPC or gossip-submitted transactions cross into SAE/Subnet EVM txpool insertion."
+entrypoint_type: "transaction gossip/mempool add path"
+sensitive_sink: "txpool acceptance of a transaction that should be blocked by allowlist policy"
+
+attacker_capabilities:
+  - "Can submit transactions to the tx gossip or RPC-backed admission path"
+  - "May use accounts or transaction types outside the configured allowlist"
+exploit_preconditions:
+  - "An allowlist or admission policy is configured"
+  - "At least one txpool forwarding path does not call the policy hook"
+  - "The txpool accepts forwarded transactions without rechecking the same policy"
+blast_radius: "Limited to the affected validation/accounting path unless the unchecked object can enter consensus, block acceptance, shared storage, or public RPC resource consumption."
+
+impact_types:
+  - "access-control"
+  - "policy-enforcement"
+severity_guess: "medium"
+severity_rationale: "Missing allowlist enforcement at mempool ingress can admit policy-forbidden transactions, but the record does not prove block execution or consensus bypass."
+
+code_shape_summary: "A transaction admission hook was added before forwarding gossip transactions to the txpool. The reusable shape is an allowlist policy enforced in one ingress path but missing from another mempool forwarding path."
+search_motifs:
+  - "Admitter or allowlist hook added to txgossip addToPool"
+  - "txpool.Add called after a new policy check"
+  - "batched transaction admission preserves per-transaction errors"
+negative_signals:
+  - "If the backing txpool independently enforces the same allowlist, the missing hook is duplication"
+  - "Policy disabled or nil admitter paths may intentionally preserve legacy behavior"
+  - "Do not claim block inclusion unless proposer execution uses the same unchecked path"
+patch_pattern: "Introduce an admission-policy interface and call it before txpool forwarding, preserving legacy pass-through only when no policy is configured."
+
+source_refs:
+  - "/work/dlt-ai-audit-system/corpus/imports/20260504-181555Z-avalanchego/raw-findings/2026-04-30-avalanchego-p2p-networking-a9c2157265.md"
+  - "git:a9c21572655eafd208b2e8ad76a823cd81a995b0"
+  - "vms/saevm/txgossip/txgossip.go:107"
+  - "vms/saevm/txgossip/txgossip_test.go:379"
+  - "vms/saevm/txgossip/txgossip.go:53"
+  - "vms/subnetevm/vm_test.go:377"
+notes:
+  - "Enriched from the validated finding; preserve claim boundaries from phase 4."
+  - "Treat likely hardening records as retrieval exemplars, not proof of an exploitable vulnerability, unless the raw finding is confirmed."

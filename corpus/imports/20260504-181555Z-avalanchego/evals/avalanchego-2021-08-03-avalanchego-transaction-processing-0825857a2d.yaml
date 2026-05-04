@@ -1,0 +1,28 @@
+id: "avalanchego-2021-08-03-avalanchego-transaction-processing-0825857a2d"
+source_record: "avalanchego-2021-08-03-avalanchego-transaction-processing-0825857a2d.yaml"
+project: "avalanchego"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "fork-rule-activation-mismatch"
+expected_missing_property: "fork-activation-rule-binding"
+
+expected_impact_band: "medium_high_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+attacker_capability_model:
+  - "Can submit contract-creation transactions around a protocol upgrade boundary"
+  - "Can choose returned initcode/runtime bytecode shape"
+exploit_preconditions:
+  - "A fork-gated invalid-code rule exists"
+  - "The implementation checks the wrong fork predicate"
+  - "Peers evaluate blocks containing contract creation under local consensus rules"
+false_positive_cautions:
+  - "Feature flags in dummy/test engines may be support plumbing only"
+  - "A wrong-looking predicate is non-security if the fork phases are aliases"
+  - "Do not claim consensus split without showing divergent validation across nodes"
+notes:
+  - "Expected answer should identify the generic missing property and preserve the phase-4 claim boundary."
+  - "Do not require the model to claim a proven exploit for likely hardening records."

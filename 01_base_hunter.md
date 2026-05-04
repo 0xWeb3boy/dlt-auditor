@@ -19,6 +19,7 @@ Your task:
 1. Enumerate the most relevant code paths for that family.
 2. Search for places where the intended invariant is checked in some paths but missing in others.
 3. Compare admission-time checks, execution-time checks, simulation paths, recovery paths, timeout paths, cleanup paths, and upgrade or migration paths where relevant.
+3a. For transaction, block, message, and proof admission, build an ingress-to-sink matrix. For each object type, list every path that can place it into the shared sink: RPC, gossip, local builder, forced/internal insertion, replay/recovery, block packing, manager verification, and block verification. Mark which paths are trusted bypasses and which are untrusted. Every untrusted path should run the same policy, resource, context, and protocol-message checks before the object reaches the shared sink.
 4. Identify suspicious asymmetries, TODO-style comments, placeholder checks, broad membership checks, stale state reuse, or checks performed too late.
 5. Search for decisions that rely on cached, mirrored, or locally configured state instead of revalidating against authoritative chain or contract state at the point of use.
 6. Search for policies enforced in signal, watcher, helper, or builder code but not in the provider, constructor, execution path, or storage write path that actually consumes the data.

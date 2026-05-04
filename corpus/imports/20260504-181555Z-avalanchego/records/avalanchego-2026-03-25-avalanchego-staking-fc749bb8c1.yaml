@@ -1,0 +1,66 @@
+id: "avalanchego-2026-03-25-avalanchego-staking-fc749bb8c1"
+source_finding: "2026-03-25-avalanchego-staking-fc749bb8c1.md"
+project: "avalanchego"
+date: "2026-03-25"
+language_tags:
+  - "go"
+
+bug_family: "checked_arithmetic_and_parameter_bounds"
+bug_class: "integer-overflow-hardening"
+subsystem: "staking"
+architecture_tags:
+  - "staking"
+  - "checked-validator-weight-arithmetic"
+  - "validator"
+  - "integer-overflow"
+  - "checked-arithmetic"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "checked-validator-weight-arithmetic"
+violated_invariant: "Validator weight and reward-derived accounting values must be checked for representability before they are installed into consensus or staking state."
+trust_boundary: "Persisted staking metadata and validator transactions cross into in-memory validator set reconstruction."
+entrypoint_type: "PlatformVM current validator state loading"
+sensitive_sink: "effective validator weight used for staking/accounting state"
+
+attacker_capabilities:
+  - "May influence validator weight or accrued reward metadata through protocol actions"
+  - "Can benefit if overflow silently wraps to an incorrect weight"
+exploit_preconditions:
+  - "The effective weight is computed by adding multiple uint64 fields"
+  - "Persisted values can approach the numeric bound"
+  - "The derived weight affects staking or consensus accounting"
+blast_radius: "Limited to the affected validation/accounting path unless the unchecked object can enter consensus, block acceptance, shared storage, or public RPC resource consumption."
+
+impact_types:
+  - "consensus-state-integrity"
+  - "validator-accounting-integrity"
+severity_guess: "medium"
+severity_rationale: "Unchecked arithmetic in validator accounting is consensus-sensitive, but attacker-controlled overflow and concrete impact are not established."
+
+code_shape_summary: "Auto-renewed validator weight reconstruction changed from unchecked uint64 addition to checked safemath additions. The reusable shape is persisted accounting state reconstructed by summing bounded integer fields before use in validator power or reward logic."
+search_motifs:
+  - "stakerTx.Weight plus accrued rewards computed with +"
+  - "safemath.Add introduced around validator or reward accounting"
+  - "overflow computing weight returned from state loading"
+negative_signals:
+  - "If protocol caps prove the sum cannot overflow, this is defense-in-depth"
+  - "Do not claim consensus split without divergent state evidence"
+  - "Tests around helpers are support evidence, not proof of exploitability"
+patch_pattern: "Replace direct integer addition with checked arithmetic and propagate overflow errors before updating validator state."
+
+source_refs:
+  - "/work/dlt-ai-audit-system/corpus/imports/20260504-181555Z-avalanchego/raw-findings/2026-03-25-avalanchego-staking-fc749bb8c1.md"
+  - "git:fc749bb8c1acfc6fbbb175c52eeb8e9c718d66d3"
+  - "vms/platformvm/state/state.go:1919"
+  - "vms/platformvm/txs/executor/staker_tx_verification.go:996"
+  - "vms/platformvm/state/state_test.go:713"
+  - "vms/platformvm/txs/executor/reward_validator_test.go:1370"
+notes:
+  - "Enriched from the validated finding; preserve claim boundaries from phase 4."
+  - "Treat likely hardening records as retrieval exemplars, not proof of an exploitable vulnerability, unless the raw finding is confirmed."

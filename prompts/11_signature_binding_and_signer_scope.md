@@ -48,6 +48,7 @@ Search patterns:
 - wrappers that deserialize twice or carry typed values instead of raw authenticated bytes
 - key-rotation or manifest formats where a long-term master key authorizes an ephemeral validation, committee, or signing key. Verify both signatures, revocation status, sequence or epoch, and namespace-specific cache lookups before accepting signed consensus artifacts
 - signed objects whose payload schema can be confused with a different transaction, manifest, validation, proposal, state object, or descriptor type. Include object type and protocol domain in the signed bytes
+- signed consensus objects with internal, exported, cached, or serialized representations of the same identity. Compare the fields used to clear or write the signature, compute the ID, select the parent, serialize bytes, sign, verify, and store the object. A signature over one representation must not authorize routing or parentage from another.
 - code that checks signer public key equality but not signer membership in the active authorized role set
 - multisig validation that accepts "a signer" instead of "the required signers"
 - aggregate, batch, certificate, or checkpoint signatures where an empty item list, duplicate signer, stale committee, or missing inner-user signature can still produce a syntactically valid wrapper. Verify that the wrapper proves every required inner authorization, not just committee approval of a container

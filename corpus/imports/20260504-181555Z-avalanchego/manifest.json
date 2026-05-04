@@ -1,0 +1,162 @@
+{
+  "repo": "/work/avalanchego",
+  "repo_slug": "avalanchego",
+  "kept_dir": "/work/avalanchego/validated-findings/kept",
+  "created_at_utc": "20260504-181555Z",
+  "finding_count": 17,
+  "findings": [
+    {
+      "id": "avalanchego-2021-06-11-avalanchego-cryptography-5fd30e32d5",
+      "source": "/work/avalanchego/validated-findings/kept/2021-06-11-avalanchego-cryptography-5fd30e32d5.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "signature-canonicalization-mismatch",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "avalanchego-2021-08-03-avalanchego-transaction-processing-0825857a2d",
+      "source": "/work/avalanchego/validated-findings/kept/2021-08-03-avalanchego-transaction-processing-0825857a2d.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "fork-rule-activation-mismatch",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "avalanchego-2021-09-09-avalanchego-consensus-60bab8f7d4",
+      "source": "/work/avalanchego/validated-findings/kept/2021-09-09-avalanchego-consensus-60bab8f7d4.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-safety",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "avalanchego-2022-11-29-avalanchego-transaction-processing-3511ceac26",
+      "source": "/work/avalanchego/validated-findings/kept/2022-11-29-avalanchego-transaction-processing-3511ceac26.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "transaction-replay-policy-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "avalanchego-2022-11-29-avalanchego-transaction-processing-652572ecf7",
+      "source": "/work/avalanchego/validated-findings/kept/2022-11-29-avalanchego-transaction-processing-652572ecf7.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "replay-protection-bypass-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "avalanchego-2023-03-01-avalanchego-transaction-processing-71d7ca3337",
+      "source": "/work/avalanchego/validated-findings/kept/2023-03-01-avalanchego-transaction-processing-71d7ca3337.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "protocol-resource-metering",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "avalanchego-2023-06-14-avalanchego-staking-24bcee3d95",
+      "source": "/work/avalanchego/validated-findings/kept/2023-06-14-avalanchego-staking-24bcee3d95.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "access-control",
+      "subsystem": "staking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "avalanchego-2023-09-27-avalanchego-transaction-processing-8e6f2f83e6",
+      "source": "/work/avalanchego/validated-findings/kept/2023-09-27-avalanchego-transaction-processing-8e6f2f83e6.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "hardening-or-correctness-fix",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "avalanchego-2023-10-23-avalanchego-transaction-processing-3a0283f107",
+      "source": "/work/avalanchego/validated-findings/kept/2023-10-23-avalanchego-transaction-processing-3a0283f107.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "mempool-resource-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "avalanchego-2024-04-29-avalanchego-cryptography-5e7c692547",
+      "source": "/work/avalanchego/validated-findings/kept/2024-04-29-avalanchego-cryptography-5e7c692547.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "incomplete-header-validation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "avalanchego-2024-08-02-avalanchego-transaction-processing-07b7f15dc1",
+      "source": "/work/avalanchego/validated-findings/kept/2024-08-02-avalanchego-transaction-processing-07b7f15dc1.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "invalid-header-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "avalanchego-2024-11-13-avalanchego-p2p-networking-910a2b2392",
+      "source": "/work/avalanchego/validated-findings/kept/2024-11-13-avalanchego-p2p-networking-910a2b2392.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-protocol-message-verification",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "avalanchego-2025-01-27-avalanchego-storage-9e729ab76c",
+      "source": "/work/avalanchego/validated-findings/kept/2025-01-27-avalanchego-storage-9e729ab76c.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "rpc-resource-control",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "avalanchego-2025-12-09-avalanchego-storage-e7bd4fb988",
+      "source": "/work/avalanchego/validated-findings/kept/2025-12-09-avalanchego-storage-e7bd4fb988.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "range-proof-boundary-hardening",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "avalanchego-2026-03-25-avalanchego-staking-d5d9e64da0",
+      "source": "/work/avalanchego/validated-findings/kept/2026-03-25-avalanchego-staking-d5d9e64da0.md",
+      "bug_family": "checked_arithmetic_and_parameter_bounds",
+      "bug_class": "unchecked-validator-weight-overflow",
+      "subsystem": "staking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "arithmetic-bounds"
+    },
+    {
+      "id": "avalanchego-2026-03-25-avalanchego-staking-fc749bb8c1",
+      "source": "/work/avalanchego/validated-findings/kept/2026-03-25-avalanchego-staking-fc749bb8c1.md",
+      "bug_family": "checked_arithmetic_and_parameter_bounds",
+      "bug_class": "integer-overflow-hardening",
+      "subsystem": "staking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "arithmetic-bounds"
+    },
+    {
+      "id": "avalanchego-2026-04-30-avalanchego-p2p-networking-a9c2157265",
+      "source": "/work/avalanchego/validated-findings/kept/2026-04-30-avalanchego-p2p-networking-a9c2157265.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "mempool-allowlist-admission-gap",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    }
+  ]
+}
