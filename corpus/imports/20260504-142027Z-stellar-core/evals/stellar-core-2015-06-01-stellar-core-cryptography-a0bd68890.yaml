@@ -1,0 +1,20 @@
+id: "stellar-core-2015-06-01-stellar-core-cryptography-a0bd68890"
+source_record: "stellar-core-2015-06-01-stellar-core-cryptography-a0bd68890.yaml"
+project: "stellar-core"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "consensus-vblocking-threshold-off-by-one"
+expected_missing_property: "consensus-threshold-arithmetic"
+
+expected_impact_band: "high"
+expected_severity_band: "high_or_medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Do not flag threshold arithmetic without confirming the protocol formula."
+  - "Do not assume every quorum utility affects live consensus."
+notes:
+  - "Consensus predicates are arithmetic specifications; off-by-one errors at threshold boundaries can turn valid quorum assumptions into wrong safety or liveness decisions."
+  - "Security verdict is likely; avoid overstating beyond the raw finding evidence."

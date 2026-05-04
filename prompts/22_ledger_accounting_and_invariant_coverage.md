@@ -27,6 +27,7 @@ Search patterns:
 - AMM, lending, vault, interest, yield, fee, share, or reserve calculations where rounding direction determines who receives value, who loses value, or who becomes under-collateralized.
 - Numeric wrapper types that distinguish syntactic validity, canonicality, and protocol representability. Valid-but-unrepresentable values must not reach persisted state fields.
 - Delete, cleanup, revoke, close, withdraw, liquidation, or migration paths that erase an object before proving all dependent balances, obligations, directory entries, permissions, and pseudo-account holdings are empty, transferred, or accounted for.
+- Issuer, asset, permission, or policy flag transitions must be checked against existing dependent state such as positive balances, trustlines, holdings, directories, and obligations. A policy change that is valid before issuance may be unsafe after dependent state exists.
 - Amendment, fork, feature, or mode gates that change state-object semantics. Both pre-activation and post-activation branches must preserve the same global invariants or fail closed.
 - Shared helpers and inline math that are meant to compute the same accounting relation but differ in rounding, fee selection, reserve source, owner-count behavior, or generated-object coverage.
 - final accounting checks that run before gas charging, rebates, storage refunds, generated objects, dynamic fields, or temporary-store writes are known. Re-run the conservation model at the actual finalization boundary and include all generated side effects.
@@ -34,6 +35,7 @@ Search patterns:
 - mempool or admission bookkeeping that affects future transaction ordering, nonce eligibility, or promotion. Record it only at final admission or prove every later rejection path rolls it back
 - reward or staking accounting where pending operations are summarized into aggregate fields. Check both admission-time validation and settlement-time aggregation; the aggregate must be capped by actual balances or shares and must not count more pending removal than exists.
 - historical payout calculations where nominal current balances, live membership, or mutable candidate state can differ from the snapshot that earned the reward.
+- Aggregate monetary or accounting counters must distinguish newly created value from redistributed, refunded, or previously escrowed value. Supply, obligation, and pool counters should be updated from the authoritative created/destroyed amount, not from payout or distribution totals.
 
 Questions to answer:
 1. What exact state entries can this transaction create, delete, or mutate directly and indirectly?

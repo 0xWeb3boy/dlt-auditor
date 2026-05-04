@@ -1,0 +1,62 @@
+id: "stellar-core-2015-08-07-stellar-core-storage-983043fc7"
+source_finding: "2015-08-07-stellar-core-storage-983043fc7.md"
+project: "stellar-core"
+date: "2015-08-07"
+language_tags:
+  - "c++"
+  - "config"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "unsafe-consensus-configuration"
+subsystem: "storage"
+architecture_tags:
+  - "scp"
+  - "quorum-configuration"
+  - "operator-safety"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "safe-consensus-configuration-bounds"
+violated_invariant: "Consensus quorum configuration must derive effective thresholds from bounded parameters and reject trivially unsafe safety settings unless the operator explicitly opts in."
+trust_boundary: "operator-config-file -> consensus-quorum-set-used-at-startup"
+entrypoint_type: "node-configuration-load"
+sensitive_sink: "SCP quorum threshold and failure-safety configuration"
+
+attacker_capabilities:
+  - "Provide or influence node configuration in deployment workflows."
+  - "Accidentally or maliciously select unsafe quorum parameters."
+exploit_preconditions:
+  - "The node accepts raw detached threshold values or zero failure-safety settings."
+  - "Startup does not force an explicit unsafe quorum opt-in."
+blast_radius: "validator or network segment consensus safety depending on deployment reuse"
+
+impact_types:
+  - "consensus-integrity"
+  - "byzantine-fault-tolerance"
+  - "configuration-hardening"
+severity_guess: "high"
+severity_rationale: "Unsafe quorum configuration can undermine Byzantine fault tolerance. This is confirmed hardening, not a remote exploit, so high but configuration-scoped."
+
+code_shape_summary: "The config loader accepted an absolute quorum threshold, then later code added bounded percentages, derived thresholds, failure-safety fields, and unsafe-mode validation."
+search_motifs:
+  - "raw THRESHOLD parsed into quorum set"
+  - "THRESHOLD_PERCENT bounded 1..100"
+  - "FAILURE_SAFETY equals zero without unsafe opt in"
+  - "qset.threshold derived from validator count"
+negative_signals:
+  - "Explicit testnet or unsafe modes may intentionally allow weak quorum settings."
+  - "Configuration mistakes are not remote vulnerabilities unless attackers can influence deployment config."
+  - "Quorum-analysis tools may warn rather than reject by design."
+patch_pattern: "Replace raw consensus threshold input with bounded derived configuration and add startup validation for unsafe safety settings."
+
+source_refs:
+  - "/work/dlt-ai-audit-system/corpus/imports/20260504-142027Z-stellar-core/raw-findings/2015-08-07-stellar-core-storage-983043fc7.md"
+notes:
+  - "Consensus software should make unsafe quorum choices explicit and bounded because operator configuration is part of the protocol safety boundary."
+  - "Enriched from the phase 4 kept finding; preserve likely versus confirmed status in downstream use."

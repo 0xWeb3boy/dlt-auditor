@@ -35,6 +35,7 @@ Search patterns:
 - state, receipt, log, root, witness, or proof helpers that are parameterized by a range, block number, page number, or requested key but only validate the returned data against current head, total count, local cache state, or malformed-but-plausible pagination metadata
 - content-addressed, page-addressed, or key-addressed peer payloads where both the payload hash/key and the page/order metadata must be recomputed and checked before storing, scheduling follow-up requests, or reporting completion
 - checkpoint, epoch, or state-sync responses that carry both an authenticated summary and optional contents. Recompute the contents digest or root and bind it to the exact requested sequence, root, and certification status before serving or persisting it
+- For catchup, archive, snapshot, or offline-complete verification modes, build an artifact coverage matrix. Every artifact type later used for replay, audit, result verification, state reconstruction, or client-serving should either be verified for the requested range or explicitly documented as outside the mode.
 - rollback or revert helpers that undo executed effects. Confirm they restore every mutated coordinate: objects, effects, events, indexes, accumulators, gas or rebate accounting, and any checkpoint membership tracking
 - storage tables keyed by sequence, epoch, or digest where one table stores certified data and another stores pending or full contents. Check that promotion, pruning, and lookup paths cannot mix pending, certified, stale, or wrong-epoch material
 

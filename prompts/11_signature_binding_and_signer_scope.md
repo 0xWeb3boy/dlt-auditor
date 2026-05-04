@@ -40,6 +40,7 @@ Search patterns:
 - proof verification paths that are weaker for historical queries, latest-state queries, or bridge messages than for normal execution
 - verifier APIs returning `Result<bool, _>`, status enums, per-item outcomes, or indexed roots where callers may treat "no error" as success
 - signed network payloads should authenticate the exact raw payload bytes and domain context before deeper decoding, scheduling, or block construction. Check minimum length and signature/payload split before slicing
+- Signature validation loops where attacker-supplied signatures are tried against many candidate keys before a cheap key-id, hint, signer index, or domain prefilter. Expensive cryptographic verification should run only after cheap candidate binding, and unused authentication material should be rejected rather than silently ignored.
 - signing APIs should accept structured domain fields or one canonical message object, not detached byte buffers plus side-channel chain IDs, payload hashes, signer roles, or version flags that can disagree
 - proof or challenge flows where the protocol names one challenged root, index, query height, or hash but the code validates a batch, all roots, or the first invalid item
 - enum-based verification branches where one proof type recomputes and compares expected output but another only parses or looks up helper data

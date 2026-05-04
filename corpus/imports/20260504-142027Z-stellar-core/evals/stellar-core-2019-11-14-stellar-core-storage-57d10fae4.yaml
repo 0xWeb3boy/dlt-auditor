@@ -1,0 +1,20 @@
+id: "stellar-core-2019-11-14-stellar-core-storage-57d10fae4"
+source_record: "stellar-core-2019-11-14-stellar-core-storage-57d10fae4.yaml"
+project: "stellar-core"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "incomplete-archive-verification"
+expected_missing_property: "complete-archive-artifact-verification"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Do not flag partial verification modes that are clearly documented as partial."
+  - "Check whether omitted artifacts are consensus-critical or only diagnostic."
+notes:
+  - "Completeness claims in state-sync verification are security properties; every artifact type in the trusted range needs an explicit verification step."
+  - "Security verdict is likely; avoid overstating beyond the raw finding evidence."

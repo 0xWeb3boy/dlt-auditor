@@ -1,0 +1,20 @@
+id: "stellar-core-2015-02-28-stellar-core-transaction-processing-117a83b23"
+source_record: "stellar-core-2015-02-28-stellar-core-transaction-processing-117a83b23.yaml"
+project: "stellar-core"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "improper-transaction-sequence-validation"
+expected_missing_property: "sequence-slot-freshness"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Do not flag sequence-cache refactors unless they can affect authoritative transaction acceptance."
+  - "Do not treat legacy single-sequence account models as missing slot-specific validation."
+notes:
+  - "Freshness and ordering checks must be repeated at the authoritative state transition boundary, not only at gossip or preliminary validation boundaries."
+  - "Security verdict is likely; avoid overstating beyond the raw finding evidence."

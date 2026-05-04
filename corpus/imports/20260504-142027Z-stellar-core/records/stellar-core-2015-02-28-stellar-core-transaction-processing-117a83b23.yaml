@@ -1,0 +1,60 @@
+id: "stellar-core-2015-02-28-stellar-core-transaction-processing-117a83b23"
+source_finding: "2015-02-28-stellar-core-transaction-processing-117a83b23.md"
+project: "stellar-core"
+date: "2015-02-28"
+language_tags:
+  - "c++"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "improper-transaction-sequence-validation"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "transaction-application"
+  - "account-sequence"
+  - "ledger-state"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "sequence-slot-freshness"
+violated_invariant: "A transaction must be applied only if its signer sequence number matches the current ledger sequence state for the exact sequence slot it claims to advance."
+trust_boundary: "signed-transaction-envelope -> account-sequence-ledger-state"
+entrypoint_type: "transaction-apply-path"
+sensitive_sink: "operation application and account sequence advancement"
+
+attacker_capabilities:
+  - "Submit a signed transaction with a stale, future, or wrong-slot sequence value."
+  - "Choose sequence-slot metadata that reaches the normal transaction application path."
+exploit_preconditions:
+  - "Pre-application validation does not re-check the exact account and sequence-slot pair."
+  - "The sequence lookup helper can return state scoped only by account or by the wrong sequence slot."
+blast_radius: "ledger-local with possible consensus-wide replay or ordering effects if accepted by validators"
+
+impact_types:
+  - "transaction-replay-resistance"
+  - "state-integrity"
+  - "consensus-determinism"
+severity_guess: "medium"
+severity_rationale: "Incorrect sequence enforcement can admit transactions that should be rejected and can disturb ordering or replay invariants, but the finding does not prove theft or consensus divergence."
+
+code_shape_summary: "The apply path accepted a transaction after broad validation while the supporting sequence read was not keyed by every dimension of the sequence invariant."
+search_motifs:
+  - "transaction apply continues after checkValid without sequence comparison"
+  - "sequence lookup by account id without sequence slot"
+  - "bad sequence checked only during mempool admission"
+  - "fee handling for bad sequence transactions"
+negative_signals:
+  - "Pure test changes around sequence numbers are not enough without an apply-path guard."
+  - "A separate consensus rule may already reject wrong sequence slots before application."
+  - "Single-slot account sequence systems do not need per-slot lookup dimensions."
+patch_pattern: "Add an explicit pre-application bad-sequence guard and make the ledger lookup use the same account and slot keys required by the invariant."
+
+source_refs:
+  - "/work/dlt-ai-audit-system/corpus/imports/20260504-142027Z-stellar-core/raw-findings/2015-02-28-stellar-core-transaction-processing-117a83b23.md"
+notes:
+  - "Freshness and ordering checks must be repeated at the authoritative state transition boundary, not only at gossip or preliminary validation boundaries."
+  - "Enriched from the phase 4 kept finding; preserve likely versus confirmed status in downstream use."

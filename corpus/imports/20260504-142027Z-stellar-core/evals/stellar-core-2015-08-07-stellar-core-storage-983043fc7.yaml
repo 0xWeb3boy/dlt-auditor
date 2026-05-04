@@ -1,0 +1,20 @@
+id: "stellar-core-2015-08-07-stellar-core-storage-983043fc7"
+source_record: "stellar-core-2015-08-07-stellar-core-storage-983043fc7.yaml"
+project: "stellar-core"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "unsafe-consensus-configuration"
+expected_missing_property: "safe-consensus-configuration-bounds"
+
+expected_impact_band: "high"
+expected_severity_band: "high_or_medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Do not treat every config knob as attacker-controlled."
+  - "Do not label as storage corruption just because the generated subsystem says storage."
+notes:
+  - "Consensus software should make unsafe quorum choices explicit and bounded because operator configuration is part of the protocol safety boundary."
+  - "Security verdict is confirmed; avoid overstating beyond the raw finding evidence."

@@ -1,0 +1,20 @@
+id: "stellar-core-2026-02-03-stellar-core-consensus-a5393933f"
+source_record: "stellar-core-2026-02-03-stellar-core-consensus-a5393933f.yaml"
+project: "stellar-core"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "transaction-validation-hardening"
+expected_missing_property: "consistent-host-function-validation"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Do not flag validation helper extraction without a newly covered boundary."
+  - "Separate malformed host-function rejection from unrelated Soroban memo validation."
+notes:
+  - "Consensus-adjacent validation must be uniform across wrappers and admission paths; partial validation creates policy gaps even when individual checks exist elsewhere."
+  - "Security verdict is likely; avoid overstating beyond the raw finding evidence."

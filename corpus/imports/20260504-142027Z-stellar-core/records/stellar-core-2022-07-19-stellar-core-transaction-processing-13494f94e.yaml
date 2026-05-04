@@ -1,0 +1,60 @@
+id: "stellar-core-2022-07-19-stellar-core-transaction-processing-13494f94e"
+source_finding: "2022-07-19-stellar-core-transaction-processing-13494f94e.md"
+project: "stellar-core"
+date: "2022-07-19"
+language_tags:
+  - "c++"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "canonical-order-validation-hardening"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "transaction-set"
+  - "canonical-order"
+  - "surge-pricing"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "canonical-transaction-set-ordering"
+violated_invariant: "Transaction sets must preserve canonical hash ordering after every filtering or mutation step and validation must reject unsorted sets."
+trust_boundary: "candidate-transaction-set -> consensus-transaction-set-validation"
+entrypoint_type: "consensus-or-mempool-txset-validation"
+sensitive_sink: "accepted transaction-set ordering used for deterministic processing"
+
+attacker_capabilities:
+  - "Provide or influence candidate transaction sets."
+  - "Trigger filtering paths such as surge pricing that rebuild transaction lists."
+exploit_preconditions:
+  - "Filtered transaction vectors are stored without re-sorting."
+  - "Validation checks duplicates or adjacency but not full canonical order."
+blast_radius: "transaction-set determinism for affected ledger close paths"
+
+impact_types:
+  - "consensus-determinism"
+  - "transaction-order-integrity"
+  - "validation-hardening"
+severity_guess: "medium"
+severity_rationale: "Canonical ordering affects deterministic processing, but evidence does not prove an exploit beyond ordering hardening and test failures."
+
+code_shape_summary: "A transaction-set container could be rebuilt by filtering and then reused without restoring hash order, while checkValid lacked an explicit is_sorted guard."
+search_motifs:
+  - "filteredTxs assigned directly to mTxs"
+  - "TxSetFrame checkValid lacks is_sorted"
+  - "sortTxsInHashOrder after surge pricing"
+  - "hashTxSorter canonical order"
+negative_signals:
+  - "If later serialization always sorts before consensus use, the issue is lower risk."
+  - "Non-consensus mempool ordering may intentionally differ from canonical order."
+  - "Duplicate checks are not equivalent to full ordering checks."
+patch_pattern: "Validate canonical ordering with the same comparator used for protocol serialization and re-sort internal vectors after filtering."
+
+source_refs:
+  - "/work/dlt-ai-audit-system/corpus/imports/20260504-142027Z-stellar-core/raw-findings/2022-07-19-stellar-core-transaction-processing-13494f94e.md"
+notes:
+  - "Canonical collection invariants must be restored after mutation, not just assumed from construction time."
+  - "Enriched from the phase 4 kept finding; preserve likely versus confirmed status in downstream use."

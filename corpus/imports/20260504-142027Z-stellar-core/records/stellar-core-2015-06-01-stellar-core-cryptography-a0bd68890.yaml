@@ -1,0 +1,60 @@
+id: "stellar-core-2015-06-01-stellar-core-cryptography-a0bd68890"
+source_finding: "2015-06-01-stellar-core-cryptography-a0bd68890.md"
+project: "stellar-core"
+date: "2015-06-01"
+language_tags:
+  - "c++"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-vblocking-threshold-off-by-one"
+subsystem: "cryptography"
+architecture_tags:
+  - "scp"
+  - "consensus-quorum"
+  - "threshold-predicate"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "consensus-threshold-arithmetic"
+violated_invariant: "A v-blocking set predicate must implement the protocol threshold formula exactly, including off-by-one boundaries for N - T + 1 blocking membership."
+trust_boundary: "received-consensus-statements -> local quorum/blocking-classification"
+entrypoint_type: "consensus-predicate-evaluation"
+sensitive_sink: "SCP quorum and v-blocking decision logic"
+
+attacker_capabilities:
+  - "Participate in or influence observed validator statement sets."
+  - "Cause local nodes to evaluate edge-case quorum-set compositions."
+exploit_preconditions:
+  - "The implementation computes N - T instead of N - T + 1."
+  - "Consensus behavior depends on the misclassified blocking set at threshold boundaries."
+blast_radius: "consensus safety or liveness for affected quorum configurations"
+
+impact_types:
+  - "consensus-integrity"
+  - "consensus-liveness"
+  - "threshold-misclassification"
+severity_guess: "high"
+severity_rationale: "Consensus threshold arithmetic is safety-critical, but the finding is likely hardening because no concrete network-level exploit is demonstrated."
+
+code_shape_summary: "A recursive consensus blocking predicate initialized its remaining-count threshold one too low, misclassifying edge cases around quorum-set blocking."
+search_motifs:
+  - "isVBlocking computes validators plus innerSets minus threshold"
+  - "N - T without plus one"
+  - "off-by-one quorum threshold tests"
+  - "vblocking and quorum test added"
+negative_signals:
+  - "Different consensus protocols may define blocking as N - T, so compare against the local spec."
+  - "Test expectation changes alone are not enough without predicate arithmetic changes."
+  - "Misclassification only in diagnostics is lower risk than in live consensus."
+patch_pattern: "Correct the threshold formula in the consensus predicate and add focused tests for quorum and v-blocking edge cases."
+
+source_refs:
+  - "/work/dlt-ai-audit-system/corpus/imports/20260504-142027Z-stellar-core/raw-findings/2015-06-01-stellar-core-cryptography-a0bd68890.md"
+notes:
+  - "Consensus predicates are arithmetic specifications; off-by-one errors at threshold boundaries can turn valid quorum assumptions into wrong safety or liveness decisions."
+  - "Enriched from the phase 4 kept finding; preserve likely versus confirmed status in downstream use."

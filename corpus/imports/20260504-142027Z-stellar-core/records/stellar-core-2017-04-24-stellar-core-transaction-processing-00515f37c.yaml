@@ -1,0 +1,60 @@
+id: "stellar-core-2017-04-24-stellar-core-transaction-processing-00515f37c"
+source_finding: "2017-04-24-stellar-core-transaction-processing-00515f37c.md"
+project: "stellar-core"
+date: "2017-04-24"
+language_tags:
+  - "c++"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "protocol-accounting-invariant"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "inflation"
+  - "monetary-accounting"
+  - "ledger-versioning"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "minted-versus-redistributed-value-separation"
+violated_invariant: "Aggregate supply counters must increase only by newly minted value, not by value redistributed from existing fee pools or payout mechanics."
+trust_boundary: "inflation-operation-execution -> ledger-header-monetary-aggregate"
+entrypoint_type: "protocol-state-transition"
+sensitive_sink: "total supply or totalCoins ledger accounting"
+
+attacker_capabilities:
+  - "Trigger or participate in protocol inflation distribution when eligible."
+  - "Influence payout distribution inputs within normal protocol rules."
+exploit_preconditions:
+  - "The accounting path mixes newly minted inflation with existing fee-pool redistribution."
+  - "The aggregate supply counter is updated from payout totals rather than minted amount."
+blast_radius: "chain-wide monetary accounting for affected ledger versions"
+
+impact_types:
+  - "monetary-supply-integrity"
+  - "ledger-accounting"
+  - "consensus-determinism"
+severity_guess: "high"
+severity_rationale: "Supply accounting is consensus critical, though the finding does not prove attacker control or direct profit, so high but not critical."
+
+code_shape_summary: "The inflation path computed a payout pool from minted inflation plus existing fees, then updated the aggregate coin counter using payout behavior rather than the minted component alone."
+search_motifs:
+  - "totalCoins incremented inside payout loop"
+  - "feePool added to inflation amount"
+  - "inflationAmount separated from amountToDole"
+  - "ledger version gated monetary accounting fix"
+negative_signals:
+  - "Redistribution of existing fees is valid if supply counters are unchanged."
+  - "Legacy ledger-version gates may intentionally preserve historical behavior."
+  - "Accounting-display fixes are lower risk if consensus state is unaffected."
+patch_pattern: "Separate minted value from redistributed value and update aggregate supply exactly once from the minted component under new protocol-version rules."
+
+source_refs:
+  - "/work/dlt-ai-audit-system/corpus/imports/20260504-142027Z-stellar-core/raw-findings/2017-04-24-stellar-core-transaction-processing-00515f37c.md"
+notes:
+  - "Consensus accounting should distinguish creation from redistribution; payout mechanics must not leak into monetary supply counters."
+  - "Enriched from the phase 4 kept finding; preserve likely versus confirmed status in downstream use."

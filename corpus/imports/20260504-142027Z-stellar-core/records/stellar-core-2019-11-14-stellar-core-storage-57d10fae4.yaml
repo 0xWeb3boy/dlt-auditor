@@ -1,0 +1,60 @@
+id: "stellar-core-2019-11-14-stellar-core-storage-57d10fae4"
+source_finding: "2019-11-14-stellar-core-storage-57d10fae4.md"
+project: "stellar-core"
+date: "2019-11-14"
+language_tags:
+  - "c++"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "incomplete-archive-verification"
+subsystem: "storage"
+architecture_tags:
+  - "catchup"
+  - "history-archive"
+  - "offline-verification"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "complete-archive-artifact-verification"
+violated_invariant: "A complete catchup or archive-verification mode must verify every archive artifact type that can affect replay, audit, or ledger-result integrity for the selected range."
+trust_boundary: "remote-history-archive -> local-catchup-verification-state"
+entrypoint_type: "state-sync-or-catchup"
+sensitive_sink: "accepted history archive data and catchup verification result"
+
+attacker_capabilities:
+  - "Provide or tamper with remote history archive files used by a catching-up node."
+  - "Exploit artifact types that are omitted from complete verification."
+exploit_preconditions:
+  - "Complete offline verification excludes transaction result archive files."
+  - "Operators rely on complete verification for archive trust decisions."
+blast_radius: "catchup node integrity and offline audit workflows"
+
+impact_types:
+  - "state-sync-integrity"
+  - "archive-integrity"
+  - "auditability"
+severity_guess: "medium"
+severity_rationale: "Archive verification gaps can affect trust in catchup data, but this finding is scoped to optional complete verification and does not prove live consensus impact."
+
+code_shape_summary: "The catchup work graph verified some history archive artifacts but did not include transaction result files until an explicit DownloadVerifyTxResultsWork step was added."
+search_motifs:
+  - "OFFLINE_COMPLETE catchup missing tx results verification"
+  - "extra verification flag for archive files"
+  - "DownloadVerifyTxResultsWork added to catchup sequence"
+  - "history archive verifier only checks ledger headers and transactions"
+negative_signals:
+  - "Optional audit modes may not protect live online catchup."
+  - "If transaction results are independently hash-bound by checked ledgers, exploitability may be lower."
+  - "Do not treat command-line option additions alone as security fixes."
+patch_pattern: "Add a verifier work item for the omitted archive artifact type and wire it into the complete-verification catchup mode."
+
+source_refs:
+  - "/work/dlt-ai-audit-system/corpus/imports/20260504-142027Z-stellar-core/raw-findings/2019-11-14-stellar-core-storage-57d10fae4.md"
+notes:
+  - "Completeness claims in state-sync verification are security properties; every artifact type in the trusted range needs an explicit verification step."
+  - "Enriched from the phase 4 kept finding; preserve likely versus confirmed status in downstream use."

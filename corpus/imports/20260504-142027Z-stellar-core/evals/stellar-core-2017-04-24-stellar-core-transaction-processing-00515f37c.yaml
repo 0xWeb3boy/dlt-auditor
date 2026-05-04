@@ -1,0 +1,20 @@
+id: "stellar-core-2017-04-24-stellar-core-transaction-processing-00515f37c"
+source_record: "stellar-core-2017-04-24-stellar-core-transaction-processing-00515f37c.yaml"
+project: "stellar-core"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "protocol-accounting-invariant"
+expected_missing_property: "minted-versus-redistributed-value-separation"
+
+expected_impact_band: "high"
+expected_severity_band: "high_or_medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Do not flag monetary refactors unless aggregate counters and redistributed funds are mixed."
+  - "Preserve protocol-version context when judging old ledger behavior."
+notes:
+  - "Consensus accounting should distinguish creation from redistribution; payout mechanics must not leak into monetary supply counters."
+  - "Security verdict is likely; avoid overstating beyond the raw finding evidence."

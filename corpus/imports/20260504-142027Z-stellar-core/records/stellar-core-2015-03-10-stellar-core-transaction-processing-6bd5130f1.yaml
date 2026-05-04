@@ -1,0 +1,61 @@
+id: "stellar-core-2015-03-10-stellar-core-transaction-processing-6bd5130f1"
+source_finding: "2015-03-10-stellar-core-transaction-processing-6bd5130f1.md"
+project: "stellar-core"
+date: "2015-03-10"
+language_tags:
+  - "c++"
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "signature-verification-amplification"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "signature-validation"
+  - "transaction-authentication"
+  - "resource-control"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "cheap-signer-candidate-binding"
+violated_invariant: "Attacker-supplied signatures must be cheaply bound to plausible signer keys before expensive cryptographic verification is attempted."
+trust_boundary: "untrusted-transaction-envelope -> cryptographic-signature-verifier"
+entrypoint_type: "transaction-authentication"
+sensitive_sink: "public-key signature verification loop and transaction commit gate"
+
+attacker_capabilities:
+  - "Submit transactions with many decorated signatures."
+  - "Choose signatures whose hints do not correspond to signer candidates."
+exploit_preconditions:
+  - "Verification loops over supplied signatures and signer keys without a cheap hint prefilter."
+  - "Unused or unmatched signatures are tolerated after otherwise successful validation."
+blast_radius: "node-local CPU exhaustion with network-wide amplification potential under load"
+
+impact_types:
+  - "denial-of-service"
+  - "resource-exhaustion"
+  - "transaction-authentication-hardening"
+severity_guess: "high"
+severity_rationale: "The commit explicitly fixes an amplification attack in transaction authentication, a remote and attacker-controlled path, while not proving forgery or threshold bypass."
+
+code_shape_summary: "A nested signer/signature loop invoked expensive verification before checking decorated-signature hints, and extra signatures could remain unused on successful paths."
+search_motifs:
+  - "verifySig inside nested loop over signatures and signers"
+  - "decorated signature hint ignored before verification"
+  - "unused signatures accepted after threshold reached"
+  - "signature usage vector added to transaction frame"
+negative_signals:
+  - "Do not claim signature forgery when the patch only reduces verification work."
+  - "Batch verification or cached verification can change the amplification model."
+  - "Hint mismatches are not a bug if they are rejected before expensive verification."
+patch_pattern: "Filter signer candidates using cheap hint metadata, mark consumed signatures, and reject envelopes containing unused authentication material."
+
+source_refs:
+  - "/work/dlt-ai-audit-system/corpus/imports/20260504-142027Z-stellar-core/raw-findings/2015-03-10-stellar-core-transaction-processing-6bd5130f1.md"
+notes:
+  - "Authentication paths should bind user-controlled proof material to a narrow candidate set before spending asymmetric cryptographic work."
+  - "Enriched from the phase 4 kept finding; preserve likely versus confirmed status in downstream use."

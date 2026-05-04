@@ -1,0 +1,60 @@
+id: "stellar-core-2015-09-22-stellar-core-core-logic-edd011e29"
+source_finding: "2015-09-22-stellar-core-core-logic-edd011e29.md"
+project: "stellar-core"
+date: "2015-09-22"
+language_tags:
+  - "c++"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "preauth-io-timeout-hardening"
+subsystem: "core-logic"
+architecture_tags:
+  - "p2p"
+  - "overlay"
+  - "connection-lifecycle"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "preauthentication-resource-timeout"
+violated_invariant: "Unauthenticated peer connections must have tighter resource timeouts than authenticated peers and timeout policy should be enforced at the shared peer lifecycle layer."
+trust_boundary: "unauthenticated-network-peer -> node-overlay-connection-resources"
+entrypoint_type: "p2p-connection-handshake"
+sensitive_sink: "open socket, timer, and peer IO resources before authentication"
+
+attacker_capabilities:
+  - "Open peer connections and delay or avoid completing authentication."
+  - "Keep pre-handshake IO state alive long enough to consume connection resources."
+exploit_preconditions:
+  - "Pre-authentication and authenticated peers share the same long idle timeout."
+  - "Timeout enforcement is fragmented in transport-specific code."
+blast_radius: "node-local availability"
+
+impact_types:
+  - "denial-of-service"
+  - "resource-exhaustion"
+  - "availability-hardening"
+severity_guess: "medium"
+severity_rationale: "Pre-auth connection stalls can consume node resources, but the evidence supports hardening rather than a demonstrated DoS exploit."
+
+code_shape_summary: "Timeout handling lived in the TCP peer layer and did not clearly distinguish unauthenticated from authenticated peer states until moved into shared peer policy."
+search_motifs:
+  - "same idle timeout before and after peer authentication"
+  - "pre handshake timeout tightened"
+  - "getIOTimeoutSeconds depends on authenticated state"
+  - "idle timer implemented only in TCP peer"
+negative_signals:
+  - "A low global connection cap may mitigate the issue."
+  - "Long authenticated-peer timeouts are expected after identity and protocol negotiation."
+  - "Timeout refactors without pre-auth policy changes are usually reliability work."
+patch_pattern: "Centralize IO timeout selection in the peer abstraction and choose a short timeout for unauthenticated connections while preserving longer authenticated-peer behavior."
+
+source_refs:
+  - "/work/dlt-ai-audit-system/corpus/imports/20260504-142027Z-stellar-core/raw-findings/2015-09-22-stellar-core-core-logic-edd011e29.md"
+notes:
+  - "Authentication state is a resource-control boundary; unauthenticated peers should not receive the same patience as trusted protocol participants."
+  - "Enriched from the phase 4 kept finding; preserve likely versus confirmed status in downstream use."

@@ -1,0 +1,135 @@
+{
+  "repo": "/work/stellar-core",
+  "repo_slug": "stellar-core",
+  "kept_dir": "/work/stellar-core/validated-findings/kept",
+  "created_at_utc": "20260504-142027Z",
+  "finding_count": 14,
+  "findings": [
+    {
+      "id": "stellar-core-2015-02-28-stellar-core-transaction-processing-117a83b23",
+      "source": "/work/stellar-core/validated-findings/kept/2015-02-28-stellar-core-transaction-processing-117a83b23.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "improper-transaction-sequence-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "stellar-core-2015-03-10-stellar-core-transaction-processing-6bd5130f1",
+      "source": "/work/stellar-core/validated-findings/kept/2015-03-10-stellar-core-transaction-processing-6bd5130f1.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "signature-verification-amplification",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "stellar-core-2015-03-20-stellar-core-storage-cc9a3c0bd",
+      "source": "/work/stellar-core/validated-findings/kept/2015-03-20-stellar-core-storage-cc9a3c0bd.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-transaction-validation",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "stellar-core-2015-03-22-stellar-core-storage-838f99c3c",
+      "source": "/work/stellar-core/validated-findings/kept/2015-03-22-stellar-core-storage-838f99c3c.md",
+      "bug_family": "attestation_trust_and_freshness",
+      "bug_class": "trustline-invariant-enforcement",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "freshness"
+    },
+    {
+      "id": "stellar-core-2015-05-04-stellar-core-storage-37668bf24",
+      "source": "/work/stellar-core/validated-findings/kept/2015-05-04-stellar-core-storage-37668bf24.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "authorization-state-invariant",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "stellar-core-2015-06-01-stellar-core-cryptography-a0bd68890",
+      "source": "/work/stellar-core/validated-findings/kept/2015-06-01-stellar-core-cryptography-a0bd68890.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-vblocking-threshold-off-by-one",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "stellar-core-2015-08-07-stellar-core-storage-983043fc7",
+      "source": "/work/stellar-core/validated-findings/kept/2015-08-07-stellar-core-storage-983043fc7.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "unsafe-consensus-configuration",
+      "subsystem": "storage",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "stellar-core-2015-09-22-stellar-core-core-logic-edd011e29",
+      "source": "/work/stellar-core/validated-findings/kept/2015-09-22-stellar-core-core-logic-edd011e29.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "preauth-io-timeout-hardening",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "stellar-core-2017-04-24-stellar-core-transaction-processing-00515f37c",
+      "source": "/work/stellar-core/validated-findings/kept/2017-04-24-stellar-core-transaction-processing-00515f37c.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "protocol-accounting-invariant",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "stellar-core-2019-11-14-stellar-core-storage-57d10fae4",
+      "source": "/work/stellar-core/validated-findings/kept/2019-11-14-stellar-core-storage-57d10fae4.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "incomplete-archive-verification",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "stellar-core-2022-02-17-stellar-core-storage-d7ff8cc55",
+      "source": "/work/stellar-core/validated-findings/kept/2022-02-17-stellar-core-storage-d7ff8cc55.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "p2p-overlay-flow-control-hardening",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "stellar-core-2022-07-19-stellar-core-transaction-processing-13494f94e",
+      "source": "/work/stellar-core/validated-findings/kept/2022-07-19-stellar-core-transaction-processing-13494f94e.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "canonical-order-validation-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "stellar-core-2024-07-17-stellar-core-core-logic-ebef6c368",
+      "source": "/work/stellar-core/validated-findings/kept/2024-07-17-stellar-core-core-logic-ebef6c368.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "hash-collision-dos-hardening",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "stellar-core-2026-02-03-stellar-core-consensus-a5393933f",
+      "source": "/work/stellar-core/validated-findings/kept/2026-02-03-stellar-core-consensus-a5393933f.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "transaction-validation-hardening",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    }
+  ]
+}

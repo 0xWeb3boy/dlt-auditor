@@ -1,0 +1,20 @@
+id: "stellar-core-2015-03-10-stellar-core-transaction-processing-6bd5130f1"
+source_record: "stellar-core-2015-03-10-stellar-core-transaction-processing-6bd5130f1.yaml"
+project: "stellar-core"
+
+expected_bug_family: "signature_binding_and_signer_scope"
+expected_bug_class: "signature-verification-amplification"
+expected_missing_property: "cheap-signer-candidate-binding"
+
+expected_impact_band: "high"
+expected_severity_band: "high_or_medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Do not flag cryptographic verification loops that already prefilter by key id or signature hint."
+  - "Do not infer replay or forgery from verification-cost fixes."
+notes:
+  - "Authentication paths should bind user-controlled proof material to a narrow candidate set before spending asymmetric cryptographic work."
+  - "Security verdict is confirmed; avoid overstating beyond the raw finding evidence."

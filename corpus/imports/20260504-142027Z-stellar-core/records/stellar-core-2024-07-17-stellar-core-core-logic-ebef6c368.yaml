@@ -1,0 +1,60 @@
+id: "stellar-core-2024-07-17-stellar-core-core-logic-ebef6c368"
+source_finding: "2024-07-17-stellar-core-core-logic-ebef6c368.md"
+project: "stellar-core"
+date: "2024-07-17"
+language_tags:
+  - "c++"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "hash-collision-dos-hardening"
+subsystem: "core-logic"
+architecture_tags:
+  - "hashing"
+  - "data-structure-dos"
+  - "ledger-key-filter"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "collision-resistant-bounded-hash-structure-construction"
+violated_invariant: "Collision-sensitive structures built from attacker-influenced keys should use keyed hashing and bounded retry behavior."
+trust_boundary: "ledger-key-or-query-inputs -> hash-filter-construction-and-lookup"
+entrypoint_type: "data-structure-construction"
+sensitive_sink: "BinaryFuseFilter population and lookup CPU work"
+
+attacker_capabilities:
+  - "Influence keys inserted into or queried against collision-sensitive filters."
+  - "Attempt chosen-input collision patterns when hashing is predictable."
+exploit_preconditions:
+  - "The filter uses predictable non-keyed hash mixing for placement."
+  - "Population retries continue without a strict upper bound."
+blast_radius: "node-local CPU availability in paths that build or query the filter"
+
+impact_types:
+  - "denial-of-service"
+  - "resource-exhaustion"
+  - "algorithmic-complexity-hardening"
+severity_guess: "medium"
+severity_rationale: "Keyed hashing and retry caps reduce algorithmic DoS risk, but the finding does not prove a concrete production exploit path."
+
+code_shape_summary: "A collision-sensitive filter used predictable hash mixing and an unbounded construction retry loop before switching to SipHash24 and capped retries."
+search_motifs:
+  - "Murmur hash in collision sensitive filter"
+  - "for loop retrying population without bound"
+  - "SipHash24 added with seed"
+  - "population retry capped after collisions"
+negative_signals:
+  - "Non-adversarial offline filters may not require keyed hashing."
+  - "Bounded input sizes can limit collision impact."
+  - "Cryptographic hashing is not always required for internal deterministic structures."
+patch_pattern: "Replace predictable hash mixing with keyed SipHash for placement and lookup, and cap collision-retry loops with failure handling."
+
+source_refs:
+  - "/work/dlt-ai-audit-system/corpus/imports/20260504-142027Z-stellar-core/raw-findings/2024-07-17-stellar-core-core-logic-ebef6c368.md"
+notes:
+  - "Hash-based performance assumptions become security assumptions when inputs can be chosen; use keyed hashing and bounded retries for collision-sensitive paths."
+  - "Enriched from the phase 4 kept finding; preserve likely versus confirmed status in downstream use."

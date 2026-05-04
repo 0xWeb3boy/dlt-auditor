@@ -1,0 +1,61 @@
+id: "stellar-core-2015-03-22-stellar-core-storage-838f99c3c"
+source_finding: "2015-03-22-stellar-core-storage-838f99c3c.md"
+project: "stellar-core"
+date: "2015-03-22"
+language_tags:
+  - "c++"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "trustline-invariant-enforcement"
+subsystem: "storage"
+architecture_tags:
+  - "asset-accounting"
+  - "payments"
+  - "offers"
+  - "authorization"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "centralized-trustline-balance-and-authorization-checks"
+violated_invariant: "All trustline balance changes must pass through a single checked path that enforces limit, nonnegative-balance, and destination authorization constraints."
+trust_boundary: "payment-or-offer-operation -> issued-asset-trustline-state"
+entrypoint_type: "transaction-operation-apply"
+sensitive_sink: "trustline balance debit, credit, and payment acceptance"
+
+attacker_capabilities:
+  - "Submit payments or offer exchanges that credit or debit non-native asset trustlines."
+  - "Target trustlines near zero, near their limit, or lacking authorization."
+exploit_preconditions:
+  - "Multiple operation paths update trustline balance fields directly."
+  - "Destination authorization is not checked before accepting funds in the payment path."
+blast_radius: "asset ledger invariants for affected issuers and trustlines"
+
+impact_types:
+  - "asset-accounting-integrity"
+  - "authorization-bypass-hardening"
+  - "ledger-invariant-violation"
+severity_guess: "medium"
+severity_rationale: "Bypassing trustline bounds or authorization can break core issued-asset semantics, though the validation kept this as likely hardening rather than a proven exploit."
+
+code_shape_summary: "Transaction handlers performed direct TrustLineEntry.balance arithmetic across payment and offer paths instead of using a checked helper."
+search_motifs:
+  - "getTrustLine().balance += amount"
+  - "getTrustLine().balance -= amount"
+  - "payment to unauthorized trustline"
+  - "helper addBalance introduced for trustline mutations"
+negative_signals:
+  - "Direct arithmetic inside the checked helper itself is expected."
+  - "Look for evidence that negative balances or over-limit balances can persist, not just temporary arithmetic."
+  - "Authorization checks may live in issuer-specific pre-validation code."
+patch_pattern: "Centralize trustline balance mutation in a helper that rejects over-limit and negative results, then replace direct transaction-path arithmetic and add destination authorization checks."
+
+source_refs:
+  - "/work/dlt-ai-audit-system/corpus/imports/20260504-142027Z-stellar-core/raw-findings/2015-03-22-stellar-core-storage-838f99c3c.md"
+notes:
+  - "Ledger accounting invariants decay when every operation path hand-rolls balance mutation; put the invariant in the mutation primitive."
+  - "Enriched from the phase 4 kept finding; preserve likely versus confirmed status in downstream use."

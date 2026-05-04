@@ -1,0 +1,62 @@
+id: "stellar-core-2022-02-17-stellar-core-storage-d7ff8cc55"
+source_finding: "2022-02-17-stellar-core-storage-d7ff8cc55.md"
+project: "stellar-core"
+date: "2022-02-17"
+language_tags:
+  - "c++"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "p2p-overlay-flow-control-hardening"
+subsystem: "storage"
+architecture_tags:
+  - "p2p-overlay"
+  - "flow-control"
+  - "peer-protocol"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "p2p-flow-control-state-enforcement"
+violated_invariant: "A peer should only continue reading or sending flood traffic when negotiated flow-control state says capacity is available and the peer supports the relevant control messages."
+trust_boundary: "remote-overlay-peer -> local-peer-read-and-flood-capacity"
+entrypoint_type: "p2p-message-handler"
+sensitive_sink: "read scheduling, flood-message sending, and peer protocol state"
+
+attacker_capabilities:
+  - "Send overlay messages at high volume."
+  - "Advertise or omit protocol support while sending flow-control messages."
+  - "Consume per-peer buffers by keeping reads active."
+exploit_preconditions:
+  - "Read loops continue without checking per-peer capacity."
+  - "SEND_MORE handling is accepted without negotiated support."
+  - "Flood messages are sent before flow-control state is ready."
+blast_radius: "node-local availability with network propagation effects"
+
+impact_types:
+  - "denial-of-service"
+  - "resource-exhaustion"
+  - "p2p-protocol-hardening"
+severity_guess: "medium"
+severity_rationale: "Flow-control gaps can be abused for availability pressure, but the validation kept this as hardening because no concrete exploit was demonstrated."
+
+code_shape_summary: "Overlay read and send paths lacked explicit capacity gates and protocol-version checks around SEND_MORE and flood-message flow control."
+search_motifs:
+  - "readBodyHandler continues without hasReadingCapacity"
+  - "SEND_MORE accepted from unsupported peer"
+  - "flood message sent before flow control capacity"
+  - "peer throttled flag added to read loop"
+negative_signals:
+  - "Backpressure implemented below the peer layer may mitigate read-loop issues."
+  - "Flow-control metrics alone are not enforcement."
+  - "Trusted-only control messages may reduce attacker reachability."
+patch_pattern: "Add capacity checks to inbound read loops, reject unsupported flow-control messages, and gate outbound flood traffic on established flow-control state."
+
+source_refs:
+  - "/work/dlt-ai-audit-system/corpus/imports/20260504-142027Z-stellar-core/raw-findings/2022-02-17-stellar-core-storage-d7ff8cc55.md"
+notes:
+  - "P2P flow control must be an enforced protocol state machine, not just accounting around reads and sends."
+  - "Enriched from the phase 4 kept finding; preserve likely versus confirmed status in downstream use."

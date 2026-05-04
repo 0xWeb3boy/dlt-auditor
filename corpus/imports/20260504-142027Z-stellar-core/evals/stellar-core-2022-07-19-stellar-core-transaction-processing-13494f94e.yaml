@@ -1,0 +1,20 @@
+id: "stellar-core-2022-07-19-stellar-core-transaction-processing-13494f94e"
+source_record: "stellar-core-2022-07-19-stellar-core-transaction-processing-13494f94e.yaml"
+project: "stellar-core"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "canonical-order-validation-hardening"
+expected_missing_property: "canonical-transaction-set-ordering"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Do not flag arbitrary container reordering unless a canonical order is specified."
+  - "Verify comparator consistency across validation and serialization."
+notes:
+  - "Canonical collection invariants must be restored after mutation, not just assumed from construction time."
+  - "Security verdict is likely; avoid overstating beyond the raw finding evidence."

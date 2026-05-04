@@ -1,0 +1,60 @@
+id: "stellar-core-2015-03-20-stellar-core-storage-cc9a3c0bd"
+source_finding: "2015-03-20-stellar-core-storage-cc9a3c0bd.md"
+project: "stellar-core"
+date: "2015-03-20"
+language_tags:
+  - "c++"
+  - "xdr"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "missing-transaction-validation"
+subsystem: "storage"
+architecture_tags:
+  - "asset-accounting"
+  - "trustlines"
+  - "operation-validation"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "trustline-limit-balance-invariant"
+violated_invariant: "A trustline limit update must be rejected if the requested limit is negative or below the balance already held on that trustline."
+trust_boundary: "user-submitted-trustline-operation -> non-native-asset-ledger-entry"
+entrypoint_type: "transaction-operation-apply"
+sensitive_sink: "trustline limit mutation in ledger storage"
+
+attacker_capabilities:
+  - "Submit ChangeTrust-like operations for an existing trustline."
+  - "Choose a requested limit value inconsistent with current trustline balance."
+exploit_preconditions:
+  - "The existing-trustline branch directly assigns the requested limit."
+  - "No earlier validation rejects negative limits or limits below balance."
+blast_radius: "asset-ledger accounting for affected trustlines"
+
+impact_types:
+  - "asset-accounting-integrity"
+  - "ledger-invariant-violation"
+severity_guess: "medium"
+severity_rationale: "A broken trustline limit invariant can corrupt asset accounting semantics, but the evidence does not show a concrete theft path or consensus split."
+
+code_shape_summary: "The operation apply branch loaded an existing trustline and assigned a new limit without first comparing it to zero and current balance."
+search_motifs:
+  - "trustline limit assigned directly from operation input"
+  - "limit below balance not rejected"
+  - "negative asset limit accepted"
+  - "new INVALID_LIMIT result code"
+negative_signals:
+  - "Creating a new empty trustline with a zero limit may be valid in some protocols."
+  - "A separate pre-validation function may already enforce the same limit and balance relation."
+  - "Native currency balances may have different limit semantics than issued-asset trustlines."
+patch_pattern: "Add a transaction-level guard for nonnegative and balance-compatible trustline limits before mutating ledger state, with a specific invalid-limit result."
+
+source_refs:
+  - "/work/dlt-ai-audit-system/corpus/imports/20260504-142027Z-stellar-core/raw-findings/2015-03-20-stellar-core-storage-cc9a3c0bd.md"
+notes:
+  - "State mutation paths must enforce accounting invariants against both submitted parameters and already-persisted balances."
+  - "Enriched from the phase 4 kept finding; preserve likely versus confirmed status in downstream use."

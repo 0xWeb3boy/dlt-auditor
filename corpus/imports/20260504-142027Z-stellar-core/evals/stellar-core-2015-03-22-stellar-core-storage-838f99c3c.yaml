@@ -1,0 +1,20 @@
+id: "stellar-core-2015-03-22-stellar-core-storage-838f99c3c"
+source_record: "stellar-core-2015-03-22-stellar-core-storage-838f99c3c.yaml"
+project: "stellar-core"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "trustline-invariant-enforcement"
+expected_missing_property: "centralized-trustline-balance-and-authorization-checks"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Do not flag centralized accounting helpers for performing the final assignment."
+  - "Do not assume every trustline authorization field has revocation semantics."
+notes:
+  - "Ledger accounting invariants decay when every operation path hand-rolls balance mutation; put the invariant in the mutation primitive."
+  - "Security verdict is likely; avoid overstating beyond the raw finding evidence."

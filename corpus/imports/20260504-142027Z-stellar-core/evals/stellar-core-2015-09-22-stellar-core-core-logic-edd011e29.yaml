@@ -1,0 +1,20 @@
+id: "stellar-core-2015-09-22-stellar-core-core-logic-edd011e29"
+source_record: "stellar-core-2015-09-22-stellar-core-core-logic-edd011e29.yaml"
+project: "stellar-core"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "preauth-io-timeout-hardening"
+expected_missing_property: "preauthentication-resource-timeout"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Do not flag slow authenticated application-level protocols as pre-auth DoS."
+  - "Check for connection caps and accept throttles before rating severity."
+notes:
+  - "Authentication state is a resource-control boundary; unauthenticated peers should not receive the same patience as trusted protocol participants."
+  - "Security verdict is likely; avoid overstating beyond the raw finding evidence."

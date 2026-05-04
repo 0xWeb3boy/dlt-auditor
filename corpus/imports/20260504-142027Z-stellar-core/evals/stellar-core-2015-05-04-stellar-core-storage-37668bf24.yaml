@@ -1,0 +1,20 @@
+id: "stellar-core-2015-05-04-stellar-core-storage-37668bf24"
+source_record: "stellar-core-2015-05-04-stellar-core-storage-37668bf24.yaml"
+project: "stellar-core"
+
+expected_bug_family: "authz_and_role_gates"
+expected_bug_class: "authorization-state-invariant"
+expected_missing_property: "issuer-authorization-state-transition-guard"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Do not flag explicit unsafe or migration modes without checking their operator opt-in semantics."
+  - "Do not confuse trustline authorization with unrelated account option flags."
+notes:
+  - "Authorization policy transitions must account for already-created state; changing the rules after assets exist can violate holder and issuer invariants."
+  - "Security verdict is likely; avoid overstating beyond the raw finding evidence."

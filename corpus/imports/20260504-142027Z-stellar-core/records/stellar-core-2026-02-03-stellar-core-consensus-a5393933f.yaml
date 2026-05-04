@@ -1,0 +1,60 @@
+id: "stellar-core-2026-02-03-stellar-core-consensus-a5393933f"
+source_finding: "2026-02-03-stellar-core-consensus-a5393933f.md"
+project: "stellar-core"
+date: "2026-02-03"
+language_tags:
+  - "c++"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "transaction-validation-hardening"
+subsystem: "consensus"
+architecture_tags:
+  - "soroban"
+  - "transaction-admission"
+  - "txset-validation"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "consistent-host-function-validation"
+violated_invariant: "Every transaction admission and transaction-set validation boundary must apply the same host-function validity checks, including through wrapper transaction types."
+trust_boundary: "submitted-soroban-transaction -> consensus-admission-and-txset-validation"
+entrypoint_type: "transaction-admission-and-consensus-validation"
+sensitive_sink: "transaction queue acceptance and transaction-set validity decision"
+
+attacker_capabilities:
+  - "Submit Soroban or fee-bump-wrapped transactions with malformed host-function fields."
+  - "Reach queue admission or transaction-set validation paths with transactions accepted elsewhere."
+exploit_preconditions:
+  - "Some admission path returns pending without validateHostFn."
+  - "Wrapper transactions do not delegate host-function validation to the inner transaction."
+blast_radius: "transaction admission and consensus validation consistency"
+
+impact_types:
+  - "consensus-validation-hardening"
+  - "transaction-integrity"
+  - "mempool-consistency"
+severity_guess: "medium"
+severity_rationale: "Missing validation at consensus-adjacent boundaries is security relevant, but the exact malformed condition and exploit impact are not proven."
+
+code_shape_summary: "Queue admission and wrapper transaction paths validated some Soroban constraints but did not consistently call a host-function validator until validateHostFn was introduced and propagated."
+search_motifs:
+  - "canAdd returns pending before validateHostFn"
+  - "fee bump validation delegates to inner transaction"
+  - "txSOROBAN_INVALID added for host function"
+  - "txset phase validity checks invalid transactions explicitly"
+negative_signals:
+  - "If host-function validity is fully checked during deserialization, extra guards are defense in depth."
+  - "Do not claim fund loss without a concrete malformed host function effect."
+  - "Protocol-version-gated behavior may intentionally differ across versions."
+patch_pattern: "Introduce a dedicated host-function validation method, call it at queue admission and txset validation boundaries, and delegate wrapper validation to the inner transaction."
+
+source_refs:
+  - "/work/dlt-ai-audit-system/corpus/imports/20260504-142027Z-stellar-core/raw-findings/2026-02-03-stellar-core-consensus-a5393933f.md"
+notes:
+  - "Consensus-adjacent validation must be uniform across wrappers and admission paths; partial validation creates policy gaps even when individual checks exist elsewhere."
+  - "Enriched from the phase 4 kept finding; preserve likely versus confirmed status in downstream use."

@@ -1,0 +1,60 @@
+id: "stellar-core-2015-05-04-stellar-core-storage-37668bf24"
+source_finding: "2015-05-04-stellar-core-storage-37668bf24.md"
+project: "stellar-core"
+date: "2015-05-04"
+language_tags:
+  - "c++"
+
+bug_family: "authz_and_role_gates"
+bug_class: "authorization-state-invariant"
+subsystem: "storage"
+architecture_tags:
+  - "asset-issuer-policy"
+  - "trustlines"
+  - "authorization-flags"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "issuer-authorization-state-transition-guard"
+violated_invariant: "Issuer authorization flags and trustline authorization state must not be changed in ways that contradict already-issued credit or the issuer revocation policy."
+trust_boundary: "issuer-configuration-operation -> trustline-authorization-state"
+entrypoint_type: "transaction-operation-apply"
+sensitive_sink: "authorization flag mutation and trustline authorization revocation"
+
+attacker_capabilities:
+  - "Submit issuer-controlled SetOptions or AllowTrust operations."
+  - "Attempt to change authorization semantics after positive trustline balances exist."
+exploit_preconditions:
+  - "The issuer can set authorization-related flags after issuing credit."
+  - "A non-revocable issuer can reach a revocation path without an explicit guard."
+blast_radius: "issued-asset authorization policy for affected issuer"
+
+impact_types:
+  - "authorization-policy-integrity"
+  - "asset-accounting-policy"
+  - "ledger-invariant-violation"
+severity_guess: "medium"
+severity_rationale: "The change protects issued-asset authorization semantics and user expectations, but evidence does not show direct fund theft or chain-wide compromise."
+
+code_shape_summary: "Authorization flag and allow-trust handlers changed issuer policy state without proving that existing trustlines and revocation authority allowed the transition."
+search_motifs:
+  - "AUTH_REQUIRED_FLAG set after issued balances"
+  - "AUTH_REVOCABLE_FLAG changed after trustlines exist"
+  - "allowTrust revocation without revocable flag"
+  - "hasIssued predicate added for issuer state"
+negative_signals:
+  - "Administrative flag changes before any credit issuance may be valid."
+  - "Revocation is expected when the issuer explicitly enabled revocable authorization."
+  - "Non-asset account flags may not have trustline-state coupling."
+patch_pattern: "Add precondition checks before authorization-state transitions and introduce a ledger predicate that detects existing positive-balance trustlines."
+
+source_refs:
+  - "/work/dlt-ai-audit-system/corpus/imports/20260504-142027Z-stellar-core/raw-findings/2015-05-04-stellar-core-storage-37668bf24.md"
+notes:
+  - "Authorization policy transitions must account for already-created state; changing the rules after assets exist can violate holder and issuer invariants."
+  - "Enriched from the phase 4 kept finding; preserve likely versus confirmed status in downstream use."
