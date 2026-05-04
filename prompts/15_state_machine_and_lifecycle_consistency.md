@@ -54,6 +54,8 @@ Search patterns:
 - epoch, checkpoint, or committee transitions where old-epoch messages can arrive while new-epoch state is being initialized. Verify that readiness, signer set, traffic counters, and pending work are fenced by one coherent transition state
 - event ingestion, bridge watcher, withdrawal finalizer, inbox, outbox, receipt, or log-processing watermarks keyed by only block, height, batch, timestamp, or max-seen aggregate when the source can contain multiple distinct relevant events at that coordinate. Duplicate guards should use the full event identity and ordering key required by the source chain
 - state machines that wait for progress on an object that can never fit, complete, or become valid under the current local capacity or configuration. Fail closed or tear down the object instead of suppressing forever
+- asynchronous validation, approval, signing, vote, or proposal results that are queued and later applied after the node's fork view, reward cycle, signer set, accepted block, or local validation state may have changed. Revalidate freshness at the sink, not only when the work was queued.
+- caches keyed by a digest, block hash, message hash, or object ID when the real identity also includes epoch, reward cycle, round, view, fork, signer set, or lifecycle phase. Cache hits must be scoped by every coordinate that can change the meaning of the object.
 
 Questions to answer:
 1. What are the legal states and transitions?

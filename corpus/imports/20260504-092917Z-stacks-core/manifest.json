@@ -1,0 +1,261 @@
+{
+  "repo": "/work/stacks-core",
+  "repo_slug": "stacks-core",
+  "kept_dir": "/work/stacks-core/validated-findings/kept",
+  "created_at_utc": "20260504-092917Z",
+  "finding_count": 28,
+  "findings": [
+    {
+      "id": "stacks-core-2017-08-02-stacks-core-storage-af0f3c9ad5",
+      "source": "/work/stacks-core/validated-findings/kept/2017-08-02-stacks-core-storage-af0f3c9ad5.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "address-bound-authorization-hardening",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "stacks-core-2019-08-29-stacks-core-cryptography-6b6cbd3f36",
+      "source": "/work/stacks-core/validated-findings/kept/2019-08-29-stacks-core-cryptography-6b6cbd3f36.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-constructor-validation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "stacks-core-2019-11-18-stacks-core-storage-73eb572ac2",
+      "source": "/work/stacks-core/validated-findings/kept/2019-11-18-stacks-core-storage-73eb572ac2.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "protocol-equivocation-detection-gap",
+      "subsystem": "storage",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "stacks-core-2019-11-18-stacks-core-transaction-processing-bb0aa99bf1",
+      "source": "/work/stacks-core/validated-findings/kept/2019-11-18-stacks-core-transaction-processing-bb0aa99bf1.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "transaction-validation-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "stacks-core-2020-02-21-stacks-core-cryptography-7703c74593",
+      "source": "/work/stacks-core/validated-findings/kept/2020-02-21-stacks-core-cryptography-7703c74593.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-resource-accounting",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "stacks-core-2020-10-01-stacks-core-storage-1ba4efc836",
+      "source": "/work/stacks-core/validated-findings/kept/2020-10-01-stacks-core-storage-1ba4efc836.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "delegated-stacking-validation",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "stacks-core-2020-11-18-stacks-core-rpc-client-api-5ee41881b9",
+      "source": "/work/stacks-core/validated-findings/kept/2020-11-18-stacks-core-rpc-client-api-5ee41881b9.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "unbounded-request-size",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "stacks-core-2021-11-15-stacks-core-p2p-networking-57c711ce23",
+      "source": "/work/stacks-core/validated-findings/kept/2021-11-15-stacks-core-p2p-networking-57c711ce23.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "mainnet-consensus-config-hardening",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "stacks-core-2022-07-18-stacks-core-storage-72c50f0ecc",
+      "source": "/work/stacks-core/validated-findings/kept/2022-07-18-stacks-core-storage-72c50f0ecc.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "signature-domain-binding",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "stacks-core-2022-11-29-stacks-core-p2p-networking-8343390942",
+      "source": "/work/stacks-core/validated-findings/kept/2022-11-29-stacks-core-p2p-networking-8343390942.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "unhandled-protocol-error-panic",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "stacks-core-2023-01-24-stacks-core-consensus-17ae4d1671",
+      "source": "/work/stacks-core/validated-findings/kept/2023-01-24-stacks-core-consensus-17ae4d1671.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "fork-unaware-consensus-lookup",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "stacks-core-2023-11-14-stacks-core-storage-3ae5e37f0e",
+      "source": "/work/stacks-core/validated-findings/kept/2023-11-14-stacks-core-storage-3ae5e37f0e.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "cryptographic-signature-type-hardening",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "stacks-core-2024-01-11-stacks-core-transaction-processing-ff49b79a5a",
+      "source": "/work/stacks-core/validated-findings/kept/2024-01-11-stacks-core-transaction-processing-ff49b79a5a.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "noncanonical-signing-preimage",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "stacks-core-2024-01-19-stacks-core-cryptography-62e698825c",
+      "source": "/work/stacks-core/validated-findings/kept/2024-01-19-stacks-core-cryptography-62e698825c.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "signer-request-validation-hardening",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "stacks-core-2024-02-07-stacks-core-p2p-networking-8778d4f74a",
+      "source": "/work/stacks-core/validated-findings/kept/2024-02-07-stacks-core-p2p-networking-8778d4f74a.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "missing-role-enforcement",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "stacks-core-2024-02-14-stacks-core-transaction-processing-5ad797514e",
+      "source": "/work/stacks-core/validated-findings/kept/2024-02-14-stacks-core-transaction-processing-5ad797514e.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "signer-message-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "stacks-core-2024-02-23-stacks-core-cryptography-e24f223a98",
+      "source": "/work/stacks-core/validated-findings/kept/2024-02-23-stacks-core-cryptography-e24f223a98.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "signer-vote-message-validation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "stacks-core-2024-02-27-stacks-core-p2p-networking-a7e114be3c",
+      "source": "/work/stacks-core/validated-findings/kept/2024-02-27-stacks-core-p2p-networking-a7e114be3c.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "inconsistent-signer-transaction-validation",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "stacks-core-2024-03-12-stacks-core-storage-481b01c536",
+      "source": "/work/stacks-core/validated-findings/kept/2024-03-12-stacks-core-storage-481b01c536.md",
+      "bug_family": "state_machine_and_lifecycle_consistency",
+      "bug_class": "cross-cycle-stale-state",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "lifecycle-cleanup"
+    },
+    {
+      "id": "stacks-core-2024-04-20-stacks-core-storage-809c5fecc0",
+      "source": "/work/stacks-core/validated-findings/kept/2024-04-20-stacks-core-storage-809c5fecc0.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "vm-error-propagation-transaction-validity",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "stacks-core-2024-05-06-stacks-core-transaction-processing-81e451bf7b",
+      "source": "/work/stacks-core/validated-findings/kept/2024-05-06-stacks-core-transaction-processing-81e451bf7b.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "protocol-context-binding",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "stacks-core-2024-06-06-stacks-core-storage-a7c5a1f061",
+      "source": "/work/stacks-core/validated-findings/kept/2024-06-06-stacks-core-storage-a7c5a1f061.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "missing-signature-verification",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "stacks-core-2024-06-28-stacks-core-consensus-2ecf14d5d8",
+      "source": "/work/stacks-core/validated-findings/kept/2024-06-28-stacks-core-consensus-2ecf14d5d8.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "canonical-tip-monotonicity",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "stacks-core-2024-06-28-stacks-core-storage-4fd033f283",
+      "source": "/work/stacks-core/validated-findings/kept/2024-06-28-stacks-core-storage-4fd033f283.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "canonical-fork-context-reward-set-lookup",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "stacks-core-2024-11-22-stacks-core-consensus-848921199d",
+      "source": "/work/stacks-core/validated-findings/kept/2024-11-22-stacks-core-consensus-848921199d.md",
+      "bug_family": "state_machine_and_lifecycle_consistency",
+      "bug_class": "stale-consensus-validation-race",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "lifecycle-cleanup"
+    },
+    {
+      "id": "stacks-core-2024-11-26-stacks-core-consensus-d6bffcffb3",
+      "source": "/work/stacks-core/validated-findings/kept/2024-11-26-stacks-core-consensus-d6bffcffb3.md",
+      "bug_family": "state_machine_and_lifecycle_consistency",
+      "bug_class": "stale-state-validation",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "lifecycle-cleanup"
+    },
+    {
+      "id": "stacks-core-2025-04-11-stacks-core-transaction-processing-1058df1d21",
+      "source": "/work/stacks-core/validated-findings/kept/2025-04-11-stacks-core-transaction-processing-1058df1d21.md",
+      "bug_family": "resource_accounting_and_limits",
+      "bug_class": "resource-limit-validation-inconsistency",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "resource-accounting"
+    },
+    {
+      "id": "stacks-core-2025-10-21-stacks-core-cryptography-1979ab3fc2",
+      "source": "/work/stacks-core/validated-findings/kept/2025-10-21-stacks-core-cryptography-1979ab3fc2.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "ambiguous-crypto-verification-api",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+id: "stacks-core-2024-11-22-stacks-core-consensus-848921199d"
+source_finding: "2024-11-22-stacks-core-consensus-848921199d.md"
+project: "stacks-core"
+date: "2024-11-22"
+language_tags:
+  - "rust"
+
+bug_family: "state_machine_and_lifecycle_consistency"
+bug_class: "stale-consensus-validation-race"
+subsystem: "consensus"
+architecture_tags:
+  - "validator-ops"
+  - "consensus"
+  - "race-condition"
+  - "stale-state-validation"
+  - "signer-validation"
+  - "state-machine-and-lifecycle-consistency"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "fresh-state-lifecycle-binding"
+violated_invariant: "Consensus and validation decisions must use state from the current fork, reward cycle, and lifecycle epoch, not cached or prior-cycle data."
+trust_boundary: "Fork-choice, signer, or chain-tip data crosses into consensus validation."
+entrypoint_type: "consensus_state_transition"
+sensitive_sink: "canonical tip, fork choice, signer set, or block validation decision"
+
+attacker_capabilities:
+  - "Can cause the node to process attacker-influenced chain state or protocol data."
+exploit_preconditions:
+  - "The vulnerable path processes the attacker-controlled object before the missing property is enforced."
+  - "No earlier boundary fully enforces the same invariant for this code path."
+  - "The node relies on this validation result for relay, signer coordination, or consensus-sensitive state."
+blast_radius: "consensus-integrity; fork-choice-divergence; stale-state-use; validation-inconsistency"
+
+impact_types:
+  - "consensus-integrity"
+  - "fork-choice-divergence"
+  - "stale-state-use"
+  - "validation-inconsistency"
+severity_guess: "medium"
+severity_rationale: "The finding is validated as security hardening with plausible remote or protocol impact, but the evidence does not prove final consensus compromise or fund loss."
+
+code_shape_summary: "The patch likely fixes a security-relevant race in signer block validation. The supported claim is that queued validation approval could be applied after the signer's sortition view changed, and the fix rechecks the block against the current view before local acceptance. The evidence does not establish signature forgery, private key compromise, replay, or guaranteed final on-chain invalid block acceptance."
+search_motifs:
+  - "cache key omits fork, epoch, reward cycle, or block height"
+  - "validation reads signer or consensus data from a previous cycle"
+  - "background validation races with changing chain tip"
+negative_signals:
+  - "The stale value may be advisory and rechecked before commit."
+  - "Single-node local caches may be invalidated by broader lifecycle hooks not visible in the hunk."
+patch_pattern: "Key cached or persisted state by canonical context and refresh, expire, or reject stale entries before validation."
+
+source_refs:
+  - "/work/stacks-core/validated-findings/kept/2024-11-22-stacks-core-consensus-848921199d.md"
+notes:
+  - "Enriched from validated finding metadata and raw finding narrative."
+  - "The patch likely fixes a security-relevant race in signer block validation. The supported claim is that queued validation approval could be applied after the signer's sortition view changed, and the fix rechecks the"

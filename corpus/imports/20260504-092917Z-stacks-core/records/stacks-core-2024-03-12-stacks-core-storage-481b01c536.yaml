@@ -1,0 +1,59 @@
+id: "stacks-core-2024-03-12-stacks-core-storage-481b01c536"
+source_finding: "2024-03-12-stacks-core-storage-481b01c536.md"
+project: "stacks-core"
+date: "2024-03-12"
+language_tags:
+  - "rust"
+
+bug_family: "state_machine_and_lifecycle_consistency"
+bug_class: "cross-cycle-stale-state"
+subsystem: "storage"
+architecture_tags:
+  - "validator-ops"
+  - "storage"
+  - "database"
+  - "signer-state"
+  - "stale-state"
+  - "cycle-isolation"
+  - "state-machine-and-lifecycle-consistency"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "fresh-state-lifecycle-binding"
+violated_invariant: "Consensus and validation decisions must use state from the current fork, reward cycle, and lifecycle epoch, not cached or prior-cycle data."
+trust_boundary: "Persisted or peer-derived chain state crosses into storage-backed validation."
+entrypoint_type: "state_database_lookup_or_update"
+sensitive_sink: "canonical state database, cached validation state, or durable index"
+
+attacker_capabilities:
+  - "Can cause the node to process attacker-influenced chain state or protocol data."
+exploit_preconditions:
+  - "The vulnerable path processes the attacker-controlled object before the missing property is enforced."
+  - "No earlier boundary fully enforces the same invariant for this code path."
+blast_radius: "state-integrity; stale-state-use; validation-inconsistency"
+
+impact_types:
+  - "state-integrity"
+  - "stale-state-use"
+  - "validation-inconsistency"
+severity_guess: "low_medium"
+severity_rationale: "The issue is security relevant, but the validated record frames it as hardening with uncertain exploitability or an additional downstream check likely present."
+
+code_shape_summary: "The patch likely fixes a security-relevant stale-state issue in the signer database. It changes block storage, lookup, and removal from being keyed only by signer_signature_hash to being scoped by reward_cycle plus signer_signature_hash. The commit message explicitly says this prevents signers from acting on blocks from the previous cycle. The evidence supports a cross-cycle stale-state fix, but not a stronger claim about exploitability, fund loss, or consensus failure."
+search_motifs:
+  - "cache key omits fork, epoch, reward cycle, or block height"
+  - "validation reads signer or consensus data from a previous cycle"
+  - "background validation races with changing chain tip"
+negative_signals:
+  - "The stale value may be advisory and rechecked before commit."
+  - "Single-node local caches may be invalidated by broader lifecycle hooks not visible in the hunk."
+patch_pattern: "Key cached or persisted state by canonical context and refresh, expire, or reject stale entries before validation."
+
+source_refs:
+  - "/work/stacks-core/validated-findings/kept/2024-03-12-stacks-core-storage-481b01c536.md"
+notes:
+  - "Enriched from validated finding metadata and raw finding narrative."
+  - "The patch likely fixes a security-relevant stale-state issue in the signer database. It changes block storage, lookup, and removal from being keyed only by signer_signature_hash to being scoped by reward_cycle plus"

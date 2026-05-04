@@ -1,0 +1,61 @@
+id: "stacks-core-2024-02-27-stacks-core-p2p-networking-a7e114be3c"
+source_finding: "2024-02-27-stacks-core-p2p-networking-a7e114be3c.md"
+project: "stacks-core"
+date: "2024-02-27"
+language_tags:
+  - "rust"
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "inconsistent-signer-transaction-validation"
+subsystem: "p2p-networking"
+architecture_tags:
+  - "signer-transactions"
+  - "nonce-validation"
+  - "consensus"
+  - "security-hardening"
+  - "p2p-networking"
+  - "signature-binding-and-signer-scope"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "signature-domain-and-signer-binding"
+violated_invariant: "Every signed protocol message must be verified against the exact signer set, message domain, reward cycle, and payload hash that authorize the downstream action."
+trust_boundary: "Remote peer message crosses into networking, relay, or peer-state validation."
+entrypoint_type: "p2p_message_or_block"
+sensitive_sink: "peer relay buffer, block acceptance path, or network reputation state"
+
+attacker_capabilities:
+  - "Can connect as or influence a peer and send crafted protocol messages or blocks."
+  - "Can provide signed or allegedly signed protocol data with chosen payload fields."
+exploit_preconditions:
+  - "The vulnerable path processes the attacker-controlled object before the missing property is enforced."
+  - "No earlier boundary fully enforces the same invariant for this code path."
+  - "The node relies on this validation result for relay, signer coordination, or consensus-sensitive state."
+blast_radius: "transaction-integrity; replay-resistance; unauthorized-message-acceptance; consensus-or-relay-integrity"
+
+impact_types:
+  - "transaction-integrity"
+  - "replay-resistance"
+  - "unauthorized-message-acceptance"
+  - "consensus-or-relay-integrity"
+severity_guess: "medium"
+severity_rationale: "The finding is validated as security hardening with plausible remote or protocol impact, but the evidence does not prove final consensus compromise or fund loss."
+
+code_shape_summary: "The patch appears to centralize vote-transaction filtering in `NakamotoSigners` and apply that shared logic from signer and miner paths. This may be security relevant because it touches signer transaction validation, but the supplied evidence does not prove that invalid transactions could be executed, finalized, replayed, or used to cause a consensus failure before the patch. Structural cue: In `stacks-signer/src/signer.rs`, the patch removes `fn parse_vote_for_aggregate_public_key(`."
+search_motifs:
+  - "signature verified without domain or chain context"
+  - "signer slot mapped to transaction origin only after acceptance"
+  - "block or vote accepted before reward-set membership is checked"
+negative_signals:
+  - "A later consensus layer may repeat the full signature check."
+  - "The code may only build test fixtures or diagnostics and never trust external messages."
+patch_pattern: "Derive the canonical signing context, reject malformed preimages, and verify signer identity before accepting or relaying the signed message."
+
+source_refs:
+  - "/work/stacks-core/validated-findings/kept/2024-02-27-stacks-core-p2p-networking-a7e114be3c.md"
+notes:
+  - "Enriched from validated finding metadata and raw finding narrative."
+  - "The patch appears to centralize vote-transaction filtering in `NakamotoSigners` and apply that shared logic from signer and miner paths."

@@ -57,6 +57,8 @@ Search patterns:
 - counters, sizes, or quotas derived from protocol state that use ordinary addition, subtraction, or narrowing where saturation, checked arithmetic, or explicit rejection is required. Overflow or narrowing must not turn an over-limit condition into apparent progress or admissibility
 - lifecycle-triggered contract execution, precompile execution, and block hook callbacks that swap gas meters, temporary stores, or execution contexts. The temporary meter must inherit the parent bound, and expected out-of-gas errors should fail closed without hiding unexpected panics
 - long-lived subscriptions, listeners, peer maps, and stream state where the allocation or registration point is separate from config parsing. Enforce limits under the same lock or reservation policy that mutates the retained collection
+- resource-limit or cost-exceeded errors nested inside multiple execution-result variants, such as processed, skipped, aborted, replayed, simulated, prechecked, or partially applied outcomes. Every variant that consumed or attempted bounded work must classify limit exhaustion consistently.
+- recursive parsers, type constructors, or semantic validators that accept an optional cost, gas, quota, or budget object. Check that every nested parse or validation call receives and updates the same authoritative meter.
 
 Questions to answer:
 1. What resource is the protocol trying to meter: gas, fees, bytes, weight, queue slots, proving budget, bridge capacity, committee size, or sender concurrency?

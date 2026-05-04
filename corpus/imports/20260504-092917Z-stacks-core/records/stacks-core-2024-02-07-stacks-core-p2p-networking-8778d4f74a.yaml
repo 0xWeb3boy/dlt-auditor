@@ -1,0 +1,61 @@
+id: "stacks-core-2024-02-07-stacks-core-p2p-networking-8778d4f74a"
+source_finding: "2024-02-07-stacks-core-p2p-networking-8778d4f74a.md"
+project: "stacks-core"
+date: "2024-02-07"
+language_tags:
+  - "rust"
+
+bug_family: "authz_and_role_gates"
+bug_class: "missing-role-enforcement"
+subsystem: "p2p-networking"
+architecture_tags:
+  - "validator-ops"
+  - "signer"
+  - "coordinator"
+  - "role-enforcement"
+  - "consensus"
+  - "p2p-networking"
+  - "authz-and-role-gates"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "authorization-to-state-binding"
+violated_invariant: "Only principals with the role, address ownership, or delegated authority required for a state transition may cause that transition to be accepted."
+trust_boundary: "Remote peer message crosses into networking, relay, or peer-state validation."
+entrypoint_type: "p2p_message_or_block"
+sensitive_sink: "peer relay buffer, block acceptance path, or network reputation state"
+
+attacker_capabilities:
+  - "Can connect as or influence a peer and send crafted protocol messages or blocks."
+  - "Can choose identity, address, or role-related fields at an authorization boundary."
+exploit_preconditions:
+  - "The vulnerable path processes the attacker-controlled object before the missing property is enforced."
+  - "No earlier boundary fully enforces the same invariant for this code path."
+blast_radius: "state-integrity; authorization-bypass; authorization-bypass-risk; unauthorized-state-mutation"
+
+impact_types:
+  - "state-integrity"
+  - "authorization-bypass"
+  - "authorization-bypass-risk"
+  - "unauthorized-state-mutation"
+severity_guess: "medium"
+severity_rationale: "The finding is validated as security hardening with plausible remote or protocol impact, but the evidence does not prove final consensus compromise or fund loss."
+
+code_shape_summary: "The patch adds a coordinator check before signer command execution. This is plausibly security relevant because it prevents non-coordinator signers from processing commands, but the supplied evidence does not establish an exploit path, attacker control over commands, or a concrete protocol-security impact."
+search_motifs:
+  - "owner address or role checked after lookup rather than before mutation"
+  - "identity material converted without binding it to the authorized principal"
+  - "state update helper accepts caller-controlled identity fields"
+negative_signals:
+  - "The caller may already be authenticated by an outer dispatcher."
+  - "The changed path may be read-only or test-only rather than a privileged mutation."
+patch_pattern: "Bind the mutable operation to an authenticated owner or role check before the state update path can proceed."
+
+source_refs:
+  - "/work/stacks-core/validated-findings/kept/2024-02-07-stacks-core-p2p-networking-8778d4f74a.md"
+notes:
+  - "Enriched from validated finding metadata and raw finding narrative."
+  - "The patch adds a coordinator check before signer command execution. This is plausibly security relevant because it prevents non-coordinator signers from processing commands, but the supplied evidence does not establish"

@@ -1,0 +1,19 @@
+id: "stacks-core-2025-10-21-stacks-core-cryptography-1979ab3fc2"
+source_record: "stacks-core-2025-10-21-stacks-core-cryptography-1979ab3fc2.yaml"
+project: "stacks-core"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "ambiguous-crypto-verification-api"
+expected_missing_property: "signature-domain-and-signer-binding"
+
+expected_impact_band: "consensus_or_network_integrity"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "A later consensus layer may repeat the full signature check."
+  - "The code may only build test fixtures or diagnostics and never trust external messages."
+notes:
+  - "Use as a validated security-hardening retrieval/eval exemplar; exploitability should be judged with the listed compensating controls."

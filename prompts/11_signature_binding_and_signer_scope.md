@@ -56,6 +56,9 @@ Search patterns:
 - account-control, key-rotation, withdrawal-address, validator-key, or permission-change signatures where SDK signing, node verification, contract verification, and legacy compatibility branches do not bind the same chain/domain, action type, account, nonce, new key or permission, fee/batch context, and time range
 - wallet signing APIs that sign opaque bytes for privileged actions while verification later interprets those bytes as a protocol-specific authorization; prefer typed or canonical messages that make the action and domain explicit
 - account-type or auth-mode branches, such as deterministic accounts, contract accounts, create2-like accounts, multisig accounts, or legacy accounts, where one branch accepts signature material that should be forbidden for that authority model
+- signer, validator, or committee messages whose validity depends on an epoch, reward cycle, view, round, tenure, fork, or active signer-set snapshot. Verify that the signed payload, signer membership lookup, and downstream action all use the same scoped context.
+- vote, block-approval, or signer-command messages represented as raw hashes, marker bytes, tuple fragments, or generic signature containers. Prefer typed protocol messages whose serialized form includes message type, domain, signer role, payload hash, and replay coordinate.
+- verifier APIs that return `Result<bool>`, optional booleans, or mixed transport/semantic status. Callers must distinguish malformed input, invalid signature, wrong signer, and valid signature rather than treating API success as cryptographic success.
 
 Questions to answer:
 1. What exact bytes are authenticated?

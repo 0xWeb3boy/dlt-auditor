@@ -1,0 +1,19 @@
+id: "stacks-core-2024-03-12-stacks-core-storage-481b01c536"
+source_record: "stacks-core-2024-03-12-stacks-core-storage-481b01c536.yaml"
+project: "stacks-core"
+
+expected_bug_family: "state_machine_and_lifecycle_consistency"
+expected_bug_class: "cross-cycle-stale-state"
+expected_missing_property: "fresh-state-lifecycle-binding"
+
+expected_impact_band: "state_consistency"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The stale value may be advisory and rechecked before commit."
+  - "Single-node local caches may be invalidated by broader lifecycle hooks not visible in the hunk."
+notes:
+  - "Use as a validated security-hardening retrieval/eval exemplar; exploitability should be judged with the listed compensating controls."

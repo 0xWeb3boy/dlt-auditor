@@ -1,0 +1,62 @@
+id: "stacks-core-2024-02-14-stacks-core-transaction-processing-5ad797514e"
+source_finding: "2024-02-14-stacks-core-transaction-processing-5ad797514e.md"
+project: "stacks-core"
+date: "2024-02-14"
+language_tags:
+  - "rust"
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "signer-message-validation"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "validator-ops"
+  - "signer-message-validation"
+  - "transaction-filtering"
+  - "rejection-accounting"
+  - "protocol-hardening"
+  - "transaction-processing"
+  - "signature-binding-and-signer-scope"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "signature-domain-and-signer-binding"
+violated_invariant: "Every signed protocol message must be verified against the exact signer set, message domain, reward cycle, and payload hash that authorize the downstream action."
+trust_boundary: "Externally supplied transaction, block proposal, or signer payload crosses into transaction validation."
+entrypoint_type: "transaction_or_block_proposal"
+sensitive_sink: "transaction acceptance, block proposal evaluation, or signer coordination state"
+
+attacker_capabilities:
+  - "Can submit crafted transactions, block proposals, or signer-originated payloads."
+  - "Can provide signed or allegedly signed protocol data with chosen payload fields."
+exploit_preconditions:
+  - "The vulnerable path processes the attacker-controlled object before the missing property is enforced."
+  - "No earlier boundary fully enforces the same invariant for this code path."
+  - "The node relies on this validation result for relay, signer coordination, or consensus-sensitive state."
+blast_radius: "protocol-integrity; authorization-bypass-hardening; unauthorized-message-acceptance; consensus-or-relay-integrity"
+
+impact_types:
+  - "protocol-integrity"
+  - "authorization-bypass-hardening"
+  - "unauthorized-message-acceptance"
+  - "consensus-or-relay-integrity"
+severity_guess: "medium"
+severity_rationale: "The finding is validated as security hardening with plausible remote or protocol impact, but the evidence does not prove final consensus compromise or fund loss."
+
+code_shape_summary: "The patch changes Nakamoto miner/signer coordination logic in testnet/stacks-node/src/nakamoto_node/miner.rs. It builds a signer slot-to-address map, filters signer-submitted transactions by origin address, begins nonce-related chainstate handling, and changes rejection accounting to use signer weights while skipping already-seen signer IDs."
+search_motifs:
+  - "signature verified without domain or chain context"
+  - "signer slot mapped to transaction origin only after acceptance"
+  - "block or vote accepted before reward-set membership is checked"
+negative_signals:
+  - "A later consensus layer may repeat the full signature check."
+  - "The code may only build test fixtures or diagnostics and never trust external messages."
+patch_pattern: "Derive the canonical signing context, reject malformed preimages, and verify signer identity before accepting or relaying the signed message."
+
+source_refs:
+  - "/work/stacks-core/validated-findings/kept/2024-02-14-stacks-core-transaction-processing-5ad797514e.md"
+notes:
+  - "Enriched from validated finding metadata and raw finding narrative."
+  - "The patch changes Nakamoto miner/signer coordination logic in testnet/stacks-node/src/nakamoto_node/miner.rs."

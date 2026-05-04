@@ -1,0 +1,19 @@
+id: "stacks-core-2024-02-07-stacks-core-p2p-networking-8778d4f74a"
+source_record: "stacks-core-2024-02-07-stacks-core-p2p-networking-8778d4f74a.yaml"
+project: "stacks-core"
+
+expected_bug_family: "authz_and_role_gates"
+expected_bug_class: "missing-role-enforcement"
+expected_missing_property: "authorization-to-state-binding"
+
+expected_impact_band: "authorization_or_message_integrity"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The caller may already be authenticated by an outer dispatcher."
+  - "The changed path may be read-only or test-only rather than a privileged mutation."
+notes:
+  - "Use as a validated security-hardening retrieval/eval exemplar; exploitability should be judged with the listed compensating controls."

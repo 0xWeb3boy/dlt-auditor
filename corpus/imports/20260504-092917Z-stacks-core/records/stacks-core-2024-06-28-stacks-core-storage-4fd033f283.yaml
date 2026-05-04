@@ -1,0 +1,62 @@
+id: "stacks-core-2024-06-28-stacks-core-storage-4fd033f283"
+source_finding: "2024-06-28-stacks-core-storage-4fd033f283.md"
+project: "stacks-core"
+date: "2024-06-28"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "canonical-fork-context-reward-set-lookup"
+subsystem: "storage"
+architecture_tags:
+  - "blockchain"
+  - "consensus"
+  - "canonical-fork"
+  - "reward-set"
+  - "liveness"
+  - "nakamoto-coordinator"
+  - "storage"
+  - "input-validation-and-invariant-enforcement"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "canonical-consensus-context-validation"
+violated_invariant: "Consensus decisions must validate evidence, fork context, canonical tip monotonicity, and signer sets against the authoritative chain view before accepting results."
+trust_boundary: "Persisted or peer-derived chain state crosses into storage-backed validation."
+entrypoint_type: "state_database_lookup_or_update"
+sensitive_sink: "canonical state database, cached validation state, or durable index"
+
+attacker_capabilities:
+  - "Can cause the node to process attacker-influenced chain state or protocol data."
+exploit_preconditions:
+  - "The vulnerable path processes the attacker-controlled object before the missing property is enforced."
+  - "No earlier boundary fully enforces the same invariant for this code path."
+  - "The node relies on this validation result for relay, signer coordination, or consensus-sensitive state."
+blast_radius: "liveness; consensus-divergence-risk; consensus-integrity; fork-choice-divergence"
+
+impact_types:
+  - "liveness"
+  - "consensus-divergence-risk"
+  - "consensus-integrity"
+  - "fork-choice-divergence"
+severity_guess: "medium"
+severity_rationale: "The finding is validated as security hardening with plausible remote or protocol impact, but the evidence does not prove final consensus compromise or fund loss."
+
+code_shape_summary: "Likely security-relevant consensus/liveness fix in the Nakamoto coordinator. The patch changes reward-cycle handling to use or justify the correct fork context for reward-set lookup, with comments explaining why the canonical tip is safe at the end of prepare phase and why local-best use is only safe for the first Nakamoto reward set. The evidence supports a canonical fork-context lookup issue, but does not prove exploitability, invalid block acceptance, or a malformed transaction panic."
+search_motifs:
+  - "lookup by height without fork id or canonical tip"
+  - "equivocation evidence requires overly narrow matching fields"
+  - "reward set or signer set loaded without canonical context"
+negative_signals:
+  - "The value may be used only for display or diagnostics."
+  - "Another validation layer may enforce canonical context before finalization."
+patch_pattern: "Thread canonical chain context into validation and reject evidence or lookups that do not match the active fork/tip rules."
+
+source_refs:
+  - "/work/stacks-core/validated-findings/kept/2024-06-28-stacks-core-storage-4fd033f283.md"
+notes:
+  - "Enriched from validated finding metadata and raw finding narrative."
+  - "Likely security-relevant consensus/liveness fix in the Nakamoto coordinator. The patch changes reward-cycle handling to use or justify the correct fork context for reward-set lookup, with comments explaining why the"

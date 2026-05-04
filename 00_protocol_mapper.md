@@ -166,6 +166,14 @@ Your task:
   - which locks, proposal identities, part-set headers, or latest quorum state it carries forward,
   - where verification happens,
   - where the verified certificate data is later used to mutate local state or emit votes.
+24. For externally anchored or multi-chain consensus, map the base-chain or external-consensus coordinates that local validation depends on:
+  - anchor block,
+  - sortition,
+  - epoch or reward cycle,
+  - signer, validator, or committee snapshot,
+  - canonical local tip,
+  - fork history.
+  Identify which database, contract, checkpoint source, or cache is authoritative for each coordinate and which paths use derived or memoized copies.
 
 Output format:
 - System summary

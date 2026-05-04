@@ -1,0 +1,59 @@
+id: "stacks-core-2017-08-02-stacks-core-storage-af0f3c9ad5"
+source_finding: "2017-08-02-stacks-core-storage-af0f3c9ad5.md"
+project: "stacks-core"
+date: "2017-08-02"
+language_tags:
+  - "python"
+
+bug_family: "authz_and_role_gates"
+bug_class: "address-bound-authorization-hardening"
+subsystem: "storage"
+architecture_tags:
+  - "blockchain-core"
+  - "subdomains"
+  - "authorization"
+  - "signature-verification"
+  - "ownership-binding"
+  - "security-hardening"
+  - "storage"
+  - "authz-and-role-gates"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "authorization-to-state-binding"
+violated_invariant: "Only principals with the role, address ownership, or delegated authority required for a state transition may cause that transition to be accepted."
+trust_boundary: "Persisted or peer-derived chain state crosses into storage-backed validation."
+entrypoint_type: "state_database_lookup_or_update"
+sensitive_sink: "canonical state database, cached validation state, or durable index"
+
+attacker_capabilities:
+  - "Can choose identity, address, or role-related fields at an authorization boundary."
+exploit_preconditions:
+  - "The vulnerable path processes the attacker-controlled object before the missing property is enforced."
+  - "No earlier boundary fully enforces the same invariant for this code path."
+blast_radius: "authorization-bypass-risk; unauthorized-state-mutation"
+
+impact_types:
+  - "authorization-bypass-risk"
+  - "unauthorized-state-mutation"
+severity_guess: "low_medium"
+severity_rationale: "The issue is security relevant, but the validated record frames it as hardening with uncertain exploitability or an additional downstream check likely present."
+
+code_shape_summary: "The patch is security relevant but the vulnerability thesis is not established by the supplied evidence. The grounded evidence shows subdomain code moving from pubkey-oriented handling toward Bitcoin-address-based ownership, address-bound mutable-data lookup, and scriptSig-style verification. However, the full update acceptance path, validation outcome, and attacker capability are not shown, so this should not be treated as a confirmed vulnerability fix."
+search_motifs:
+  - "owner address or role checked after lookup rather than before mutation"
+  - "identity material converted without binding it to the authorized principal"
+  - "state update helper accepts caller-controlled identity fields"
+negative_signals:
+  - "The caller may already be authenticated by an outer dispatcher."
+  - "The changed path may be read-only or test-only rather than a privileged mutation."
+patch_pattern: "Bind the mutable operation to an authenticated owner or role check before the state update path can proceed."
+
+source_refs:
+  - "/work/stacks-core/validated-findings/kept/2017-08-02-stacks-core-storage-af0f3c9ad5.md"
+notes:
+  - "Enriched from validated finding metadata and raw finding narrative."
+  - "The patch is security relevant but the vulnerability thesis is not established by the supplied evidence."

@@ -1,0 +1,19 @@
+id: "stacks-core-2020-11-18-stacks-core-rpc-client-api-5ee41881b9"
+source_record: "stacks-core-2020-11-18-stacks-core-rpc-client-api-5ee41881b9.yaml"
+project: "stacks-core"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "unbounded-request-size"
+expected_missing_property: "resource-bounds-and-error-containment"
+
+expected_impact_band: "availability_or_resource_exhaustion"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The input may already be bounded by transport framing."
+  - "A panic in test-only or unreachable internal code is not an externally reachable denial of service."
+notes:
+  - "Use as a validated security-hardening retrieval/eval exemplar; exploitability should be judged with the listed compensating controls."

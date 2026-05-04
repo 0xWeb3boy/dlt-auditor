@@ -58,6 +58,7 @@ Search patterns:
 - paths that authorize based on a transaction sender, object ID, cached owner, or declared owner before resolving the authoritative current owner. The authorization decision should consume the same owner state that the write, delete, or transfer sink will mutate
 - cross-runtime adapters, precompiles, and query payload builders that accept an identity in one address namespace and execute or construct payloads in another. Require explicit state-backed association at the adapter boundary and revalidate concrete message type, caller runtime, and destination before any value transfer or privileged state mutation
 - alternate entrypoints that call keepers, managers, or storage helpers directly instead of constructing the canonical message object and using the same validation or dispatch path as native transactions
+- committee or signer systems where "is a member" is weaker than "is the coordinator", "is the proposer", "is the aggregator", "is the selected signer", or "is the owner for this exact round and message". Check command execution, queue dequeue, retry, and replay paths for the same role predicate.
 
 Questions to answer:
 1. Who is supposed to be allowed to call this path?

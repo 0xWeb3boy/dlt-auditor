@@ -1,0 +1,19 @@
+id: "stacks-core-2019-11-18-stacks-core-transaction-processing-bb0aa99bf1"
+source_record: "stacks-core-2019-11-18-stacks-core-transaction-processing-bb0aa99bf1.yaml"
+project: "stacks-core"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "transaction-validation-hardening"
+expected_missing_property: "canonical-input-validation"
+
+expected_impact_band: "authorization_or_message_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The constructor may be used only with trusted constants."
+  - "The changed path may improve diagnostics without changing acceptance behavior."
+notes:
+  - "Use as a validated security-hardening retrieval/eval exemplar; exploitability should be judged with the listed compensating controls."

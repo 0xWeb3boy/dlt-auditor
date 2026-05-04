@@ -1,0 +1,19 @@
+id: "stacks-core-2024-11-26-stacks-core-consensus-d6bffcffb3"
+source_record: "stacks-core-2024-11-26-stacks-core-consensus-d6bffcffb3.yaml"
+project: "stacks-core"
+
+expected_bug_family: "state_machine_and_lifecycle_consistency"
+expected_bug_class: "stale-state-validation"
+expected_missing_property: "fresh-state-lifecycle-binding"
+
+expected_impact_band: "consensus_or_network_integrity"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The stale value may be advisory and rechecked before commit."
+  - "Single-node local caches may be invalidated by broader lifecycle hooks not visible in the hunk."
+notes:
+  - "Use as a validated security-hardening retrieval/eval exemplar; exploitability should be judged with the listed compensating controls."

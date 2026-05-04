@@ -1,0 +1,61 @@
+id: "stacks-core-2020-10-01-stacks-core-storage-1ba4efc836"
+source_finding: "2020-10-01-stacks-core-storage-1ba4efc836.md"
+project: "stacks-core"
+date: "2020-10-01"
+language_tags:
+  - "rust"
+  - "clarity"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "delegated-stacking-validation"
+subsystem: "storage"
+architecture_tags:
+  - "pox"
+  - "delegated-stacking"
+  - "principal-validation"
+  - "balance-check"
+  - "consensus-adjacent"
+  - "storage"
+  - "input-validation-and-invariant-enforcement"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "canonical-input-validation"
+violated_invariant: "Protocol inputs must be normalized and validated in their canonical context before they influence state, signatures, or consensus outcomes."
+trust_boundary: "Persisted or peer-derived chain state crosses into storage-backed validation."
+entrypoint_type: "state_database_lookup_or_update"
+sensitive_sink: "canonical state database, cached validation state, or durable index"
+
+attacker_capabilities:
+  - "Can cause the node to process attacker-influenced chain state or protocol data."
+exploit_preconditions:
+  - "The vulnerable path processes the attacker-controlled object before the missing property is enforced."
+  - "No earlier boundary fully enforces the same invariant for this code path."
+blast_radius: "economic-integrity; consensus-validation; protocol-integrity; validation-hardening"
+
+impact_types:
+  - "economic-integrity"
+  - "consensus-validation"
+  - "protocol-integrity"
+  - "validation-hardening"
+severity_guess: "low_medium"
+severity_rationale: "The issue is security relevant, but the validated record frames it as hardening with uncertain exploitability or an additional downstream check likely present."
+
+code_shape_summary: "The patch adjusts PoX delegated stacking behavior: the VM special handler no longer requires the returned stacker to equal the transaction sender, and the delegated stacking path adds a balance check against `stacker`. This is plausibly security relevant, but the evidence more directly supports a delegation semantics and validation correctness fix than a confirmed vulnerability fix."
+search_motifs:
+  - "manual construction bypasses constructor checks"
+  - "noncanonical preimage or type accepted at signing or validation boundary"
+  - "VM or transaction error interpreted inconsistently"
+negative_signals:
+  - "The constructor may be used only with trusted constants."
+  - "The changed path may improve diagnostics without changing acceptance behavior."
+patch_pattern: "Centralize canonical construction or validation and reject ambiguous representations before using them in sensitive logic."
+
+source_refs:
+  - "/work/stacks-core/validated-findings/kept/2020-10-01-stacks-core-storage-1ba4efc836.md"
+notes:
+  - "Enriched from validated finding metadata and raw finding narrative."
+  - "The patch adjusts PoX delegated stacking behavior: the VM special handler no longer requires the returned stacker to equal the transaction sender, and the delegated stacking path adds a balance check against `stacker`."

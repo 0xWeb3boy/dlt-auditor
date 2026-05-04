@@ -40,6 +40,9 @@ Search patterns:
 - consensus-visible error, acknowledgement, receipt, precompile return, or result data built from raw errors or local diagnostics. These bytes must be deterministic protocol outputs if they can affect app hashes, results hashes, or replicated state
 - view, round, timeout, or commit transitions where a certificate carries a lock, proposal identity, part-set header, or latest quorum state into the next step. Verify that state clearing, reconstruction, timeout vote emission, and commit handling preserve the certified identity rather than falling back to empty or stale local state
 - verification predicates such as "needed", "current", "fresh", or "verified" must gate every later mutation derived from that object. Do not let stale or unnecessary certificates update ranges, headers, block matching, or emitted votes
+- externally anchored chains, L2s, or hybrid consensus systems where local consensus depends on a base-chain sortition, checkpoint, epoch, reward set, or committee snapshot. Check that every block, signer-set, equivocation, and fork-choice lookup is bound to the canonical anchored context, not only a height or local hash.
+- canonical-tip, safe-tip, or accepted-block caches that can be updated by lower-height, different-history, or stale validation results. Tip advancement should be monotonic within the same canonical history and should reject cross-history shortcuts.
+- equivocation or misbehavior evidence predicates that require too many fields to match. Evidence should match the protocol's definition of conflict, such as same parent, same sequence, same height or round, or mutually exclusive vote target, not just exact duplicate structure.
 
 Questions to answer:
 1. Which protocol rule is authoritative for this block, payload, fork, method version, chain variant, and timestamp or height?

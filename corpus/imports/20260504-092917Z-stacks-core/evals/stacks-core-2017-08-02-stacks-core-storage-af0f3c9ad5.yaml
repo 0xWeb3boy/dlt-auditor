@@ -1,0 +1,19 @@
+id: "stacks-core-2017-08-02-stacks-core-storage-af0f3c9ad5"
+source_record: "stacks-core-2017-08-02-stacks-core-storage-af0f3c9ad5.yaml"
+project: "stacks-core"
+
+expected_bug_family: "authz_and_role_gates"
+expected_bug_class: "address-bound-authorization-hardening"
+expected_missing_property: "authorization-to-state-binding"
+
+expected_impact_band: "authorization_or_message_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The caller may already be authenticated by an outer dispatcher."
+  - "The changed path may be read-only or test-only rather than a privileged mutation."
+notes:
+  - "Use as a validated security-hardening retrieval/eval exemplar; exploitability should be judged with the listed compensating controls."

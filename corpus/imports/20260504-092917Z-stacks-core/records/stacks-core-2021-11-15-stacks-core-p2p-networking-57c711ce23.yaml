@@ -1,0 +1,61 @@
+id: "stacks-core-2021-11-15-stacks-core-p2p-networking-57c711ce23"
+source_finding: "2021-11-15-stacks-core-p2p-networking-57c711ce23.md"
+project: "stacks-core"
+date: "2021-11-15"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "mainnet-consensus-config-hardening"
+subsystem: "p2p-networking"
+architecture_tags:
+  - "blockchain-core"
+  - "burnchain"
+  - "configuration"
+  - "consensus"
+  - "mainnet-safety"
+  - "hardening"
+  - "p2p-networking"
+  - "input-validation-and-invariant-enforcement"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "canonical-consensus-context-validation"
+violated_invariant: "Consensus decisions must validate evidence, fork context, canonical tip monotonicity, and signer sets against the authoritative chain view before accepting results."
+trust_boundary: "Remote peer message crosses into networking, relay, or peer-state validation."
+entrypoint_type: "p2p_message_or_block"
+sensitive_sink: "peer relay buffer, block acceptance path, or network reputation state"
+
+attacker_capabilities:
+  - "Can connect as or influence a peer and send crafted protocol messages or blocks."
+exploit_preconditions:
+  - "The vulnerable path processes the attacker-controlled object before the missing property is enforced."
+  - "No earlier boundary fully enforces the same invariant for this code path."
+  - "The node relies on this validation result for relay, signer coordination, or consensus-sensitive state."
+blast_radius: "consensus-integrity; configuration-integrity; fork-choice-divergence"
+
+impact_types:
+  - "consensus-integrity"
+  - "configuration-integrity"
+  - "fork-choice-divergence"
+severity_guess: "medium"
+severity_rationale: "The finding is validated as security hardening with plausible remote or protocol impact, but the evidence does not prove final consensus compromise or fund loss."
+
+code_shape_summary: "The patch adds support for TOML-supplied burnchain epochs and adds guards to reject custom epochs on Mainnet. The evidence supports a configuration safety boundary for a new testnet/regtest feature, but it does not establish that a pre-existing vulnerability was reachable or exploitable."
+search_motifs:
+  - "lookup by height without fork id or canonical tip"
+  - "equivocation evidence requires overly narrow matching fields"
+  - "reward set or signer set loaded without canonical context"
+negative_signals:
+  - "The value may be used only for display or diagnostics."
+  - "Another validation layer may enforce canonical context before finalization."
+patch_pattern: "Thread canonical chain context into validation and reject evidence or lookups that do not match the active fork/tip rules."
+
+source_refs:
+  - "/work/stacks-core/validated-findings/kept/2021-11-15-stacks-core-p2p-networking-57c711ce23.md"
+notes:
+  - "Enriched from validated finding metadata and raw finding narrative."
+  - "The patch adds support for TOML-supplied burnchain epochs and adds guards to reject custom epochs on Mainnet."

@@ -1,0 +1,19 @@
+id: "stacks-core-2024-02-23-stacks-core-cryptography-e24f223a98"
+source_record: "stacks-core-2024-02-23-stacks-core-cryptography-e24f223a98.yaml"
+project: "stacks-core"
+
+expected_bug_family: "signature_binding_and_signer_scope"
+expected_bug_class: "signer-vote-message-validation"
+expected_missing_property: "signature-domain-and-signer-binding"
+
+expected_impact_band: "consensus_or_network_integrity"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "A later consensus layer may repeat the full signature check."
+  - "The code may only build test fixtures or diagnostics and never trust external messages."
+notes:
+  - "Use as a validated security-hardening retrieval/eval exemplar; exploitability should be judged with the listed compensating controls."

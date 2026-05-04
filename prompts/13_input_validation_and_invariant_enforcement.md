@@ -60,6 +60,9 @@ Search patterns:
 - production safety guards for test, mock, simulation, or fixture-only state mutation helpers. A read path should not lazily mint, top off, or mutate state, and production-network guards should sit on every mutation sink rather than only on constructors
 - public RPC or REST read handlers that use caller-selected ids, heights, hashes, block numbers, account ids, or operation ids to load canonical state and then unwrap, expect, assert, or panic when the object is absent. Missing canonical state should become a structured not-found or validation error unless the protocol proves it cannot be missing
 - production-mode configuration that accepts sample secrets, placeholder keys, fixture tokens, localhost credentials, or default passwords for privileged admin, prover, relayer, sequencer, validator, or bridge endpoints. Prefer fail-closed startup; warnings alone are hardening, not full mitigation
+- VM, interpreter, or transaction execution helpers where a semantic error is wrapped, converted, unwrapped, or pattern-matched before deciding transaction validity. Ensure failed contract, runtime, or VM results cannot be transformed into success-like control flow by helper return-shape changes.
+- sponsored, delegated, or multi-principal transactions where authorization, balance, postcondition, fee, or asset checks use an origin, sponsor, caller, or submitter principal. Compare each check against the exact principal whose asset, balance, authority, or state object is consumed at the sink.
+- protocol types with public struct fields, generic enums, raw byte variants, or ad hoc builders that can bypass constructor-enforced size, type, domain, or semantic invariants.
 
 Questions to answer:
 1. What structural invariants does the protocol require?

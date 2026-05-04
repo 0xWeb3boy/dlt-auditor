@@ -1,0 +1,61 @@
+id: "stacks-core-2020-11-18-stacks-core-rpc-client-api-5ee41881b9"
+source_finding: "2020-11-18-stacks-core-rpc-client-api-5ee41881b9.md"
+project: "stacks-core"
+date: "2020-11-18"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "unbounded-request-size"
+subsystem: "rpc-client-api"
+architecture_tags:
+  - "blockchain-core"
+  - "rpc"
+  - "atlas"
+  - "resource-control"
+  - "request-size-limit"
+  - "availability-hardening"
+  - "rpc-client-api"
+  - "input-validation-and-invariant-enforcement"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "resource-bounds-and-error-containment"
+violated_invariant: "Untrusted inputs and execution paths must be bounded and must fail closed without panics, unmetered work, or inconsistent accounting."
+trust_boundary: "External RPC client request crosses into node parsing, allocation, and response construction."
+entrypoint_type: "rpc_http_request"
+sensitive_sink: "request decoder, allocation path, or RPC response generator"
+
+attacker_capabilities:
+  - "Can send crafted RPC requests to a node endpoint."
+exploit_preconditions:
+  - "The vulnerable path processes the attacker-controlled object before the missing property is enforced."
+  - "No earlier boundary fully enforces the same invariant for this code path."
+  - "The input size, error path, or cost accounting is reachable before a strict bound or graceful rejection."
+blast_radius: "availability; denial-of-service; resource-exhaustion"
+
+impact_types:
+  - "availability"
+  - "denial-of-service"
+  - "resource-exhaustion"
+severity_guess: "medium"
+severity_rationale: "The finding is validated as security hardening with plausible remote or protocol impact, but the evidence does not prove final consensus compromise or fund loss."
+
+code_shape_summary: "The patch adds a request-size bound to the Atlas attachment inventory RPC flow. The supported claim is availability/resource-control hardening for an externally reachable request shape, not state corruption, consensus failure, authorization bypass, or a proven denial-of-service exploit. Structural cue: In `src/net/rpc.rs`, the patch replaces `let mut pages_indexes = pages_indexes.iter().map(|i| In `src/net/atlas/download.rs`, the patch replaces `pub fn resolve_attachment(&mut self, content_hash: &Hash160) {`"
+search_motifs:
+  - "request body decoded before max-size enforcement"
+  - "panic or unwrap reachable from peer-controlled protocol data"
+  - "execution cost or resource budget charged inconsistently across error cases"
+negative_signals:
+  - "The input may already be bounded by transport framing."
+  - "A panic in test-only or unreachable internal code is not an externally reachable denial of service."
+patch_pattern: "Move size, cost, and error checks to the boundary and convert panic or ambiguous errors into explicit validation failures."
+
+source_refs:
+  - "/work/stacks-core/validated-findings/kept/2020-11-18-stacks-core-rpc-client-api-5ee41881b9.md"
+notes:
+  - "Enriched from validated finding metadata and raw finding narrative."
+  - "The patch adds a request-size bound to the Atlas attachment inventory RPC flow. The supported claim is availability/resource-control hardening for an externally reachable request shape, not state corruption, consensus"

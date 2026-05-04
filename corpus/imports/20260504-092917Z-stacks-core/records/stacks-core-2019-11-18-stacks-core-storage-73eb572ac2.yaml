@@ -1,0 +1,60 @@
+id: "stacks-core-2019-11-18-stacks-core-storage-73eb572ac2"
+source_finding: "2019-11-18-stacks-core-storage-73eb572ac2.md"
+project: "stacks-core"
+date: "2019-11-18"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "protocol-equivocation-detection-gap"
+subsystem: "storage"
+architecture_tags:
+  - "protocol"
+  - "consensus"
+  - "microblocks"
+  - "equivocation"
+  - "validation"
+  - "poison-evidence"
+  - "storage"
+  - "input-validation-and-invariant-enforcement"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "canonical-consensus-context-validation"
+violated_invariant: "Consensus decisions must validate evidence, fork context, canonical tip monotonicity, and signer sets against the authoritative chain view before accepting results."
+trust_boundary: "Persisted or peer-derived chain state crosses into storage-backed validation."
+entrypoint_type: "state_database_lookup_or_update"
+sensitive_sink: "canonical state database, cached validation state, or durable index"
+
+attacker_capabilities:
+  - "Can cause the node to process attacker-influenced chain state or protocol data."
+exploit_preconditions:
+  - "The vulnerable path processes the attacker-controlled object before the missing property is enforced."
+  - "No earlier boundary fully enforces the same invariant for this code path."
+  - "The node relies on this validation result for relay, signer coordination, or consensus-sensitive state."
+blast_radius: "consensus-integrity; fork-choice-divergence"
+
+impact_types:
+  - "consensus-integrity"
+  - "fork-choice-divergence"
+severity_guess: "high"
+severity_rationale: "The validated evidence ties the missing check to consensus evidence or protocol integrity, so a successful exploit could affect network safety."
+
+code_shape_summary: "The supported finding is a protocol-level microblock equivocation detection fix. The patch broadens conflict handling so signed microblocks that share a parent are treated as conflicting, and PoisonMicroblock deserialization accepts evidence when headers share either sequence number or parent block hash."
+search_motifs:
+  - "lookup by height without fork id or canonical tip"
+  - "equivocation evidence requires overly narrow matching fields"
+  - "reward set or signer set loaded without canonical context"
+negative_signals:
+  - "The value may be used only for display or diagnostics."
+  - "Another validation layer may enforce canonical context before finalization."
+patch_pattern: "Thread canonical chain context into validation and reject evidence or lookups that do not match the active fork/tip rules."
+
+source_refs:
+  - "/work/stacks-core/validated-findings/kept/2019-11-18-stacks-core-storage-73eb572ac2.md"
+notes:
+  - "Enriched from validated finding metadata and raw finding narrative."
+  - "The supported finding is a protocol-level microblock equivocation detection fix. The patch broadens conflict handling so signed microblocks that share a parent are treated as conflicting, and PoisonMicroblock"

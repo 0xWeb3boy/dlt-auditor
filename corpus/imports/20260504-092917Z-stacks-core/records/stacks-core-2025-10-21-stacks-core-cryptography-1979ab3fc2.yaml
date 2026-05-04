@@ -1,0 +1,59 @@
+id: "stacks-core-2025-10-21-stacks-core-cryptography-1979ab3fc2"
+source_finding: "2025-10-21-stacks-core-cryptography-1979ab3fc2.md"
+project: "stacks-core"
+date: "2025-10-21"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "ambiguous-crypto-verification-api"
+subsystem: "cryptography"
+architecture_tags:
+  - "blockchain-core"
+  - "cryptography"
+  - "signature-verification"
+  - "api-hardening"
+  - "typed-errors"
+  - "input-validation-and-invariant-enforcement"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "signature-domain-and-signer-binding"
+violated_invariant: "Every signed protocol message must be verified against the exact signer set, message domain, reward cycle, and payload hash that authorize the downstream action."
+trust_boundary: "Untrusted signed bytes or public-key material crosses into cryptographic verification."
+entrypoint_type: "signed_message_verification"
+sensitive_sink: "signature verification result or authorized signer decision"
+
+attacker_capabilities:
+  - "Can provide signed or allegedly signed protocol data with chosen payload fields."
+exploit_preconditions:
+  - "The vulnerable path processes the attacker-controlled object before the missing property is enforced."
+  - "No earlier boundary fully enforces the same invariant for this code path."
+  - "The node relies on this validation result for relay, signer coordination, or consensus-sensitive state."
+blast_radius: "signature-verification-misuse-risk; unauthorized-message-acceptance; consensus-or-relay-integrity"
+
+impact_types:
+  - "signature-verification-misuse-risk"
+  - "unauthorized-message-acceptance"
+  - "consensus-or-relay-integrity"
+severity_guess: "medium"
+severity_rationale: "The finding is validated as security hardening with plausible remote or protocol impact, but the evidence does not prove final consensus compromise or fund loss."
+
+code_shape_summary: "The commit changes the secp256r1 verification API from returning Result<bool, &'static str> to returning Result<(), Secp256r1Error>. Invalid signatures now return Err(Secp256r1Error::InvalidSignature) instead of Ok(false), and tests were updated to match that contract. This is security-relevant crypto API hardening, but the evidence does not establish a concrete vulnerability or accepted invalid-signature path."
+search_motifs:
+  - "signature verified without domain or chain context"
+  - "signer slot mapped to transaction origin only after acceptance"
+  - "block or vote accepted before reward-set membership is checked"
+negative_signals:
+  - "A later consensus layer may repeat the full signature check."
+  - "The code may only build test fixtures or diagnostics and never trust external messages."
+patch_pattern: "Derive the canonical signing context, reject malformed preimages, and verify signer identity before accepting or relaying the signed message."
+
+source_refs:
+  - "/work/stacks-core/validated-findings/kept/2025-10-21-stacks-core-cryptography-1979ab3fc2.md"
+notes:
+  - "Enriched from validated finding metadata and raw finding narrative."
+  - "The commit changes the secp256r1 verification API from returning Result<bool, &'static str> to returning Result<(), Secp256r1Error>."

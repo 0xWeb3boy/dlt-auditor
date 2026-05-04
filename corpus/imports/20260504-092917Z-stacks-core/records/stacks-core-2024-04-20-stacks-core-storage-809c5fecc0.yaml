@@ -1,0 +1,62 @@
+id: "stacks-core-2024-04-20-stacks-core-storage-809c5fecc0"
+source_finding: "2024-04-20-stacks-core-storage-809c5fecc0.md"
+project: "stacks-core"
+date: "2024-04-20"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "vm-error-propagation-transaction-validity"
+subsystem: "storage"
+architecture_tags:
+  - "blockchain-core"
+  - "clarity-vm"
+  - "stx-transfer"
+  - "error-propagation"
+  - "transaction-validity"
+  - "consensus-sensitive"
+  - "storage"
+  - "input-validation-and-invariant-enforcement"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "canonical-input-validation"
+violated_invariant: "Protocol inputs must be normalized and validated in their canonical context before they influence state, signatures, or consensus outcomes."
+trust_boundary: "Persisted or peer-derived chain state crosses into storage-backed validation."
+entrypoint_type: "state_database_lookup_or_update"
+sensitive_sink: "canonical state database, cached validation state, or durable index"
+
+attacker_capabilities:
+  - "Can cause the node to process attacker-influenced chain state or protocol data."
+exploit_preconditions:
+  - "The vulnerable path processes the attacker-controlled object before the missing property is enforced."
+  - "No earlier boundary fully enforces the same invariant for this code path."
+blast_radius: "transaction-validity; state-integrity; consensus-integrity; protocol-integrity; validation-hardening"
+
+impact_types:
+  - "transaction-validity"
+  - "state-integrity"
+  - "consensus-integrity"
+  - "protocol-integrity"
+  - "validation-hardening"
+severity_guess: "low_medium"
+severity_rationale: "The issue is security relevant, but the validated record frames it as hardening with uncertain exploitability or an additional downstream check likely present."
+
+code_shape_summary: "The patch likely fixes a consensus-relevant STX transfer rollback bug in the Clarity VM. The grounded change is a one-character error-propagation fix in `Environment::stx_transfer`: `value.clone().expect_result()` became `value.clone().expect_result()?`. Given the surrounding code, this means the commit/rollback decision now matches the inner Clarity response result, committing only for inner `Ok(_)`."
+search_motifs:
+  - "manual construction bypasses constructor checks"
+  - "noncanonical preimage or type accepted at signing or validation boundary"
+  - "VM or transaction error interpreted inconsistently"
+negative_signals:
+  - "The constructor may be used only with trusted constants."
+  - "The changed path may improve diagnostics without changing acceptance behavior."
+patch_pattern: "Centralize canonical construction or validation and reject ambiguous representations before using them in sensitive logic."
+
+source_refs:
+  - "/work/stacks-core/validated-findings/kept/2024-04-20-stacks-core-storage-809c5fecc0.md"
+notes:
+  - "Enriched from validated finding metadata and raw finding narrative."
+  - "The patch likely fixes a consensus-relevant STX transfer rollback bug in the Clarity VM. The grounded change is a one-character error-propagation fix in `Environment::stx_transfer`: `value.clone().expect_result()`"

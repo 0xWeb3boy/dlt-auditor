@@ -1,0 +1,61 @@
+id: "stacks-core-2024-02-23-stacks-core-cryptography-e24f223a98"
+source_finding: "2024-02-23-stacks-core-cryptography-e24f223a98.md"
+project: "stacks-core"
+date: "2024-02-23"
+language_tags:
+  - "rust"
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "signer-vote-message-validation"
+subsystem: "cryptography"
+architecture_tags:
+  - "validator-ops"
+  - "cryptography"
+  - "consensus"
+  - "signature"
+  - "message-validation"
+  - "hardening"
+  - "signature-binding-and-signer-scope"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "signature-domain-and-signer-binding"
+violated_invariant: "Every signed protocol message must be verified against the exact signer set, message domain, reward cycle, and payload hash that authorize the downstream action."
+trust_boundary: "Untrusted signed bytes or public-key material crosses into cryptographic verification."
+entrypoint_type: "signed_message_verification"
+sensitive_sink: "signature verification result or authorized signer decision"
+
+attacker_capabilities:
+  - "Can provide signed or allegedly signed protocol data with chosen payload fields."
+exploit_preconditions:
+  - "The vulnerable path processes the attacker-controlled object before the missing property is enforced."
+  - "No earlier boundary fully enforces the same invariant for this code path."
+  - "The node relies on this validation result for relay, signer coordination, or consensus-sensitive state."
+blast_radius: "signer-vote-integrity; consensus-adjacent-integrity; unauthorized-message-acceptance; consensus-or-relay-integrity"
+
+impact_types:
+  - "signer-vote-integrity"
+  - "consensus-adjacent-integrity"
+  - "unauthorized-message-acceptance"
+  - "consensus-or-relay-integrity"
+severity_guess: "medium"
+severity_rationale: "The finding is validated as security hardening with plausible remote or protocol impact, but the evidence does not prove final consensus compromise or fund loss."
+
+code_shape_summary: "The patch replaces an implicit signer vote encoding based on raw 32-byte hashes, 33-byte hash-plus-marker messages, and first-32-byte slicing with an explicit serialized `NakamotoBlockVote` containing `signer_signature_hash` and `rejected`. This is plausibly security-relevant because it touches signer vote validation and signature result handling, but the supplied evidence does not establish an exploitable vulnerability, consensus break, signature forgery, or threshold-signature bypass."
+search_motifs:
+  - "signature verified without domain or chain context"
+  - "signer slot mapped to transaction origin only after acceptance"
+  - "block or vote accepted before reward-set membership is checked"
+negative_signals:
+  - "A later consensus layer may repeat the full signature check."
+  - "The code may only build test fixtures or diagnostics and never trust external messages."
+patch_pattern: "Derive the canonical signing context, reject malformed preimages, and verify signer identity before accepting or relaying the signed message."
+
+source_refs:
+  - "/work/stacks-core/validated-findings/kept/2024-02-23-stacks-core-cryptography-e24f223a98.md"
+notes:
+  - "Enriched from validated finding metadata and raw finding narrative."
+  - "The patch replaces an implicit signer vote encoding based on raw 32-byte hashes, 33-byte hash-plus-marker messages, and first-32-byte slicing with an explicit serialized `NakamotoBlockVote` containing"

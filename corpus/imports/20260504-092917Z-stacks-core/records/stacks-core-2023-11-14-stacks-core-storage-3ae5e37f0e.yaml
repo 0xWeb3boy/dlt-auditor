@@ -1,0 +1,60 @@
+id: "stacks-core-2023-11-14-stacks-core-storage-3ae5e37f0e"
+source_finding: "2023-11-14-stacks-core-storage-3ae5e37f0e.md"
+project: "stacks-core"
+date: "2023-11-14"
+language_tags:
+  - "rust"
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "cryptographic-signature-type-hardening"
+subsystem: "storage"
+architecture_tags:
+  - "consensus"
+  - "signature"
+  - "schnorr"
+  - "block-validation"
+  - "type-hardening"
+  - "storage"
+  - "signature-binding-and-signer-scope"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "signature-domain-and-signer-binding"
+violated_invariant: "Every signed protocol message must be verified against the exact signer set, message domain, reward cycle, and payload hash that authorize the downstream action."
+trust_boundary: "Untrusted signed bytes or public-key material crosses into cryptographic verification."
+entrypoint_type: "signed_message_verification"
+sensitive_sink: "signature verification result or authorized signer decision"
+
+attacker_capabilities:
+  - "Can provide signed or allegedly signed protocol data with chosen payload fields."
+exploit_preconditions:
+  - "The vulnerable path processes the attacker-controlled object before the missing property is enforced."
+  - "No earlier boundary fully enforces the same invariant for this code path."
+  - "The node relies on this validation result for relay, signer coordination, or consensus-sensitive state."
+blast_radius: "consensus-integrity; unauthorized-message-acceptance; consensus-or-relay-integrity"
+
+impact_types:
+  - "consensus-integrity"
+  - "unauthorized-message-acceptance"
+  - "consensus-or-relay-integrity"
+severity_guess: "medium"
+severity_rationale: "The finding is validated as security hardening with plausible remote or protocol impact, but the evidence does not prove final consensus compromise or fund loss."
+
+code_shape_summary: "The patch changes Nakamoto stacker signatures from a generic `MessageSignature` placeholder to `SchnorrSignature`, converts them to `WSTSSignature` in `accept_block`, and rejects blocks whose stacker signature cannot be converted. This is plausibly security relevant because it affects consensus block acceptance and cryptographic signature representation, but the provided evidence does not establish that the old code accepted invalid blocks, bypassed signature verification, or caused a consensus vulnerability."
+search_motifs:
+  - "signature verified without domain or chain context"
+  - "signer slot mapped to transaction origin only after acceptance"
+  - "block or vote accepted before reward-set membership is checked"
+negative_signals:
+  - "A later consensus layer may repeat the full signature check."
+  - "The code may only build test fixtures or diagnostics and never trust external messages."
+patch_pattern: "Derive the canonical signing context, reject malformed preimages, and verify signer identity before accepting or relaying the signed message."
+
+source_refs:
+  - "/work/stacks-core/validated-findings/kept/2023-11-14-stacks-core-storage-3ae5e37f0e.md"
+notes:
+  - "Enriched from validated finding metadata and raw finding narrative."
+  - "The patch changes Nakamoto stacker signatures from a generic `MessageSignature` placeholder to `SchnorrSignature`, converts them to `WSTSSignature` in `accept_block`, and rejects blocks whose stacker signature cannot"

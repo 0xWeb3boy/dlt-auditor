@@ -1,0 +1,61 @@
+id: "stacks-core-2022-11-29-stacks-core-p2p-networking-8343390942"
+source_finding: "2022-11-29-stacks-core-p2p-networking-8343390942.md"
+project: "stacks-core"
+date: "2022-11-29"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "unhandled-protocol-error-panic"
+subsystem: "p2p-networking"
+architecture_tags:
+  - "clarity-vm"
+  - "pox"
+  - "error-handling"
+  - "panic-prevention"
+  - "liveness"
+  - "blockchain"
+  - "p2p-networking"
+  - "input-validation-and-invariant-enforcement"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "resource-bounds-and-error-containment"
+violated_invariant: "Untrusted inputs and execution paths must be bounded and must fail closed without panics, unmetered work, or inconsistent accounting."
+trust_boundary: "Remote peer message crosses into networking, relay, or peer-state validation."
+entrypoint_type: "p2p_message_or_block"
+sensitive_sink: "peer relay buffer, block acceptance path, or network reputation state"
+
+attacker_capabilities:
+  - "Can connect as or influence a peer and send crafted protocol messages or blocks."
+exploit_preconditions:
+  - "The vulnerable path processes the attacker-controlled object before the missing property is enforced."
+  - "No earlier boundary fully enforces the same invariant for this code path."
+  - "The input size, error path, or cost accounting is reachable before a strict bound or graceful rejection."
+blast_radius: "liveness; denial-of-service; resource-exhaustion"
+
+impact_types:
+  - "liveness"
+  - "denial-of-service"
+  - "resource-exhaustion"
+severity_guess: "medium"
+severity_rationale: "The finding is validated as security hardening with plausible remote or protocol impact, but the evidence does not prove final consensus compromise or fund loss."
+
+code_shape_summary: "The patch fixes an unhandled PoX already-locked error in Clarity special contract-call handling. Before the change, `ChainstateError::PoxAlreadyLocked` from PoX v1 or PoX v2 lock application had no dedicated match arm and could fall through to the generic `panic!` branch. After the change, both handlers translate the condition into `Error::Runtime(RuntimeErrorType::PoxAlreadyLocked, None)`, and a regression test covers stacking in both PoX versions."
+search_motifs:
+  - "request body decoded before max-size enforcement"
+  - "panic or unwrap reachable from peer-controlled protocol data"
+  - "execution cost or resource budget charged inconsistently across error cases"
+negative_signals:
+  - "The input may already be bounded by transport framing."
+  - "A panic in test-only or unreachable internal code is not an externally reachable denial of service."
+patch_pattern: "Move size, cost, and error checks to the boundary and convert panic or ambiguous errors into explicit validation failures."
+
+source_refs:
+  - "/work/stacks-core/validated-findings/kept/2022-11-29-stacks-core-p2p-networking-8343390942.md"
+notes:
+  - "Enriched from validated finding metadata and raw finding narrative."
+  - "The patch fixes an unhandled PoX already-locked error in Clarity special contract-call handling. Before the change, `ChainstateError::PoxAlreadyLocked` from PoX v1 or PoX v2 lock application had no dedicated match arm"
