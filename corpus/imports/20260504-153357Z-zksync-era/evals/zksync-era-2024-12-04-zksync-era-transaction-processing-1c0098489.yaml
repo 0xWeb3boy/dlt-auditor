@@ -1,0 +1,19 @@
+id: "zksync-era-2024-12-04-zksync-era-transaction-processing-1c0098489"
+source_record: "zksync-era-2024-12-04-zksync-era-transaction-processing-1c0098489.yaml"
+project: "zksync-era"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "cryptographic-configuration-validation"
+expected_missing_property: "cryptographic-configuration-consistency"
+
+expected_impact_band: "configuration-integrity-hardening"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Do not flag non-overloaded ABI calls or diagnostic-only reads as verifier configuration bugs."
+  - "Do not claim proof forgery or consensus failure unless the wrong value can affect accepted proof configuration."
+notes:
+  - "Positive example for exact ABI binding plus verifier-key genesis validation."

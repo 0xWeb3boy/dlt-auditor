@@ -1,0 +1,19 @@
+id: "zksync-era-2024-09-16-zksync-era-consensus-73c0b7c5d"
+source_record: "zksync-era-2024-09-16-zksync-era-consensus-73c0b7c5d.yaml"
+project: "zksync-era"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "key-management-hardening"
+expected_missing_property: "signing-broadcast-separation"
+
+expected_impact_band: "key-management-hardening"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Unsigned transaction builders are not security findings when they affect only local tests or non-privileged calls."
+  - "Do not infer previous private-key leakage or unauthorized broadcast without evidence."
+notes:
+  - "Positive example for separating transaction construction from signing and broadcast."

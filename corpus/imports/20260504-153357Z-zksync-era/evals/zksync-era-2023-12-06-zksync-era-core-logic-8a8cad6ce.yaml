@@ -1,0 +1,19 @@
+id: "zksync-era-2023-12-06-zksync-era-core-logic-8a8cad6ce"
+source_record: "zksync-era-2023-12-06-zksync-era-core-logic-8a8cad6ce.yaml"
+project: "zksync-era"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "dependency-vulnerability-remediation"
+expected_missing_property: "dependency-advisory-gating"
+
+expected_impact_band: "dependency-hardening"
+expected_severity_band: "low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Do not flag ordinary dependency churn unless a concrete advisory and production dependency path are present."
+  - "Do not claim application-level key recovery or exploitability without reachability and timing-oracle evidence."
+notes:
+  - "Positive example for vulnerable transitive dependency removal with conservative exploit claims."

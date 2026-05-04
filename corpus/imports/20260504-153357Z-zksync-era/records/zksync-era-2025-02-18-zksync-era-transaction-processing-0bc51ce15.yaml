@@ -1,0 +1,49 @@
+id: "zksync-era-2025-02-18-zksync-era-transaction-processing-0bc51ce15"
+source_finding: "2025-02-18-zksync-era-transaction-processing-0bc51ce15.md"
+project: "zksync-era"
+date: "2025-02-18"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "migration-state-guard"
+subsystem: "transaction-processing"
+architecture_tags: ["gateway-migration", "eth-watch", "eth-sender", "state-machine", "operation-gating"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "migration-state-gating"
+violated_invariant: "Protocol transition code must refresh and enforce migration state before routing events or performing state-advancing operations."
+trust_boundary: "observed L1/settlement-layer migration state -> local event routing and batch commit aggregation"
+entrypoint_type: "background event watcher and transaction aggregation loop"
+sensitive_sink: "batch commit aggregation and settlement-layer event processing during gateway migration"
+
+attacker_capabilities:
+  - "Can exploit only if migration state can become stale or inconsistent while protocol operations continue."
+  - "May rely on operators or chain state entering an in-progress migration phase."
+exploit_preconditions:
+  - "Gateway migration is in Started or another transitional state."
+  - "Event routing or commit aggregation uses stale migration state."
+  - "No independent guard prevents commits or wrong-layer event reads during migration."
+blast_radius: "Protocol transition consistency for event ingestion and commit aggregation; no invalid commit or fund loss was proven."
+
+impact_types: ["protocol-state-consistency", "unsafe-operation-during-migration"]
+severity_guess: "medium"
+severity_rationale: "The affected paths advance protocol state during migration, but the finding is hardening because no concrete invalid batch, fork, or loss scenario was shown."
+
+code_shape_summary: "Background components refresh gateway migration state before making layer-selection and aggregation decisions, and commit aggregation is skipped while migration is in progress."
+search_motifs:
+  - "GatewayMigrationState Started restrict commit aggregation"
+  - "event source settlement layer route by migration state"
+  - "refresh migration status before loop iteration"
+negative_signals:
+  - "The state flag only affects logging, metrics, or UI display."
+  - "Another invariant already prevents state-advancing operations during migration."
+  - "The operation is idempotent and safe across both pre- and post-migration layers."
+patch_pattern: "Refresh transition state close to use, branch event sources on that state, and gate state-advancing operations while the transition is active."
+
+source_refs: ["/work/zksync-era/validated-findings/kept/2025-02-18-zksync-era-transaction-processing-0bc51ce15.md"]
+notes:
+  - "Retained as migration-state hardening, not as a proven invalid-commit bug."

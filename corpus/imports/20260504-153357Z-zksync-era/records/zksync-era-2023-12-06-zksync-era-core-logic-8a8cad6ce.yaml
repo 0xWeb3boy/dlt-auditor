@@ -1,0 +1,49 @@
+id: "zksync-era-2023-12-06-zksync-era-core-logic-8a8cad6ce"
+source_finding: "2023-12-06-zksync-era-core-logic-8a8cad6ce.md"
+project: "zksync-era"
+date: "2023-12-06"
+language_tags: ["rust", "cargo"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "dependency-vulnerability-remediation"
+subsystem: "core-logic"
+architecture_tags: ["dependency-graph", "object-store", "cloud-storage", "cryptographic-dependency"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "dependency-advisory-gating"
+violated_invariant: "Security-sensitive services should not ship a dependency graph that includes a known vulnerable cryptographic package on an auth or storage path."
+trust_boundary: "maintainer dependency selection -> production object-store authentication dependency graph"
+entrypoint_type: "build-time dependency resolution"
+sensitive_sink: "cloud object-store authentication and cryptographic helper code pulled into the runtime dependency graph"
+
+attacker_capabilities:
+  - "Can exploit a reachable timing side channel only if the vulnerable transitive RSA code is exercised with secret material and observable timings."
+  - "Does not need source changes; risk comes from dependency version selection."
+exploit_preconditions:
+  - "The vulnerable transitive RSA version remains in the resolved dependency graph."
+  - "The application or deployment exposes enough timing signal around RSA operations for the advisory to matter."
+  - "No compensating dependency deny/advisory gate blocks the vulnerable version before release."
+blast_radius: "Dependency-level hardening for object-store/cloud-auth paths; no project-local timing oracle or key recovery path was proven."
+
+impact_types: ["timing-side-channel-risk-reduction", "vulnerable-dependency-removal"]
+severity_guess: "low"
+severity_rationale: "The patch removes a known vulnerable transitive cryptographic dependency, but the finding does not prove a reachable oracle or application-specific secret exposure."
+
+code_shape_summary: "A manifest update removes a vulnerable transitive cryptographic dependency from a cloud object-store/auth chain without changing local protocol logic."
+search_motifs:
+  - "cargo deny advisory transitive rsa google-cloud-storage"
+  - "dependency upgrade removes RUSTSEC cryptographic advisory"
+  - "object store auth library pulls vulnerable crypto crate"
+negative_signals:
+  - "Only lockfile or version churn with no advisory, dependency path, or security rationale."
+  - "Dependency is dev-only or not built into the relevant production artifact."
+  - "Claims of key recovery without evidence that the vulnerable primitive is reachable with secret material."
+patch_pattern: "Upgrade or replace the top-level dependency that introduces the vulnerable transitive crate, then verify the advisory no longer appears in the resolved dependency graph."
+
+source_refs: ["/work/zksync-era/validated-findings/kept/2023-12-06-zksync-era-core-logic-8a8cad6ce.md"]
+notes:
+  - "Retained as dependency-level security hardening, not as a proven protocol vulnerability."

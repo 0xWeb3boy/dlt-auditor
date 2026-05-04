@@ -28,6 +28,7 @@ Step 2: Build the protocol map.
 Your task:
 1. List the main trust boundaries.
 2. List all externally reachable, peer-reachable, operator-reachable, or governance-reachable entrypoints relevant to security.
+2a. Map operator and deployment tooling separately from runtime protocol paths. For privileged chain setup, upgrades, verifier deployment, or contract registration, identify where transactions are built, signed, broadcast, reviewed, and stored. Distinguish offline construction from hot-key signing, multisig approval, and direct broadcast.
 3. List the signed, authenticated, or proof-bearing artifacts and what they are supposed to bind.
 3a. For each attestation-like artifact, including vote extensions, side votes, checkpoint signatures, committee approvals, bridge validator votes, and oracle reports, map:
   - who creates it,

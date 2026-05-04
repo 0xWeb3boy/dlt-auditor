@@ -1,0 +1,19 @@
+id: "zksync-era-2025-02-18-zksync-era-transaction-processing-0bc51ce15"
+source_record: "zksync-era-2025-02-18-zksync-era-transaction-processing-0bc51ce15.yaml"
+project: "zksync-era"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "migration-state-guard"
+expected_missing_property: "migration-state-gating"
+
+expected_impact_band: "protocol-transition-hardening"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Do not flag migration-state refreshes that affect only logs, metrics, or idempotent reads."
+  - "Require a sensitive operation such as event routing, commit aggregation, validator action, or settlement action."
+notes:
+  - "Positive example for gating state-advancing operations during protocol migration."

@@ -51,6 +51,7 @@ Your task:
 27. Search caller/callee contract edges, not just protocol invariants. Compare what helpers, parsers, VM syscalls, copy-back routines, and cryptographic decoders document as their required backing span, output-buffer size, ownership lifetime, and exact destination-length contract against what call sites actually provide.
 28. Treat typed stack locals, missing sentinel bytes, escaped local metadata, fixed-capacity receive buffers, and post-execution memcpy or copy-back without exact length equality as high-signal candidates.
 29. Search admission and finalization paths where a policy is enforced against one representation while the final state mutation consumes another. Compare input fields vs emitted outputs, serialized rejected effects vs recomputed execution effects, cached resource metadata vs live call graphs, and deployment metadata vs synthesized proof or verifier artifacts.
+30. Search privileged proxy, gateway, and service APIs for fallback behavior. Unknown methods, routes, selectors, or operation names should fail closed unless explicitly allowlisted; blacklist filtering is high-signal when the upstream target exposes a broader surface.
 
 For each candidate include:
 - Title

@@ -1,0 +1,19 @@
+id: "zksync-era-2024-08-07-zksync-era-storage-d5f8f3892"
+source_record: "zksync-era-2024-08-07-zksync-era-storage-d5f8f3892.yaml"
+project: "zksync-era"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "strict-consensus-genesis-parsing"
+expected_missing_property: "strict-consensus-schema-validation"
+
+expected_impact_band: "consensus-integrity-hardening"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Do not assume attacker-controlled genesis bytes without a demonstrated injection or trust-boundary path."
+  - "Unknown fields may be safe when covered by an explicit compatibility and canonicalization design."
+notes:
+  - "Positive example for strict decoding before consensus-critical hash derivation."

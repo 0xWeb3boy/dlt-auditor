@@ -1,0 +1,49 @@
+id: "zksync-era-2024-08-07-zksync-era-storage-d5f8f3892"
+source_finding: "2024-08-07-zksync-era-storage-d5f8f3892.md"
+project: "zksync-era"
+date: "2024-08-07"
+language_tags: ["rust", "protobuf"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "strict-consensus-genesis-parsing"
+subsystem: "storage"
+architecture_tags: ["consensus", "genesis", "external-node", "database-state", "strict-decoding"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "strict-consensus-schema-validation"
+violated_invariant: "Consensus-critical configuration must be decoded with the exact schema supported by the node before it is hashed or used."
+trust_boundary: "stored or fetched genesis bytes -> local consensus genesis representation"
+entrypoint_type: "consensus genesis loading and external-node genesis fetch"
+sensitive_sink: "GenesisRaw construction and genesis hash derivation"
+
+attacker_capabilities:
+  - "Can supply or influence genesis bytes only through a trusted main node, database state, migration artifact, or operator workflow."
+  - "Can rely on permissive decoders ignoring unsupported fields if strict parsing is absent."
+exploit_preconditions:
+  - "Consensus genesis contains unknown fields relative to the node's supported schema."
+  - "The node proceeds after ignoring those fields or reports the problem only after deriving consensus-critical values."
+  - "Operators or external nodes do not otherwise reject unsupported protocol state."
+blast_radius: "Consensus startup and external-node synchronization correctness; exploitability was not proven."
+
+impact_types: ["consensus-integrity", "unsupported-protocol-state-rejection"]
+severity_guess: "medium"
+severity_rationale: "Genesis is consensus-critical, so schema drift can be serious, but the evidence only proves hardening against unsupported fields and not an attacker-controlled fork or corruption path."
+
+code_shape_summary: "Consensus genesis bytes were decoded through a permissive protobuf path; the patch switches stored and fetched genesis decoding to deny unknown fields before constructing and hashing the genesis object."
+search_motifs:
+  - "deserialize protobuf genesis deny_unknown_fields"
+  - "unknown fields ignored before consensus hash"
+  - "GenesisRaw read after strict decode"
+negative_signals:
+  - "Unknown fields are explicitly versioned extension data included in the canonical hash."
+  - "The data is only diagnostic and never feeds consensus state, validator sets, or canonical hashes."
+  - "A separate compatibility gate already rejects unsupported protocol versions before decoding."
+patch_pattern: "Use strict decode options for consensus-critical persisted or remote configuration, then construct canonical types and hashes only after unsupported fields are rejected."
+
+source_refs: ["/work/zksync-era/validated-findings/kept/2024-08-07-zksync-era-storage-d5f8f3892.md"]
+notes:
+  - "Retained as hardening because the patch rejects unsupported consensus state earlier; attacker control was not shown."

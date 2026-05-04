@@ -39,6 +39,7 @@ Search patterns:
 - proof or transcript builders that bind part of an artifact while downstream verification or execution depends on additional detached identifiers or commitments
 - proof verification paths that are weaker for historical queries, latest-state queries, or bridge messages than for normal execution
 - verifier APIs returning `Result<bool, _>`, status enums, per-item outcomes, or indexed roots where callers may treat "no error" as success
+- request-controlled proof or signature bytes parsed with low-level helpers, compatibility decoders, fallback signatures, or unchecked recovery. Prefer domain-specific canonical signature types, exact length and format rejection, and explicit invalid-signature errors before signer authorization or proof acceptance continues.
 - signed network payloads should authenticate the exact raw payload bytes and domain context before deeper decoding, scheduling, or block construction. Check minimum length and signature/payload split before slicing
 - Signature validation loops where attacker-supplied signatures are tried against many candidate keys before a cheap key-id, hint, signer index, or domain prefilter. Expensive cryptographic verification should run only after cheap candidate binding, and unused authentication material should be rejected rather than silently ignored.
 - signing APIs should accept structured domain fields or one canonical message object, not detached byte buffers plus side-channel chain IDs, payload hashes, signer roles, or version flags that can disagree

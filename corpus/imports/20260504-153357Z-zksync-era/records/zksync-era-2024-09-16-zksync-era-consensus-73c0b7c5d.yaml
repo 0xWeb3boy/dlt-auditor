@@ -1,0 +1,49 @@
+id: "zksync-era-2024-09-16-zksync-era-consensus-73c0b7c5d"
+source_finding: "2024-09-16-zksync-era-consensus-73c0b7c5d.md"
+project: "zksync-era"
+date: "2024-09-16"
+language_tags: ["rust", "solidity-tooling"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "key-management-hardening"
+subsystem: "consensus"
+architecture_tags: ["deployment-tooling", "l1-transactions", "cold-storage", "multisig", "key-management"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "signing-broadcast-separation"
+violated_invariant: "Privileged deployment tooling should allow transaction construction without requiring hot-key signing or immediate broadcast."
+trust_boundary: "operator transaction-building workflow -> private-key custody and L1 broadcast boundary"
+entrypoint_type: "deployment CLI command"
+sensitive_sink: "privileged L1 deployment transaction signing and broadcasting"
+
+attacker_capabilities:
+  - "Can benefit from exposed hot signing keys, accidental broadcasts, or compromised deployment environments."
+  - "Cannot exploit the patch evidence alone without a key-custody or operational failure."
+exploit_preconditions:
+  - "Deployment workflow requires private keys in the online transaction-building environment."
+  - "Privileged deployment transactions can be broadcast directly from that environment."
+  - "Cold-storage or multisig review is bypassed or unavailable."
+blast_radius: "Operational key exposure and mistaken privileged L1 transaction broadcast; no prior leak or unauthorized broadcast was proven."
+
+impact_types: ["private-key-exposure-reduction", "unsafe-broadcast-risk-reduction"]
+severity_guess: "medium"
+severity_rationale: "Privileged deployment keys and L1 transactions are high-value, but the evidence supports operational hardening rather than a demonstrated vulnerability."
+
+code_shape_summary: "A deployment CLI separates unsigned transaction construction from signing and broadcast, allowing an explicit sender for offline or multisig workflows instead of requiring a private key in the build path."
+search_motifs:
+  - "with_broadcast removed deployment transaction builder"
+  - "build unsigned transactions sender address private key optional"
+  - "cold storage multisig deployment CLI"
+negative_signals:
+  - "A command only prints calldata for local testing and never handles privileged transactions."
+  - "The online environment still signs and broadcasts in all production paths."
+  - "No private key or broadcast path existed before the change."
+patch_pattern: "Add unsigned transaction-building commands, allow explicit sender addresses, and keep signing/broadcasting as a separate operator-controlled step."
+
+source_refs: ["/work/zksync-era/validated-findings/kept/2024-09-16-zksync-era-consensus-73c0b7c5d.md"]
+notes:
+  - "Retained as key-management hardening; not evidence of a prior key leak."

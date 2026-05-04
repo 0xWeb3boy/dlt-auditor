@@ -1,0 +1,72 @@
+{
+  "repo": "/work/zksync-era",
+  "repo_slug": "zksync-era",
+  "kept_dir": "/work/zksync-era/validated-findings/kept",
+  "created_at_utc": "20260504-153357Z",
+  "finding_count": 7,
+  "findings": [
+    {
+      "id": "zksync-era-2023-12-06-zksync-era-core-logic-8a8cad6ce",
+      "source": "/work/zksync-era/validated-findings/kept/2023-12-06-zksync-era-core-logic-8a8cad6ce.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "dependency-vulnerability-remediation",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "zksync-era-2024-08-07-zksync-era-storage-d5f8f3892",
+      "source": "/work/zksync-era/validated-findings/kept/2024-08-07-zksync-era-storage-d5f8f3892.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "strict-consensus-genesis-parsing",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "zksync-era-2024-09-16-zksync-era-consensus-73c0b7c5d",
+      "source": "/work/zksync-era/validated-findings/kept/2024-09-16-zksync-era-consensus-73c0b7c5d.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "key-management-hardening",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "zksync-era-2024-12-04-zksync-era-transaction-processing-1c0098489",
+      "source": "/work/zksync-era/validated-findings/kept/2024-12-04-zksync-era-transaction-processing-1c0098489.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "cryptographic-configuration-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "zksync-era-2025-02-18-zksync-era-transaction-processing-0bc51ce15",
+      "source": "/work/zksync-era/validated-findings/kept/2025-02-18-zksync-era-transaction-processing-0bc51ce15.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "migration-state-guard",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "zksync-era-2025-06-10-zksync-era-transaction-processing-7be023090",
+      "source": "/work/zksync-era/validated-findings/kept/2025-06-10-zksync-era-transaction-processing-7be023090.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "access-control",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "zksync-era-2025-07-04-zksync-era-transaction-processing-ef0fdac4e",
+      "source": "/work/zksync-era/validated-findings/kept/2025-07-04-zksync-era-transaction-processing-ef0fdac4e.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "signature-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    }
+  ]
+}

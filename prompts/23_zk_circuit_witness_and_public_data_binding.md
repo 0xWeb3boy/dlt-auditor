@@ -33,6 +33,7 @@ Search patterns:
 - conditional membership, nullifier, dummy-entry, noop, or placeholder checks that are computed or present in comments but do not feed into the final enforced validity condition for every non-dummy path.
 - one operation variant, legacy path, offchain path, create-account path, or batch path has weaker constraints than the normal path.
 - witness builders silently fill defaults, zeroes, or derived values when required protocol fields are absent.
+- verifier, proof-system, or wrapper-key configuration selected by aliases, overloaded contract methods, local config, or deployment metadata. The verifier identity or key hash used for proof acceptance should be read through an unambiguous artifact selector and compared against the expected genesis or chain configuration.
 - circuit tests check successful proof generation but not negative cases with mismatched witness fields.
 
 Questions to answer:

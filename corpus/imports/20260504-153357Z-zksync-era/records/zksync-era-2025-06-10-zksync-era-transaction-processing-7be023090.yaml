@@ -1,0 +1,49 @@
+id: "zksync-era-2025-06-10-zksync-era-transaction-processing-7be023090"
+source_finding: "2025-06-10-zksync-era-transaction-processing-7be023090.md"
+project: "zksync-era"
+date: "2025-06-10"
+language_tags: ["typescript", "json-rpc"]
+
+bug_family: "authz_and_role_gates"
+bug_class: "access-control"
+subsystem: "transaction-processing"
+architecture_tags: ["private-rpc", "method-dispatch", "allowlist", "authorization-boundary", "proxy"]
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "authorization"
+violated_invariant: "A private RPC proxy must expose only explicitly registered and reviewed methods; unknown methods must not be forwarded by default."
+trust_boundary: "external JSON-RPC caller -> private upstream RPC target"
+entrypoint_type: "JSON-RPC method dispatch"
+sensitive_sink: "upstream RPC method execution with caller-supplied method and params"
+
+attacker_capabilities:
+  - "Can send arbitrary JSON-RPC method names and params to the private RPC service."
+  - "Can discover methods that are not explicitly handled but are accepted by the upstream target."
+exploit_preconditions:
+  - "The proxy is reachable by a caller who should be limited to a reviewed method subset."
+  - "Unknown methods fall back to transparent upstream delegation."
+  - "A sensitive upstream method exists outside the intended allowlist."
+blast_radius: "Unauthorized exposure of private or simulation RPC methods; exact exploitability depends on network reachability and upstream method behavior."
+
+impact_types: ["unauthorized-rpc-method-exposure", "access-control-bypass"]
+severity_guess: "high"
+severity_rationale: "This is a confirmed authorization boundary hardening: arbitrary unregistered methods were forwarded to an upstream private RPC target. Impact depends on reachable methods, so high is a conservative upper band."
+
+code_shape_summary: "A JSON-RPC proxy resolved missing handlers to a default delegateCall that forwarded caller-controlled methods and params; the patch changes the default to unauthorized and moves toward explicit allowed handlers."
+search_motifs:
+  - "default handler delegateCall unauthorized JSON-RPC"
+  - "blacklist forbiddenMethod replaced by allowlist handlers"
+  - "unknown RPC method forwarded to targetRpcUrl"
+negative_signals:
+  - "The fallback delegates only to a harmless local stub or read-only health endpoint."
+  - "An upstream gateway independently enforces the same allowlist before execution."
+  - "The service is not reachable outside trusted test harnesses."
+patch_pattern: "Replace blacklist and permissive fallback forwarding with explicit handler registration, deny unknown methods, and add coverage tooling for the exposed API surface."
+
+source_refs: ["/work/zksync-era/validated-findings/kept/2025-06-10-zksync-era-transaction-processing-7be023090.md"]
+notes:
+  - "Confirmed security-relevant access-control hardening at the RPC dispatch boundary."

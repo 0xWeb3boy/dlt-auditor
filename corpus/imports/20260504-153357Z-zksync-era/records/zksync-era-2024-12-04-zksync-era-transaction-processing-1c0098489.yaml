@@ -1,0 +1,49 @@
+id: "zksync-era-2024-12-04-zksync-era-transaction-processing-1c0098489"
+source_finding: "2024-12-04-zksync-era-transaction-processing-1c0098489.md"
+project: "zksync-era"
+date: "2024-12-04"
+language_tags: ["rust", "ethereum-abi"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "cryptographic-configuration-validation"
+subsystem: "transaction-processing"
+architecture_tags: ["genesis-validation", "verifier-configuration", "abi-overload", "l1-contract-read"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "cryptographic-configuration-consistency"
+violated_invariant: "Genesis validation must compare configured verifier key hashes against the exact on-chain verifier function intended for that proof system."
+trust_boundary: "on-chain verifier contract read -> local genesis cryptographic configuration"
+entrypoint_type: "genesis validation and L1 contract call helper"
+sensitive_sink: "acceptance of verifier verification-key hashes used by proof validation configuration"
+
+attacker_capabilities:
+  - "Can exploit only if verifier contract selection, ABI overload resolution, or genesis configuration can be influenced."
+  - "May benefit from ambiguous ABI calls returning the wrong verifier hash."
+exploit_preconditions:
+  - "The contract exposes overloaded verificationKeyHash functions."
+  - "The caller does not select the intended ABI entry explicitly."
+  - "Genesis validation accepts a missing or mismatched FFLONK verification key hash."
+blast_radius: "Cryptographic configuration integrity at genesis; invalid proof acceptance or consensus divergence was not proven."
+
+impact_types: ["configuration-integrity", "proof-system-hardening"]
+severity_guess: "medium"
+severity_rationale: "Verifier key hashes are security-critical configuration, but the evidence supports a genesis-time consistency guard rather than a demonstrated exploitable proof bypass."
+
+code_shape_summary: "A contract-call helper is extended to call a specific overloaded ABI function, and genesis validation rejects mismatches between on-chain FFLONK verifier key hashes and configured hashes."
+search_motifs:
+  - "verificationKeyHash overloaded ABI functions_by_name"
+  - "genesis validation verifier key hash mismatch"
+  - "call_with_function select exact contract ABI entry"
+negative_signals:
+  - "The read is only for diagnostics and does not gate genesis or proof verification."
+  - "There is no overloaded ABI or the helper already selects by full signature."
+  - "The compared value is not used in a cryptographic verification path."
+patch_pattern: "Select overloaded contract methods by exact ABI function and add a startup/genesis guard that rejects cryptographic configuration mismatches."
+
+source_refs: ["/work/zksync-era/validated-findings/kept/2024-12-04-zksync-era-transaction-processing-1c0098489.md"]
+notes:
+  - "Retained as cryptographic configuration hardening; exploitability was not established."

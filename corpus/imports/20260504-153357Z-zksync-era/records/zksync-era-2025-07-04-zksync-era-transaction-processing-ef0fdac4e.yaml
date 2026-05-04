@@ -1,0 +1,49 @@
+id: "zksync-era-2025-07-04-zksync-era-transaction-processing-ef0fdac4e"
+source_finding: "2025-07-04-zksync-era-transaction-processing-ef0fdac4e.md"
+project: "zksync-era"
+date: "2025-07-04"
+language_tags: ["rust", "ecdsa"]
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "signature-validation"
+subsystem: "transaction-processing"
+architecture_tags: ["tee", "proof-submission", "signature-validation", "error-handling", "cryptographic-boundary"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "signature-format-and-recovery-validation"
+violated_invariant: "Externally supplied proof signatures must be decoded in the expected domain format and recovery failures must reject the request before proof acceptance logic continues."
+trust_boundary: "external TEE proof submitter -> proof validation and signer recovery"
+entrypoint_type: "proof submission API / request processor"
+sensitive_sink: "TEE proof acceptance path and recovered signer used for proof validation"
+
+attacker_capabilities:
+  - "Can submit malformed or non-canonical packed signature bytes with a proof request."
+  - "Can trigger parser and signer-recovery edge cases on externally supplied input."
+exploit_preconditions:
+  - "The proof submission path accepts request-controlled signature bytes."
+  - "The code uses a permissive low-level parser or unchecked recover operation."
+  - "Malformed parse or recovery failure is not converted into a normal validation rejection."
+blast_radius: "TEE proof validation robustness and possible request-level denial of service; accepted forged proofs were not proven."
+
+impact_types: ["proof-validation", "malformed-signature-rejection", "panic-risk-reduction"]
+severity_guess: "medium"
+severity_rationale: "The path validates cryptographic proof submissions, but the evidence shows stronger parsing and checked errors rather than a demonstrated forgery or state corruption."
+
+code_shape_summary: "A proof submission path parsed request-controlled signatures with a low-level helper and unwrapped recovery; the patch uses the domain-specific packed signature type and maps parse/recovery failures to explicit invalid-signature errors."
+search_motifs:
+  - "Signature::from_electrum request input recover unwrap"
+  - "PackedEthSignature deserialize_packed invalid signature"
+  - "proof submission signature_recover_signer error handling"
+negative_signals:
+  - "The signature is generated internally and cannot be influenced by a caller."
+  - "Recovery panic is caught by an outer layer and cannot affect availability or acceptance."
+  - "A separate verified signer check is already performed on canonical decoded signatures before this code."
+patch_pattern: "Replace permissive raw signature parsing with domain-specific deserialization, remove unchecked recovery, and return explicit validation errors for malformed signatures."
+
+source_refs: ["/work/zksync-era/validated-findings/kept/2025-07-04-zksync-era-transaction-processing-ef0fdac4e.md"]
+notes:
+  - "Retained as signature-validation hardening; signer authorization beyond recovery was not fully evidenced."

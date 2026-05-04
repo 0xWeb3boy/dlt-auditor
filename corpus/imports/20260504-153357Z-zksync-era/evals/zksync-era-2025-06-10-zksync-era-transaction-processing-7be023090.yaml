@@ -1,0 +1,19 @@
+id: "zksync-era-2025-06-10-zksync-era-transaction-processing-7be023090"
+source_record: "zksync-era-2025-06-10-zksync-era-transaction-processing-7be023090.yaml"
+project: "zksync-era"
+
+expected_bug_family: "authz_and_role_gates"
+expected_bug_class: "access-control"
+expected_missing_property: "authorization"
+
+expected_impact_band: "access-control"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "A fallback handler that returns a local error or is protected by an equivalent upstream allowlist is not the same bug."
+  - "Severity should be reduced if the proxy is unreachable by untrusted callers or exposes no sensitive upstream methods."
+notes:
+  - "Positive example for fail-closed private RPC dispatch and explicit method allowlisting."

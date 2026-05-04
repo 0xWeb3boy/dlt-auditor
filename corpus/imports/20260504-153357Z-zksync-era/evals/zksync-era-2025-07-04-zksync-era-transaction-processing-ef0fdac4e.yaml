@@ -1,0 +1,19 @@
+id: "zksync-era-2025-07-04-zksync-era-transaction-processing-ef0fdac4e"
+source_record: "zksync-era-2025-07-04-zksync-era-transaction-processing-ef0fdac4e.yaml"
+project: "zksync-era"
+
+expected_bug_family: "signature_binding_and_signer_scope"
+expected_bug_class: "signature-validation"
+expected_missing_property: "signature-format-and-recovery-validation"
+
+expected_impact_band: "proof-validation-hardening"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Do not claim forged proof acceptance unless malformed signatures can pass downstream signer authorization."
+  - "Internally generated signatures or already-canonicalized inputs are weaker matches."
+notes:
+  - "Positive example for strict proof-signature decoding and checked signer recovery."
