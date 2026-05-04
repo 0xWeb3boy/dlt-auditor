@@ -1,0 +1,60 @@
+id: "fuel-core-2024-07-03-fuel-core-storage-4a3cfc8e4a"
+source_finding: "2024-07-03-fuel-core-storage-4a3cfc8e4a.md"
+project: "fuel-core"
+date: "2024-07-03"
+language_tags:
+  - "rust"
+
+bug_family: "state_machine_and_lifecycle_consistency"
+bug_class: "stale-consensus-parameter-validation"
+subsystem: "storage"
+architecture_tags:
+  - "mempool"
+  - "executor"
+  - "consensus-parameters"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "freshness"
+violated_invariant: "Cached validation results must be bound to the exact consensus-parameter version used to produce them and must be revalidated before inclusion under newer rules."
+trust_boundary: "txpool-cache->executor-state-transition"
+entrypoint_type: "state-transition"
+sensitive_sink: "block transaction inclusion under active consensus parameters"
+
+attacker_capabilities:
+  - "Submit a transaction that validates under one parameter version but should fail or differ under a later version."
+  - "Keep the transaction cached across a parameter upgrade."
+exploit_preconditions:
+  - "Txpool stores checked transactions without the parameter version."
+  - "Executor trusts cached checked transactions during block production."
+blast_radius: "chain-wide"
+
+impact_types:
+  - "consensus-integrity"
+  - "state-integrity"
+  - "validation-bypass"
+severity_guess: "high"
+severity_rationale: "Stale cached validation can admit transactions under obsolete rules. That is plausibly consensus-relevant even though exploitability was not fully proven."
+
+code_shape_summary: "A checked transaction type carried validation status but not the consensus ruleset version, so executor code could not distinguish fresh checks from stale cache entries."
+search_motifs:
+  - "CheckedTransaction without consensus_parameters_version"
+  - "MaybeCheckedTransaction trusted by executor"
+  - "parameter upgrade with cached txpool entries"
+  - "recheck transaction if version differs"
+negative_signals:
+  - "No issue if cached validation is invalidated on every parameter update."
+  - "No issue if executor always revalidates against block header parameters before inclusion."
+patch_pattern: "Attach consensus-parameter version metadata to checked transactions and force the executor to compare or revalidate when the block version differs."
+
+source_refs:
+  - "/work/dlt-ai-audit-system/corpus/imports/20260504-105708Z-fuel-core/raw-findings/2024-07-03-fuel-core-storage-4a3cfc8e4a.md"
+notes:
+  - "Validation caches need explicit rule-version binding whenever protocol parameters can change independently of cached objects."
+  - "Enriched from the phase 4 kept finding; preserve the likely/confirmed distinction when using as retrieval context."

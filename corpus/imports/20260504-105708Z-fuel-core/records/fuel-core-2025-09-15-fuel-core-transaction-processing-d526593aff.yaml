@@ -1,0 +1,60 @@
+id: "fuel-core-2025-09-15-fuel-core-transaction-processing-d526593aff"
+source_finding: "2025-09-15-fuel-core-transaction-processing-d526593aff.md"
+project: "fuel-core"
+date: "2025-09-15"
+language_tags:
+  - "rust"
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "graphql-query-complexity-accounting-hardening"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "rpc"
+  - "graphql"
+  - "pagination"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "resource-accounting"
+violated_invariant: "Paginated API cost formulas must multiply per-item storage and child-selection work by the requested page size."
+trust_boundary: "unauthenticated-client->graphql-resource-budget"
+entrypoint_type: "rpc-handler"
+sensitive_sink: "paginated transaction/message resolvers and query cost limiter"
+
+attacker_capabilities:
+  - "Submit GraphQL queries with large first/page-size values and expensive child selections."
+  - "Repeat undercharged queries within normal request limits."
+exploit_preconditions:
+  - "Pagination cost formula adds storage cost once instead of per returned item."
+  - "Endpoint relies on complexity accounting for resource protection."
+blast_radius: "node-local"
+
+impact_types:
+  - "denial-of-service"
+  - "resource-exhaustion"
+  - "api-availability"
+severity_guess: "medium"
+severity_rationale: "Undercharging paginated queries can allow more storage reads than the configured budget intended. Evidence supports hardening, not a proven outage."
+
+code_shape_summary: "Complexity expressions combined storage_read and first/page size in the wrong order, charging fixed storage cost plus child work instead of per-item storage plus child work."
+search_motifs:
+  - "first.unwrap_or_default multiplied only by child_complexity"
+  - "storage_read added outside pagination multiplier"
+  - "GraphQL pagination complexity correction"
+  - "query cost constants increased"
+negative_signals:
+  - "No issue if maximum page size is tiny and separately enforced."
+  - "No issue if the resolver performs constant-time indexed reads regardless of requested item count."
+patch_pattern: "Rewrite pagination formulas so page size multiplies both child complexity and storage-read cost, and raise default cost constants to better reflect real work."
+
+source_refs:
+  - "/work/dlt-ai-audit-system/corpus/imports/20260504-105708Z-fuel-core/raw-findings/2025-09-15-fuel-core-transaction-processing-d526593aff.md"
+notes:
+  - "Cost formulas for paginated APIs must charge per returned item, including nested child work and backing-store reads."
+  - "Enriched from the phase 4 kept finding; preserve the likely/confirmed distinction when using as retrieval context."

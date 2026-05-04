@@ -1,0 +1,24 @@
+id: "fuel-core-2024-07-27-fuel-core-storage-1cfbb05932"
+source_record: "fuel-core-2024-07-27-fuel-core-storage-1cfbb05932.yaml"
+project: "fuel-core"
+
+expected_bug_family: "state_machine_and_lifecycle_consistency"
+expected_bug_class: "reverted-transaction-withdrawal-message-inclusion"
+expected_missing_property: "state-transition-result-gating"
+
+expected_impact_band: "high"
+expected_severity_band: "high"
+should_be_detected: true
+should_be_flagged_as_security: true
+
+expected_trust_boundary: "vm-receipt->block-execution-data"
+expected_entrypoint_type: "state-transition"
+expected_sensitive_sink: "message id commitment and withdrawal inclusion in block header data"
+expected_patch_pattern: "Move message-id aggregation behind a non-reverted status gate and add regression tests for successful versus reverted withdrawal message inclusion."
+
+false_positive_cautions:
+  - "Receipts from reverted transactions may be retained for logs if they are not committed as spendable withdrawal messages."
+  - "No issue if later proof verification rejects any message id from a reverted transaction."
+notes:
+  - "Execution artifacts with asset semantics must be gated by final transaction success, not merely by receipt presence."
+  - "Confirmed bug allowed reverted transactions to affect withdrawal/message commitments. That can threaten asset accounting even if exact theft mechanics depend on downstream checks."

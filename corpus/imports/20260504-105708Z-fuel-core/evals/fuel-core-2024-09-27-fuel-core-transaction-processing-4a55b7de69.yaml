@@ -1,0 +1,24 @@
+id: "fuel-core-2024-09-27-fuel-core-transaction-processing-4a55b7de69"
+source_record: "fuel-core-2024-09-27-fuel-core-transaction-processing-4a55b7de69.yaml"
+project: "fuel-core"
+
+expected_bug_family: "resource_accounting_and_limits"
+expected_bug_class: "consensus-resource-limit-enforcement"
+expected_missing_property: "resource-accounting"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+should_be_detected: true
+should_be_flagged_as_security: true
+
+expected_trust_boundary: "txpool-selection->block-builder"
+expected_entrypoint_type: "transaction-handler"
+expected_sensitive_sink: "block transaction size budget and executor accounting"
+expected_patch_pattern: "Thread the size-limit parameter through tx selection and executor accounting, updating used_size as transactions are selected or executed."
+
+false_positive_cautions:
+  - "No issue if the limit is feature-gated and not active on any network."
+  - "No issue if another consensus check rejects oversized blocks before propagation or commit."
+notes:
+  - "New consensus parameters are dangerous until every producer, selector, simulator, and verifier path enforces the same limit."
+  - "Unenforced consensus limits can create oversized blocks or wasted execution work. Evidence supports hardening rather than a demonstrated exploit."

@@ -1,0 +1,24 @@
+id: "fuel-core-2025-09-15-fuel-core-transaction-processing-d526593aff"
+source_record: "fuel-core-2025-09-15-fuel-core-transaction-processing-d526593aff.yaml"
+project: "fuel-core"
+
+expected_bug_family: "resource_accounting_and_limits"
+expected_bug_class: "graphql-query-complexity-accounting-hardening"
+expected_missing_property: "resource-accounting"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+should_be_detected: true
+should_be_flagged_as_security: true
+
+expected_trust_boundary: "unauthenticated-client->graphql-resource-budget"
+expected_entrypoint_type: "rpc-handler"
+expected_sensitive_sink: "paginated transaction/message resolvers and query cost limiter"
+expected_patch_pattern: "Rewrite pagination formulas so page size multiplies both child complexity and storage-read cost, and raise default cost constants to better reflect real work."
+
+false_positive_cautions:
+  - "No issue if maximum page size is tiny and separately enforced."
+  - "No issue if the resolver performs constant-time indexed reads regardless of requested item count."
+notes:
+  - "Cost formulas for paginated APIs must charge per returned item, including nested child work and backing-store reads."
+  - "Undercharging paginated queries can allow more storage reads than the configured budget intended. Evidence supports hardening, not a proven outage."

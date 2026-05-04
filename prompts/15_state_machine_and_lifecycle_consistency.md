@@ -56,6 +56,9 @@ Search patterns:
 - state machines that wait for progress on an object that can never fit, complete, or become valid under the current local capacity or configuration. Fail closed or tear down the object instead of suppressing forever
 - asynchronous validation, approval, signing, vote, or proposal results that are queued and later applied after the node's fork view, reward cycle, signer set, accepted block, or local validation state may have changed. Revalidate freshness at the sink, not only when the work was queued.
 - caches keyed by a digest, block hash, message hash, or object ID when the real identity also includes epoch, reward cycle, round, view, fork, signer set, or lifecycle phase. Cache hits must be scoped by every coordinate that can change the meaning of the object.
+- Reconciliation or recovery logic backed by external durable stores, caches, or replicated service state. Read failure, timeout, unknown state, and empty state must remain distinct before leader election, block production, failover, or repair decisions.
+- Quorum, vote, or reconciliation maps keyed by metadata that can vary across replicas. Group by canonical protocol identity, and use epoch, timestamp, retry count, or promotion metadata only as scoped tie-breaker data when the protocol permits it.
+- Async worker, retry, or fanout clones that inherit ownership-sensitive guards, leases, cancellation handles, or drop-time cleanup state. Worker lifetime must not extend logical ownership or suppress cleanup or failover.
 
 Questions to answer:
 1. What are the legal states and transitions?

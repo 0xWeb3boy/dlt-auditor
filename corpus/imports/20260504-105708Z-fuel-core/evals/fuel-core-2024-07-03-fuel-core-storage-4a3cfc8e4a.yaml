@@ -1,0 +1,24 @@
+id: "fuel-core-2024-07-03-fuel-core-storage-4a3cfc8e4a"
+source_record: "fuel-core-2024-07-03-fuel-core-storage-4a3cfc8e4a.yaml"
+project: "fuel-core"
+
+expected_bug_family: "state_machine_and_lifecycle_consistency"
+expected_bug_class: "stale-consensus-parameter-validation"
+expected_missing_property: "freshness"
+
+expected_impact_band: "high"
+expected_severity_band: "high"
+should_be_detected: true
+should_be_flagged_as_security: true
+
+expected_trust_boundary: "txpool-cache->executor-state-transition"
+expected_entrypoint_type: "state-transition"
+expected_sensitive_sink: "block transaction inclusion under active consensus parameters"
+expected_patch_pattern: "Attach consensus-parameter version metadata to checked transactions and force the executor to compare or revalidate when the block version differs."
+
+false_positive_cautions:
+  - "No issue if cached validation is invalidated on every parameter update."
+  - "No issue if executor always revalidates against block header parameters before inclusion."
+notes:
+  - "Validation caches need explicit rule-version binding whenever protocol parameters can change independently of cached objects."
+  - "Stale cached validation can admit transactions under obsolete rules. That is plausibly consensus-relevant even though exploitability was not fully proven."

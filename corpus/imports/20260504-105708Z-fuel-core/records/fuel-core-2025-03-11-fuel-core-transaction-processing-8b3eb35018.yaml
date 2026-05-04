@@ -1,0 +1,60 @@
+id: "fuel-core-2025-03-11-fuel-core-transaction-processing-8b3eb35018"
+source_finding: "2025-03-11-fuel-core-transaction-processing-8b3eb35018.md"
+project: "fuel-core"
+date: "2025-03-11"
+language_tags:
+  - "rust"
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "missing-signature-verification"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "preconfirmation"
+  - "p2p"
+  - "status-manager"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "signer-authorization"
+violated_invariant: "A signed status or preconfirmation update must be authenticated against the authorized signer before it mutates client-visible transaction status."
+trust_boundary: "p2p-message->status-manager"
+entrypoint_type: "p2p-message-handler"
+sensitive_sink: "transaction preconfirmation status updates"
+
+attacker_capabilities:
+  - "Send or relay a sealed preconfirmation message containing chosen status updates."
+  - "Reach the status manager through the network-facing preconfirmation path."
+exploit_preconditions:
+  - "The handler destructures sealed content before verifying the seal."
+  - "Clients or services trust preconfirmation status as meaningful authority output."
+blast_radius: "node-local"
+
+impact_types:
+  - "unauthorized-action"
+  - "request-forgery-or-replay"
+  - "client-state-integrity"
+severity_guess: "high"
+severity_rationale: "Confirmed missing signature verification allows forged or unauthorized status changes in a security-sensitive preconfirmation path. Impact is high for clients depending on those statuses."
+
+code_shape_summary: "The handler unpacked a sealed preconfirmation payload and applied embedded statuses directly, discarding or bypassing the signature-verification result."
+search_motifs:
+  - "Sealed payload destructured before verification"
+  - "check_preconfirmation_signature added"
+  - "preconfirmation status update without signature check"
+  - "fake signature verifier regression"
+negative_signals:
+  - "No issue if the message source is authenticated by a stronger channel and payload signatures are redundant by design."
+  - "No issue if statuses are never exposed or trusted by clients."
+patch_pattern: "Verify the sealed preconfirmation signature before applying status updates and add tests for invalid-signature rejection."
+
+source_refs:
+  - "/work/dlt-ai-audit-system/corpus/imports/20260504-105708Z-fuel-core/raw-findings/2025-03-11-fuel-core-transaction-processing-8b3eb35018.md"
+notes:
+  - "Do not destructure or act on sealed authority messages until the seal has been verified in the same trust domain."
+  - "Enriched from the phase 4 kept finding; preserve the likely/confirmed distinction when using as retrieval context."

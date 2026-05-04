@@ -1,0 +1,60 @@
+id: "fuel-core-2026-04-17-fuel-core-consensus-f7826d1c1b"
+source_finding: "2026-04-17-fuel-core-consensus-f7826d1c1b.md"
+project: "fuel-core"
+date: "2026-04-17"
+language_tags:
+  - "rust"
+
+bug_family: "state_machine_and_lifecycle_consistency"
+bug_class: "consensus-liveness"
+subsystem: "consensus"
+architecture_tags:
+  - "consensus"
+  - "leader-reconciliation"
+  - "redis-backed-state"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "identity-normalization"
+violated_invariant: "Reconciliation votes for the same committed block must be grouped by canonical block identity, while volatile metadata may only break ties."
+trust_boundary: "durable-consensus-store->leader-reconciliation"
+entrypoint_type: "state-transition"
+sensitive_sink: "block vote grouping and leader progress decision"
+
+attacker_capabilities:
+  - "Create or encounter inconsistent metadata for the same block across replicated backend nodes."
+  - "Rely on reconciliation failing to reach a quorum despite matching block ids."
+exploit_preconditions:
+  - "The same block can be stored with different epoch metadata on different Redis nodes."
+  - "Vote grouping keys include epoch alongside block id."
+blast_radius: "chain-wide"
+
+impact_types:
+  - "denial-of-service"
+  - "consensus-liveness"
+  - "leader-failover-delay"
+severity_guess: "medium"
+severity_rationale: "Misgrouping identical blocks can deadlock leader reconciliation and halt progress. The case is likely hardening because attacker triggerability is not established."
+
+code_shape_summary: "Vote tallying keyed the quorum map by a tuple of volatile epoch and block id, splitting one logical block into multiple groups."
+search_motifs:
+  - "HashMap<(epoch, BlockId)> vote groups"
+  - "same block different epoch metadata"
+  - "group votes by block_id only"
+  - "max_epoch used only as tie breaker"
+negative_signals:
+  - "No issue if epoch is part of canonical block identity."
+  - "No issue if mismatched epochs indicate genuinely different consensus objects that must not be grouped."
+patch_pattern: "Group reconciliation votes by BlockId only, preserve maximum epoch as metadata for tie-breaking, and add a regression test for the observed deadlock."
+
+source_refs:
+  - "/work/dlt-ai-audit-system/corpus/imports/20260504-105708Z-fuel-core/raw-findings/2026-04-17-fuel-core-consensus-f7826d1c1b.md"
+notes:
+  - "Consensus reconciliation should key quorum decisions on canonical identity, not incidental metadata that may diverge across replicas."
+  - "Enriched from the phase 4 kept finding; preserve the likely/confirmed distinction when using as retrieval context."

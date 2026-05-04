@@ -1,0 +1,24 @@
+id: "fuel-core-2025-04-17-fuel-core-storage-103c019fa1"
+source_record: "fuel-core-2025-04-17-fuel-core-storage-103c019fa1.yaml"
+project: "fuel-core"
+
+expected_bug_family: "state_machine_and_lifecycle_consistency"
+expected_bug_class: "missing-utxo-consumption"
+expected_missing_property: "state-coordinate-consistency"
+
+expected_impact_band: "critical"
+expected_severity_band: "critical"
+should_be_detected: true
+should_be_flagged_as_security: true
+
+expected_trust_boundary: "transaction-input->utxo-storage"
+expected_entrypoint_type: "state-transition"
+expected_sensitive_sink: "UTXO spend set and persistent coin storage"
+expected_patch_pattern: "Add all data coin input variants to the spend-pruning match and add a regression test that commits one spend before rejecting or skipping the second."
+
+false_positive_cautions:
+  - "No issue if data coin inputs are non-spendable metadata only."
+  - "No issue if another storage layer consumes data coins before commit."
+notes:
+  - "Variant-rich state machines need exhaustive consumption logic for every accepted spendable input type."
+  - "Confirmed omission in spend-state cleanup can permit repeated spending of the same data coin. Asset integrity impact is critical in UTXO systems."

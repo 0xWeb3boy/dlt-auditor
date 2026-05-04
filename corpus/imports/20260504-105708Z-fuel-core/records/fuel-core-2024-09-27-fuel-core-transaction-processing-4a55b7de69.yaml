@@ -1,0 +1,60 @@
+id: "fuel-core-2024-09-27-fuel-core-transaction-processing-4a55b7de69"
+source_finding: "2024-09-27-fuel-core-transaction-processing-4a55b7de69.md"
+project: "fuel-core"
+date: "2024-09-27"
+language_tags:
+  - "rust"
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "consensus-resource-limit-enforcement"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "txpool"
+  - "executor"
+  - "block-builder"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "resource-accounting"
+violated_invariant: "All consensus resource limits introduced by protocol parameters must be enforced in both transaction selection and final execution accounting."
+trust_boundary: "txpool-selection->block-builder"
+entrypoint_type: "transaction-handler"
+sensitive_sink: "block transaction size budget and executor accounting"
+
+attacker_capabilities:
+  - "Submit many transactions whose aggregate serialized size can exceed the intended block transaction-size budget."
+  - "Influence selection pressure through ordinary transaction submission."
+exploit_preconditions:
+  - "A block transaction size limit exists but is not wired into one or more block assembly paths."
+  - "Executor accounting does not stop or skip over-limit aggregate size."
+blast_radius: "chain-wide"
+
+impact_types:
+  - "denial-of-service"
+  - "consensus-integrity"
+  - "resource-exhaustion"
+severity_guess: "medium"
+severity_rationale: "Unenforced consensus limits can create oversized blocks or wasted execution work. Evidence supports hardening rather than a demonstrated exploit."
+
+code_shape_summary: "Selection and execution tracked gas-like limits while a separate size limit parameter existed outside the accounting path."
+search_motifs:
+  - "block_transaction_size_limit parameter unused"
+  - "selection_limit ignores tx serialized size"
+  - "execution_data.used_size added"
+  - "remaining block size budget"
+negative_signals:
+  - "No issue if the limit is feature-gated and not active on any network."
+  - "No issue if another consensus check rejects oversized blocks before propagation or commit."
+patch_pattern: "Thread the size-limit parameter through tx selection and executor accounting, updating used_size as transactions are selected or executed."
+
+source_refs:
+  - "/work/dlt-ai-audit-system/corpus/imports/20260504-105708Z-fuel-core/raw-findings/2024-09-27-fuel-core-transaction-processing-4a55b7de69.md"
+notes:
+  - "New consensus parameters are dangerous until every producer, selector, simulator, and verifier path enforces the same limit."
+  - "Enriched from the phase 4 kept finding; preserve the likely/confirmed distinction when using as retrieval context."

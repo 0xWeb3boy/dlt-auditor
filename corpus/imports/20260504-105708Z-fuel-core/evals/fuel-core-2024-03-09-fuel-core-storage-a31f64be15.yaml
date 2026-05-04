@@ -1,0 +1,24 @@
+id: "fuel-core-2024-03-09-fuel-core-storage-a31f64be15"
+source_record: "fuel-core-2024-03-09-fuel-core-storage-a31f64be15.yaml"
+project: "fuel-core"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "txpool-blacklist-enforcement"
+expected_missing_property: "policy-gating"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+should_be_detected: true
+should_be_flagged_as_security: true
+
+expected_trust_boundary: "user-transaction->mempool-policy"
+expected_entrypoint_type: "transaction-handler"
+expected_sensitive_sink: "txpool insertion and propagation eligibility"
+expected_patch_pattern: "Add a pre-insertion blacklist check over coin inputs, surface a specific insertion error, and cover rejection with regression tests."
+
+false_positive_cautions:
+  - "A blacklist feature that is purely informational is not security-relevant."
+  - "Consensus-valid transactions should not be rejected globally unless this is explicitly local policy."
+notes:
+  - "Admission policy must be enforced at the shared boundary, not only in optional callers or operator tooling."
+  - "Bypassing a local blacklist can undermine node policy and propagate unwanted transactions, but the evidence does not show consensus corruption or asset loss."

@@ -1,0 +1,60 @@
+id: "fuel-core-2026-04-23-fuel-core-storage-bf285299c4"
+source_finding: "2026-04-23-fuel-core-storage-bf285299c4.md"
+project: "fuel-core"
+date: "2026-04-23"
+language_tags:
+  - "rust"
+
+bug_family: "state_machine_and_lifecycle_consistency"
+bug_class: "leader-lease-release-delay"
+subsystem: "storage"
+architecture_tags:
+  - "consensus"
+  - "leader-lease"
+  - "async-task-lifecycle"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "lifecycle-cleanup"
+violated_invariant: "Only logical owners of a leader lease should keep release guards alive; short-lived worker clones must not delay failover cleanup."
+trust_boundary: "async-worker-clone->leader-lease-lifecycle"
+entrypoint_type: "state-transition"
+sensitive_sink: "Redis leader lease release and failover availability"
+
+attacker_capabilities:
+  - "Cause or coincide with slow backend publish tasks during leader shutdown or failover."
+  - "Benefit from lease release being delayed by task-only clones."
+exploit_preconditions:
+  - "Task-spawned adapter clones inherit the same Arc-backed release guard as logical owners."
+  - "Drop uses strong_count to decide whether to release the lease."
+blast_radius: "chain-wide"
+
+impact_types:
+  - "denial-of-service"
+  - "consensus-liveness"
+  - "failover-delay"
+severity_guess: "medium"
+severity_rationale: "Delayed leader lease release can slow or block failover in a PoA system. Evidence supports availability hardening rather than invalid leadership or signature failure."
+
+code_shape_summary: "An async adapter clone used for background publishing carried ownership-sensitive drop state, so worker lifetime confused logical ownership checks."
+search_motifs:
+  - "Arc strong_count controls lease release"
+  - "task clone carries drop_release_guard"
+  - "Drop skips release when strong_count != 1"
+  - "publish task clone nulls guard"
+negative_signals:
+  - "No issue if leases always expire quickly and failover ignores explicit release."
+  - "No issue if worker clones cannot outlive the owning adapter."
+patch_pattern: "Make the release guard optional, strip it from task-spawned clones, and make Drop release only for logical adapter owners."
+
+source_refs:
+  - "/work/dlt-ai-audit-system/corpus/imports/20260504-105708Z-fuel-core/raw-findings/2026-04-23-fuel-core-storage-bf285299c4.md"
+notes:
+  - "Lifecycle guards encode ownership; do not blindly clone them into async workers that should not affect cleanup decisions."
+  - "Enriched from the phase 4 kept finding; preserve the likely/confirmed distinction when using as retrieval context."

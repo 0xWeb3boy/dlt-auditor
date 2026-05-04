@@ -1,0 +1,60 @@
+id: "fuel-core-2024-09-10-fuel-core-transaction-processing-ce857cf064"
+source_finding: "2024-09-10-fuel-core-transaction-processing-ce857cf064.md"
+project: "fuel-core"
+date: "2024-09-10"
+language_tags:
+  - "rust"
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "resource-limit-enforcement"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "executor"
+  - "graphql"
+  - "gas-accounting"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "resource-accounting"
+violated_invariant: "Every user-facing simulation and execution path must reject or skip transactions whose declared maximum gas exceeds the active block budget."
+trust_boundary: "user-transaction->executor-resource-budget"
+entrypoint_type: "transaction-handler"
+sensitive_sink: "block gas budget and dry-run execution resources"
+
+attacker_capabilities:
+  - "Submit transactions with max_gas values larger than remaining block gas or dry-run limits."
+  - "Call GraphQL dry_run with crafted transaction batches."
+exploit_preconditions:
+  - "Dry-run or executor loops process transactions before checking max_gas against active consensus parameters."
+  - "The resource budget is shared across transactions or requests."
+blast_radius: "node-local"
+
+impact_types:
+  - "denial-of-service"
+  - "resource-exhaustion"
+  - "block-production-hardening"
+severity_guess: "medium"
+severity_rationale: "Missing max_gas checks can waste local execution resources or admit over-budget work. The finding is hardening because no concrete exhaustion threshold was proven."
+
+code_shape_summary: "Transaction loops derived gas costs but did not consistently compare each transaction max_gas against remaining gas before simulation or inclusion."
+search_motifs:
+  - "dry_run accumulates gas without max_gas limit"
+  - "transaction.max_gas greater than remaining_gas_limit"
+  - "skip over-budget transaction in executor"
+  - "consensus params gas limit not checked"
+negative_signals:
+  - "No issue if the VM enforces the same limit before expensive work."
+  - "A pure error-message cleanup around gas accounting is not enough."
+patch_pattern: "Add consensus-parameter-aware max_gas checks to GraphQL dry_run and executor selection loops, rejecting or skipping over-budget transactions early."
+
+source_refs:
+  - "/work/dlt-ai-audit-system/corpus/imports/20260504-105708Z-fuel-core/raw-findings/2024-09-10-fuel-core-transaction-processing-ce857cf064.md"
+notes:
+  - "Resource limits must be enforced before expensive work in every equivalent execution entrypoint, including simulation APIs."
+  - "Enriched from the phase 4 kept finding; preserve the likely/confirmed distinction when using as retrieval context."

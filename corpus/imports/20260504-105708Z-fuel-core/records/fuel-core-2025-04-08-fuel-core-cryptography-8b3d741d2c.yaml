@@ -1,0 +1,60 @@
+id: "fuel-core-2025-04-08-fuel-core-cryptography-8b3d741d2c"
+source_finding: "2025-04-08-fuel-core-cryptography-8b3d741d2c.md"
+project: "fuel-core"
+date: "2025-04-08"
+language_tags:
+  - "rust"
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "signature-binding-hardening"
+subsystem: "cryptography"
+architecture_tags:
+  - "preconfirmation"
+  - "delegation"
+  - "signature-binding"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "domain-separation"
+violated_invariant: "Delegation signatures must bind replay-sensitive metadata, including nonce, inside the signed entity rather than carrying it as mutable side-channel data."
+trust_boundary: "delegate-message->preconfirmation-authority"
+entrypoint_type: "p2p-message-handler"
+sensitive_sink: "delegate key acceptance and preconfirmation signing authority"
+
+attacker_capabilities:
+  - "Relay or replay delegate messages with altered or reused nonce metadata."
+  - "Observe signed delegation objects on the p2p path."
+exploit_preconditions:
+  - "Nonce or equivalent freshness data is transported outside the signed delegation object."
+  - "Receivers rely on that nonce to distinguish delegate key instances."
+blast_radius: "node-local"
+
+impact_types:
+  - "request-forgery-or-replay"
+  - "signature-confusion"
+  - "authority-scope-hardening"
+severity_guess: "medium"
+severity_rationale: "Binding nonce into the signed object prevents replay or metadata substitution classes. Evidence supports hardening, not a demonstrated exploit."
+
+code_shape_summary: "A p2p delegation message carried a signed delegate key and a nonce as separate fields, leaving freshness metadata outside the signature boundary."
+search_motifs:
+  - "Delegate { nonce, signed_key }"
+  - "nonce moved into sealed entity"
+  - "SignedByBlockProducerDelegation includes nonce"
+  - "delegate key replay hardening"
+negative_signals:
+  - "No issue if the external nonce is independently MACed or checked against an authenticated transcript."
+  - "No issue if nonce is informational and not used for replay protection."
+patch_pattern: "Move nonce into the signed delegate-key entity and update producers, consumers, and tests to sign and verify the combined object."
+
+source_refs:
+  - "/work/dlt-ai-audit-system/corpus/imports/20260504-105708Z-fuel-core/raw-findings/2025-04-08-fuel-core-cryptography-8b3d741d2c.md"
+notes:
+  - "Replay-protection metadata must live inside the cryptographic envelope whose freshness it is meant to protect."
+  - "Enriched from the phase 4 kept finding; preserve the likely/confirmed distinction when using as retrieval context."

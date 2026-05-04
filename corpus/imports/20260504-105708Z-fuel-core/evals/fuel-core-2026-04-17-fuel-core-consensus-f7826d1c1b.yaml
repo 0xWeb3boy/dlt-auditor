@@ -1,0 +1,24 @@
+id: "fuel-core-2026-04-17-fuel-core-consensus-f7826d1c1b"
+source_record: "fuel-core-2026-04-17-fuel-core-consensus-f7826d1c1b.yaml"
+project: "fuel-core"
+
+expected_bug_family: "state_machine_and_lifecycle_consistency"
+expected_bug_class: "consensus-liveness"
+expected_missing_property: "identity-normalization"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+should_be_detected: true
+should_be_flagged_as_security: true
+
+expected_trust_boundary: "durable-consensus-store->leader-reconciliation"
+expected_entrypoint_type: "state-transition"
+expected_sensitive_sink: "block vote grouping and leader progress decision"
+expected_patch_pattern: "Group reconciliation votes by BlockId only, preserve maximum epoch as metadata for tie-breaking, and add a regression test for the observed deadlock."
+
+false_positive_cautions:
+  - "No issue if epoch is part of canonical block identity."
+  - "No issue if mismatched epochs indicate genuinely different consensus objects that must not be grouped."
+notes:
+  - "Consensus reconciliation should key quorum decisions on canonical identity, not incidental metadata that may diverge across replicas."
+  - "Misgrouping identical blocks can deadlock leader reconciliation and halt progress. The case is likely hardening because attacker triggerability is not established."

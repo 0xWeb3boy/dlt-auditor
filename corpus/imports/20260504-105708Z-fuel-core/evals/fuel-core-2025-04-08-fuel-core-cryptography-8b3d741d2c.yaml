@@ -1,0 +1,24 @@
+id: "fuel-core-2025-04-08-fuel-core-cryptography-8b3d741d2c"
+source_record: "fuel-core-2025-04-08-fuel-core-cryptography-8b3d741d2c.yaml"
+project: "fuel-core"
+
+expected_bug_family: "signature_binding_and_signer_scope"
+expected_bug_class: "signature-binding-hardening"
+expected_missing_property: "domain-separation"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+should_be_detected: true
+should_be_flagged_as_security: true
+
+expected_trust_boundary: "delegate-message->preconfirmation-authority"
+expected_entrypoint_type: "p2p-message-handler"
+expected_sensitive_sink: "delegate key acceptance and preconfirmation signing authority"
+expected_patch_pattern: "Move nonce into the signed delegate-key entity and update producers, consumers, and tests to sign and verify the combined object."
+
+false_positive_cautions:
+  - "No issue if the external nonce is independently MACed or checked against an authenticated transcript."
+  - "No issue if nonce is informational and not used for replay protection."
+notes:
+  - "Replay-protection metadata must live inside the cryptographic envelope whose freshness it is meant to protect."
+  - "Binding nonce into the signed object prevents replay or metadata substitution classes. Evidence supports hardening, not a demonstrated exploit."

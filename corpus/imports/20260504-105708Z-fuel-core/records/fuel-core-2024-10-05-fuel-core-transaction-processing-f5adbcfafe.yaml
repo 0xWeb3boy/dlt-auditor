@@ -1,0 +1,60 @@
+id: "fuel-core-2024-10-05-fuel-core-transaction-processing-f5adbcfafe"
+source_finding: "2024-10-05-fuel-core-transaction-processing-f5adbcfafe.md"
+project: "fuel-core"
+date: "2024-10-05"
+language_tags:
+  - "rust"
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "graphql-query-complexity-accounting"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "rpc"
+  - "graphql"
+  - "query-costing"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "resource-accounting"
+violated_invariant: "GraphQL complexity formulas must charge nested resolvers according to the amount of storage and child work they can trigger."
+trust_boundary: "unauthenticated-client->graphql-resource-budget"
+entrypoint_type: "rpc-handler"
+sensitive_sink: "GraphQL query scheduler and storage-backed resolvers"
+
+attacker_capabilities:
+  - "Send nested GraphQL queries selecting blocks, headers, transactions, or status fields."
+  - "Choose child selections that multiply resolver work."
+exploit_preconditions:
+  - "The API exposes complexity-limited GraphQL to untrusted or semi-trusted callers."
+  - "Resolver annotations undercharge nested or repeated storage work."
+blast_radius: "node-local"
+
+impact_types:
+  - "denial-of-service"
+  - "resource-exhaustion"
+  - "api-availability"
+severity_guess: "medium"
+severity_rationale: "Underpriced query complexity can allow expensive API work within nominal limits. It is likely hardening because a concrete exhaustion threshold was not shown."
+
+code_shape_summary: "Resolver complexity annotations used flat storage costs where block/header/status children could multiply work by selected child complexity."
+search_motifs:
+  - "graphql complexity uses storage_iterator only"
+  - "child_complexity omitted from resolver cost"
+  - "block_header resolver undercharged"
+  - "transaction status block complexity"
+negative_signals:
+  - "No issue if the endpoint is private and separately rate-limited."
+  - "No issue if the resolver ignores child selection or always performs constant work."
+patch_pattern: "Replace flat complexity annotations with formulas that include block/header costs and child_complexity multipliers for nested resolvers."
+
+source_refs:
+  - "/work/dlt-ai-audit-system/corpus/imports/20260504-105708Z-fuel-core/raw-findings/2024-10-05-fuel-core-transaction-processing-f5adbcfafe.md"
+notes:
+  - "API query-cost models should approximate worst-case resolver fanout, not just direct storage reads."
+  - "Enriched from the phase 4 kept finding; preserve the likely/confirmed distinction when using as retrieval context."

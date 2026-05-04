@@ -1,0 +1,144 @@
+{
+  "repo": "/work/fuel-core",
+  "repo_slug": "fuel-core",
+  "kept_dir": "/work/fuel-core/validated-findings/kept",
+  "created_at_utc": "20260504-105708Z",
+  "finding_count": 15,
+  "findings": [
+    {
+      "id": "fuel-core-2022-03-02-fuel-core-storage-10a47d0a77",
+      "source": "/work/fuel-core/validated-findings/kept/2022-03-02-fuel-core-storage-10a47d0a77.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "block-malleability",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "fuel-core-2023-10-25-fuel-core-rpc-client-api-ba21e247d3",
+      "source": "/work/fuel-core/validated-findings/kept/2023-10-25-fuel-core-rpc-client-api-ba21e247d3.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "p2p-reserved-peer-reputation-hardening",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "fuel-core-2024-03-09-fuel-core-storage-a31f64be15",
+      "source": "/work/fuel-core/validated-findings/kept/2024-03-09-fuel-core-storage-a31f64be15.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "txpool-blacklist-enforcement",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "fuel-core-2024-07-03-fuel-core-storage-4a3cfc8e4a",
+      "source": "/work/fuel-core/validated-findings/kept/2024-07-03-fuel-core-storage-4a3cfc8e4a.md",
+      "bug_family": "state_machine_and_lifecycle_consistency",
+      "bug_class": "stale-consensus-parameter-validation",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "lifecycle-cleanup"
+    },
+    {
+      "id": "fuel-core-2024-07-27-fuel-core-storage-1cfbb05932",
+      "source": "/work/fuel-core/validated-findings/kept/2024-07-27-fuel-core-storage-1cfbb05932.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "reverted-transaction-withdrawal-message-inclusion",
+      "subsystem": "storage",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "fuel-core-2024-09-10-fuel-core-transaction-processing-ce857cf064",
+      "source": "/work/fuel-core/validated-findings/kept/2024-09-10-fuel-core-transaction-processing-ce857cf064.md",
+      "bug_family": "resource_accounting_and_limits",
+      "bug_class": "resource-limit-enforcement",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "resource-accounting"
+    },
+    {
+      "id": "fuel-core-2024-09-27-fuel-core-transaction-processing-4a55b7de69",
+      "source": "/work/fuel-core/validated-findings/kept/2024-09-27-fuel-core-transaction-processing-4a55b7de69.md",
+      "bug_family": "resource_accounting_and_limits",
+      "bug_class": "consensus-resource-limit-enforcement",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "resource-accounting"
+    },
+    {
+      "id": "fuel-core-2024-10-05-fuel-core-transaction-processing-f5adbcfafe",
+      "source": "/work/fuel-core/validated-findings/kept/2024-10-05-fuel-core-transaction-processing-f5adbcfafe.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "graphql-query-complexity-accounting",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "fuel-core-2025-03-11-fuel-core-transaction-processing-8b3eb35018",
+      "source": "/work/fuel-core/validated-findings/kept/2025-03-11-fuel-core-transaction-processing-8b3eb35018.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "missing-signature-verification",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "fuel-core-2025-04-08-fuel-core-cryptography-8b3d741d2c",
+      "source": "/work/fuel-core/validated-findings/kept/2025-04-08-fuel-core-cryptography-8b3d741d2c.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "signature-binding-hardening",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "fuel-core-2025-04-17-fuel-core-storage-103c019fa1",
+      "source": "/work/fuel-core/validated-findings/kept/2025-04-17-fuel-core-storage-103c019fa1.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-utxo-consumption",
+      "subsystem": "storage",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "fuel-core-2025-09-15-fuel-core-transaction-processing-d526593aff",
+      "source": "/work/fuel-core/validated-findings/kept/2025-09-15-fuel-core-transaction-processing-d526593aff.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "graphql-query-complexity-accounting-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "fuel-core-2026-03-07-fuel-core-consensus-6bf947e26d",
+      "source": "/work/fuel-core/validated-findings/kept/2026-03-07-fuel-core-consensus-6bf947e26d.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-safety",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "fuel-core-2026-04-17-fuel-core-consensus-f7826d1c1b",
+      "source": "/work/fuel-core/validated-findings/kept/2026-04-17-fuel-core-consensus-f7826d1c1b.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-liveness",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "fuel-core-2026-04-23-fuel-core-storage-bf285299c4",
+      "source": "/work/fuel-core/validated-findings/kept/2026-04-23-fuel-core-storage-bf285299c4.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "leader-lease-release-delay",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+id: "fuel-core-2024-03-09-fuel-core-storage-a31f64be15"
+source_finding: "2024-03-09-fuel-core-storage-a31f64be15.md"
+project: "fuel-core"
+date: "2024-03-09"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "txpool-blacklist-enforcement"
+subsystem: "storage"
+architecture_tags:
+  - "mempool"
+  - "transaction-admission"
+  - "policy-enforcement"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "policy-gating"
+violated_invariant: "Every transaction-admission path must apply configured deny policies to all referenced spendable resources before the transaction enters local pool or gossip state."
+trust_boundary: "user-transaction->mempool-policy"
+entrypoint_type: "transaction-handler"
+sensitive_sink: "txpool insertion and propagation eligibility"
+
+attacker_capabilities:
+  - "Submit a transaction referencing a UTXO or resource that local policy intends to block."
+  - "Reach a node txpool through RPC or p2p transaction submission."
+exploit_preconditions:
+  - "The node operator has configured blacklisted UTXO identifiers."
+  - "The txpool path checks syntactic validity but did not enforce the blacklist for coin inputs."
+blast_radius: "node-local"
+
+impact_types:
+  - "policy-bypass"
+  - "mempool-pollution"
+  - "availability-hardening"
+severity_guess: "medium"
+severity_rationale: "Bypassing a local blacklist can undermine node policy and propagate unwanted transactions, but the evidence does not show consensus corruption or asset loss."
+
+code_shape_summary: "Txpool insertion accepted structurally valid transactions before walking inputs and comparing referenced UTXO ids against a denylist."
+search_motifs:
+  - "txpool insert before blacklist check"
+  - "Input::Coin utxo_id not compared to denylist"
+  - "blacklisted_utxo_id regression test"
+  - "NotInserted error handling hides policy failure"
+negative_signals:
+  - "A blacklist feature that is purely informational is not security-relevant."
+  - "Consensus-valid transactions should not be rejected globally unless this is explicitly local policy."
+patch_pattern: "Add a pre-insertion blacklist check over coin inputs, surface a specific insertion error, and cover rejection with regression tests."
+
+source_refs:
+  - "/work/dlt-ai-audit-system/corpus/imports/20260504-105708Z-fuel-core/raw-findings/2024-03-09-fuel-core-storage-a31f64be15.md"
+notes:
+  - "Admission policy must be enforced at the shared boundary, not only in optional callers or operator tooling."
+  - "Enriched from the phase 4 kept finding; preserve the likely/confirmed distinction when using as retrieval context."

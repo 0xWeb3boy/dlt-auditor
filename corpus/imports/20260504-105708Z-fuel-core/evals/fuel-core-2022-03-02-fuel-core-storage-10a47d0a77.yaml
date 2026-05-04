@@ -1,0 +1,24 @@
+id: "fuel-core-2022-03-02-fuel-core-storage-10a47d0a77"
+source_record: "fuel-core-2022-03-02-fuel-core-storage-10a47d0a77.yaml"
+project: "fuel-core"
+
+expected_bug_family: "state_machine_and_lifecycle_consistency"
+expected_bug_class: "block-malleability"
+expected_missing_property: "canonical-commitment-binding"
+
+expected_impact_band: "high"
+expected_severity_band: "high"
+should_be_detected: true
+should_be_flagged_as_security: true
+
+expected_trust_boundary: "executor->block-commitment-store"
+expected_entrypoint_type: "state-transition"
+expected_sensitive_sink: "block transaction commitments and persisted transaction status records"
+expected_patch_pattern: "Delay status persistence until final block identity is available and compute commitments from canonical serialized transaction data, including witness-bearing malleated fields."
+
+false_positive_cautions:
+  - "Pure refactors of transaction status storage are not enough without a commitment/status ordering issue."
+  - "If canonical serialization is already the sole commitment input before persistence, the motif is not a bug."
+notes:
+  - "Do not let execution produce externally visible commitment or status artifacts from provisional transaction or block identity data."
+  - "A commitment mismatch can make nodes, indexes, or clients reason over non-canonical block contents. The finding is likely rather than fully proven, so high is appropriate but not critical."

@@ -1,0 +1,24 @@
+id: "fuel-core-2025-03-11-fuel-core-transaction-processing-8b3eb35018"
+source_record: "fuel-core-2025-03-11-fuel-core-transaction-processing-8b3eb35018.yaml"
+project: "fuel-core"
+
+expected_bug_family: "signature_binding_and_signer_scope"
+expected_bug_class: "missing-signature-verification"
+expected_missing_property: "signer-authorization"
+
+expected_impact_band: "high"
+expected_severity_band: "high"
+should_be_detected: true
+should_be_flagged_as_security: true
+
+expected_trust_boundary: "p2p-message->status-manager"
+expected_entrypoint_type: "p2p-message-handler"
+expected_sensitive_sink: "transaction preconfirmation status updates"
+expected_patch_pattern: "Verify the sealed preconfirmation signature before applying status updates and add tests for invalid-signature rejection."
+
+false_positive_cautions:
+  - "No issue if the message source is authenticated by a stronger channel and payload signatures are redundant by design."
+  - "No issue if statuses are never exposed or trusted by clients."
+notes:
+  - "Do not destructure or act on sealed authority messages until the seal has been verified in the same trust domain."
+  - "Confirmed missing signature verification allows forged or unauthorized status changes in a security-sensitive preconfirmation path. Impact is high for clients depending on those statuses."

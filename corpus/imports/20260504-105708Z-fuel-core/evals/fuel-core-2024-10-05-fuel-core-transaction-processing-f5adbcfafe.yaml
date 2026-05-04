@@ -1,0 +1,24 @@
+id: "fuel-core-2024-10-05-fuel-core-transaction-processing-f5adbcfafe"
+source_record: "fuel-core-2024-10-05-fuel-core-transaction-processing-f5adbcfafe.yaml"
+project: "fuel-core"
+
+expected_bug_family: "resource_accounting_and_limits"
+expected_bug_class: "graphql-query-complexity-accounting"
+expected_missing_property: "resource-accounting"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+should_be_detected: true
+should_be_flagged_as_security: true
+
+expected_trust_boundary: "unauthenticated-client->graphql-resource-budget"
+expected_entrypoint_type: "rpc-handler"
+expected_sensitive_sink: "GraphQL query scheduler and storage-backed resolvers"
+expected_patch_pattern: "Replace flat complexity annotations with formulas that include block/header costs and child_complexity multipliers for nested resolvers."
+
+false_positive_cautions:
+  - "No issue if the endpoint is private and separately rate-limited."
+  - "No issue if the resolver ignores child selection or always performs constant work."
+notes:
+  - "API query-cost models should approximate worst-case resolver fanout, not just direct storage reads."
+  - "Underpriced query complexity can allow expensive API work within nominal limits. It is likely hardening because a concrete exhaustion threshold was not shown."

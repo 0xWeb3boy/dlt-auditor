@@ -1,0 +1,60 @@
+id: "fuel-core-2025-04-17-fuel-core-storage-103c019fa1"
+source_finding: "2025-04-17-fuel-core-storage-103c019fa1.md"
+project: "fuel-core"
+date: "2025-04-17"
+language_tags:
+  - "rust"
+
+bug_family: "state_machine_and_lifecycle_consistency"
+bug_class: "missing-utxo-consumption"
+subsystem: "storage"
+architecture_tags:
+  - "executor"
+  - "utxo"
+  - "storage"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "state-coordinate-consistency"
+violated_invariant: "Every successfully spent spendable input variant must be removed or marked consumed atomically with transaction execution."
+trust_boundary: "transaction-input->utxo-storage"
+entrypoint_type: "state-transition"
+sensitive_sink: "UTXO spend set and persistent coin storage"
+
+attacker_capabilities:
+  - "Submit transactions spending data coin inputs."
+  - "Attempt a second transaction spending the same data coin after the first commit."
+exploit_preconditions:
+  - "Data coin input variants are valid spendable inputs."
+  - "The spend-pruning match omits those variants while other execution paths accept them."
+blast_radius: "chain-wide"
+
+impact_types:
+  - "double-spend"
+  - "state-integrity"
+  - "asset-integrity"
+severity_guess: "critical"
+severity_rationale: "Confirmed omission in spend-state cleanup can permit repeated spending of the same data coin. Asset integrity impact is critical in UTXO systems."
+
+code_shape_summary: "The executor consumed standard coin inputs in storage but the match arm skipped DataCoinSigned and DataCoinPredicate variants, creating asymmetric spend cleanup."
+search_motifs:
+  - "Input::DataCoinSigned missing from spend_input_utxos"
+  - "Input::DataCoinPredicate missing from utxo prune"
+  - "second data coin spend succeeds"
+  - "match arm covers coin but not data coin"
+negative_signals:
+  - "No issue if data coin inputs are non-spendable metadata only."
+  - "No issue if another storage layer consumes data coins before commit."
+patch_pattern: "Add all data coin input variants to the spend-pruning match and add a regression test that commits one spend before rejecting or skipping the second."
+
+source_refs:
+  - "/work/dlt-ai-audit-system/corpus/imports/20260504-105708Z-fuel-core/raw-findings/2025-04-17-fuel-core-storage-103c019fa1.md"
+notes:
+  - "Variant-rich state machines need exhaustive consumption logic for every accepted spendable input type."
+  - "Enriched from the phase 4 kept finding; preserve the likely/confirmed distinction when using as retrieval context."

@@ -1,0 +1,60 @@
+id: "fuel-core-2026-03-07-fuel-core-consensus-6bf947e26d"
+source_finding: "2026-03-07-fuel-core-consensus-6bf947e26d.md"
+project: "fuel-core"
+date: "2026-03-07"
+language_tags:
+  - "rust"
+
+bug_family: "state_machine_and_lifecycle_consistency"
+bug_class: "consensus-safety"
+subsystem: "consensus"
+architecture_tags:
+  - "consensus"
+  - "leader-election"
+  - "redis-backed-state"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-fix"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "error-propagation"
+violated_invariant: "Failures reading authoritative consensus progress must remain distinguishable from an empty or clean state."
+trust_boundary: "durable-consensus-store->leader-reconciliation"
+entrypoint_type: "state-transition"
+sensitive_sink: "leader reconciliation and next-block production decision"
+
+attacker_capabilities:
+  - "Cause or coincide with Redis connection, timeout, or script-read failures during leader handoff."
+  - "Benefit from a node treating unknown committed state as absent."
+exploit_preconditions:
+  - "Consensus progress is reconstructed from external Redis streams."
+  - "Read failures are converted to empty vectors instead of errors."
+blast_radius: "chain-wide"
+
+impact_types:
+  - "consensus-integrity"
+  - "fork-risk"
+  - "state-integrity"
+severity_guess: "high"
+severity_rationale: "Treating unavailable committed state as empty can let a leader skip blocks and fork. Evidence cites commit/test context, so high is warranted even if active attacker control is not proven."
+
+code_shape_summary: "A reconciliation helper swallowed backend read errors and returned an empty list, collapsing three states: no data, read failure, and timeout."
+search_motifs:
+  - "read_stream_entries returns Vec on error"
+  - "Redis read failure converted to empty stream"
+  - "leader skips committed blocks"
+  - "empty vector on timeout in consensus recovery"
+negative_signals:
+  - "No issue if quorum reconciliation independently requires successful reads."
+  - "No issue if an empty stream cannot authorize production or state advancement."
+patch_pattern: "Return Result from Redis stream reads, propagate failures through reconciliation, and test that quorum read failures block unsafe leader progress."
+
+source_refs:
+  - "/work/dlt-ai-audit-system/corpus/imports/20260504-105708Z-fuel-core/raw-findings/2026-03-07-fuel-core-consensus-6bf947e26d.md"
+notes:
+  - "Consensus recovery must fail closed on unknown durable state; empty and unreadable are different security states."
+  - "Enriched from the phase 4 kept finding; preserve the likely/confirmed distinction when using as retrieval context."

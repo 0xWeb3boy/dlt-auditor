@@ -1,0 +1,60 @@
+id: "fuel-core-2022-03-02-fuel-core-storage-10a47d0a77"
+source_finding: "2022-03-02-fuel-core-storage-10a47d0a77.md"
+project: "fuel-core"
+date: "2022-03-02"
+language_tags:
+  - "rust"
+
+bug_family: "state_machine_and_lifecycle_consistency"
+bug_class: "block-malleability"
+subsystem: "storage"
+architecture_tags:
+  - "block-execution"
+  - "transaction-commitment"
+  - "storage"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "canonical-commitment-binding"
+violated_invariant: "Block commitments and transaction status records must be derived only after the canonical, fully malleated transaction form and final block identifier are known."
+trust_boundary: "executor->block-commitment-store"
+entrypoint_type: "state-transition"
+sensitive_sink: "block transaction commitments and persisted transaction status records"
+
+attacker_capabilities:
+  - "Submit transactions whose final serialized form or witness data differs from the pre-execution representation."
+  - "Observe or depend on transaction status and block commitment outputs."
+exploit_preconditions:
+  - "The execution pipeline computes or persists status/commitment data before all canonical block fields are finalized."
+  - "Consensus or clients rely on those commitments/status records as authoritative."
+blast_radius: "chain-wide"
+
+impact_types:
+  - "consensus-integrity"
+  - "state-integrity"
+  - "proof-or-index-integrity"
+severity_guess: "high"
+severity_rationale: "A commitment mismatch can make nodes, indexes, or clients reason over non-canonical block contents. The finding is likely rather than fully proven, so high is appropriate but not critical."
+
+code_shape_summary: "Execution code recorded transaction status and commitment material while the block id or canonical transaction bytes were still provisional, then later finalized the block through a separate path."
+search_motifs:
+  - "status persisted before block id is finalized"
+  - "commitment built from pre-malleated transaction"
+  - "witness data omitted from transaction root"
+  - "placeholder block id in transaction status"
+negative_signals:
+  - "Pure refactors of transaction status storage are not enough without a commitment/status ordering issue."
+  - "If canonical serialization is already the sole commitment input before persistence, the motif is not a bug."
+patch_pattern: "Delay status persistence until final block identity is available and compute commitments from canonical serialized transaction data, including witness-bearing malleated fields."
+
+source_refs:
+  - "/work/dlt-ai-audit-system/corpus/imports/20260504-105708Z-fuel-core/raw-findings/2022-03-02-fuel-core-storage-10a47d0a77.md"
+notes:
+  - "Do not let execution produce externally visible commitment or status artifacts from provisional transaction or block identity data."
+  - "Enriched from the phase 4 kept finding; preserve the likely/confirmed distinction when using as retrieval context."

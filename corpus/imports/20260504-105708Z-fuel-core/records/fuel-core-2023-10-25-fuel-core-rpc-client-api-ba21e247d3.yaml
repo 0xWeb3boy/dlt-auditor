@@ -1,0 +1,60 @@
+id: "fuel-core-2023-10-25-fuel-core-rpc-client-api-ba21e247d3"
+source_finding: "2023-10-25-fuel-core-rpc-client-api-ba21e247d3.md"
+project: "fuel-core"
+date: "2023-10-25"
+language_tags:
+  - "rust"
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "p2p-reserved-peer-reputation-hardening"
+subsystem: "rpc-client-api"
+architecture_tags:
+  - "p2p"
+  - "gossip"
+  - "reputation"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "policy-gating"
+violated_invariant: "Transient validation races from trusted or reserved propagation paths must not be scored as peer misbehavior unless the peer actually violated the protocol."
+trust_boundary: "reserved-peer->node-reputation"
+entrypoint_type: "p2p-message-handler"
+sensitive_sink: "peer reputation scoring and reserved-peer connectivity"
+
+attacker_capabilities:
+  - "Cause or relay transactions that can become invalid because local chain state races ahead."
+  - "Use normal gossip paths that affect peer scoring."
+exploit_preconditions:
+  - "Reserved peers or sentries are scored with the same rejection semantics as untrusted peers."
+  - "A benign race can produce a hard reject instead of a neutral ignore."
+blast_radius: "node-local"
+
+impact_types:
+  - "denial-of-service"
+  - "peer-partition-risk"
+  - "availability-hardening"
+severity_guess: "medium"
+severity_rationale: "Wrongly penalizing reserved peers can degrade connectivity or sentry relationships. The evidence supports hardening, not a proven chain-wide exploit."
+
+code_shape_summary: "P2P validation returned a single reject outcome that was consumed by gossip scoring without preserving whether the source was reserved or whether the invalidity was race-dependent."
+search_motifs:
+  - "MessageAcceptance::Reject used for reserved peer traffic"
+  - "reserved propagation source punished by gossip score"
+  - "invalid transaction after block race"
+  - "reject converted to ignore for trusted peer"
+negative_signals:
+  - "Rejecting malformed or adversarial payloads from untrusted peers is expected."
+  - "Reputation changes are lower risk if they cannot affect peer eviction, banning, or routing."
+patch_pattern: "Normalize reserved-source validation failures that are policy-neutral into Ignore before reputation handling, and broaden internal service plumbing to carry the distinction."
+
+source_refs:
+  - "/work/dlt-ai-audit-system/corpus/imports/20260504-105708Z-fuel-core/raw-findings/2023-10-25-fuel-core-rpc-client-api-ba21e247d3.md"
+notes:
+  - "Separate payload validity from peer blame when trusted propagation paths can encounter state races outside the peer control."
+  - "Enriched from the phase 4 kept finding; preserve the likely/confirmed distinction when using as retrieval context."
