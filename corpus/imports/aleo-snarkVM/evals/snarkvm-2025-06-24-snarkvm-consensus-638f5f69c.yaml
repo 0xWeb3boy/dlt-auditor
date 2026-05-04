@@ -1,0 +1,21 @@
+id: "snarkvm-2025-06-24-snarkvm-consensus-638f5f69c"
+source_record: "snarkvm-2025-06-24-snarkvm-consensus-638f5f69c.yaml"
+project: "snarkvm"
+
+expected_bug_family: "authz_and_role_gates"
+expected_bug_class: "reserved-locator-validation-hardening"
+expected_missing_property: "reserved-entrypoint-gating"
+
+expected_impact_band: "deployment_validation_and_upgrade_integrity"
+expected_severity_band: "high_or_medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The reserved function performs its own caller authorization for all indirect calls."
+  - "The deployment format cannot encode the reserved locator in executable code."
+  - "A broader verifier already rejects the same locator before this check."
+notes:
+  - "Use this eval as a positive hardening pattern, with exploitability bounded by the validated finding evidence."
+  - "Expected sink: program-mediated call to `credits.aleo/upgrade`"

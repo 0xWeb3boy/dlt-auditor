@@ -1,0 +1,51 @@
+id: "snarkvm-2022-07-11-snarkvm-cryptography-ac990f3e7"
+source_finding: "2022-07-11-snarkvm-cryptography-ac990f3e7.md"
+project: "snarkvm"
+date: "2022-07-11"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "missing-balance-nonnegativity-constraint"
+subsystem: "cryptography"
+architecture_tags: ["zero-knowledge-vm", "blockchain-core", "consensus-sensitive"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "value-conservation"
+violated_invariant: "A private value-transfer circuit must prove that net record balance cannot be negative, not only that field encodings are algebraically consistent."
+trust_boundary: "transaction witness records -> value-conservation circuit constraints"
+entrypoint_type: "state-transition-circuit"
+sensitive_sink: "transition proof acceptance for record input/output balance"
+
+attacker_capabilities:
+  - "Construct transition witnesses with chosen record input and output balances."
+  - "Attempt to exploit signed-to-field conversion or wraparound behavior in circuit accounting."
+exploit_preconditions:
+  - "The circuit represents net balance in both signed and field domains."
+  - "A negative signed balance can still satisfy a field equality without an explicit sign-bit constraint."
+blast_radius: "chain-wide if a proof with invalid value conservation were accepted"
+
+impact_types:
+  - "value-conservation-bypass"
+  - "economic-integrity"
+severity_guess: "high"
+severity_rationale: "Value-conservation constraints protect asset supply, though the finding is retained as likely hardening rather than a proven exploit."
+
+code_shape_summary: "Circuit accounting summed inputs and outputs, then checked field equality without also constraining the signed balance to be non-negative."
+search_motifs:
+  - "balance.to_field() equality without an msb or range check"
+  - "inputs minus outputs represented in signed integer gadgets"
+  - "asset conservation proof lacks non-negative net balance assertion"
+negative_signals:
+  - "A separate range proof already constrains the signed balance before conversion."
+  - "The code path is only for test parsing and not used in proof generation."
+  - "The transition kind is exempt because value conservation is enforced elsewhere."
+patch_pattern: "Add an explicit sign-bit or range constraint for non-negativity alongside the existing field-domain consistency check."
+
+source_refs: ["/work/snarkVM/validated-findings/kept/2022-07-11-snarkvm-cryptography-ac990f3e7.md"]
+notes:
+  - "Enriched from the validated finding and kept conservative where exploitability was not proven."
+  - "Raw summary: The supported security-relevant change is in VM transition record-balance accounting. After summing record inputs and subtracting record outputs, the patch now asserts that `i64_balance` is not negative via `!i64_balance.msb()` before retaining the field consi"

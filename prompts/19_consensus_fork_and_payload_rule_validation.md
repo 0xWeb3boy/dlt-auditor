@@ -16,10 +16,15 @@ Hunt for consensus-rule validation bugs in a blockchain or DLT codebase.
 Focus on externally supplied or consensus-layer supplied blocks, headers, payloads, forkchoice states, receipts, sidecars, and payload attributes before they affect canonical state, payload building, execution, or success responses.
 
 Search patterns:
+- Deployment or upgrade validators where existing callable interfaces, constructors, entrypoints, input/output types, or verifier artifacts must be preserved across a consensus-version gate.
+- Consensus proof, puzzle, or work-verification APIs that can be called without the active target, difficulty, epoch, fork, or rule context as an explicit input.
+- Admission checks for new syntax, opcodes, transaction variants, or program editions that are implemented in one verifier but missing from replay, upgrade, migration, or deployment-validation paths.
 - A fork or feature predicate called with fewer inputs than the protocol rule requires, such as height without timestamp, parent total difficulty without current difficulty, method version without message kind, or activation state without chain variant.
 - A generic mainnet or base-chain validator reused for a chain variant that has different field presence, value, or timing rules.
 - In rollup or multi-domain derivation pipelines, compare the trusted origin context with payload-carried timestamps, origins, fork markers, and batch metadata. Fork or feature gates should use the trusted origin when the protocol defines the gate there, not a value decoded from untrusted batch contents.
 - Header or payload fields checked in one import path but omitted in sidechain, downloaded, recovery, optimistic, reorg, replay, or Engine API paths.
+- Work-, weight-, or difficulty-based protocols where verifiers trust a peer-supplied header field instead of recomputing it from parent state, active rules, timestamp or height, and local consensus parameters.
+- Fork choice or sync reorg decisions that compare height, response length, claimed tip, or local heuristics when the protocol's canonical rule is accumulated work, weight, score, or certified strength from a common ancestor.
 - Canonical commitments such as transaction root, receipt root, withdrawal root, blob commitment, state root, generated-system-work root, recovered sender, replay-protection flags, or terminal-total-difficulty conditions enforced in one path but omitted in replay, compatibility, recovery, signing, or side import paths. Recompute body and payload commitments before execution or success, not only in the happy-path import flow.
 - Block execution paths that persist transaction status, receipts, generated messages, or commitments before final block identity, canonical serialized transaction bytes, and final success or revert status are known. Consensus-visible outputs should be derived from finalized canonical data.
 - Execution-state side effects that influence consensus roots, such as account touches, empty-account deletion, gas accounting, generated transactions, receipts, logs, refunds, or storage journaling, where one edge-case path updates the committed state but not the journal or rollback state.
@@ -56,6 +61,7 @@ Questions to answer:
 7. For proposal/validation consensus, are proposal identity, prior state, transaction-set identity, signer identity, sequence, round, and active rules bound together at every acceptance and duplicate-suppression point?
 8. Are quorum, threshold, and amendment or feature activation calculations safe at exact boundary fractions and small validator or committee sets?
 9. Does every execution path that can affect the state root, receipt root, generated work, or fork-choice result journal and validate the same side effects as the canonical path?
+10. For consensus-derived fields such as difficulty, weight, network ID, payload version, or rule domain, does the verifier recompute the expected value and reject mismatches rather than trusting the value carried by the producer?
 
 Severity guidance:
 - High if malformed consensus data can be accepted as canonical, finalized, valid, or execution-ready.

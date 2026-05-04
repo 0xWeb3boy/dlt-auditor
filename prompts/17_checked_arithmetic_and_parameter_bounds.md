@@ -21,7 +21,9 @@ Focus on:
 
 Search patterns:
 - raw +, -, *, or casts on u8/u16/u32/u64 values that come from config, consensus params, governance params, or protocol state
+- raw arithmetic on protocol coordinates received from peers, validators, or RPC callers, such as heights, checkpoints, epochs, rounds, locator intervals, response counts, and range endpoints, even when production values are expected to stay far below numeric limits
 - "2 * threshold", "epoch + interval", and similar derived values
+- interval membership checks such as `start <= x < start + interval` where `start + interval` can wrap, saturate into an over-broad range, or panic before rejecting impossible boundary values
 - constructors that cannot fail even though they build derived protocol parameters
 - saturating or wrapping behavior where rejection would be safer
 - test code that only exercises small values
@@ -41,6 +43,7 @@ Questions to answer:
 6. Is the code checking representability and canonical encoding before narrowing or comparing, and do sanity checks enforce the same width as consensus verification?
 7. Is rounding direction specified by the protocol, and who receives or loses any remainder?
 8. Are threshold calculations achievable, monotonic, and safe at small set sizes and exact boundary fractions?
+9. If arithmetic is used only to validate untrusted protocol structure, would checked arithmetic or a subtraction/comparison form fail closed at the numeric boundary?
 
 Severity guidance:
 - Medium by default.

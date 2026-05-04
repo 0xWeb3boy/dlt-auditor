@@ -1,0 +1,52 @@
+id: "snarkvm-2024-01-21-snarkvm-cryptography-722b6d062"
+source_finding: "2024-01-21-snarkvm-cryptography-722b6d062.md"
+project: "snarkvm"
+date: "2024-01-21"
+language_tags: ["rust"]
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "resource-accounting-hardening"
+subsystem: "cryptography"
+architecture_tags: ["zero-knowledge-vm", "blockchain-core", "consensus-sensitive"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "resource-accounting"
+violated_invariant: "User-supplied resource metadata must be checked with bounded arithmetic and enforced against an explicit active limit before deployment acceptance."
+trust_boundary: "deployment metadata -> circuit and ledger resource-limit enforcement"
+entrypoint_type: "deployment-validation"
+sensitive_sink: "deployment acceptance and circuit constraint-limit accounting"
+
+attacker_capabilities:
+  - "Submit deployments with chosen verifying-key or constraint-count metadata."
+  - "Attempt to exceed or misstate resource usage during program deployment."
+exploit_preconditions:
+  - "Constraint counts are derived from user-controlled or externally supplied metadata."
+  - "The old path summed counts directly or enforced only a global/default limit."
+blast_radius: "node-local availability to chain-wide deployment validation consistency"
+
+impact_types:
+  - "resource-limit-bypass"
+  - "availability"
+  - "consensus-validation-hardening"
+severity_guess: "medium"
+severity_rationale: "Deployment resource accounting is security-sensitive, but exploitability beyond hardening is not proven."
+
+code_shape_summary: "Deployment validation summed claimed constraint counts directly and circuit enforcement lacked an explicit per-circuit active limit."
+search_motifs:
+  - "constraint_count += verifying_key.constraint_count"
+  - "claimed constraint count from deployment metadata"
+  - "global max constraints checked without local configured limit"
+negative_signals:
+  - "Constraint counts are recomputed from trusted proving keys before admission."
+  - "Overflow or excess counts are impossible under consensus deployment size caps."
+  - "The path is only developer tooling and cannot affect deployed programs."
+patch_pattern: "Use checked Result-returning aggregate constraint accounting and enforce an explicit optional circuit constraint limit."
+
+source_refs: ["/work/snarkVM/validated-findings/kept/2024-01-21-snarkvm-cryptography-722b6d062.md"]
+notes:
+  - "Enriched from the validated finding and kept conservative where exploitability was not proven."
+  - "Raw summary: The patch is likely a security fix for deployment constraint accounting. It replaces direct summation of verifying-key constraint counts with a Result-returning combined constraint count, and adds explicit circuit constraint-limit setting/enforcement. The stro"

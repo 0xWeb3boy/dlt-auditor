@@ -1,0 +1,21 @@
+id: "snarkos-2022-11-29-snarkos-p2p-networking-607d5a7ec"
+source_record: "snarkos-2022-11-29-snarkos-p2p-networking-607d5a7ec.yaml"
+project: "snarkos"
+
+expected_bug_family: "signature_binding_and_signer_scope"
+expected_bug_class: "p2p-handshake-authentication-hardening"
+expected_missing_property: "handshake-identity-binding"
+
+expected_impact_band: "peer-authentication"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "If peer identity is not trusted for any later decision, impact is reduced"
+  - "Transport-level mutual authentication can compensate"
+  - "Do not infer full exploit without evidence that unauthenticated sessions become privileged"
+notes:
+  - "Expected detector rationale: A peer handshake should prove control of the advertised identity key over fresh challenge material before the session is admitted."
+  - "Patch pattern to prefer: Add nonce signing to challenge responses and verify response data against peer identity, expected genesis header, and expected nonce."

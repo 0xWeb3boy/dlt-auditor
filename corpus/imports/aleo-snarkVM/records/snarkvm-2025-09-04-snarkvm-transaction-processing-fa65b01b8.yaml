@@ -1,0 +1,53 @@
+id: "snarkvm-2025-09-04-snarkvm-transaction-processing-fa65b01b8"
+source_finding: "2025-09-04-snarkvm-transaction-processing-fa65b01b8.md"
+project: "snarkvm"
+date: "2025-09-04"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "cryptographic-input-validation-hardening"
+subsystem: "transaction-processing"
+architecture_tags: ["zero-knowledge-vm", "blockchain-core", "consensus-sensitive"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "cryptographic-input-shape-validation"
+violated_invariant: "Cryptographic verification opcodes and versioned syntax must reject malformed operand encodings before parsing, execution, or deployment admission."
+trust_boundary: "program operands and deployment syntax -> VM cryptographic verifier"
+entrypoint_type: "transaction-or-deployment-validation"
+sensitive_sink: "ECDSA verification operation and V11 syntax admission"
+
+attacker_capabilities:
+  - "Submit programs or transactions containing ECDSA verification instructions with chosen operand types."
+  - "Provide verifying-key byte slices or versioned syntax at deployment boundaries."
+exploit_preconditions:
+  - "Operand output-type validation does not enforce the exact signature byte-array shape."
+  - "Verifying-key parsing accepts arbitrary-length slices for downstream parser rejection."
+  - "V11 syntax can appear before the consensus version that activates it."
+blast_radius: "transaction-local to chain-wide if malformed syntax reaches consensus validation"
+
+impact_types:
+  - "validation-hardening"
+  - "consensus-integrity-hardening"
+  - "cryptographic-input-integrity"
+severity_guess: "medium"
+severity_rationale: "The patch strengthens cryptographic and version-gated validation, but no forged signature or consensus split is demonstrated."
+
+code_shape_summary: "ECDSA instruction validation returned a boolean output type while incomplete comments left operand shape checks underspecified, and syntax gating for V11 was commented out."
+search_motifs:
+  - "ecdsa_verify output_types returns bool without checking signature array length"
+  - "verifying_key_from_bytes calls parser before length check"
+  - "contains_v11_syntax guard is commented out or version condition is inactive"
+negative_signals:
+  - "The runtime verifier rejects every malformed operand before any security decision."
+  - "The parser enforces the same length and emits deterministic errors everywhere."
+  - "The syntax gate is intentionally inactive because all peers are already on the activating version."
+patch_pattern: "Add explicit ECDSA signature and verifying-key length checks and activate consensus-version syntax gating before execution or deployment proceeds."
+
+source_refs: ["/work/snarkVM/validated-findings/kept/2025-09-04-snarkvm-transaction-processing-fa65b01b8.md"]
+notes:
+  - "Enriched from the validated finding and kept conservative where exploitability was not proven."
+  - "Raw summary: The patch adds explicit validation around ECDSA instruction operands, ECDSA verifying-key byte length, and V11 syntax gating before ConsensusVersion::V11. The evidence supports a validation-hardening interpretation, but it does not establish that the prior beh"

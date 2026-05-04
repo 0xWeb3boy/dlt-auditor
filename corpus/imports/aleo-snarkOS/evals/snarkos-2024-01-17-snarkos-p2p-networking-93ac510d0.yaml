@@ -1,0 +1,21 @@
+id: "snarkos-2024-01-17-snarkos-p2p-networking-93ac510d0"
+source_record: "snarkos-2024-01-17-snarkos-p2p-networking-93ac510d0.yaml"
+project: "snarkos"
+
+expected_bug_family: "signature_binding_and_signer_scope"
+expected_bug_class: "replay-or-signature-validation"
+expected_missing_property: "signature-transcript-binding"
+
+expected_impact_band: "authentication-integrity"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "If an outer channel binds the full transcript, the bug may be mitigated"
+  - "Nonce-schema migrations without verifier changes are not enough"
+  - "Do not conflate with private-key exposure"
+notes:
+  - "Expected detector rationale: Handshake signatures must cover all freshness and identity fields that the verifier relies on when admitting a peer session."
+  - "Patch pattern to prefer: Add a response nonce, include it in the response schema, sign the combined challenge and response nonce bytes, and verify the exact transcript."

@@ -1,0 +1,52 @@
+id: "snarkvm-2022-10-15-snarkvm-cryptography-8b2735410"
+source_finding: "2022-10-15-snarkvm-cryptography-8b2735410.md"
+project: "snarkvm"
+date: "2022-10-15"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "incomplete-consensus-target-validation"
+subsystem: "cryptography"
+architecture_tags: ["zero-knowledge-vm", "blockchain-core", "consensus-sensitive"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "consensus-target-validation"
+violated_invariant: "Proof-of-work or coinbase puzzle verification must bind the active target thresholds at every admission point that accepts prover or coinbase solutions."
+trust_boundary: "prover-supplied puzzle solution -> consensus verification"
+entrypoint_type: "block-or-mempool-validation"
+sensitive_sink: "coinbase/prover solution acceptance and reward eligibility"
+
+attacker_capabilities:
+  - "Submit prover or coinbase puzzle solutions with chosen proof data."
+  - "Target validation to a call site that previously did not carry the active threshold."
+exploit_preconditions:
+  - "Verification APIs can be called without the current proof or coinbase target."
+  - "At least one ledger admission path relies on the target-less verifier result."
+blast_radius: "chain-wide if invalid solutions become block-valid"
+
+impact_types:
+  - "consensus-integrity"
+  - "economic-integrity"
+  - "reward-validation-hardening"
+severity_guess: "high"
+severity_rationale: "Consensus target checks protect block validity and rewards, though the record is hardening because exploitability is not proven."
+
+code_shape_summary: "Coinbase and prover solution verification APIs lacked explicit target parameters, leaving correctness dependent on caller context or hidden state."
+search_motifs:
+  - "verify(solution, key, challenge) without target threshold"
+  - "coinbase puzzle target checked in some call sites but not others"
+  - "mempool admits prover solution without latest proof target"
+negative_signals:
+  - "The verifier obtains the active target internally from a trusted snapshot."
+  - "The changed API is only a refactor with identical target checks in all old paths."
+  - "The solution is revalidated with the correct target before block acceptance."
+patch_pattern: "Thread coinbase and proof target thresholds through verification APIs, ledger call sites, and tests."
+
+source_refs: ["/work/snarkVM/validated-findings/kept/2022-10-15-snarkvm-cryptography-8b2735410.md"]
+notes:
+  - "Enriched from the validated finding and kept conservative where exploitability was not proven."
+  - "Raw summary: The patch is security-relevant hardening in snarkVM coinbase puzzle validation. The strongest supported finding is that target thresholds were moved into the prover and coinbase solution verification interfaces and ledger call sites. The evidence supports miss"

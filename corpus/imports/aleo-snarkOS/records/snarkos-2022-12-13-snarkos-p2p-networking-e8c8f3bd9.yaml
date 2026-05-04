@@ -1,0 +1,39 @@
+id: "snarkos-2022-12-13-snarkos-p2p-networking-e8c8f3bd9"
+source_finding: "2022-12-13-snarkos-p2p-networking-e8c8f3bd9.md"
+project: "snarkos"
+date: "2022-12-13"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "incorrect-peer-address-resolution"
+subsystem: "p2p-networking"
+architecture_tags: ["p2p", "peer-network", "validator-based"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "canonical-peer-identity-resolution"
+violated_invariant: "Peer enforcement must resolve transient connection addresses to the canonical address used by the router peer table before disconnecting or penalizing."
+trust_boundary: "peer-connection->router-peer-table"
+entrypoint_type: "p2p-message-handler"
+sensitive_sink: "peer disconnect and enforcement target selection"
+
+attacker_capabilities: ["trigger protocol-processing errors over an inbound connection", "use a connection address that differs from tracked listener identity"]
+exploit_preconditions: ["router tracks peers by listener/canonical address", "disconnect enforcement uses address key lookup"]
+blast_radius: "node-local"
+
+impact_types: ["p2p-enforcement-bypass", "malicious-peer-retention"]
+severity_guess: "low"
+severity_rationale: "Low because the evidence affects wrong peer disconnect target, while the validated finding is conservative about unproven exploitability or downstream compromise."
+
+code_shape_summary: "Protocol error handling passes the observed SocketAddr directly to disconnect logic even though the router tracks the peer under a different listener address."
+search_motifs: ["disconnect(peer_addr) after process_message error", "listener_addr lookup added before disconnect", "connection SocketAddr used as peer identity key"]
+negative_signals: ["If connection and listener addresses are always identical, issue is correctness only", "Errors from trusted local peers reduce attack relevance", "No security issue if disconnect is advisory"]
+patch_pattern: "Resolve the connection address to the router-tracked listener address before invoking disconnect enforcement."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/aleo-snarkOS/raw-findings/2022-12-13-snarkos-p2p-networking-e8c8f3bd9.md", "git:e8c8f3bd9cbb10d86b0be0d06bdf009252f3af01", "node/src/validator/router.rs:106", "node/src/prover/router.rs:97", "node/src/client/router.rs:90"]
+notes:
+  - "Likely security hardening; use as retrieval and taxonomy material rather than proof of exploitability."
+  - "Enriched from validated-finding evidence without asserting impacts not present in the raw finding."

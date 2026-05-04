@@ -35,6 +35,8 @@ Prioritize:
 - proposer, sequencer, or committee liveness accounting
 
 Search patterns:
+- Validator, delegator, or committee registration checks that identify the actor from one representation, such as a transaction input, while finalization inserts or mutates another representation, such as an emitted output, receipt, or generated state object.
+- Committee-size, validator-limit, or membership-cap checks that run before resolving the exact identity that the state transition will persist.
 - cleanup or expiry code that can remove slash-relevant state too early
 - threshold or election parameters represented indirectly instead of as explicit validated consensus parameters
 - voting power defaults or omissions when constructing validator sets

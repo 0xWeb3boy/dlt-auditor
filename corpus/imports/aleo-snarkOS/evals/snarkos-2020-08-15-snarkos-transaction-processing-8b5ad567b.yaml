@@ -1,0 +1,21 @@
+id: "snarkos-2020-08-15-snarkos-transaction-processing-8b5ad567b"
+source_record: "snarkos-2020-08-15-snarkos-transaction-processing-8b5ad567b.yaml"
+project: "snarkos"
+
+expected_bug_family: "authz_and_role_gates"
+expected_bug_class: "missing-authentication"
+expected_missing_property: "authentication"
+
+expected_impact_band: "privileged-disclosure"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Read-only public record metadata may be intentionally unauthenticated"
+  - "External RPC auth can compensate if it is mandatory"
+  - "Do not infer private-key compromise from record API movement alone"
+notes:
+  - "Expected detector rationale: Record decoding, decryption, and raw-record APIs must cross an authentication gate before parameter parsing or dispatch."
+  - "Patch pattern to prefer: Move record methods to protected RPC wrappers and call validate_auth(meta) before parsing params or invoking record logic."

@@ -24,6 +24,9 @@ Prioritize:
 - RPC, WebSocket, admin, query, publish, and session-setup ingress
 
 Search patterns:
+- Program, contract, VM, or proof systems that cache call counts, recursion depth, finalize cost, constraint counts, proof cost, or verifier metadata. Recompute or revalidate from the current graph or artifact at admission and final execution.
+- User-supplied or artifact-supplied resource metadata that is aggregated with ordinary arithmetic. Use checked arithmetic and reject before the value reaches fee, quota, proof, or deployment acceptance.
+- Recursive semantic validators where each nested parse, call, or function expansion must share one authoritative budget and maximum-depth policy.
 - handlers that start with state reads, runtime lookups, proof parsing, or validation before UseGas or an equivalent charge
 - simulation checks placed before charging
 - admission checks done on raw transaction size instead of checked transaction weight, byte cost, proof cost, or resource units

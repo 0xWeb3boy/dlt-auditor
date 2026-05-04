@@ -1,0 +1,39 @@
+id: "snarkos-2024-01-17-snarkos-p2p-networking-34b5c3586"
+source_finding: "2024-01-17-snarkos-p2p-networking-34b5c3586.md"
+project: "snarkos"
+date: "2024-01-17"
+language_tags: ["rust"]
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "replay-or-signature-validation"
+subsystem: "p2p-networking"
+architecture_tags: ["cryptography", "p2p", "peer-network", "validator-based"]
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "signature-transcript-binding"
+violated_invariant: "Handshake signatures must cover all freshness and identity fields that the verifier relies on when admitting a peer session."
+trust_boundary: "peer->session-setup"
+entrypoint_type: "session-setup"
+sensitive_sink: "authenticated handshake acceptance"
+
+attacker_capabilities: ["participate in handshake", "reuse or craft challenge-response signatures over partial transcript data"]
+exploit_preconditions: ["challenge response signature authenticates peer/session", "response-side freshness was not included in signed bytes"]
+blast_radius: "chain-wide"
+
+impact_types: ["request-forgery-or-replay"]
+severity_guess: "high"
+severity_rationale: "High because the evidence affects replay or misbinding of handshake response, while the validated finding is conservative about unproven exploitability or downstream compromise."
+
+code_shape_summary: "Challenge responses sign only the requester-provided nonce, leaving response-side freshness outside the authenticated transcript."
+search_motifs: ["signature over challenge nonce only", "response contains nonce not included in signed bytes", "verify builds signed bytes missing response-side freshness"]
+negative_signals: ["If an outer channel binds the full transcript, the bug may be mitigated", "Nonce-schema migrations without verifier changes are not enough", "Do not conflate with private-key exposure"]
+patch_pattern: "Add a response nonce, include it in the response schema, sign the combined challenge and response nonce bytes, and verify the exact transcript."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/aleo-snarkOS/raw-findings/2024-01-17-snarkos-p2p-networking-34b5c3586.md", "git:34b5c3586596fbdec4603f4f1fadc936f48cff22", "node/router/src/handshake.rs:323", "node/bft/src/gateway.rs:1319", "node/router/src/handshake.rs:217"]
+notes:
+  - "Validated as confirmed by phase 4; keep as a positive retrieval/eval exemplar."
+  - "Enriched from validated-finding evidence without asserting impacts not present in the raw finding."

@@ -1,0 +1,21 @@
+id: "snarkvm-2022-07-11-snarkvm-cryptography-ac990f3e7"
+source_record: "snarkvm-2022-07-11-snarkvm-cryptography-ac990f3e7.yaml"
+project: "snarkvm"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "missing-balance-nonnegativity-constraint"
+expected_missing_property: "value-conservation"
+
+expected_impact_band: "economic_integrity"
+expected_severity_band: "high_or_medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "A separate range proof already constrains the signed balance before conversion."
+  - "The code path is only for test parsing and not used in proof generation."
+  - "The transition kind is exempt because value conservation is enforced elsewhere."
+notes:
+  - "Use this eval as a positive hardening pattern, with exploitability bounded by the validated finding evidence."
+  - "Expected sink: transition proof acceptance for record input/output balance"

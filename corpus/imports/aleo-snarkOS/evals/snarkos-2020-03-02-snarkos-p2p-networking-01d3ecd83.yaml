@@ -1,0 +1,21 @@
+id: "snarkos-2020-03-02-snarkos-p2p-networking-01d3ecd83"
+source_record: "snarkos-2020-03-02-snarkos-p2p-networking-01d3ecd83.yaml"
+project: "snarkos"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "p2p-panic-hardening"
+expected_missing_property: "panic-safe-error-handling"
+
+expected_impact_band: "availability-hardening"
+expected_severity_band: "low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Only local test harnesses or non-production crawler code may reduce severity"
+  - "A surrounding supervisor that catches panics and isolates all peer state lowers impact"
+  - "If the error source is not peer-controlled, this is robustness rather than security"
+notes:
+  - "Expected detector rationale: Peer-controlled connection failures must be handled as ordinary protocol outcomes, not as panics or task-killing unwraps."
+  - "Patch pattern to prefer: Replace unwrap/silent failure paths with explicit result handling, logging, and normalized disconnect messages."

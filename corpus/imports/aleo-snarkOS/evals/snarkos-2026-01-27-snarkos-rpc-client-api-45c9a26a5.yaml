@@ -1,0 +1,21 @@
+id: "snarkos-2026-01-27-snarkos-rpc-client-api-45c9a26a5"
+source_record: "snarkos-2026-01-27-snarkos-rpc-client-api-45c9a26a5.yaml"
+project: "snarkos"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "p2p-peer-misbehavior-enforcement"
+expected_missing_property: "peer-misbehavior-escalation"
+
+expected_impact_band: "peer-enforcement"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "If peer scoring elsewhere immediately removes the peer, duplicate ban may be unnecessary"
+  - "Benign upgrade mismatches may need grace-period policy"
+  - "This is enforcement hardening, not proof invalid blocks were accepted"
+notes:
+  - "Expected detector rationale: Inbound peers that send structurally invalid consensus-version block responses should be removed or penalized at the boundary that observed the misbehavior."
+  - "Patch pattern to prefer: Preserve structured validation errors and map selected invalid block-response errors to ip_ban_peer/disconnect in client and BFT ingress paths."

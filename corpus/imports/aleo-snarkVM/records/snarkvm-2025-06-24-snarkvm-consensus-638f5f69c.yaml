@@ -1,0 +1,52 @@
+id: "snarkvm-2025-06-24-snarkvm-consensus-638f5f69c"
+source_finding: "2025-06-24-snarkvm-consensus-638f5f69c.md"
+project: "snarkvm"
+date: "2025-06-24"
+language_tags: ["rust"]
+
+bug_family: "authz_and_role_gates"
+bug_class: "reserved-locator-validation-hardening"
+subsystem: "consensus"
+architecture_tags: ["zero-knowledge-vm", "blockchain-core", "consensus-sensitive"]
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "reserved-entrypoint-gating"
+violated_invariant: "Reserved system upgrade entrypoints must not be callable through deployed user programs unless the verifier explicitly allows that path."
+trust_boundary: "user deployment bytecode -> reserved system program locator"
+entrypoint_type: "deployment-validation"
+sensitive_sink: "program-mediated call to `credits.aleo/upgrade`"
+
+attacker_capabilities:
+  - "Deploy a program containing a call to a reserved system locator."
+  - "Use program indirection rather than the permitted direct user invocation path."
+exploit_preconditions:
+  - "The restricted-locator scan is gated by consensus version or program edition in a way that misses some deployments."
+  - "The reserved upgrade function has semantics that should be invoked only through approved paths."
+blast_radius: "chain-wide upgrade-path integrity"
+
+impact_types:
+  - "deployment-validation-bypass"
+  - "unauthorized-action-hardening"
+  - "upgrade-path-integrity"
+severity_guess: "high"
+severity_rationale: "Reserved upgrade entrypoints are privileged consensus machinery; validation is confirmed tightened, though exploit impact is not proven."
+
+code_shape_summary: "A deployment verifier checked for a reserved locator only inside a narrower gated path, leaving the invariant less explicit than the reserved call semantics required."
+search_motifs:
+  - "program contains locator credits.aleo/upgrade"
+  - "reserved system function check nested under consensus version gate"
+  - "deployment verifier distinguishes direct user call from program-mediated call"
+negative_signals:
+  - "The reserved function performs its own caller authorization for all indirect calls."
+  - "The deployment format cannot encode the reserved locator in executable code."
+  - "A broader verifier already rejects the same locator before this check."
+patch_pattern: "Name the reserved-locator invariant and invoke it directly during deployment verification outside the prior narrow gate."
+
+source_refs: ["/work/snarkVM/validated-findings/kept/2025-06-24-snarkvm-consensus-638f5f69c.md"]
+notes:
+  - "Enriched from the validated finding and kept conservative where exploitability was not proven."
+  - "Raw summary: The patch makes the `credits.aleo/upgrade` external-call restriction explicit and applies it during deployment verification outside the previous consensus-version and edition-gated path. The evidence supports a likely security-relevant deployment-validation fi"

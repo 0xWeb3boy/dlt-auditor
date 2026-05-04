@@ -1,0 +1,21 @@
+id: "snarkvm-2025-09-04-snarkvm-transaction-processing-fa65b01b8"
+source_record: "snarkvm-2025-09-04-snarkvm-transaction-processing-fa65b01b8.yaml"
+project: "snarkvm"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "cryptographic-input-validation-hardening"
+expected_missing_property: "cryptographic-input-shape-validation"
+
+expected_impact_band: "validation_and_consensus_hardening"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The runtime verifier rejects every malformed operand before any security decision."
+  - "The parser enforces the same length and emits deterministic errors everywhere."
+  - "The syntax gate is intentionally inactive because all peers are already on the activating version."
+notes:
+  - "Use this eval as a positive hardening pattern, with exploitability bounded by the validated finding evidence."
+  - "Expected sink: ECDSA verification operation and V11 syntax admission"

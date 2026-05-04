@@ -1,0 +1,39 @@
+id: "snarkos-2020-06-12-snarkos-consensus-4f542d627"
+source_finding: "2020-06-12-snarkos-consensus-4f542d627.md"
+project: "snarkos"
+date: "2020-06-12"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-difficulty-validation"
+subsystem: "consensus"
+architecture_tags: ["consensus", "validator-based"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-fix"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "consensus-derived-field-validation"
+violated_invariant: "Consensus verifiers must recompute rule-derived header fields and reject headers whose supplied values do not match local consensus calculation."
+trust_boundary: "block-producer/peer->consensus-verifier"
+entrypoint_type: "block-header-validation"
+sensitive_sink: "block validity and fork-choice eligibility"
+
+attacker_capabilities: ["produce or relay a block header", "set header difficulty_target independently of consensus rules"]
+exploit_preconditions: ["verifier accepts peer/miner supplied headers", "difficulty target is part of block validity"]
+blast_radius: "chain-wide"
+
+impact_types: ["consensus-integrity"]
+severity_guess: "high"
+severity_rationale: "High because the evidence affects invalid header acceptance, while the validated finding is conservative about unproven exploitability or downstream compromise."
+
+code_shape_summary: "Header verification trusts a supplied difficulty target without comparing it to the difficulty computed from parent state and consensus time rules."
+search_motifs: ["header.difficulty_target read without expected comparison", "get_block_difficulty only used by miner, not verifier", "test mutates consensus-derived header field and still verifies"]
+negative_signals: ["If downstream consensus validation repeats the same check, this path may be redundant", "Test-only header constructors are not security sinks", "Difficulty fields that are metadata only do not carry consensus impact"]
+patch_pattern: "Recompute expected difficulty inside header verification, add a mismatch error, and cover the rejection path with a regression test."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/aleo-snarkOS/raw-findings/2020-06-12-snarkos-consensus-4f542d627.md", "git:4f542d627abb83e74644bebb38b2b271c9d026ee", "consensus/src/consensus.rs:621", "consensus/src/consensus.rs:116", "errors/src/consensus/consensus.rs:30"]
+notes:
+  - "Likely security hardening; use as retrieval and taxonomy material rather than proof of exploitability."
+  - "Enriched from validated-finding evidence without asserting impacts not present in the raw finding."

@@ -1,0 +1,21 @@
+id: "snarkvm-2022-10-15-snarkvm-cryptography-8b2735410"
+source_record: "snarkvm-2022-10-15-snarkvm-cryptography-8b2735410.yaml"
+project: "snarkvm"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "incomplete-consensus-target-validation"
+expected_missing_property: "consensus-target-validation"
+
+expected_impact_band: "consensus_and_economic_integrity"
+expected_severity_band: "high_or_medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The verifier obtains the active target internally from a trusted snapshot."
+  - "The changed API is only a refactor with identical target checks in all old paths."
+  - "The solution is revalidated with the correct target before block acceptance."
+notes:
+  - "Use this eval as a positive hardening pattern, with exploitability bounded by the validated finding evidence."
+  - "Expected sink: coinbase/prover solution acceptance and reward eligibility"

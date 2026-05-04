@@ -1,0 +1,21 @@
+id: "snarkvm-2022-03-04-snarkvm-cryptography-59eb426e2"
+source_record: "snarkvm-2022-03-04-snarkvm-cryptography-59eb426e2.yaml"
+project: "snarkvm"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "unchecked-tree-index-capacity"
+expected_missing_property: "index-capacity-bounds"
+
+expected_impact_band: "availability_or_state_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The batch size is already capped by consensus before this function."
+  - "The index type is widened or checked arithmetic is used upstream."
+  - "The path is offline tooling that cannot affect validation or serving."
+notes:
+  - "Use this eval as a positive hardening pattern, with exploitability bounded by the validated finding evidence."
+  - "Expected sink: program function index and ledger block-hash tree insertion"

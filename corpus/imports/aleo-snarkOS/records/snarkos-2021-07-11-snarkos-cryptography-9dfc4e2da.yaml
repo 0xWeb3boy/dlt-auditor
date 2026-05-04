@@ -1,0 +1,39 @@
+id: "snarkos-2021-07-11-snarkos-cryptography-9dfc4e2da"
+source_finding: "2021-07-11-snarkos-cryptography-9dfc4e2da.md"
+project: "snarkos"
+date: "2021-07-11"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-network-id-validation"
+subsystem: "cryptography"
+architecture_tags: ["consensus", "cryptography", "validator-based"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "network-id-binding"
+violated_invariant: "Block construction must reject transactions whose network identifier does not match the active consensus parameters."
+trust_boundary: "transaction/mempool->miner-consensus-construction"
+entrypoint_type: "block-construction-path"
+sensitive_sink: "coinbase/block transaction inclusion"
+
+attacker_capabilities: ["provide transaction data with a mismatched network id", "influence miner transaction selection"]
+exploit_preconditions: ["miner constructs blocks from externally sourced transactions", "network id separates consensus domains"]
+blast_radius: "subsystem-local"
+
+impact_types: ["cross-network-transaction-rejection", "consensus-integrity"]
+severity_guess: "medium"
+severity_rationale: "Medium because the evidence affects cross-network transaction inclusion risk, while the validated finding is conservative about unproven exploitability or downstream compromise."
+
+code_shape_summary: "Miner-side coinbase or block-construction logic lacks an explicit network-id check before using transaction data in consensus construction."
+search_motifs: ["transaction.network_id compared only outside miner path", "coinbase creation accepts transaction without consensus-parameter network check", "canonical noop/program id replaces ad hoc identifier"]
+negative_signals: ["Full node validation after mining may still reject mismatched transactions", "Testnet migration commits can be compatibility work rather than security", "If transactions are locally generated only, attacker control is limited"]
+patch_pattern: "Add a miner-side network-id validation gate and prefer canonical consensus/DPC identifiers during construction."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/aleo-snarkOS/raw-findings/2021-07-11-snarkos-cryptography-9dfc4e2da.md", "git:9dfc4e2da7e67673b41c8986ca41e7e38e48f318", "consensus/src/parameters.rs:125", "consensus/src/memory_pool.rs:75", "consensus/src/miner.rs:73"]
+notes:
+  - "Likely security hardening; use as retrieval and taxonomy material rather than proof of exploitability."
+  - "Enriched from validated-finding evidence without asserting impacts not present in the raw finding."

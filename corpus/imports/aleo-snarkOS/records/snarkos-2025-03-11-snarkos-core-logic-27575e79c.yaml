@@ -1,0 +1,39 @@
+id: "snarkos-2025-03-11-snarkos-core-logic-27575e79c"
+source_finding: "2025-03-11-snarkos-core-logic-27575e79c.md"
+project: "snarkos"
+date: "2025-03-11"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "integer-overflow-in-input-validation"
+subsystem: "core-logic"
+architecture_tags: ["validator-based"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "overflow-safe-bounds-check"
+violated_invariant: "Validation arithmetic over untrusted protocol heights must use checked arithmetic and preserve the intended ordering invariant at numeric boundaries."
+trust_boundary: "peer/validator->sync-locator-validator"
+entrypoint_type: "query-verification-path"
+sensitive_sink: "block locator validation decision"
+
+attacker_capabilities: ["supply block locator heights or checkpoints", "choose extreme height values near integer bounds"]
+exploit_preconditions: ["locator validation performs arithmetic on untrusted heights", "overflow can alter validation result or panic behavior"]
+blast_radius: "node-local"
+
+impact_types: ["protocol-validation-hardening"]
+severity_guess: "medium"
+severity_rationale: "Medium because the evidence affects malformed locator passes/fails incorrectly, while the validated finding is conservative about unproven exploitability or downstream compromise."
+
+code_shape_summary: "Block locator validation performs arithmetic on untrusted height values while assuming u32 heights cannot approach overflow boundaries."
+search_motifs: ["height + interval in validation condition", "comment says value is untrusted but unchecked arithmetic follows", "checked_add or saturating comparison added to locator validation"]
+negative_signals: ["If input is already capped far below overflow, impact is low", "Arithmetic in comments or tests is not a sink", "Wrapping used intentionally for protocol-defined modular arithmetic is different"]
+patch_pattern: "Use overflow-safe arithmetic and express the full structural locator invariant without wrapping additions."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/aleo-snarkOS/raw-findings/2025-03-11-snarkos-core-logic-27575e79c.md", "git:27575e79c63cf6ffb9d215d629d163415f5d4b07", "node/sync/locators/src/block_locators.rs:196"]
+notes:
+  - "Likely security hardening; use as retrieval and taxonomy material rather than proof of exploitability."
+  - "Enriched from validated-finding evidence without asserting impacts not present in the raw finding."

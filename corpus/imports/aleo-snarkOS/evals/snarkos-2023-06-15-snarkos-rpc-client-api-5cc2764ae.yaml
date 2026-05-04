@@ -1,0 +1,21 @@
+id: "snarkos-2023-06-15-snarkos-rpc-client-api-5cc2764ae"
+source_record: "snarkos-2023-06-15-snarkos-rpc-client-api-5cc2764ae.yaml"
+project: "snarkos"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "unbounded-deserialization"
+expected_missing_property: "bounded-deserialization"
+
+expected_impact_band: "availability"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "A lower layer that already bounds the exact byte slice reduces but may not remove allocation risk"
+  - "Small fixed-size message structs are less concerning"
+  - "Non-peer test fixtures are not attack surface"
+notes:
+  - "Expected detector rationale: Peer-controlled binary deserialization must enforce the same explicit size limit as the transport codec before allocating nested objects."
+  - "Patch pattern to prefer: Use bincode options with MAXIMUM_MESSAGE_SIZE, fixed integer encoding, and trailing-byte policy at each affected deserialize site."

@@ -1,0 +1,51 @@
+id: "snarkvm-2021-11-11-snarkvm-cryptography-93e7c65a8"
+source_finding: "2021-11-11-snarkvm-cryptography-93e7c65a8.md"
+project: "snarkvm"
+date: "2021-11-11"
+language_tags: ["rust"]
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "cryptographic-domain-separation-hardening"
+subsystem: "cryptography"
+architecture_tags: ["zero-knowledge-vm", "blockchain-core", "consensus-sensitive"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "domain-separation"
+violated_invariant: "Cryptographic sponge inputs used for encryption, commitments, or proofs must include scheme-specific context so derived values cannot be confused across domains."
+trust_boundary: "protocol key material -> cryptographic sponge derivation"
+entrypoint_type: "cryptographic-derivation-path"
+sensitive_sink: "Poseidon-derived encryption and commitment randomness"
+
+attacker_capabilities:
+  - "Influence encrypted-record inputs, key material, or contexts that feed the derivation path."
+  - "Compare or replay derived values across protocol contexts if encodings overlap."
+exploit_preconditions:
+  - "Two derivation contexts can absorb similar bare key or coordinate material."
+  - "Downstream checks assume the sponge output is scoped to a specific encryption scheme or record context."
+blast_radius: "cryptographic-domain-local"
+
+impact_types:
+  - "cryptographic-binding-hardening"
+  - "domain-confusion-hardening"
+severity_guess: "medium"
+severity_rationale: "Domain separation is security-critical cryptographic hygiene, but the finding does not prove a concrete cross-domain exploit."
+
+code_shape_summary: "ECIES Poseidon gadget paths absorbed bare ECDH or symmetric-key coordinate material before squeezing derived values, without a visible scheme domain separator."
+search_motifs:
+  - "Poseidon sponge absorbs only key coordinates before deriving commitments"
+  - "encryption gadget lacks a constant protocol label"
+  - "record commitment randomness derived implicitly from view-key material"
+negative_signals:
+  - "The caller already includes an unambiguous domain tag in the absorbed data."
+  - "The derivation is private to one fixed scheme with no reusable output domain."
+  - "Only comments or tests changed, with no sponge input change."
+patch_pattern: "Absorb a constant scheme label with the key material and make record commitment randomness derivation explicit."
+
+source_refs: ["/work/snarkVM/validated-findings/kept/2021-11-11-snarkvm-cryptography-93e7c65a8.md"]
+notes:
+  - "Enriched from the validated finding and kept conservative where exploitability was not proven."
+  - "Raw summary: The patch is clearly in sensitive cryptographic code and appears to improve or correct encryption-scheme derivations, especially by adding an `AleoEncryption2021` domain separator to ECIES Poseidon gadget sponge absorption and deriving record commitment random"

@@ -1,0 +1,39 @@
+id: "snarkos-2021-04-13-snarkos-p2p-networking-b2baa32e2"
+source_finding: "2021-04-13-snarkos-p2p-networking-b2baa32e2.md"
+project: "snarkos"
+date: "2021-04-13"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "p2p-block-sync-state-hardening"
+subsystem: "p2p-networking"
+architecture_tags: ["block-sync", "p2p", "peer-network", "validator-based"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "sync-state-correlation"
+violated_invariant: "A block-sync payload should be processed only if it matches the node state that says this peer is the expected sync source."
+trust_boundary: "peer->block-sync-state-machine"
+entrypoint_type: "p2p-message-handler"
+sensitive_sink: "consensus sync processing and peer-book state"
+
+attacker_capabilities: ["send Sync payloads or influence sync peer selection", "race or reuse stale sync state"]
+exploit_preconditions: ["node tracks expected sync source/state", "unexpected sync payload can reach consensus.received_sync"]
+blast_radius: "node-local"
+
+impact_types: ["unexpected-sync-payload-processing", "sync-state-integrity"]
+severity_guess: "medium"
+severity_rationale: "Medium because the evidence affects unexpected sync payload processing, while the validated finding is conservative about unproven exploitability or downstream compromise."
+
+code_shape_summary: "The handler computes whether a Sync payload is expected but ignores the boolean and forwards the payload into consensus sync handling anyway."
+search_motifs: ["expecting_sync_blocks result ignored", "consensus.received_sync called after unused validation boolean", "outstanding sync counters not cleared before new sync source"]
+negative_signals: ["If consensus.received_sync independently validates peer expectation, impact is reduced", "Purely local sync tests are not a peer boundary", "No issue if duplicate/unexpected payloads are idempotent"]
+patch_pattern: "Use the expectation check as a control-flow guard and reset stale sync counters before registering a new mutually exclusive sync attempt."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/aleo-snarkOS/raw-findings/2021-04-13-snarkos-p2p-networking-b2baa32e2.md", "git:b2baa32e230331c067915ff9b11f98d88f9050ea", "network/src/inbound/inbound.rs:253", "network/src/peers/peer_book.rs:369", "network/src/inbound/inbound.rs:270"]
+notes:
+  - "Likely security hardening; use as retrieval and taxonomy material rather than proof of exploitability."
+  - "Enriched from validated-finding evidence without asserting impacts not present in the raw finding."

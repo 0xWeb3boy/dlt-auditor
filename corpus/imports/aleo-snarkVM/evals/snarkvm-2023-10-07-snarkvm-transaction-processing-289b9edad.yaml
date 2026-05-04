@@ -1,0 +1,21 @@
+id: "snarkvm-2023-10-07-snarkvm-transaction-processing-289b9edad"
+source_record: "snarkvm-2023-10-07-snarkvm-transaction-processing-289b9edad.yaml"
+project: "snarkvm"
+
+expected_bug_family: "authz_and_role_gates"
+expected_bug_class: "authorization-invariant-validation"
+expected_missing_property: "authorization-structure-validation"
+
+expected_impact_band: "authorization_and_state_integrity_hardening"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Binary deserialization or canonical parsing already rejects mismatched vectors before construction."
+  - "The object is never used until another mandatory verifier checks the same invariant."
+  - "The vectors are produced only by trusted internal code."
+notes:
+  - "Use this eval as a positive hardening pattern, with exploitability bounded by the validated finding evidence."
+  - "Expected sink: authorization object used by transaction execution and verification"

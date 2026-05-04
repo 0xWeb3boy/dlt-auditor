@@ -23,14 +23,19 @@ Focus on:
 - domain-specific or chain-specific signature contexts
 - verified wrappers that may be unpacked and reconstructed incorrectly
 - login, registration, session, or challenge-response flows where a nonce, challenge, token, or request identifier appears in both signed content and transport metadata
+- challenge-response handshakes where liveness or replay resistance depends on freshness from both sides; a signature over only the verifier's challenge may prove key control but still fail to bind response-side freshness or transcript state
 - compatibility or legacy verification branches that reconstruct or hash a message shape different from what older clients actually signed
 - challenge or transcript construction that may omit a hash, commitment, version, mode, or selector that later governs the sensitive decision
 
 Search patterns:
+- Cryptographic transcript builders that convert variable-length bytes into field elements before hashing. Check whether length, purpose, protocol version, and domain separator are absorbed before the field sequence.
+- Native and circuit or gadget verifiers that are intended to verify the same signature, proof, encryption, or commitment. Compare transcript fields, domain labels, length delimiters, and ordering across both implementations.
+- Sponge or hash derivations that absorb bare key coordinates, ECDH outputs, commitments, or message fields without a scheme-specific label.
 - Verify* calls followed by separate extraction of method, body, chain ID, domain ID, runtime ID, app ID, bridge ID, or signer role
 - code that verifies a signature over one payload but authorizes or dispatches based on parallel fields from headers, wrapper metadata, or side arguments
 - legacy or backward-compatibility paths that do not call the same canonical serializer or hashing routine as the main path
 - signature contexts that omit chain ID, app ID, runtime ID, domain ID, nonce, epoch, height, fork, or purpose
+- emitter and verifier code that construct signed bytes separately. Compare nonce order, transcript fields, peer identity, role, version, domain, and mode flags; both sides should sign and verify the exact same canonical byte sequence
 - proof or transcript builders that bind part of an artifact while downstream verification or execution depends on additional detached identifiers or commitments
 - proof verification paths that are weaker for historical queries, latest-state queries, or bridge messages than for normal execution
 - verifier APIs returning `Result<bool, _>`, status enums, per-item outcomes, or indexed roots where callers may treat "no error" as success
@@ -76,6 +81,7 @@ Questions to answer:
 8. If verifier creation depends on chain context, contract state, signer registries, or feature mode, does startup fail closed when that context is unavailable?
 9. Do emitters and receivers bind the same bytes, metadata, counters, and mode flags, or is one side still using a weaker placeholder representation?
 10. For key-rotation, manifest, or delegation formats, are the long-term identity key, ephemeral signing key, revocation state, sequence, and signer namespace all checked together?
+11. In two-party handshakes, does the signed transcript include freshness contributed by both parties when the response itself is later treated as live and non-replayable?
 
 Severity guidance:
 - High for signer-authorization gaps, registration-signature gaps, bridge or validator signature binding failures, or domain-separation failures in consensus-sensitive paths.

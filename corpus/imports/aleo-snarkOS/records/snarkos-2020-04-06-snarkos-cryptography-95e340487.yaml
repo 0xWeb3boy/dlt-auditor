@@ -1,0 +1,39 @@
+id: "snarkos-2020-04-06-snarkos-cryptography-95e340487"
+source_finding: "2020-04-06-snarkos-cryptography-95e340487.md"
+project: "snarkos"
+date: "2020-04-06"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "merkle-membership-validation"
+subsystem: "cryptography"
+architecture_tags: ["cryptography", "validator-based"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "merkle-membership-binding"
+violated_invariant: "A proof or ledger update that claims commitment membership must bind the witness path to the same Merkle parameters and root used by ledger state."
+trust_boundary: "witness/prover->ledger-verifier"
+entrypoint_type: "zk-proof-validation-path"
+sensitive_sink: "ledger commitment membership and DPC validity constraints"
+
+attacker_capabilities: ["construct or influence DPC witness data", "submit proof or transaction data relying on commitment membership"]
+exploit_preconditions: ["membership constraints participate in validity", "non-dummy commitments should be tied to a ledger Merkle root"]
+blast_radius: "subsystem-local"
+
+impact_types: ["integrity-check-bypass"]
+severity_guess: "medium"
+severity_rationale: "Medium because the evidence affects invalid commitment membership accepted, while the validated finding is conservative about unproven exploitability or downstream compromise."
+
+code_shape_summary: "Ledger/circuit code uses incomplete Merkle parameter objects or leaves non-dummy membership checks inactive, weakening the binding between witness commitments and ledger roots."
+search_motifs: ["P::H::setup used where full MerkleParameters are expected", "commented-out conditionally_check_membership", "Merkle tree constructed without shared parameter object"]
+negative_signals: ["Dummy/null commitments may intentionally skip membership checks", "A separate enforced membership check in the same circuit can compensate", "Parameter refactors without verifier constraint changes may be non-security"]
+patch_pattern: "Use full Merkle parameters through setup and tree construction, then activate conditional membership constraints for non-dummy witnesses."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/aleo-snarkOS/raw-findings/2020-04-06-snarkos-cryptography-95e340487.md", "git:95e340487f456923e79ae4288612220bdd80273e", "dpc/src/ledger/ledger.rs:59", "dpc/src/ledger/ideal_ledger.rs:46", "dpc/src/dpc/base_dpc/instantiated.rs:118"]
+notes:
+  - "Likely security hardening; use as retrieval and taxonomy material rather than proof of exploitability."
+  - "Enriched from validated-finding evidence without asserting impacts not present in the raw finding."

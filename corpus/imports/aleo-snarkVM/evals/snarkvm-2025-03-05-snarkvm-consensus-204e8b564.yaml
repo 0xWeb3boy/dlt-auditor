@@ -1,0 +1,21 @@
+id: "snarkvm-2025-03-05-snarkvm-consensus-204e8b564"
+source_record: "snarkvm-2025-03-05-snarkvm-consensus-204e8b564.yaml"
+project: "snarkvm"
+
+expected_bug_family: "resource_accounting_and_limits"
+expected_bug_class: "recursion-resource-accounting-hardening"
+expected_missing_property: "recursive-call-bound"
+
+expected_impact_band: "availability_and_resource_accounting"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The cache is immutable and recomputed on every program change."
+  - "A later mandatory execution path enforces the same recursion bound before work is done."
+  - "The call graph is acyclic and bounded by syntax alone."
+notes:
+  - "Use this eval as a positive hardening pattern, with exploitability bounded by the validated finding evidence."
+  - "Expected sink: recursive call expansion and finalize cost calculation"

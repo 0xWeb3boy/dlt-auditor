@@ -1,0 +1,39 @@
+id: "snarkos-2020-06-19-snarkos-transaction-processing-79edbb851"
+source_finding: "2020-06-19-snarkos-transaction-processing-79edbb851.md"
+project: "snarkos"
+date: "2020-06-19"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "rpc-attack-surface-reduction"
+subsystem: "transaction-processing"
+architecture_tags: ["rpc", "validator-based"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "rpc-surface-minimization"
+violated_invariant: "RPC APIs should not expose sensitive transaction-building or record-access helpers on a public surface unless an explicit auth boundary protects them."
+trust_boundary: "remote-rpc-client->node-api"
+entrypoint_type: "rpc-handler"
+sensitive_sink: "transaction construction and record access RPC methods"
+
+attacker_capabilities: ["reach the JSON-RPC service", "call transaction or record helper methods"]
+exploit_preconditions: ["RPC service exposes the removed methods", "methods are unauthenticated or not intended for public callers"]
+blast_radius: "node-local"
+
+impact_types: ["attack-surface-reduction", "potential-unauthorized-record-access"]
+severity_guess: "low"
+severity_rationale: "Low because the evidence affects unnecessary privileged API exposure, while the validated finding is conservative about unproven exploitability or downstream compromise."
+
+code_shape_summary: "Sensitive or experimental RPC methods remain exported while nearby code indicates password/auth guarding is incomplete."
+search_motifs: ["comment indicating password guard missing near RPC method", "record or raw transaction helper in public RpcFunctions trait", "method removed from public API rather than validation logic changed"]
+negative_signals: ["Private-loopback-only RPC deployments reduce exploitability", "Methods that only return public chain data may not be sensitive", "A reverse proxy or RPC auth layer may already enforce access"]
+patch_pattern: "Remove the methods from the exported RPC trait/implementation surface pending a real protected wrapper or authentication scheme."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/aleo-snarkOS/raw-findings/2020-06-19-snarkos-transaction-processing-79edbb851.md", "git:79edbb8517a844e047f49c0bb12e07813e15667a", "rpc/src/rpc_impl.rs:141", "rpc/src/rpc_impl.rs:290", "rpc/src/rpc_trait.rs:39"]
+notes:
+  - "Likely security hardening; use as retrieval and taxonomy material rather than proof of exploitability."
+  - "Enriched from validated-finding evidence without asserting impacts not present in the raw finding."

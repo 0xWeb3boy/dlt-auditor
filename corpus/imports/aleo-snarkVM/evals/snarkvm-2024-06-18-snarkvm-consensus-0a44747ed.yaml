@@ -1,0 +1,21 @@
+id: "snarkvm-2024-06-18-snarkvm-consensus-0a44747ed"
+source_record: "snarkvm-2024-06-18-snarkvm-consensus-0a44747ed.yaml"
+project: "snarkvm"
+
+expected_bug_family: "staking_registry_and_accountability"
+expected_bug_class: "validator-limit-enforcement"
+expected_missing_property: "committee-limit-enforcement"
+
+expected_impact_band: "validator_set_integrity"
+expected_severity_band: "high_or_medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The first input and Future output are guaranteed equal by a separate enforced constraint."
+  - "The path runs only in tests or offline simulation."
+  - "Committee capacity is rechecked by storage insertion with the authoritative address."
+notes:
+  - "Use this eval as a positive hardening pattern, with exploitability bounded by the validated finding evidence."
+  - "Expected sink: validator set insertion under maximum committee-size rules"

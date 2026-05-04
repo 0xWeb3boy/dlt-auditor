@@ -1,0 +1,39 @@
+id: "snarkos-2023-09-22-snarkos-rpc-client-api-4d4ed026e"
+source_finding: "2023-09-22-snarkos-rpc-client-api-4d4ed026e.md"
+project: "snarkos"
+date: "2023-09-22"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "missing-request-response-correlation"
+subsystem: "rpc-client-api"
+architecture_tags: ["rpc", "validator-based"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "request-response-correlation"
+violated_invariant: "A response that can update discovery state or initiate connections must match an outstanding request for the same peer."
+trust_boundary: "peer->validator-discovery-state"
+entrypoint_type: "p2p-message-handler"
+sensitive_sink: "validator discovery connection attempts"
+
+attacker_capabilities: ["send ValidatorsResponse messages", "choose validator list contents or send unsolicited responses"]
+exploit_preconditions: ["node accepts validator discovery responses from peers", "response can drive connection attempts or discovery state"]
+blast_radius: "node-local"
+
+impact_types: ["peer-discovery-integrity"]
+severity_guess: "medium"
+severity_rationale: "Medium because the evidence affects unsolicited discovery response processing, while the validated finding is conservative about unproven exploitability or downstream compromise."
+
+code_shape_summary: "Validator discovery response handling enforces response size but lacks a peer-specific outstanding-request check before using the validator list."
+search_motifs: ["response handler checks list size but not outstanding request", "contains_outbound_*_request added before processing response", "decrement request counter after accepting peer response"]
+negative_signals: ["Broadcast announcements intentionally processed without request are different", "If response data is ignored unless separately verified, severity drops", "A global request flag is weaker than peer-specific correlation"]
+patch_pattern: "Track outbound validator requests per peer, reject responses without a matching request, and decrement the counter when accepted."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/aleo-snarkOS/raw-findings/2023-09-22-snarkos-rpc-client-api-4d4ed026e.md", "git:4d4ed026e8ea5f990bb9784cd8fb4da45dbbebca", "node/narwhal/src/gateway.rs:630", "node/narwhal/src/helpers/cache.rs:149", "node/narwhal/src/helpers/cache.rs:105"]
+notes:
+  - "Likely security hardening; use as retrieval and taxonomy material rather than proof of exploitability."
+  - "Enriched from validated-finding evidence without asserting impacts not present in the raw finding."

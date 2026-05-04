@@ -1,0 +1,144 @@
+{
+  "repo": "/work/snarkVM",
+  "repo_slug": "snarkvm",
+  "kept_dir": "/work/snarkVM/validated-findings/kept",
+  "created_at_utc": "20260504-133305Z",
+  "finding_count": 15,
+  "findings": [
+    {
+      "id": "snarkvm-2021-07-13-snarkvm-cryptography-8a576d6c5",
+      "source": "/work/snarkVM/validated-findings/kept/2021-07-13-snarkvm-cryptography-8a576d6c5.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "signature-transcript-length-binding",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "snarkvm-2021-11-11-snarkvm-cryptography-93e7c65a8",
+      "source": "/work/snarkVM/validated-findings/kept/2021-11-11-snarkvm-cryptography-93e7c65a8.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "cryptographic-domain-separation-hardening",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "snarkvm-2022-03-04-snarkvm-cryptography-59eb426e2",
+      "source": "/work/snarkVM/validated-findings/kept/2022-03-04-snarkvm-cryptography-59eb426e2.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "unchecked-tree-index-capacity",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "snarkvm-2022-07-11-snarkvm-cryptography-ac990f3e7",
+      "source": "/work/snarkVM/validated-findings/kept/2022-07-11-snarkvm-cryptography-ac990f3e7.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-balance-nonnegativity-constraint",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "snarkvm-2022-08-05-snarkvm-cryptography-18c2a7bdd",
+      "source": "/work/snarkVM/validated-findings/kept/2022-08-05-snarkvm-cryptography-18c2a7bdd.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "fail-open-ledger-lookup",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "snarkvm-2022-10-15-snarkvm-cryptography-8b2735410",
+      "source": "/work/snarkVM/validated-findings/kept/2022-10-15-snarkvm-cryptography-8b2735410.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "incomplete-consensus-target-validation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "snarkvm-2023-10-07-snarkvm-transaction-processing-289b9edad",
+      "source": "/work/snarkVM/validated-findings/kept/2023-10-07-snarkvm-transaction-processing-289b9edad.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "authorization-invariant-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "snarkvm-2023-10-13-snarkvm-transaction-processing-ccfe9d5b6",
+      "source": "/work/snarkVM/validated-findings/kept/2023-10-13-snarkvm-transaction-processing-ccfe9d5b6.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-state-integrity",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "snarkvm-2023-10-20-snarkvm-consensus-0b9933839",
+      "source": "/work/snarkVM/validated-findings/kept/2023-10-20-snarkvm-consensus-0b9933839.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "fee-validation-reward-accounting",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "snarkvm-2024-01-21-snarkvm-cryptography-722b6d062",
+      "source": "/work/snarkVM/validated-findings/kept/2024-01-21-snarkvm-cryptography-722b6d062.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "resource-accounting-hardening",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "snarkvm-2024-06-18-snarkvm-consensus-0a44747ed",
+      "source": "/work/snarkVM/validated-findings/kept/2024-06-18-snarkvm-consensus-0a44747ed.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "validator-limit-enforcement",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "snarkvm-2025-03-05-snarkvm-consensus-204e8b564",
+      "source": "/work/snarkVM/validated-findings/kept/2025-03-05-snarkvm-consensus-204e8b564.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "recursion-resource-accounting-hardening",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "snarkvm-2025-06-24-snarkvm-consensus-638f5f69c",
+      "source": "/work/snarkVM/validated-findings/kept/2025-06-24-snarkvm-consensus-638f5f69c.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "reserved-locator-validation-hardening",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "snarkvm-2025-08-24-snarkvm-staking-b51b85078",
+      "source": "/work/snarkVM/validated-findings/kept/2025-08-24-snarkvm-staking-b51b85078.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "deployment-upgrade-validation",
+      "subsystem": "staking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "snarkvm-2025-09-04-snarkvm-transaction-processing-fa65b01b8",
+      "source": "/work/snarkVM/validated-findings/kept/2025-09-04-snarkvm-transaction-processing-fa65b01b8.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "cryptographic-input-validation-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+id: "snarkos-2020-03-02-snarkos-p2p-networking-01d3ecd83"
+source_finding: "2020-03-02-snarkos-p2p-networking-01d3ecd83.md"
+project: "snarkos"
+date: "2020-03-02"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "p2p-panic-hardening"
+subsystem: "p2p-networking"
+architecture_tags: ["p2p", "peer-network", "validator-based"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "panic-safe-error-handling"
+violated_invariant: "Peer-controlled connection failures must be handled as ordinary protocol outcomes, not as panics or task-killing unwraps."
+trust_boundary: "peer->node"
+entrypoint_type: "p2p-message-handler"
+sensitive_sink: "network task lifecycle and peer disconnect handling"
+
+attacker_capabilities: ["open a peer connection", "abort handshake or close/read-fail the stream at protocol boundaries"]
+exploit_preconditions: ["node accepts inbound peer sessions", "network errors or EOFs can propagate through the handshake/read path"]
+blast_radius: "node-local"
+
+impact_types: ["availability-hardening"]
+severity_guess: "low"
+severity_rationale: "Low because the evidence affects node availability degradation, while the validated finding is conservative about unproven exploitability or downstream compromise."
+
+code_shape_summary: "Inbound peer paths unwrap or under-handle expected handshake/read failures, letting network-controlled EOF or protocol errors reach panic-prone control flow."
+search_motifs: ["unwrap on handshake/read result in peer handler", "silent_disconnect or EOF path without explicit branch", "network error converted only after panic-prone operation"]
+negative_signals: ["Only local test harnesses or non-production crawler code may reduce severity", "A surrounding supervisor that catches panics and isolates all peer state lowers impact", "If the error source is not peer-controlled, this is robustness rather than security"]
+patch_pattern: "Replace unwrap/silent failure paths with explicit result handling, logging, and normalized disconnect messages."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/aleo-snarkOS/raw-findings/2020-03-02-snarkos-p2p-networking-01d3ecd83.md", "git:01d3ecd83c7e258bfa4b820fa43d40f7331418f3", "network/src/server/server.rs:114", "network/src/test_data/mod.rs:123", "network/src/server/server.rs:98"]
+notes:
+  - "Likely security hardening; use as retrieval and taxonomy material rather than proof of exploitability."
+  - "Enriched from validated-finding evidence without asserting impacts not present in the raw finding."

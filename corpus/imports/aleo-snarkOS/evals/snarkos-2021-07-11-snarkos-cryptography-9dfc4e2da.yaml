@@ -1,0 +1,21 @@
+id: "snarkos-2021-07-11-snarkos-cryptography-9dfc4e2da"
+source_record: "snarkos-2021-07-11-snarkos-cryptography-9dfc4e2da.yaml"
+project: "snarkos"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "consensus-network-id-validation"
+expected_missing_property: "network-id-binding"
+
+expected_impact_band: "consensus-domain-separation"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Full node validation after mining may still reject mismatched transactions"
+  - "Testnet migration commits can be compatibility work rather than security"
+  - "If transactions are locally generated only, attacker control is limited"
+notes:
+  - "Expected detector rationale: Block construction must reject transactions whose network identifier does not match the active consensus parameters."
+  - "Patch pattern to prefer: Add a miner-side network-id validation gate and prefer canonical consensus/DPC identifiers during construction."

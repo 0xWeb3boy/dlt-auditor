@@ -1,0 +1,52 @@
+id: "snarkvm-2025-08-24-snarkvm-staking-b51b85078"
+source_finding: "2025-08-24-snarkvm-staking-b51b85078.md"
+project: "snarkvm"
+date: "2025-08-24"
+language_tags: ["rust"]
+
+bug_family: "state_machine_and_lifecycle_consistency"
+bug_class: "deployment-upgrade-validation"
+subsystem: "staking"
+architecture_tags: ["zero-knowledge-vm", "blockchain-core", "consensus-sensitive"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "upgrade-interface-preservation"
+violated_invariant: "A versioned program upgrade must preserve the interface of existing callable functions unless the active consensus rules explicitly allow a breaking change."
+trust_boundary: "deployment upgrade transaction -> stored program interface"
+entrypoint_type: "deployment-upgrade-validation"
+sensitive_sink: "acceptance of upgraded program definitions under V10 rules"
+
+attacker_capabilities:
+  - "Submit a deployment upgrade for an already stored program."
+  - "Omit an existing function or change its declared input interface in the new program."
+exploit_preconditions:
+  - "The existing program has functions that must remain callable under the active consensus version."
+  - "Upgrade validation previously did not compare every existing function input interface in the shown path."
+blast_radius: "chain-wide program interface and state-transition consistency"
+
+impact_types:
+  - "consensus-validation"
+  - "state-consistency"
+  - "upgrade-safety-hardening"
+severity_guess: "medium"
+severity_rationale: "Interface-breaking upgrades can affect consensus expectations, but the evidence does not prove asset loss or a concrete exploit."
+
+code_shape_summary: "Deployment upgrade validation checked constructor-related rules but did not visibly iterate existing functions to require presence and identical inputs under V10."
+search_motifs:
+  - "upgrade verifier checks constructor but not all existing functions"
+  - "new program get_function(id) missing check"
+  - "function input interface equality gated by consensus version"
+negative_signals:
+  - "Another upgrade validation phase already checks function presence and full input/output equality."
+  - "The consensus version is below the activation point for the new invariant."
+  - "The changed functions are private or unreachable and not part of the stable interface."
+patch_pattern: "For V10 and later, compare the new deployment against the stored program and reject missing existing functions or mismatched input types."
+
+source_refs: ["/work/snarkVM/validated-findings/kept/2025-08-24-snarkvm-staking-b51b85078.md"]
+notes:
+  - "Enriched from the validated finding and kept conservative where exploitability was not proven."
+  - "Raw summary: The supported finding is a V10-gated tightening of snarkVM deployment upgrade validation in `synthesizer/src/vm/verify.rs`. The patch adds checks that each existing function is present in the new deployment program and that existing function inputs match exact"

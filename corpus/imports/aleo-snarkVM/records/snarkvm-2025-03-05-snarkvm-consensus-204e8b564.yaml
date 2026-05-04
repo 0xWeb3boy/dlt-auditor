@@ -1,0 +1,52 @@
+id: "snarkvm-2025-03-05-snarkvm-consensus-204e8b564"
+source_finding: "2025-03-05-snarkvm-consensus-204e8b564.md"
+project: "snarkvm"
+date: "2025-03-05"
+language_tags: ["rust"]
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "recursion-resource-accounting-hardening"
+subsystem: "consensus"
+architecture_tags: ["zero-knowledge-vm", "blockchain-core", "consensus-sensitive"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "recursive-call-bound"
+violated_invariant: "Execution cost and recursion limits must be computed from the current call graph and validated before a program stack is accepted."
+trust_boundary: "program call graph -> stack initialization and fee/resource accounting"
+entrypoint_type: "deployment-or-stack-initialization"
+sensitive_sink: "recursive call expansion and finalize cost calculation"
+
+attacker_capabilities:
+  - "Deploy or execute programs with nested or recursive call structure."
+  - "Rely on stale cached call-count or finalize-cost metadata."
+exploit_preconditions:
+  - "Cached metadata can become stale relative to the actual stack call graph."
+  - "Validation does not traverse the current graph before accepting the function set."
+blast_radius: "node-local availability to consensus resource-accounting consistency"
+
+impact_types:
+  - "resource-exhaustion"
+  - "liveness"
+  - "fee-accounting-hardening"
+severity_guess: "medium"
+severity_rationale: "Recursive call bounds protect liveness and fee accounting, but no concrete DoS or consensus failure is shown."
+
+code_shape_summary: "Resource checks used cached call-count or finalize-cost data instead of traversing the current call graph during stack initialization."
+search_motifs:
+  - "number_of_calls cache used for recursion limit"
+  - "finalize cost cached separately from live cost calculation"
+  - "stack initialization inserts functions before validating call expansion"
+negative_signals:
+  - "The cache is immutable and recomputed on every program change."
+  - "A later mandatory execution path enforces the same recursion bound before work is done."
+  - "The call graph is acyclic and bounded by syntax alone."
+patch_pattern: "Replace cached lookups with live call-graph traversal, centralize cost calculation, and validate maximum calls during stack initialization."
+
+source_refs: ["/work/snarkVM/validated-findings/kept/2025-03-05-snarkvm-consensus-204e8b564.md"]
+notes:
+  - "Enriched from the validated finding and kept conservative where exploitability was not proven."
+  - "Raw summary: The patch appears to harden or correct synthesizer stack resource accounting by replacing cached call-count/finalize-cost metadata with live computation and adding validation for recursive call expansion. The evidence supports cleanup/hardening around recursio"

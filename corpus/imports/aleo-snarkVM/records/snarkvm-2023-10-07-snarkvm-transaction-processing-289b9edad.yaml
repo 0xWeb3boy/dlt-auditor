@@ -1,0 +1,52 @@
+id: "snarkvm-2023-10-07-snarkvm-transaction-processing-289b9edad"
+source_finding: "2023-10-07-snarkvm-transaction-processing-289b9edad.md"
+project: "snarkvm"
+date: "2023-10-07"
+language_tags: ["rust"]
+
+bug_family: "authz_and_role_gates"
+bug_class: "authorization-invariant-validation"
+subsystem: "transaction-processing"
+architecture_tags: ["zero-knowledge-vm", "blockchain-core", "consensus-sensitive"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "authorization-structure-validation"
+violated_invariant: "Serialized authorization state must preserve the one-to-one structure required by later request, transition, and signature checks."
+trust_boundary: "serialized authorization input -> trusted authorization object"
+entrypoint_type: "deserialization-path"
+sensitive_sink: "authorization object used by transaction execution and verification"
+
+attacker_capabilities:
+  - "Provide human-readable serialized authorization data."
+  - "Choose mismatched request and transition vectors in malformed input."
+exploit_preconditions:
+  - "The constructor previously rebuilt authorization state infallibly from separate vectors."
+  - "Later logic assumes request and transition counts align."
+blast_radius: "transaction-local to validation-wide depending on consumer assumptions"
+
+impact_types:
+  - "malformed-input-rejection"
+  - "state-integrity"
+  - "authorization-invariant-hardening"
+severity_guess: "medium"
+severity_rationale: "The patch guards authorization structure, but no access-control bypass or signature failure is demonstrated."
+
+code_shape_summary: "Deserialization routed mismatched vectors through an infallible `From` constructor instead of rejecting invalid structural combinations."
+search_motifs:
+  - "impl From<(Vec<Request>, Vec<Transition>)> for Authorization"
+  - "deserializer reconstructs auth object without length equality"
+  - "request and transition arrays are trusted to align by position"
+negative_signals:
+  - "Binary deserialization or canonical parsing already rejects mismatched vectors before construction."
+  - "The object is never used until another mandatory verifier checks the same invariant."
+  - "The vectors are produced only by trusted internal code."
+patch_pattern: "Replace infallible construction with `TryFrom`, check vector counts, and route deserialization through the checked constructor."
+
+source_refs: ["/work/snarkVM/validated-findings/kept/2023-10-07-snarkvm-transaction-processing-289b9edad.md"]
+notes:
+  - "Enriched from the validated finding and kept conservative where exploitability was not proven."
+  - "Raw summary: The patch changes Authorization recovery from an infallible From constructor to a fallible TryFrom constructor that rejects mismatched request and transition counts, and routes human-readable deserialization through that checked constructor. This is grounded a"

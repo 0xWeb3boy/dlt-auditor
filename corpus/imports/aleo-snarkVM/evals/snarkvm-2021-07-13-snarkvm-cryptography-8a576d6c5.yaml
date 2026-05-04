@@ -1,0 +1,21 @@
+id: "snarkvm-2021-07-13-snarkvm-cryptography-8a576d6c5"
+source_record: "snarkvm-2021-07-13-snarkvm-cryptography-8a576d6c5.yaml"
+project: "snarkvm"
+
+expected_bug_family: "signature_binding_and_signer_scope"
+expected_bug_class: "signature-transcript-length-binding"
+expected_missing_property: "transcript-boundary-binding"
+
+expected_impact_band: "cryptographic_integrity_hardening"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The message encoding is already canonical and length-delimited before it reaches the verifier."
+  - "The changed code is test-only or does not feed an authorization or proof-validity decision."
+  - "A separate transcript API already injects equivalent domain and length data."
+notes:
+  - "Use this eval as a positive hardening pattern, with exploitability bounded by the validated finding evidence."
+  - "Expected sink: signature challenge hash used by the GroupEncryption verification gadget"

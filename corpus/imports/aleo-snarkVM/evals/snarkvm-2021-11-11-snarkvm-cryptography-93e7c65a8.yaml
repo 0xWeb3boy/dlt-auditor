@@ -1,0 +1,21 @@
+id: "snarkvm-2021-11-11-snarkvm-cryptography-93e7c65a8"
+source_record: "snarkvm-2021-11-11-snarkvm-cryptography-93e7c65a8.yaml"
+project: "snarkvm"
+
+expected_bug_family: "signature_binding_and_signer_scope"
+expected_bug_class: "cryptographic-domain-separation-hardening"
+expected_missing_property: "domain-separation"
+
+expected_impact_band: "cryptographic_binding_hardening"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The caller already includes an unambiguous domain tag in the absorbed data."
+  - "The derivation is private to one fixed scheme with no reusable output domain."
+  - "Only comments or tests changed, with no sponge input change."
+notes:
+  - "Use this eval as a positive hardening pattern, with exploitability bounded by the validated finding evidence."
+  - "Expected sink: Poseidon-derived encryption and commitment randomness"

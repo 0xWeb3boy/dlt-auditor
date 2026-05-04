@@ -1,0 +1,21 @@
+id: "snarkos-2022-03-08-snarkos-rpc-client-api-894cb0136"
+source_record: "snarkos-2022-03-08-snarkos-rpc-client-api-894cb0136.yaml"
+project: "snarkos"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "network-message-framing-hardening"
+expected_missing_property: "framing-boundary-preservation"
+
+expected_impact_band: "parser-hardening"
+expected_severity_band: "low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Crawler-only code has lower chain-security impact"
+  - "If each frame is on a fresh connection, stream alignment is irrelevant"
+  - "A lower codec layer may already drain rejected frames"
+notes:
+  - "Expected detector rationale: A framed-message parser must consume or drain every frame body consistently, even when the frame type is ignored or rejected."
+  - "Patch pattern to prefer: Read minimal frame metadata first, enforce bounded expected-message sizes, skip unnecessary deserialization, and drain discarded payloads."

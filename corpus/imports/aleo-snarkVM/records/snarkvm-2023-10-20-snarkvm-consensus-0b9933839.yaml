@@ -1,0 +1,52 @@
+id: "snarkvm-2023-10-20-snarkvm-consensus-0b9933839"
+source_finding: "2023-10-20-snarkvm-consensus-0b9933839.md"
+project: "snarkvm"
+date: "2023-10-20"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "fee-validation-reward-accounting"
+subsystem: "consensus"
+architecture_tags: ["zero-knowledge-vm", "blockchain-core", "consensus-sensitive"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "fee-reward-accounting-validation"
+violated_invariant: "Consensus reward ratification must be derived from the same checked transaction fee context that block validation accepts."
+trust_boundary: "confirmed and rejected transaction set -> VM fee and reward finalization"
+entrypoint_type: "block-finalization"
+sensitive_sink: "priority fee accounting and coinbase reward ratification"
+
+attacker_capabilities:
+  - "Construct blocks with combinations of accepted, rejected, and fee-bearing transactions."
+  - "Target discrepancies between ledger-side and VM-side transaction checking."
+exploit_preconditions:
+  - "Fee checks are split across ledger and VM logic or lack rejected transaction context."
+  - "Reward ratification consumes fee totals computed from incomplete confirmed transaction data."
+blast_radius: "chain-wide economic and consensus integrity"
+
+impact_types:
+  - "consensus-integrity"
+  - "economic-integrity"
+  - "fee-validation-hardening"
+severity_guess: "medium"
+severity_rationale: "The patch touches consensus fee and reward accounting, but the evidence does not establish an exploitable accounting bypass."
+
+code_shape_summary: "Fee validation and reward preparation were split between local ledger checks and VM finalization, with incomplete rejected transaction context at some call sites."
+search_motifs:
+  - "ledger check_transaction_basic duplicates VM fee checks"
+  - "reward ratification prepared before confirmed priority fees are computed"
+  - "rejected transaction context missing from transaction validation"
+negative_signals:
+  - "The local and VM checks are provably equivalent and share the same inputs."
+  - "The fee total is recomputed from canonical transaction objects before block acceptance."
+  - "The change only moves code without altering checked data."
+patch_pattern: "Centralize transaction checking in the VM, pass rejected context, expose rejected objects, and compute priority fees before reward ratification."
+
+source_refs: ["/work/snarkVM/validated-findings/kept/2023-10-20-snarkvm-consensus-0b9933839.md"]
+notes:
+  - "Enriched from the validated finding and kept conservative where exploitability was not proven."
+  - "Raw summary: The patch is best described as a consensus fee and reward-accounting correction. The evidence shows transaction checking was moved from local ledger logic to VM::check_transaction with full rejected context, ConfirmedTransaction gained a helper to expose rejec"

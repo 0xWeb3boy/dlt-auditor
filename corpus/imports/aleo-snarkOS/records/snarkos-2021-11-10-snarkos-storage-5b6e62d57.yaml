@@ -1,0 +1,39 @@
+id: "snarkos-2021-11-10-snarkos-storage-5b6e62d57"
+source_finding: "2021-11-10-snarkos-storage-5b6e62d57.md"
+project: "snarkos"
+date: "2021-11-10"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-fork-choice"
+subsystem: "storage"
+architecture_tags: ["consensus", "ledger-storage", "validator-based"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "fork-choice-weight-validation"
+violated_invariant: "Fork switching must compare canonical chain weight or accumulated work from the common ancestor, not raw height alone."
+trust_boundary: "peer-chain->local-ledger-sync"
+entrypoint_type: "state-transition"
+sensitive_sink: "ledger rollback and canonical fork selection"
+
+attacker_capabilities: ["serve an alternate chain during sync", "control peer-reported height/blocks"]
+exploit_preconditions: ["node may switch forks based on sync comparison", "alternate fork shares a common ancestor"]
+blast_radius: "chain-wide"
+
+impact_types: ["state-consistency", "consensus-divergence"]
+severity_guess: "high"
+severity_rationale: "High because the evidence affects incorrect reorg choice, while the validated finding is conservative about unproven exploitability or downstream compromise."
+
+code_shape_summary: "Ledger synchronization chooses a peer fork based on greater height even though the intended fork-choice rule depends on aggregate difficulty/weight."
+search_motifs: ["if peer_height > local_height then switch fork", "rollback decision lacks cumulative difficulty comparison", "common ancestor found but only length compared"]
+negative_signals: ["Height-based rules may be valid for protocols with fixed uniform block weight", "If the code is only UI progress estimation, not fork choice, it is not security", "A later finality checkpoint may override this path"]
+patch_pattern: "Compute cumulative chain weight from the common ancestor and switch only when the peer fork is heavier under consensus rules."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/aleo-snarkOS/raw-findings/2021-11-10-snarkos-storage-5b6e62d57.md", "git:5b6e62d574119f9792089e93051c1b46e0ba26b5", "src/network/ledger.rs:827", "src/network/ledger.rs:856", "src/network/ledger.rs:315"]
+notes:
+  - "Likely security hardening; use as retrieval and taxonomy material rather than proof of exploitability."
+  - "Enriched from validated-finding evidence without asserting impacts not present in the raw finding."

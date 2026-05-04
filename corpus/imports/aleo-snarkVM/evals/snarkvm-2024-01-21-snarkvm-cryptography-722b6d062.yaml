@@ -1,0 +1,21 @@
+id: "snarkvm-2024-01-21-snarkvm-cryptography-722b6d062"
+source_record: "snarkvm-2024-01-21-snarkvm-cryptography-722b6d062.yaml"
+project: "snarkvm"
+
+expected_bug_family: "resource_accounting_and_limits"
+expected_bug_class: "resource-accounting-hardening"
+expected_missing_property: "resource-accounting"
+
+expected_impact_band: "resource_limit_and_availability"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Constraint counts are recomputed from trusted proving keys before admission."
+  - "Overflow or excess counts are impossible under consensus deployment size caps."
+  - "The path is only developer tooling and cannot affect deployed programs."
+notes:
+  - "Use this eval as a positive hardening pattern, with exploitability bounded by the validated finding evidence."
+  - "Expected sink: deployment acceptance and circuit constraint-limit accounting"

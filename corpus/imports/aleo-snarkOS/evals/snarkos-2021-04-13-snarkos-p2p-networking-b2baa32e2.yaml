@@ -1,0 +1,21 @@
+id: "snarkos-2021-04-13-snarkos-p2p-networking-b2baa32e2"
+source_record: "snarkos-2021-04-13-snarkos-p2p-networking-b2baa32e2.yaml"
+project: "snarkos"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "p2p-block-sync-state-hardening"
+expected_missing_property: "sync-state-correlation"
+
+expected_impact_band: "sync-integrity-hardening"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "If consensus.received_sync independently validates peer expectation, impact is reduced"
+  - "Purely local sync tests are not a peer boundary"
+  - "No issue if duplicate/unexpected payloads are idempotent"
+notes:
+  - "Expected detector rationale: A block-sync payload should be processed only if it matches the node state that says this peer is the expected sync source."
+  - "Patch pattern to prefer: Use the expectation check as a control-flow guard and reset stale sync counters before registering a new mutually exclusive sync attempt."

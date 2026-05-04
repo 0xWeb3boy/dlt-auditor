@@ -1,0 +1,21 @@
+id: "snarkvm-2025-08-24-snarkvm-staking-b51b85078"
+source_record: "snarkvm-2025-08-24-snarkvm-staking-b51b85078.yaml"
+project: "snarkvm"
+
+expected_bug_family: "state_machine_and_lifecycle_consistency"
+expected_bug_class: "deployment-upgrade-validation"
+expected_missing_property: "upgrade-interface-preservation"
+
+expected_impact_band: "consensus_state_consistency"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Another upgrade validation phase already checks function presence and full input/output equality."
+  - "The consensus version is below the activation point for the new invariant."
+  - "The changed functions are private or unreachable and not part of the stable interface."
+notes:
+  - "Use this eval as a positive hardening pattern, with exploitability bounded by the validated finding evidence."
+  - "Expected sink: acceptance of upgraded program definitions under V10 rules"

@@ -1,0 +1,21 @@
+id: "snarkos-2021-11-10-snarkos-storage-5b6e62d57"
+source_record: "snarkos-2021-11-10-snarkos-storage-5b6e62d57.yaml"
+project: "snarkos"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "consensus-fork-choice"
+expected_missing_property: "fork-choice-weight-validation"
+
+expected_impact_band: "consensus-integrity"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Height-based rules may be valid for protocols with fixed uniform block weight"
+  - "If the code is only UI progress estimation, not fork choice, it is not security"
+  - "A later finality checkpoint may override this path"
+notes:
+  - "Expected detector rationale: Fork switching must compare canonical chain weight or accumulated work from the common ancestor, not raw height alone."
+  - "Patch pattern to prefer: Compute cumulative chain weight from the common ancestor and switch only when the peer fork is heavier under consensus rules."

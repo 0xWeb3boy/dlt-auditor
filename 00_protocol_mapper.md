@@ -45,6 +45,7 @@ Your task:
   - storage/account state consumed by execution,
   - verifier or contract inputs.
   For each field, mark which representation is authoritative and where equality, range, nonce, signer, and domain binding is enforced before proof acceptance or state commitment.
+3c. For VM, proof, or circuit-backed systems, map native execution, circuit synthesis, deployment verification, fee/finalization, and rejected or aborted transaction handling as separate representations of the same protocol state. Mark which layer is authoritative for each value and where the other layers recompute, compare, or reject it before acceptance.
 4. List the major lifecycle or state machines.
 5. List places where policy, version, fork, or feature gates are expected.
 6. List the authoritative sources of truth for policy, checkpoints, historical state, fork activation, and head/safe/finalized positions. Distinguish them from caches, local config, watch channels, mirrors, and derived summaries.

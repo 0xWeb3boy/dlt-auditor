@@ -32,8 +32,11 @@ Search patterns:
 - validation that checks object identity but not parent, predecessor, chain segment, or request token
 - loops that continue after only already-known items, empty batches, or zero net progress
 - peer metadata used to enqueue work before validating supported type, bounds, compatibility, or lineage
+- metadata-bearing discovery, validator-list, peer-list, or committee-list responses that schedule follow-on connection, fetch, fanout, or table-mutation work before consuming a peer-specific outstanding request token
 - shared sender, authority, account, or reservation handles enforced in one pool but not another
 - invalid, empty, timeout, and retry paths that do not update peer penalties symmetrically
+- semantic protocol failures such as missing version, wrong fork, invalid lineage, malformed response shape, or incompatible rule context being collapsed into benign stale or duplicate responses instead of peer misbehavior feedback
+- disconnect, ban, or penalty sinks that use a transient connection address, NAT endpoint, or side-channel address instead of the canonical peer identity used by the peer table
 - resource caps enforced on insertion while cleanup, reinsertion, continuation, or alternate ingress paths use weaker predicates
 - sync termination or "peer has stronger chain" decisions that accept a peer's claim without proving header progress, expected parentage, or a concrete chain segment beyond the local head
 - discovery, bonding, ping/pong, or handshake responses where a reply of the right type is accepted without matching the exact challenge, nonce, peer identity, previous bond, or request token that authorized the larger response or state transition
@@ -55,6 +58,7 @@ Questions to answer:
 6. Are multiple subpools, queues, or ingress paths sharing one underlying resource without one shared reservation policy?
 7. Does the response handler distinguish made-progress, duplicate/no-progress, stale, unknown-parent, invalid, and benign-empty outcomes?
 8. Can a small request or announcement force a larger response, lookup, or fetch before the peer has proven reachability or supplied valid metadata?
+9. Does the peer penalty or disconnect path operate on the same canonical peer identity that owns the request, cache, and lifecycle state?
 
 Severity guidance:
 - Medium by default for sync-integrity or resource-exhaustion issues.

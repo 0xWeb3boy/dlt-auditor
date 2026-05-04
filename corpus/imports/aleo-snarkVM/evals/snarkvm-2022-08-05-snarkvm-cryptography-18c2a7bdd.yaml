@@ -1,0 +1,21 @@
+id: "snarkvm-2022-08-05-snarkvm-cryptography-18c2a7bdd"
+source_record: "snarkvm-2022-08-05-snarkvm-cryptography-18c2a7bdd.yaml"
+project: "snarkvm"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "fail-open-ledger-lookup"
+expected_missing_property: "fail-closed-error-handling"
+
+expected_impact_band: "client_or_node_state_classification"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The result is informational only and never used for signing or spending decisions."
+  - "A later mandatory consensus check rejects spent records regardless of scanner output."
+  - "Errors are impossible because the data source is an in-memory total map."
+notes:
+  - "Use this eval as a positive hardening pattern, with exploitability bounded by the validated finding evidence."
+  - "Expected sink: unspent output record returned to wallet or caller"

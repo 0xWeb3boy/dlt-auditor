@@ -1,0 +1,52 @@
+id: "snarkvm-2023-10-13-snarkvm-transaction-processing-ccfe9d5b6"
+source_finding: "2023-10-13-snarkvm-transaction-processing-ccfe9d5b6.md"
+project: "snarkvm"
+date: "2023-10-13"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-state-integrity"
+subsystem: "transaction-processing"
+architecture_tags: ["zero-knowledge-vm", "blockchain-core", "consensus-sensitive"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "deterministic-finalization-binding"
+violated_invariant: "Stored finalization effects for rejected transactions must match deterministic VM recomputation before they are accepted into canonical state."
+trust_boundary: "block-provided rejected transaction data -> VM state transition validation"
+entrypoint_type: "block-validation"
+sensitive_sink: "fee finalization operations applied or accepted for rejected deploy/execute transactions"
+
+attacker_capabilities:
+  - "Propose or relay blocks containing rejected transaction objects and fee finalization data."
+  - "Attempt to encode rejected transaction effects that differ from VM recomputation."
+exploit_preconditions:
+  - "Rejected transaction data carries or implies finalization operations."
+  - "Validation previously stored or surfaced these operations without recomputing and comparing all relevant paths."
+blast_radius: "chain-wide consensus/state integrity"
+
+impact_types:
+  - "consensus-integrity"
+  - "state-transition-integrity"
+  - "fee-accounting-integrity"
+severity_guess: "high"
+severity_rationale: "Mismatch between serialized and recomputed state effects is consensus-sensitive, even though a concrete exploit is not shown."
+
+code_shape_summary: "Rejected transaction validation accepted stored finalize operations without a direct equality check against freshly computed fee finalization output."
+search_motifs:
+  - "rejected transaction contains finalize operations"
+  - "stored fee operations are trusted instead of recomputed"
+  - "validation path compares accepted transactions but not rejected ones"
+negative_signals:
+  - "Rejected transaction effects are never included in canonical state."
+  - "A later block-level root comparison already binds the exact same operations."
+  - "The changed code only renames helper methods without altering validation."
+patch_pattern: "Carry rejected fee finalize operations explicitly and reject validation when stored operations differ from deterministic recomputation."
+
+source_refs: ["/work/snarkVM/validated-findings/kept/2023-10-13-snarkvm-transaction-processing-ccfe9d5b6.md"]
+notes:
+  - "Enriched from the validated finding and kept conservative where exploitability was not proven."
+  - "Raw summary: Commit ccfe9d5b6 changes rejected transaction handling so fee finalization operations are stored or surfaced on rejected transaction data and then checked against freshly recomputed `process.finalize_fee` output during validation. The evidence supports a conse"

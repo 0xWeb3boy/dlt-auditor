@@ -1,0 +1,21 @@
+id: "snarkos-2020-06-19-snarkos-transaction-processing-79edbb851"
+source_record: "snarkos-2020-06-19-snarkos-transaction-processing-79edbb851.yaml"
+project: "snarkos"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "rpc-attack-surface-reduction"
+expected_missing_property: "rpc-surface-minimization"
+
+expected_impact_band: "access-surface-hardening"
+expected_severity_band: "low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Private-loopback-only RPC deployments reduce exploitability"
+  - "Methods that only return public chain data may not be sensitive"
+  - "A reverse proxy or RPC auth layer may already enforce access"
+notes:
+  - "Expected detector rationale: RPC APIs should not expose sensitive transaction-building or record-access helpers on a public surface unless an explicit auth boundary protects them."
+  - "Patch pattern to prefer: Remove the methods from the exported RPC trait/implementation surface pending a real protected wrapper or authentication scheme."

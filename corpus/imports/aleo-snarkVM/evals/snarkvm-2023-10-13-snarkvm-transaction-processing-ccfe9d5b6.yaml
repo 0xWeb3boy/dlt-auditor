@@ -1,0 +1,21 @@
+id: "snarkvm-2023-10-13-snarkvm-transaction-processing-ccfe9d5b6"
+source_record: "snarkvm-2023-10-13-snarkvm-transaction-processing-ccfe9d5b6.yaml"
+project: "snarkvm"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "consensus-state-integrity"
+expected_missing_property: "deterministic-finalization-binding"
+
+expected_impact_band: "consensus_state_integrity"
+expected_severity_band: "high_or_medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Rejected transaction effects are never included in canonical state."
+  - "A later block-level root comparison already binds the exact same operations."
+  - "The changed code only renames helper methods without altering validation."
+notes:
+  - "Use this eval as a positive hardening pattern, with exploitability bounded by the validated finding evidence."
+  - "Expected sink: fee finalization operations applied or accepted for rejected deploy/execute transactions"

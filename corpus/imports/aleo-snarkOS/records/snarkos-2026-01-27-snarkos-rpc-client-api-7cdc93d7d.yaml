@@ -1,0 +1,39 @@
+id: "snarkos-2026-01-27-snarkos-rpc-client-api-7cdc93d7d"
+source_finding: "2026-01-27-snarkos-rpc-client-api-7cdc93d7d.md"
+project: "snarkos"
+date: "2026-01-27"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "missing-peer-penalty-for-invalid-consensus-version"
+subsystem: "rpc-client-api"
+architecture_tags: ["consensus", "p2p", "peer-network", "rpc", "validator-based"]
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "peer-misbehavior-escalation"
+violated_invariant: "A peer that proves it is on an incompatible consensus version through block responses should not remain an eligible block source."
+trust_boundary: "peer->block-sync-ingress"
+entrypoint_type: "p2p-message-handler"
+sensitive_sink: "peer ban/disconnect state and block-sync source selection"
+
+attacker_capabilities: ["send block responses with missing or mismatched consensus version", "stay connected after validation failure"]
+exploit_preconditions: ["node validates consensus version during block response insertion", "same peer can be selected again if not banned"]
+blast_radius: "node-local"
+
+impact_types: ["protocol-enforcement", "peer-pool-integrity"]
+severity_guess: "medium"
+severity_rationale: "Medium because the evidence affects forked/outdated peers remain in sync pool, while the validated finding is conservative about unproven exploitability or downstream compromise."
+
+code_shape_summary: "Consensus-version block-response errors are detected but not consistently escalated into peer penalties, so invalid or forked peers can remain available."
+search_motifs: ["NoConsensusVersion or ConsensusVersionMismatch without ban", "invalid block response error arm logs and returns", "ban peer when insert_block_responses returns consensus-version error"]
+negative_signals: ["During planned upgrades, temporary mismatch may be handled by softer policy", "This does not imply invalid block insertion if validation already rejects", "Trusted static peers may use different enforcement policy"]
+patch_pattern: "Add peer penalties at block-response ingress points for missing or mismatched consensus-version InsertBlockResponseError cases."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/aleo-snarkOS/raw-findings/2026-01-27-snarkos-rpc-client-api-7cdc93d7d.md", "git:7cdc93d7d016c35f5c93ffd81f4eeec32f5b3021", "node/sync/src/block_sync.rs:475", "node/src/client/router.rs:223", "node/bft/src/gateway.rs:656"]
+notes:
+  - "Validated as confirmed by phase 4; keep as a positive retrieval/eval exemplar."
+  - "Enriched from validated-finding evidence without asserting impacts not present in the raw finding."

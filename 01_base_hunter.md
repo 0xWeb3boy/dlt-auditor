@@ -50,6 +50,7 @@ Your task:
 26. In consensus and p2p lifecycles, compare the predicate that verifies an object with the predicate that later mutates state from it. A certificate, peer response, stream discriminator, or proposal that was not needed or verified for the current transition must not still drive stored state, emitted votes, or allocation.
 27. Search caller/callee contract edges, not just protocol invariants. Compare what helpers, parsers, VM syscalls, copy-back routines, and cryptographic decoders document as their required backing span, output-buffer size, ownership lifetime, and exact destination-length contract against what call sites actually provide.
 28. Treat typed stack locals, missing sentinel bytes, escaped local metadata, fixed-capacity receive buffers, and post-execution memcpy or copy-back without exact length equality as high-signal candidates.
+29. Search admission and finalization paths where a policy is enforced against one representation while the final state mutation consumes another. Compare input fields vs emitted outputs, serialized rejected effects vs recomputed execution effects, cached resource metadata vs live call graphs, and deployment metadata vs synthesized proof or verifier artifacts.
 
 For each candidate include:
 - Title

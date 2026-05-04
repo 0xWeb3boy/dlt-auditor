@@ -1,0 +1,39 @@
+id: "snarkos-2022-03-08-snarkos-rpc-client-api-894cb0136"
+source_finding: "2022-03-08-snarkos-rpc-client-api-894cb0136.md"
+project: "snarkos"
+date: "2022-03-08"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "network-message-framing-hardening"
+subsystem: "rpc-client-api"
+architecture_tags: ["rpc", "validator-based"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "framing-boundary-preservation"
+violated_invariant: "A framed-message parser must consume or drain every frame body consistently, even when the frame type is ignored or rejected."
+trust_boundary: "peer->message-stream-parser"
+entrypoint_type: "p2p-message-handler"
+sensitive_sink: "stream alignment and message deserialization"
+
+attacker_capabilities: ["send framed network messages", "choose unwanted or oversized payload bodies"]
+exploit_preconditions: ["parser reads multiple messages from one stream", "ignored frames must still be drained to preserve alignment"]
+blast_radius: "node-local"
+
+impact_types: ["resource-exhaustion", "parser-robustness"]
+severity_guess: "low"
+severity_rationale: "Low because the evidence affects stream desynchronization or wasted deserialization, while the validated finding is conservative about unproven exploitability or downstream compromise."
+
+code_shape_summary: "Crawler networking code classifies framed messages early but may not drain unwanted payloads before continuing to parse the stream."
+search_motifs: ["read message type then continue without consuming body", "unbounded expected-message buffer", "deserialize full frame before checking whether type is wanted"]
+negative_signals: ["Crawler-only code has lower chain-security impact", "If each frame is on a fresh connection, stream alignment is irrelevant", "A lower codec layer may already drain rejected frames"]
+patch_pattern: "Read minimal frame metadata first, enforce bounded expected-message sizes, skip unnecessary deserialization, and drain discarded payloads."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/aleo-snarkOS/raw-findings/2022-03-08-snarkos-rpc-client-api-894cb0136.md", "git:894cb01366ed1e65ec51ff3fd11f11fdc7b608ff", ".crawler/src/crawler.rs:196", ".crawler/src/crawler.rs:343", ".crawler/src/crawler.rs:223"]
+notes:
+  - "Likely security hardening; use as retrieval and taxonomy material rather than proof of exploitability."
+  - "Enriched from validated-finding evidence without asserting impacts not present in the raw finding."

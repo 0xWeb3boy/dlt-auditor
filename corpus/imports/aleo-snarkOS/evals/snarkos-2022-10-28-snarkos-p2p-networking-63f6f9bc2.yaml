@@ -1,0 +1,21 @@
+id: "snarkos-2022-10-28-snarkos-p2p-networking-63f6f9bc2"
+source_record: "snarkos-2022-10-28-snarkos-p2p-networking-63f6f9bc2.yaml"
+project: "snarkos"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "p2p-protocol-validation-hardening"
+expected_missing_property: "envelope-payload-consistency"
+
+expected_impact_band: "mempool-routing-integrity"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "If envelope fields are purely advisory and never stored, impact is low"
+  - "Downstream mempool validation may reject inconsistent objects"
+  - "Serialization refactors without added rejection logic may be non-security"
+notes:
+  - "Expected detector rationale: When a protocol envelope repeats identifiers also derivable from the payload, the receiver must verify they match before updating routing state."
+  - "Patch pattern to prefer: Add envelope-vs-payload consistency checks and use stable envelope fields for outbound routing metadata."

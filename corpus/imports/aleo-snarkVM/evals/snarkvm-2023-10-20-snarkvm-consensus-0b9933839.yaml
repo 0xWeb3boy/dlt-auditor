@@ -1,0 +1,21 @@
+id: "snarkvm-2023-10-20-snarkvm-consensus-0b9933839"
+source_record: "snarkvm-2023-10-20-snarkvm-consensus-0b9933839.yaml"
+project: "snarkvm"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "fee-validation-reward-accounting"
+expected_missing_property: "fee-reward-accounting-validation"
+
+expected_impact_band: "economic_consensus_integrity"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The local and VM checks are provably equivalent and share the same inputs."
+  - "The fee total is recomputed from canonical transaction objects before block acceptance."
+  - "The change only moves code without altering checked data."
+notes:
+  - "Use this eval as a positive hardening pattern, with exploitability bounded by the validated finding evidence."
+  - "Expected sink: priority fee accounting and coinbase reward ratification"

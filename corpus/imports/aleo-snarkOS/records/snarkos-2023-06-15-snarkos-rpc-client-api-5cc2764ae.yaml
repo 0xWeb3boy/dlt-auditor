@@ -1,0 +1,39 @@
+id: "snarkos-2023-06-15-snarkos-rpc-client-api-5cc2764ae"
+source_finding: "2023-06-15-snarkos-rpc-client-api-5cc2764ae.md"
+project: "snarkos"
+date: "2023-06-15"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "unbounded-deserialization"
+subsystem: "rpc-client-api"
+architecture_tags: ["rpc", "validator-based"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "bounded-deserialization"
+violated_invariant: "Peer-controlled binary deserialization must enforce the same explicit size limit as the transport codec before allocating nested objects."
+trust_boundary: "peer->message-deserializer"
+entrypoint_type: "p2p-message-handler"
+sensitive_sink: "allocation and decode-time resource use"
+
+attacker_capabilities: ["send encoded peer messages", "choose collection lengths or payload structure within a frame"]
+exploit_preconditions: ["message deserializer uses length-prefixed collections", "decode path can allocate before higher-level validation"]
+blast_radius: "node-local"
+
+impact_types: ["resource-exhaustion", "denial-of-service"]
+severity_guess: "medium"
+severity_rationale: "Medium because the evidence affects memory or CPU exhaustion during decode, while the validated finding is conservative about unproven exploitability or downstream compromise."
+
+code_shape_summary: "Message-specific bincode deserializers call default deserialize_from without configured decode limits for peer-controlled messages containing collections."
+search_motifs: ["bincode::deserialize_from(&mut bytes.reader()) in peer message", "deserialize collection field without with_limit", "codec has max size constant not reused by message parser"]
+negative_signals: ["A lower layer that already bounds the exact byte slice reduces but may not remove allocation risk", "Small fixed-size message structs are less concerning", "Non-peer test fixtures are not attack surface"]
+patch_pattern: "Use bincode options with MAXIMUM_MESSAGE_SIZE, fixed integer encoding, and trailing-byte policy at each affected deserialize site."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/aleo-snarkOS/raw-findings/2023-06-15-snarkos-rpc-client-api-5cc2764ae.md", "git:5cc2764aee10e493de0226b1feee5d0fd88e6bed", "node/messages/src/challenge_request.rs:45", "node/messages/src/ping.rs:40", "node/messages/src/peer_response.rs:38"]
+notes:
+  - "Likely security hardening; use as retrieval and taxonomy material rather than proof of exploitability."
+  - "Enriched from validated-finding evidence without asserting impacts not present in the raw finding."

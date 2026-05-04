@@ -16,6 +16,9 @@ Hunt for ledger-accounting and invariant-coverage bugs in a blockchain or DLT co
 Use this prompt when security depends on post-transaction state preserving accounting invariants across balances, reserves, owner counts, fees, shares, receipts, obligations, supply, AMM positions, vault state, lending state, escrow state, staking state, or generated protocol objects.
 
 Search patterns:
+- Rejected, aborted, failed, or partially applied transactions that still carry fees, receipts, finalize operations, refunds, or generated state effects. Recompute those effects from the VM or execution engine before accepting serialized block data.
+- Fee and reward accounting split across ledger and VM layers. Ensure reward ratification, priority fees, rejected transaction context, and final state effects use one authoritative checked representation.
+- Accounting circuits or state transitions that compare field-domain values but omit signed-domain, range, or non-negativity constraints.
 - Transaction paths where preflight, admission, or preclaim checks reserve, fee, balance, owner count, or authorization, but execution creates, deletes, mutates, or auto-creates additional state objects.
 - Generated side effects such as trust lines, holdings, directories, tickets, delegates, receipts, shares, pseudo-account balances, vault positions, lending obligations, staking positions, or AMM positions that are not included in reserve, owner-count, or accounting checks.
 - Invariant detectors that visit multiple affected entries but store only the last result, reset earlier detections, short-circuit incorrectly, or treat absence or empty lists as success when explicit evidence is required.

@@ -1,0 +1,39 @@
+id: "snarkos-2022-10-28-snarkos-p2p-networking-63f6f9bc2"
+source_finding: "2022-10-28-snarkos-p2p-networking-63f6f9bc2.md"
+project: "snarkos"
+date: "2022-10-28"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "p2p-protocol-validation-hardening"
+subsystem: "p2p-networking"
+architecture_tags: ["p2p", "peer-network", "validator-based"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "envelope-payload-consistency"
+violated_invariant: "When a protocol envelope repeats identifiers also derivable from the payload, the receiver must verify they match before updating routing state."
+trust_boundary: "peer->router-object-cache"
+entrypoint_type: "p2p-message-handler"
+sensitive_sink: "unconfirmed transaction/solution routing and propagation state"
+
+attacker_capabilities: ["send unconfirmed transaction or solution messages", "choose envelope metadata inconsistent with payload identifiers"]
+exploit_preconditions: ["message contains redundant metadata and payload identifiers", "router updates caches or forwards object based on either representation"]
+blast_radius: "node-local"
+
+impact_types: ["protocol-integrity"]
+severity_guess: "medium"
+severity_rationale: "Medium because the evidence affects incorrect propagation metadata, while the validated finding is conservative about unproven exploitability or downstream compromise."
+
+code_shape_summary: "Router paths accept unconfirmed-object messages without checking that envelope metadata matches canonical identifiers derived from the deserialized payload."
+search_motifs: ["message id in envelope not compared to object.id()", "Data::Object payload consumed before routing metadata lookup", "unconfirmed transaction/solution accepted with redundant unchecked fields"]
+negative_signals: ["If envelope fields are purely advisory and never stored, impact is low", "Downstream mempool validation may reject inconsistent objects", "Serialization refactors without added rejection logic may be non-security"]
+patch_pattern: "Add envelope-vs-payload consistency checks and use stable envelope fields for outbound routing metadata."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/aleo-snarkOS/raw-findings/2022-10-28-snarkos-p2p-networking-63f6f9bc2.md", "git:63f6f9bc28cdc6e57b6e1fc1e19ed141156885c7", "node/router/src/outbound.rs:104", "node/router/src/outbound.rs:75", "node/router/src/inbound.rs:117"]
+notes:
+  - "Likely security hardening; use as retrieval and taxonomy material rather than proof of exploitability."
+  - "Enriched from validated-finding evidence without asserting impacts not present in the raw finding."

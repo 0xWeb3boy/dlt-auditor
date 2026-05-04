@@ -1,0 +1,39 @@
+id: "snarkos-2020-08-15-snarkos-transaction-processing-8b5ad567b"
+source_finding: "2020-08-15-snarkos-transaction-processing-8b5ad567b.md"
+project: "snarkos"
+date: "2020-08-15"
+language_tags: ["rust"]
+
+bug_family: "authz_and_role_gates"
+bug_class: "missing-authentication"
+subsystem: "transaction-processing"
+architecture_tags: ["validator-based"]
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "authentication"
+violated_invariant: "Record decoding, decryption, and raw-record APIs must cross an authentication gate before parameter parsing or dispatch."
+trust_boundary: "remote-rpc-client->protected-node-api"
+entrypoint_type: "rpc-handler"
+sensitive_sink: "record decode/decrypt or raw record access"
+
+attacker_capabilities: ["reach the JSON-RPC endpoint", "submit parameters to record-related methods without credentials"]
+exploit_preconditions: ["record RPC methods are exposed to the caller", "record decoding/decryption output is sensitive or operator-scoped"]
+blast_radius: "node-local"
+
+impact_types: ["unauthorized-rpc-access", "potential-information-disclosure"]
+severity_guess: "medium"
+severity_rationale: "Medium because the evidence affects unauthorized record RPC access, while the validated finding is conservative about unproven exploitability or downstream compromise."
+
+code_shape_summary: "Record RPC handlers sit on a public implementation surface instead of protected wrappers that call validate_auth before processing request parameters."
+search_motifs: ["protected wrapper added around previously public RPC method", "validate_auth(meta) inserted before Params matching", "record/decrypt/decode handler removed from public trait impl"]
+negative_signals: ["Read-only public record metadata may be intentionally unauthenticated", "External RPC auth can compensate if it is mandatory", "Do not infer private-key compromise from record API movement alone"]
+patch_pattern: "Move record methods to protected RPC wrappers and call validate_auth(meta) before parsing params or invoking record logic."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/aleo-snarkOS/raw-findings/2020-08-15-snarkos-transaction-processing-8b5ad567b.md", "git:8b5ad567b671ec7816e97a716a37ec8086636266", "rpc/src/rpc_impl_protected.rs:117", "rpc/src/rpc_impl.rs:297", "rpc/src/rpc_types.rs:111"]
+notes:
+  - "Validated as confirmed by phase 4; keep as a positive retrieval/eval exemplar."
+  - "Enriched from validated-finding evidence without asserting impacts not present in the raw finding."

@@ -1,0 +1,52 @@
+id: "snarkvm-2022-03-04-snarkvm-cryptography-59eb426e2"
+source_finding: "2022-03-04-snarkvm-cryptography-59eb426e2.md"
+project: "snarkvm"
+date: "2022-03-04"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "unchecked-tree-index-capacity"
+subsystem: "cryptography"
+architecture_tags: ["zero-knowledge-vm", "blockchain-core", "consensus-sensitive"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "index-capacity-bounds"
+violated_invariant: "State tree and program index mutations must reject batches that exceed the addressable index range before mutating canonical state."
+trust_boundary: "batch state update -> Merkle or program index storage"
+entrypoint_type: "state-update-validation"
+sensitive_sink: "program function index and ledger block-hash tree insertion"
+
+attacker_capabilities:
+  - "Submit or trigger large batches of functions, block hashes, or tree elements."
+  - "Drive state growth near an implementation index boundary."
+exploit_preconditions:
+  - "The current index is close enough to the integer capacity that adding the batch can overflow or exceed the representable range."
+  - "The insertion path previously relied on downstream indexing rather than an explicit precondition."
+blast_radius: "node-local to chain-wide if canonical tree state diverges or panics during validation"
+
+impact_types:
+  - "availability"
+  - "state-integrity"
+  - "consensus-validation-hardening"
+severity_guess: "medium"
+severity_rationale: "Bounds failures in canonical trees can affect availability or state consistency, but the evidence is hardening rather than a demonstrated exploit."
+
+code_shape_summary: "Tree insertion code accepted a current index plus batch length without first checking that the sum stayed within the index type capacity."
+search_motifs:
+  - "current_index + items.len() before tree insertion"
+  - "u8 or u32 index used for append-only tree positions"
+  - "Merkle path or function index construction lacks capacity precheck"
+negative_signals:
+  - "The batch size is already capped by consensus before this function."
+  - "The index type is widened or checked arithmetic is used upstream."
+  - "The path is offline tooling that cannot affect validation or serving."
+patch_pattern: "Add explicit capacity checks before mutation and return ordinary errors when a batch would exceed the index range."
+
+source_refs: ["/work/snarkVM/validated-findings/kept/2022-03-04-snarkvm-cryptography-59eb426e2.md"]
+notes:
+  - "Enriched from the validated finding and kept conservative where exploitability was not proven."
+  - "Raw summary: The patch adds or tests bounds enforcement in snarkVM tree-related code. The strongest shown implementation evidence is explicit capacity checks for program function indexes and ledger block-hash indexes. Commit metadata also mentions Merkle overflow handling,"

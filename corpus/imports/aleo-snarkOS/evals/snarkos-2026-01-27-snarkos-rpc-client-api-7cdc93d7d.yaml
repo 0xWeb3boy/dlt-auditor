@@ -1,0 +1,21 @@
+id: "snarkos-2026-01-27-snarkos-rpc-client-api-7cdc93d7d"
+source_record: "snarkos-2026-01-27-snarkos-rpc-client-api-7cdc93d7d.yaml"
+project: "snarkos"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "missing-peer-penalty-for-invalid-consensus-version"
+expected_missing_property: "peer-misbehavior-escalation"
+
+expected_impact_band: "peer-enforcement"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "During planned upgrades, temporary mismatch may be handled by softer policy"
+  - "This does not imply invalid block insertion if validation already rejects"
+  - "Trusted static peers may use different enforcement policy"
+notes:
+  - "Expected detector rationale: A peer that proves it is on an incompatible consensus version through block responses should not remain an eligible block source."
+  - "Patch pattern to prefer: Add peer penalties at block-response ingress points for missing or mismatched consensus-version InsertBlockResponseError cases."

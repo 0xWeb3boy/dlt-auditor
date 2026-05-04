@@ -1,0 +1,21 @@
+id: "snarkos-2025-03-11-snarkos-core-logic-27575e79c"
+source_record: "snarkos-2025-03-11-snarkos-core-logic-27575e79c.yaml"
+project: "snarkos"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "integer-overflow-in-input-validation"
+expected_missing_property: "overflow-safe-bounds-check"
+
+expected_impact_band: "validation-hardening"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "If input is already capped far below overflow, impact is low"
+  - "Arithmetic in comments or tests is not a sink"
+  - "Wrapping used intentionally for protocol-defined modular arithmetic is different"
+notes:
+  - "Expected detector rationale: Validation arithmetic over untrusted protocol heights must use checked arithmetic and preserve the intended ordering invariant at numeric boundaries."
+  - "Patch pattern to prefer: Use overflow-safe arithmetic and express the full structural locator invariant without wrapping additions."

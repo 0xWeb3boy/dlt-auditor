@@ -1,0 +1,21 @@
+id: "snarkos-2022-12-13-snarkos-p2p-networking-e8c8f3bd9"
+source_record: "snarkos-2022-12-13-snarkos-p2p-networking-e8c8f3bd9.yaml"
+project: "snarkos"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "incorrect-peer-address-resolution"
+expected_missing_property: "canonical-peer-identity-resolution"
+
+expected_impact_band: "peer-enforcement-correctness"
+expected_severity_band: "low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "If connection and listener addresses are always identical, issue is correctness only"
+  - "Errors from trusted local peers reduce attack relevance"
+  - "No security issue if disconnect is advisory"
+notes:
+  - "Expected detector rationale: Peer enforcement must resolve transient connection addresses to the canonical address used by the router peer table before disconnecting or penalizing."
+  - "Patch pattern to prefer: Resolve the connection address to the router-tracked listener address before invoking disconnect enforcement."

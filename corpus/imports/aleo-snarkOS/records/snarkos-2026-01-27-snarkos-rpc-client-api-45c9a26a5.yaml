@@ -1,0 +1,39 @@
+id: "snarkos-2026-01-27-snarkos-rpc-client-api-45c9a26a5"
+source_finding: "2026-01-27-snarkos-rpc-client-api-45c9a26a5.md"
+project: "snarkos"
+date: "2026-01-27"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "p2p-peer-misbehavior-enforcement"
+subsystem: "rpc-client-api"
+architecture_tags: ["p2p", "peer-network", "rpc", "validator-based"]
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "peer-misbehavior-escalation"
+violated_invariant: "Inbound peers that send structurally invalid consensus-version block responses should be removed or penalized at the boundary that observed the misbehavior."
+trust_boundary: "peer->block-sync-ingress"
+entrypoint_type: "p2p-message-handler"
+sensitive_sink: "peer ban/disconnect state and block-sync source selection"
+
+attacker_capabilities: ["send invalid block responses", "omit or mismatch consensus-version data"]
+exploit_preconditions: ["block response validation detects structured errors", "peer remains eligible unless enforcement maps the error to a penalty"]
+blast_radius: "node-local"
+
+impact_types: ["protocol-enforcement", "p2p-abuse-mitigation"]
+severity_guess: "medium"
+severity_rationale: "Medium because the evidence affects invalid peers remain eligible as sync sources, while the validated finding is conservative about unproven exploitability or downstream compromise."
+
+code_shape_summary: "Block response validation returns consensus-version-specific errors, but inbound handlers log/return failure without consistently banning the offending peer."
+search_motifs: ["InsertBlockResponseError logged but no peer ban", "ConsensusVersionMismatch branch returns false only", "ip_ban_peer added around invalid block response error arm"]
+negative_signals: ["If peer scoring elsewhere immediately removes the peer, duplicate ban may be unnecessary", "Benign upgrade mismatches may need grace-period policy", "This is enforcement hardening, not proof invalid blocks were accepted"]
+patch_pattern: "Preserve structured validation errors and map selected invalid block-response errors to ip_ban_peer/disconnect in client and BFT ingress paths."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/aleo-snarkOS/raw-findings/2026-01-27-snarkos-rpc-client-api-45c9a26a5.md", "git:45c9a26a5b4da020a41dab308dbb7b0b2e61c6cf", "node/sync/src/block_sync.rs:475", "node/src/client/router.rs:224", "node/bft/src/gateway.rs:648"]
+notes:
+  - "Validated as confirmed by phase 4; keep as a positive retrieval/eval exemplar."
+  - "Enriched from validated-finding evidence without asserting impacts not present in the raw finding."

@@ -1,0 +1,52 @@
+id: "snarkvm-2024-06-18-snarkvm-consensus-0a44747ed"
+source_finding: "2024-06-18-snarkvm-consensus-0a44747ed.md"
+project: "snarkvm"
+date: "2024-06-18"
+language_tags: ["rust"]
+
+bug_family: "staking_registry_and_accountability"
+bug_class: "validator-limit-enforcement"
+subsystem: "consensus"
+architecture_tags: ["zero-knowledge-vm", "blockchain-core", "consensus-sensitive"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "committee-limit-enforcement"
+violated_invariant: "Validator registration limit checks must extract the validator identity from the authoritative state-transition output, not from an unrelated positional input."
+trust_boundary: "bond validator transition -> committee membership finalization"
+entrypoint_type: "staking-registration-path"
+sensitive_sink: "validator set insertion under maximum committee-size rules"
+
+attacker_capabilities:
+  - "Submit bond-validator transitions with controlled inputs and outputs."
+  - "Exploit a mismatch between transition input positions and the actual future output argument."
+exploit_preconditions:
+  - "The committee-size check identifies the candidate validator from a non-authoritative input position."
+  - "The finalization path uses Future output arguments as the authoritative bonded validator."
+blast_radius: "chain-wide validator set integrity"
+
+impact_types:
+  - "validator-set-invariant"
+  - "staking-registry-integrity"
+  - "consensus-integrity"
+severity_guess: "high"
+severity_rationale: "Committee-size enforcement protects consensus membership, though the evidence is a likely fix rather than a proven bypass."
+
+code_shape_summary: "Finalization code checked the first transition input for a validator address even though the bonded address was carried in the transition Future output."
+search_motifs:
+  - "bond_validator check reads transition.inputs().first()"
+  - "committee limit uses data source different from finalization output"
+  - "MAX_COMMITTEE_SIZE regression around validator bonding"
+negative_signals:
+  - "The first input and Future output are guaranteed equal by a separate enforced constraint."
+  - "The path runs only in tests or offline simulation."
+  - "Committee capacity is rechecked by storage insertion with the authoritative address."
+patch_pattern: "Read the validator address from the Future output argument used by finalization and add a maximum-committee-size regression test."
+
+source_refs: ["/work/snarkVM/validated-findings/kept/2024-06-18-snarkvm-consensus-0a44747ed.md"]
+notes:
+  - "Enriched from the validated finding and kept conservative where exploitability was not proven."
+  - "Raw summary: The patch likely fixes a validator committee-size enforcement bug in snarkVM finalization. It changes bond_validator address collection from the first transition input to the first argument of the transition's Future output, and adds a regression test for reje"

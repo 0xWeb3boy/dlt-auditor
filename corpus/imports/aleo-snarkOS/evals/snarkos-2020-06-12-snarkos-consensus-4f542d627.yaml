@@ -1,0 +1,21 @@
+id: "snarkos-2020-06-12-snarkos-consensus-4f542d627"
+source_record: "snarkos-2020-06-12-snarkos-consensus-4f542d627.yaml"
+project: "snarkos"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "consensus-difficulty-validation"
+expected_missing_property: "consensus-derived-field-validation"
+
+expected_impact_band: "consensus-integrity"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "If downstream consensus validation repeats the same check, this path may be redundant"
+  - "Test-only header constructors are not security sinks"
+  - "Difficulty fields that are metadata only do not carry consensus impact"
+notes:
+  - "Expected detector rationale: Consensus verifiers must recompute rule-derived header fields and reject headers whose supplied values do not match local consensus calculation."
+  - "Patch pattern to prefer: Recompute expected difficulty inside header verification, add a mismatch error, and cover the rejection path with a regression test."

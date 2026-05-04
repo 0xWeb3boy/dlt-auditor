@@ -37,6 +37,8 @@ Search patterns:
 - functions named authorize, authenticate, verifyPolicy, verifyAccess, verifyRole, allow*, can*, IsPeerAuthorized, Verify*Update
 - code that checks "is a member" when it may need "is proposer", "is validator", "is signer for this committee", "is current bridge relayer", or "is authorized for this shard or subnet"
 - handlers that decode a request and proceed straight into processing
+- public RPC, REST, gRPC, or JSON-RPC methods that have a protected helper nearby but are also registered through an unprotected route, trait implementation, delegate, compatibility method, or generated service binding
+- sensitive API methods removed from a public surface instead of wrapped with authentication. Treat this as attack-surface hardening and search for alternate registered paths that still reach the same sink
 - branches that treat debug, simulation, or maintenance modes differently
 - update paths that call Set* or write state without first validating against an existing object
 - delegated or granular permission systems where the grant is valid for one transaction shape but the executed operation can include paths, alternative assets, generated holdings, pseudo-accounts, receiver policy, freeze state, or feature-gated fields outside that shape
@@ -75,6 +77,7 @@ Questions to answer:
 9. If the role or policy lookup returns both `(allowed, error)`, which combinations grant access, and do all errors deny?
 10. Can the privileged sink derive the sensitive recipient, authority, or policy value itself instead of trusting a caller-supplied parameter?
 11. Are admission, dequeue, replay, and execution checking the same authority and freshness source?
+12. Is every sensitive route mounted only through the authenticated/protected surface, with authentication enforced before parameter parsing and dispatch?
 
 Report only candidates where the missing property is concrete.
 

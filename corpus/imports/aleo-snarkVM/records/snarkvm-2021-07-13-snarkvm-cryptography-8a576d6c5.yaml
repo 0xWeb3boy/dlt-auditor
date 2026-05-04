@@ -1,0 +1,51 @@
+id: "snarkvm-2021-07-13-snarkvm-cryptography-8a576d6c5"
+source_finding: "2021-07-13-snarkvm-cryptography-8a576d6c5.md"
+project: "snarkvm"
+date: "2021-07-13"
+language_tags: ["rust"]
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "signature-transcript-length-binding"
+subsystem: "cryptography"
+architecture_tags: ["zero-knowledge-vm", "blockchain-core", "consensus-sensitive"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "transcript-boundary-binding"
+violated_invariant: "A signature verifier, including its circuit form, must bind the exact byte message and all variable-length transcript boundaries before accepting a signature."
+trust_boundary: "prover-controlled message bytes -> in-circuit signature verifier"
+entrypoint_type: "zk-circuit-signature-verifier"
+sensitive_sink: "signature challenge hash used by the GroupEncryption verification gadget"
+
+attacker_capabilities:
+  - "Choose or relay the message bytes supplied to an in-circuit signature verification path."
+  - "Influence proof witnesses or public inputs that are converted into field elements before hashing."
+exploit_preconditions:
+  - "The verifier encodes variable-length byte messages into field elements without an independent length or delimiter."
+  - "The circuit verifier is relied on as an authorization or validity check for downstream protocol logic."
+blast_radius: "proof-local to protocol-wide depending on where the gadget verifier gates state transitions"
+
+impact_types:
+  - "cryptographic-integrity"
+  - "signature-binding-hardening"
+severity_guess: "medium"
+severity_rationale: "The patch is in a cryptographic verifier and fixes transcript binding, but no concrete forgery or transaction-level exploit is proven."
+
+code_shape_summary: "A signature gadget built a Poseidon challenge from commitment field elements plus message field elements, but omitted an explicit byte length before absorbing the variable-length message."
+search_motifs:
+  - "hash_input.extend(message.to_constraint_field(...)) without a nearby length or domain element"
+  - "signature gadget and native verifier construct challenge transcripts differently"
+  - "variable-length bytes are converted to field elements before a signature challenge hash"
+negative_signals:
+  - "The message encoding is already canonical and length-delimited before it reaches the verifier."
+  - "The changed code is test-only or does not feed an authorization or proof-validity decision."
+  - "A separate transcript API already injects equivalent domain and length data."
+patch_pattern: "Insert an explicit message length or delimiter into the verifier transcript before absorbing encoded message field elements, and cover the verifier path with a regression test."
+
+source_refs: ["/work/snarkVM/validated-findings/kept/2021-07-13-snarkvm-cryptography-8a576d6c5.md"]
+notes:
+  - "Enriched from the validated finding and kept conservative where exploitability was not proven."
+  - "Raw summary: The patch changes the GroupEncryption gadget signature verification hash input by inserting the message byte length before the message field elements are absorbed. This supports a likely security fix for message-length binding in the in-circuit signature verif"

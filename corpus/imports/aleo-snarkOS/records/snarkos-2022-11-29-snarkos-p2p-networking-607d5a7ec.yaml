@@ -1,0 +1,39 @@
+id: "snarkos-2022-11-29-snarkos-p2p-networking-607d5a7ec"
+source_finding: "2022-11-29-snarkos-p2p-networking-607d5a7ec.md"
+project: "snarkos"
+date: "2022-11-29"
+language_tags: ["rust"]
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "p2p-handshake-authentication-hardening"
+subsystem: "p2p-networking"
+architecture_tags: ["p2p", "peer-network", "validator-based"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "handshake-identity-binding"
+violated_invariant: "A peer handshake should prove control of the advertised identity key over fresh challenge material before the session is admitted."
+trust_boundary: "peer->session-setup"
+entrypoint_type: "session-setup"
+sensitive_sink: "authenticated peer identity and connection admission"
+
+attacker_capabilities: ["initiate or respond to p2p handshakes", "send challenge responses without proving address key ownership under fresh transcript"]
+exploit_preconditions: ["peer identity matters for routing or trust decisions", "handshake previously accepted header/nonce material without signature binding"]
+blast_radius: "node-local"
+
+impact_types: ["peer-authentication-hardening"]
+severity_guess: "medium"
+severity_rationale: "Medium because the evidence affects weaker peer identity assurance, while the validated finding is conservative about unproven exploitability or downstream compromise."
+
+code_shape_summary: "Handshake challenge responses lack explicit nonce/signature authentication material or verification inputs needed to bind peer address to the live session."
+search_motifs: ["challenge response contains genesis header but no signature", "verify_challenge_response lacks peer address or expected nonce", "handshake signs counterparty nonce only after patch"]
+negative_signals: ["If peer identity is not trusted for any later decision, impact is reduced", "Transport-level mutual authentication can compensate", "Do not infer full exploit without evidence that unauthenticated sessions become privileged"]
+patch_pattern: "Add nonce signing to challenge responses and verify response data against peer identity, expected genesis header, and expected nonce."
+
+source_refs: ["/work/dlt-ai-audit-system/corpus/imports/aleo-snarkOS/raw-findings/2022-11-29-snarkos-p2p-networking-607d5a7ec.md", "git:607d5a7ec6e479117dd2f9de6a870f6178dad94b", "node/router/src/handshake.rs:212", "node/router/src/handshake.rs:91", "node/router/src/handshake.rs:125"]
+notes:
+  - "Likely security hardening; use as retrieval and taxonomy material rather than proof of exploitability."
+  - "Enriched from validated-finding evidence without asserting impacts not present in the raw finding."

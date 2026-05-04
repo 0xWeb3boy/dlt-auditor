@@ -1,0 +1,51 @@
+id: "snarkvm-2022-08-05-snarkvm-cryptography-18c2a7bdd"
+source_finding: "2022-08-05-snarkvm-cryptography-18c2a7bdd.md"
+project: "snarkvm"
+date: "2022-08-05"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "fail-open-ledger-lookup"
+subsystem: "cryptography"
+architecture_tags: ["zero-knowledge-vm", "blockchain-core", "consensus-sensitive"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "fail-closed-error-handling"
+violated_invariant: "A ledger query that classifies spend state must distinguish lookup errors from confirmed absence and must not report spendable state on uncertainty."
+trust_boundary: "ledger store result -> record scanner classification"
+entrypoint_type: "ledger-query-path"
+sensitive_sink: "unspent output record returned to wallet or caller"
+
+attacker_capabilities:
+  - "Trigger or encounter serial-number lookup errors while scanning records."
+  - "Rely on scanner output to select commitments for spending or display."
+exploit_preconditions:
+  - "The scanner treats non-`Ok(true)` lookup results as unspent."
+  - "Lookup errors can occur due to storage, decoding, or backend failures."
+blast_radius: "client-local or node-local scanner correctness"
+
+impact_types:
+  - "incorrect-record-state-classification"
+  - "fail-open-query-result"
+severity_guess: "medium"
+severity_rationale: "Fail-open spend-state reporting can mislead clients, but consensus acceptance of double spends is not shown."
+
+code_shape_summary: "A match arm collapsed `Err(_)` and `Ok(false)` into the same unspent classification, so uncertainty was treated as absence."
+search_motifs:
+  - "contains_serial_number result matched with `_ => commitment`"
+  - "ledger lookup error treated the same as not found"
+  - "unspent filter returns records on storage errors"
+negative_signals:
+  - "The result is informational only and never used for signing or spending decisions."
+  - "A later mandatory consensus check rejects spent records regardless of scanner output."
+  - "Errors are impossible because the data source is an in-memory total map."
+patch_pattern: "Split success and error arms, return unspent only on `Ok(false)`, and log or drop records on lookup errors."
+
+source_refs: ["/work/snarkVM/validated-findings/kept/2022-08-05-snarkvm-cryptography-18c2a7bdd.md"]
+notes:
+  - "Enriched from the validated finding and kept conservative where exploitability was not proven."
+  - "Raw summary: The patch fixes fail-open handling in the output-record scanner's unspent classification path. Before the change, `OutputRecordsFilter::AllUnspent` treated any result other than `Ok(true)` from `contains_serial_number` as absence, so `Err(_)` caused the scanne"
