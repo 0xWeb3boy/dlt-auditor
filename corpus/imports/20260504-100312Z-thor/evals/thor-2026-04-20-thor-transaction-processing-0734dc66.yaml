@@ -1,0 +1,20 @@
+id: "thor-2026-04-20-thor-transaction-processing-0734dc66"
+source_record: "thor-2026-04-20-thor-transaction-processing-0734dc66.yaml"
+project: "thor"
+
+expected_bug_family: "signature_binding_and_signer_scope"
+expected_bug_class: "chain-id-validation-hardening"
+expected_missing_property: "domain-separation"
+
+expected_impact_band: "medium chain-wide domain-separation hardening"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "No issue if typed transactions are impossible before the fork."
+  - "No issue if signature recovery independently rejects mismatched chain IDs everywhere."
+  - "Fork configuration changes without admission checks are not enough to establish a security case."
+notes:
+  - "Likely security-hardening exemplar; evaluator should reward bounded claims and penalize unsupported exploit narratives."

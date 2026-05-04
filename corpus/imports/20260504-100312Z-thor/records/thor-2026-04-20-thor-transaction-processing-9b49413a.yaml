@@ -1,0 +1,59 @@
+id: "thor-2026-04-20-thor-transaction-processing-9b49413a"
+source_finding: "2026-04-20-thor-transaction-processing-9b49413a.md"
+project: "thor"
+date: "2026-04-20"
+language_tags:
+  - "go"
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "missing-chain-id-validation"
+subsystem: "transaction-validation"
+architecture_tags:
+  - "mempool"
+  - "consensus"
+  - "runtime"
+  - "ethereum-compatibility"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "domain-separation"
+violated_invariant: "A transaction format that uses chain ID as replay-protection material must be rejected unless its signed domain matches the active network and fork rules."
+trust_boundary: "transaction-submitter->mempool-and-consensus-validation"
+entrypoint_type: "transaction-admission-and-block-validation"
+sensitive_sink: "network acceptance of EIP-1559 typed transactions and EVM CHAINID semantics"
+
+attacker_capabilities:
+  - "Craft EIP-1559 typed transactions with a chosen Ethereum chain ID."
+  - "Submit transactions to mempool or include them in candidate blocks."
+exploit_preconditions:
+  - "The transaction type is enabled or partially accepted by the node."
+  - "The embedded chain ID can differ from the intended network domain."
+blast_radius: "chain-wide"
+
+impact_types:
+  - "replay-domain-weakening"
+  - "consensus-integrity"
+  - "signature-domain-integrity"
+severity_guess: "medium"
+severity_rationale: "The accepted hardening closes a replay-domain consistency gap across transaction admission and execution. It is medium because transaction domain errors can be chain-wide, but exploitability is not established."
+
+code_shape_summary: "EIP-1559 typed transactions bypassed legacy chain-tag checks but lacked shown validation that their embedded Ethereum chain ID matched the active configured network domain; the fix adds fork gating and chain-ID comparisons in txpool and consensus and aligns runtime CHAINID."
+search_motifs:
+  - "new typed transaction path bypasses legacy replay check"
+  - "EthChainID not compared with configured network ID"
+  - "mempool accepts transaction type before consensus fork gate"
+  - "runtime chain ID and signed transaction domain can diverge"
+negative_signals:
+  - "No issue if mismatched chain IDs fail during signature recovery before acceptance."
+  - "No issue if the transaction type is unreachable until the fork activates."
+  - "Do not flag duplicate fork plumbing without an acceptance path for signed transactions."
+patch_pattern: "Apply the same fork-aware chain-ID validation at mempool and consensus boundaries and make runtime expose the post-fork configured Ethereum chain ID."
+
+source_refs:
+  - "/work/thor/validated-findings/kept/2026-04-20-thor-transaction-processing-9b49413a.md"
+  - "raw-findings/2026-04-20-thor-transaction-processing-9b49413a.md"
+notes:
+  - "Validated as likely security hardening; keep exploitability claims bounded to the evidence."

@@ -1,0 +1,58 @@
+id: "thor-2026-01-07-thor-core-logic-318fdccd"
+source_finding: "2026-01-07-thor-core-logic-318fdccd.md"
+project: "thor"
+date: "2026-01-07"
+language_tags:
+  - "go"
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "unbounded-request-criteria-hardening"
+subsystem: "api-log-query"
+architecture_tags:
+  - "http-api"
+  - "database-query"
+  - "indexer"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "request-cardinality-limit"
+violated_invariant: "Public query APIs must bound caller-controlled filter cardinality before translating filters into database work."
+trust_boundary: "api-client->log-query-database"
+entrypoint_type: "http-filter-query-handler"
+sensitive_sink: "event/transfer log database query planning and statement execution"
+
+attacker_capabilities:
+  - "Send API filter requests with many criteria entries."
+  - "Choose criteria combinations that expand query work."
+exploit_preconditions:
+  - "The API endpoint is reachable."
+  - "The criteria set size materially affects generated query complexity or database work."
+blast_radius: "node-local"
+
+impact_types:
+  - "denial-of-service"
+  - "resource-exhaustion"
+  - "api-availability"
+severity_guess: "low"
+severity_rationale: "This is likely resource-control hardening for an API query path. The blast radius is node/API availability, and the evidence does not prove an exploitable denial of service."
+
+code_shape_summary: "A transfer log filter handler validated options and nil criteria but lacked a visible maximum criteria-count check before log database querying; the fix rejects excessive criteria and routes query execution through cached prepared statements."
+search_motifs:
+  - "filter.CriteriaSet length used to build DB query"
+  - "API validates range but not number of filter clauses"
+  - "caller-controlled list of query predicates has no max count"
+  - "log query prepares statements for unbounded dynamic criteria"
+negative_signals:
+  - "No issue if a lower layer caps criteria count or query cost."
+  - "No issue if the endpoint is private and rate-limited for trusted callers."
+  - "Prepared-statement caching alone is not proof of injection or DoS."
+patch_pattern: "Add an API-level maxCriteriaCount guard before database work and use a statement cache for repeated event/transfer query execution."
+
+source_refs:
+  - "/work/thor/validated-findings/kept/2026-01-07-thor-core-logic-318fdccd.md"
+  - "raw-findings/2026-01-07-thor-core-logic-318fdccd.md"
+notes:
+  - "Validated as likely security hardening; keep exploitability claims bounded to the evidence."

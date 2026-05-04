@@ -1,0 +1,60 @@
+id: "thor-2024-08-22-thor-transaction-processing-f1aa5ae7"
+source_finding: "2024-08-22-thor-transaction-processing-f1aa5ae7.md"
+project: "thor"
+date: "2024-08-22"
+language_tags:
+  - "go"
+
+bug_family: "authz_and_role_gates"
+bug_class: "debug-api-tracer-allowlist-hardening"
+subsystem: "debug-api"
+architecture_tags:
+  - "rpc-api"
+  - "debug-interface"
+  - "operator-config"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "policy-gating"
+violated_invariant: "Debug tracing endpoints must instantiate only explicitly enabled tracers, and disabled-by-default deployments must reject blank, unknown, or custom tracer names before tracer construction."
+trust_boundary: "rpc-client->debug-api-tracer-factory"
+entrypoint_type: "rpc-debug-handler"
+sensitive_sink: "tracer instantiation, including registered tracers and optional custom JavaScript tracer creation"
+
+attacker_capabilities:
+  - "Send a debug trace request to an enabled API endpoint."
+  - "Choose the tracer name and tracer configuration in the request."
+exploit_preconditions:
+  - "The debug API is reachable to the caller."
+  - "The node configuration permits debug tracing or custom tracer support."
+blast_radius: "node-local"
+
+impact_types:
+  - "attack-surface-reduction"
+  - "debug-api-abuse-risk"
+  - "resource-exhaustion"
+  - "privileged-observability-risk"
+severity_guess: "low"
+severity_rationale: "The change is deny-by-default hardening for a sensitive debug API. It reduces local node/API abuse risk, but the evidence does not prove external exposure or a concrete exploit."
+
+code_shape_summary: "A debug RPC path delegated caller-supplied tracer names to the tracer factory without an API-side allowlist; the fix rejects blank names and requires none/all/explicit allowlist policy before construction."
+search_motifs:
+  - "debug endpoint accepts tracer name from request"
+  - "blank tracer name selects default tracer"
+  - "custom tracer factory reachable from RPC options"
+  - "allowCustom flag exists without per-API allowed-name gate"
+  - "CLI flag defaults sensitive plugins to none"
+negative_signals:
+  - "No issue if the debug API is never exposed outside trusted operators."
+  - "No issue if all tracer names are hardcoded server-side."
+  - "Do not flag ordinary error-message changes without a policy gate around construction."
+patch_pattern: "Add an operator-controlled allowlist with a deny-by-default value, trim and reject blank names, check requested tracer names before factory invocation, and return forbidden errors on denial."
+
+source_refs:
+  - "/work/thor/validated-findings/kept/2024-08-22-thor-transaction-processing-f1aa5ae7.md"
+  - "raw-findings/2024-08-22-thor-transaction-processing-f1aa5ae7.md"
+notes:
+  - "Validated as likely security hardening; keep exploitability claims bounded to the evidence."

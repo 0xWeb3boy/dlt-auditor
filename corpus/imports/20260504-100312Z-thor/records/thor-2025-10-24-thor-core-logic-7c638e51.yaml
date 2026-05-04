@@ -1,0 +1,58 @@
+id: "thor-2025-10-24-thor-core-logic-7c638e51"
+source_finding: "2025-10-24-thor-core-logic-7c638e51.md"
+project: "thor"
+date: "2025-10-24"
+language_tags:
+  - "go"
+
+bug_family: "checked_arithmetic_and_parameter_bounds"
+bug_class: "unchecked-numeric-conversion"
+subsystem: "staking"
+architecture_tags:
+  - "staking"
+  - "native-contract"
+  - "validator-ops"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "arithmetic-bounds"
+violated_invariant: "Externally supplied staking amounts and contract balances must be converted into internal accounting units only after checking conversion errors and bounds."
+trust_boundary: "contract-caller->native-staking-accounting"
+entrypoint_type: "native-contract-staking-handler"
+sensitive_sink: "stake increase/decrease, delegation creation, and staker contract balance reconciliation"
+
+attacker_capabilities:
+  - "Submit native staking calls with large or boundary-value amount fields."
+  - "Influence staking contract balance values observed by housekeeping."
+exploit_preconditions:
+  - "The conversion routine can fail or overflow for some supplied values."
+  - "The unchecked converted value is used by a state-mutating staking method."
+blast_radius: "chain-wide"
+
+impact_types:
+  - "state-integrity"
+  - "accounting-integrity"
+  - "validator-accountability-risk"
+severity_guess: "medium"
+severity_rationale: "Unchecked conversion on consensus-executed staking state is security-relevant and could affect accounting integrity, but the validated finding does not prove theft, validator takeover, or consensus divergence."
+
+code_shape_summary: "Native staking and housekeeping paths converted big integer amounts into VET units inline and continued without inspecting conversion errors; the fix stores the converted value, checks err, and reverts or returns before mutation."
+search_motifs:
+  - "conversion helper returns value and error but call site ignores error"
+  - "ToVET or unit conversion used inline as mutating-method argument"
+  - "big.Int amount narrowed before staking/accounting update"
+  - "housekeeping reconciliation continues after failed unit conversion"
+negative_signals:
+  - "No issue if conversion is total and cannot fail for any reachable input."
+  - "No issue if the unchecked value is used only for display or logging."
+  - "Do not flag call sites that already revert or return on conversion error."
+patch_pattern: "Split numeric conversion from state mutation, check the returned error immediately, revert user calls on failure, and stop housekeeping reconciliation before using an invalid converted amount."
+
+source_refs:
+  - "/work/thor/validated-findings/kept/2025-10-24-thor-core-logic-7c638e51.md"
+  - "raw-findings/2025-10-24-thor-core-logic-7c638e51.md"
+notes:
+  - "Validated as likely security hardening; keep exploitability claims bounded to the evidence."

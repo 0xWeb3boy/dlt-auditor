@@ -1,0 +1,72 @@
+{
+  "repo": "/work/thor",
+  "repo_slug": "thor",
+  "kept_dir": "/work/thor/validated-findings/kept",
+  "created_at_utc": "20260504-100312Z",
+  "finding_count": 7,
+  "findings": [
+    {
+      "id": "thor-2018-04-16-thor-transaction-processing-1166bb6a",
+      "source": "/work/thor/validated-findings/kept/2018-04-16-thor-transaction-processing-1166bb6a.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "native-contract-hook-dispatch-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "thor-2024-08-22-thor-transaction-processing-f1aa5ae7",
+      "source": "/work/thor/validated-findings/kept/2024-08-22-thor-transaction-processing-f1aa5ae7.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "debug-api-tracer-allowlist-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "thor-2025-10-24-thor-core-logic-7c638e51",
+      "source": "/work/thor/validated-findings/kept/2025-10-24-thor-core-logic-7c638e51.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "unchecked-numeric-conversion",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "thor-2026-01-07-thor-core-logic-318fdccd",
+      "source": "/work/thor/validated-findings/kept/2026-01-07-thor-core-logic-318fdccd.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "unbounded-request-criteria-hardening",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "thor-2026-03-25-thor-transaction-processing-a64cc7be",
+      "source": "/work/thor/validated-findings/kept/2026-03-25-thor-transaction-processing-a64cc7be.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "unbounded-rlp-list-decoding",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "thor-2026-04-20-thor-transaction-processing-0734dc66",
+      "source": "/work/thor/validated-findings/kept/2026-04-20-thor-transaction-processing-0734dc66.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "chain-id-validation-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "thor-2026-04-20-thor-transaction-processing-9b49413a",
+      "source": "/work/thor/validated-findings/kept/2026-04-20-thor-transaction-processing-9b49413a.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-chain-id-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    }
+  ]
+}

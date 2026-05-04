@@ -59,6 +59,7 @@ Search patterns:
 - long-lived subscriptions, listeners, peer maps, and stream state where the allocation or registration point is separate from config parsing. Enforce limits under the same lock or reservation policy that mutates the retained collection
 - resource-limit or cost-exceeded errors nested inside multiple execution-result variants, such as processed, skipped, aborted, replayed, simulated, prechecked, or partially applied outcomes. Every variant that consumed or attempted bounded work must classify limit exhaustion consistently.
 - recursive parsers, type constructors, or semantic validators that accept an optional cost, gas, quota, or budget object. Check that every nested parse or validation call receives and updates the same authoritative meter.
+- decoders for untrusted transaction, block, receipt, proof, or query objects that fully decode variable-length lists before enforcing protocol count limits. Treat decode-time cardinality as a resource boundary: count raw items, cap every list dimension, and reject before per-item allocation or nested decoding.
 
 Questions to answer:
 1. What resource is the protocol trying to meter: gas, fees, bytes, weight, queue slots, proving budget, bridge capacity, committee size, or sender concurrency?

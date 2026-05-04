@@ -152,6 +152,7 @@ Your task:
   - native-to-EVM receipt or accounting bridges,
   - legacy compatibility adapters.
   For each adapter, identify the canonical native path it should match, the exact identity or address-association source, the validation function or message-server path it should reuse, and the final value-transfer, governance, or accounting sink.
+  For VM, native, precompile, or host-function hooks, map the active execution frame separately from decomposed caller, callee, code address, input, gas, and read-only values. Identify where direct execution is distinguished from delegated or code-substituted execution, and where the hook finally receives authoritative call-frame state.
 22. Map consensus-visible result data separately from state writes:
   - acknowledgements,
   - ABCI or execution result data,

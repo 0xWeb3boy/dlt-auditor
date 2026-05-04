@@ -1,0 +1,58 @@
+id: "thor-2018-04-16-thor-transaction-processing-1166bb6a"
+source_finding: "2018-04-16-thor-transaction-processing-1166bb6a.md"
+project: "thor"
+date: "2018-04-16"
+language_tags:
+  - "go"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "native-contract-hook-dispatch-hardening"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "evm"
+  - "native-contract"
+  - "state-transition"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "call-context-gating"
+violated_invariant: "Native contract hooks must run only for direct execution of the native contract code, not when the same code is reached through delegated or code-substituted call contexts."
+trust_boundary: "contract-call-context->native-hook-dispatch"
+entrypoint_type: "state-transition-native-contract-hook"
+sensitive_sink: "native contract hook execution with access to EVM state, contract input, gas charging, and log emission"
+
+attacker_capabilities:
+  - "Submit or trigger a contract call that reaches native-code dispatch through VM execution."
+  - "Influence call context such as direct call versus CALLCODE/DELEGATECALL-style execution."
+exploit_preconditions:
+  - "The native hook mechanism is enabled for the addressed contract."
+  - "A delegated or code-substituted execution context can otherwise reach the hook path."
+blast_radius: "chain-wide"
+
+impact_types:
+  - "execution-context-integrity"
+  - "state-integrity"
+  - "authorization-bypass-risk"
+severity_guess: "medium"
+severity_rationale: "The evidence supports security hardening of a consensus-executed VM path. Impact could become chain-wide if native hooks execute under the wrong contract context, but exploitability is not proven."
+
+code_shape_summary: "VM/native-hook dispatch used decomposed call parameters instead of the authoritative active contract object; the fix gates hook execution on direct code execution and passes the EVM/Contract context into the hook."
+search_motifs:
+  - "native hook invoked before checking CodeAddr == Address"
+  - "CALLCODE or DELEGATECALL path can reach privileged native handler"
+  - "precompile/native bridge receives caller/input/address as separate parameters"
+  - "contract input copied into native bridge outside interpreter dispatch guard"
+negative_signals:
+  - "No issue if native hooks are unreachable from delegated calls."
+  - "No issue if the hook is read-only and cannot mutate privileged state."
+  - "Treat broad VM refactors as false positives unless they add or remove a concrete dispatch gate."
+patch_pattern: "Move hook dispatch to the interpreter boundary, bind it to the active Contract object, reject delegated/code-substituted contexts, and convert hook argument failures into VM errors."
+
+source_refs:
+  - "/work/thor/validated-findings/kept/2018-04-16-thor-transaction-processing-1166bb6a.md"
+  - "raw-findings/2018-04-16-thor-transaction-processing-1166bb6a.md"
+notes:
+  - "Validated as likely security hardening; keep exploitability claims bounded to the evidence."

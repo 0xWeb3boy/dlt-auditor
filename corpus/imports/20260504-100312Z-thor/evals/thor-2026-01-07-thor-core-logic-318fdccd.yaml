@@ -1,0 +1,20 @@
+id: "thor-2026-01-07-thor-core-logic-318fdccd"
+source_record: "thor-2026-01-07-thor-core-logic-318fdccd.yaml"
+project: "thor"
+
+expected_bug_family: "resource_accounting_and_limits"
+expected_bug_class: "unbounded-request-criteria-hardening"
+expected_missing_property: "request-cardinality-limit"
+
+expected_impact_band: "low node-local availability hardening"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "No issue if a lower layer caps criteria count or query cost."
+  - "No issue if the endpoint is private and rate-limited for trusted callers."
+  - "Prepared-statement caching alone is not proof of injection or DoS."
+notes:
+  - "Likely security-hardening exemplar; evaluator should reward bounded claims and penalize unsupported exploit narratives."

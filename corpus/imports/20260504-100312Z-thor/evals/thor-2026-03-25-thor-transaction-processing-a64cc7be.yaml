@@ -1,0 +1,20 @@
+id: "thor-2026-03-25-thor-transaction-processing-a64cc7be"
+source_record: "thor-2026-03-25-thor-transaction-processing-a64cc7be.yaml"
+project: "thor"
+
+expected_bug_family: "resource_accounting_and_limits"
+expected_bug_class: "unbounded-rlp-list-decoding"
+expected_missing_property: "decode-cardinality-bound"
+
+expected_impact_band: "medium node-local availability hardening"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "No issue if outer transaction size limits make the list count harmless."
+  - "No issue if the decoder already streams and rejects after a small bounded count."
+  - "Do not treat test helper additions alone as evidence without a production decode guard."
+notes:
+  - "Likely security-hardening exemplar; evaluator should reward bounded claims and penalize unsupported exploit narratives."

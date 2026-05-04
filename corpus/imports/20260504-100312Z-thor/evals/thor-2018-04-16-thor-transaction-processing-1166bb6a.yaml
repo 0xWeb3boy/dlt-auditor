@@ -1,0 +1,20 @@
+id: "thor-2018-04-16-thor-transaction-processing-1166bb6a"
+source_record: "thor-2018-04-16-thor-transaction-processing-1166bb6a.yaml"
+project: "thor"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "native-contract-hook-dispatch-hardening"
+expected_missing_property: "call-context-gating"
+
+expected_impact_band: "medium integrity hardening"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "No issue if native hooks are unreachable from delegated calls."
+  - "No issue if the hook is read-only and cannot mutate privileged state."
+  - "Treat broad VM refactors as false positives unless they add or remove a concrete dispatch gate."
+notes:
+  - "Likely security-hardening exemplar; evaluator should reward bounded claims and penalize unsupported exploit narratives."

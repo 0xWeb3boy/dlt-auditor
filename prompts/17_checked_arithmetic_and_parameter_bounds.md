@@ -30,6 +30,7 @@ Search patterns:
 - fixed-point, decimal, AMM, lending, vault, interest, yield, reserve, or fee calculations where rounding direction itself is a security invariant. Compare the exact mathematical target, rounded ledger amount, remainder handling, and stored aggregate field
 - numeric wrapper types that distinguish validity, canonicality, and representability under the active protocol rules. Valid-but-unrepresentable intermediate values must not reach persisted state fields
 - threshold arithmetic for validator quorums, amendment or fork activation, voting windows, signer-set policy, or trust-list policy. Test boundary values just below and above the required fraction, especially with small signer sets
+- fallible conversion helpers that return `(value, error)` or equivalent status but are used inline as arguments to staking, reserve, balance, delegation, validator-weight, or accounting mutators. The conversion result should be checked before any state-changing sink observes the narrowed or unit-converted value.
 
 Questions to answer:
 1. Is the parameter attacker-controlled, governance-controlled, or state-derived?

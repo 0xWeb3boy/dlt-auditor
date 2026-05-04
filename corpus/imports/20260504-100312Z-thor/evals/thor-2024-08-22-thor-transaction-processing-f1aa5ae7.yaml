@@ -1,0 +1,20 @@
+id: "thor-2024-08-22-thor-transaction-processing-f1aa5ae7"
+source_record: "thor-2024-08-22-thor-transaction-processing-f1aa5ae7.yaml"
+project: "thor"
+
+expected_bug_family: "authz_and_role_gates"
+expected_bug_class: "debug-api-tracer-allowlist-hardening"
+expected_missing_property: "policy-gating"
+
+expected_impact_band: "low to medium node-local hardening"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "No issue if the debug API is never exposed outside trusted operators."
+  - "No issue if all tracer names are hardcoded server-side."
+  - "Do not flag ordinary error-message changes without a policy gate around construction."
+notes:
+  - "Likely security-hardening exemplar; evaluator should reward bounded claims and penalize unsupported exploit narratives."

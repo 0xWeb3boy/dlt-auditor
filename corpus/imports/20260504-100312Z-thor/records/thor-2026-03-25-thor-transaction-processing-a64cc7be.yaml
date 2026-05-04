@@ -1,0 +1,58 @@
+id: "thor-2026-03-25-thor-transaction-processing-a64cc7be"
+source_finding: "2026-03-25-thor-transaction-processing-a64cc7be.md"
+project: "thor"
+date: "2026-03-25"
+language_tags:
+  - "go"
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "unbounded-rlp-list-decoding"
+subsystem: "transaction-decoding"
+architecture_tags:
+  - "mempool"
+  - "transaction-decoder"
+  - "rlp"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "decode-cardinality-bound"
+violated_invariant: "Transaction decoders must bound list-shaped fields before fully decoding or allocating per-item objects from untrusted bytes."
+trust_boundary: "untrusted-transaction-bytes->transaction-decoder"
+entrypoint_type: "transaction-rlp-decoder"
+sensitive_sink: "reserved-field and clause-list decoding before mempool or consensus validation"
+
+attacker_capabilities:
+  - "Submit or relay encoded transactions with oversized RLP lists."
+  - "Choose reserved-field and clause-list cardinality in transaction bytes."
+exploit_preconditions:
+  - "The decoder processes attacker-supplied transaction bytes before other admission limits reject them."
+  - "List length affects allocation, CPU, or downstream validation work."
+blast_radius: "node-local"
+
+impact_types:
+  - "resource-exhaustion"
+  - "mempool-availability"
+  - "decode-amplification"
+severity_guess: "medium"
+severity_rationale: "Unbounded transaction decode work can affect any node that parses submitted transactions. The finding is validated as hardening because concrete exploitability and limits elsewhere are not proven."
+
+code_shape_summary: "Transaction RLP decoding accepted list-shaped reserved fields and clauses without explicit cardinality checks at the shown decode boundary; the fix pre-counts raw list entries and rejects values above protocol constants."
+search_motifs:
+  - "rlp.Decode into []RawValue with no length check"
+  - "custom transaction list decoder missing max element guard"
+  - "decode list fully before comparing against Max*PerTx"
+  - "reserved or extension fields can repeat without bound"
+negative_signals:
+  - "No issue if outer transaction size limits make the list count harmless."
+  - "No issue if the decoder already streams and rejects after a small bounded count."
+  - "Do not treat test helper additions alone as evidence without a production decode guard."
+patch_pattern: "Introduce bounded wrapper decoders, count raw list elements before object decoding, compare counts with protocol constants, and add regression tests for excessive list cardinality."
+
+source_refs:
+  - "/work/thor/validated-findings/kept/2026-03-25-thor-transaction-processing-a64cc7be.md"
+  - "raw-findings/2026-03-25-thor-transaction-processing-a64cc7be.md"
+notes:
+  - "Validated as likely security hardening; keep exploitability claims bounded to the evidence."

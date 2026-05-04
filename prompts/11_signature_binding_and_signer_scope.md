@@ -59,6 +59,7 @@ Search patterns:
 - signer, validator, or committee messages whose validity depends on an epoch, reward cycle, view, round, tenure, fork, or active signer-set snapshot. Verify that the signed payload, signer membership lookup, and downstream action all use the same scoped context.
 - vote, block-approval, or signer-command messages represented as raw hashes, marker bytes, tuple fragments, or generic signature containers. Prefer typed protocol messages whose serialized form includes message type, domain, signer role, payload hash, and replay coordinate.
 - verifier APIs that return `Result<bool>`, optional booleans, or mixed transport/semantic status. Callers must distinguish malformed input, invalid signature, wrong signer, and valid signature rather than treating API success as cryptographic success.
+- new typed or compatibility transaction formats that intentionally bypass legacy replay checks. Compare mempool admission, block validation, signer recovery, fork gating, and runtime-visible domain values such as chain ID; every layer should enforce the same signed domain and reject pre-activation or wrong-domain forms.
 
 Questions to answer:
 1. What exact bytes are authenticated?

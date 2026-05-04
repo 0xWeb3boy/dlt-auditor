@@ -43,6 +43,7 @@ Search patterns:
 - externally anchored chains, L2s, or hybrid consensus systems where local consensus depends on a base-chain sortition, checkpoint, epoch, reward set, or committee snapshot. Check that every block, signer-set, equivocation, and fork-choice lookup is bound to the canonical anchored context, not only a height or local hash.
 - canonical-tip, safe-tip, or accepted-block caches that can be updated by lower-height, different-history, or stale validation results. Tip advancement should be monotonic within the same canonical history and should reject cross-history shortcuts.
 - equivocation or misbehavior evidence predicates that require too many fields to match. Evidence should match the protocol's definition of conflict, such as same parent, same sequence, same height or round, or mutually exclusive vote target, not just exact duplicate structure.
+- fork upgrades that introduce a new transaction, payload, opcode, or runtime-visible domain value. Check that pre-fork rejection, post-fork field validation, payload-building rules, block-validation rules, and execution or runtime configuration all switch at the same authoritative fork coordinate.
 
 Questions to answer:
 1. Which protocol rule is authoritative for this block, payload, fork, method version, chain variant, and timestamp or height?
