@@ -1,0 +1,51 @@
+id: "moonbeam-2022-09-12-moonbeam-staking-c7d8fc12f2"
+source_finding: "2022-09-12-moonbeam-staking-c7d8fc12f2.md"
+project: "moonbeam"
+date: "2022-09-12"
+language_tags: ["rust"]
+
+bug_family: "authz_and_role_gates"
+bug_class: "evm-precompile-authorization-boundary-hardening"
+subsystem: "staking"
+architecture_tags: ["substrate", "staking", "runtime"]
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "precompile-caller-eligibility"
+violated_invariant: "An EVM precompile that bridges to privileged runtime dispatch must explicitly reject caller classes that are not allowed to originate those actions."
+trust_boundary: "evm-contract-call->runtime-dispatch-precompile"
+entrypoint_type: "evm-precompile-call"
+sensitive_sink: "proxy/dispatch runtime call bridge"
+
+attacker_capabilities:
+  - "Deploy or call from an EVM smart contract"
+  - "Invoke proxy or generic dispatch precompile selectors"
+exploit_preconditions:
+  - "Precompile is registered in production runtime"
+  - "Caller-code guard is absent or generic Dispatch precompile is exposed"
+blast_radius: "chain-wide"
+
+impact_types:
+  - "unauthorized-action"
+  - "runtime-call-bypass"
+  - "origin-confusion"
+severity_guess: "high"
+severity_rationale: "A broad EVM-to-runtime dispatch bridge can bypass intended origin/caller restrictions, although the retained evidence does not reconstruct a full exploit."
+
+code_shape_summary: "The proxy precompile entered selector handling before checking caller code, and runtimes exposed a generic Dispatch precompile. The patch added caller-code rejection and removed Dispatch registration."
+search_motifs:
+  - "precompile execute reads selector before caller eligibility check"
+  - "generic Dispatch precompile registered at fixed address"
+  - "pallet_evm::AccountCodes lookup added before runtime call bridge"
+negative_signals:
+  - "Contract callers may be safe if downstream origin conversion always denies privileged calls"
+  - "Precompile may be dev-only or disabled by runtime feature flags"
+  - "EOA-only checks are less relevant for read-only precompiles"
+patch_pattern: "Add an early caller-code guard in the precompile and remove broad generic dispatch exposure from runtime precompile sets."
+
+source_refs: ["raw-findings/2022-09-12-moonbeam-staking-c7d8fc12f2.md"]
+notes:
+  - "Enriched from the validated Moonbeam finding; confidence preserves the phase 4 verdict boundary."

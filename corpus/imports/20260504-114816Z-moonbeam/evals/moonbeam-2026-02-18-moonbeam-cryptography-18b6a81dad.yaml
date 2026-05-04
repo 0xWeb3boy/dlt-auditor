@@ -1,0 +1,21 @@
+id: "moonbeam-2026-02-18-moonbeam-cryptography-18b6a81dad"
+source_record: "moonbeam-2026-02-18-moonbeam-cryptography-18b6a81dad.yaml"
+project: "moonbeam"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "permit-deadline-validation"
+expected_missing_property: "deadline-unit-consistency"
+
+expected_impact_band: "authorization_deadline_bypass"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "If both timestamp and deadline are already same units, unit normalization is not a bug"
+  - "A grace period explicitly specified by protocol may be intentional"
+  - "Read-only signature checks without state mutation have lower impact"
+notes:
+  - "Expected answer should preserve the phase 4 confidence boundary: confirmed/security-fix."
+  - "Primary sensitive sink: permit allowance authorization."

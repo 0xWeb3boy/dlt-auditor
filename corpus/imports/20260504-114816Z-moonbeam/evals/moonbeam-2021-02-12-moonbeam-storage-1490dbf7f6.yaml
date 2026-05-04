@@ -1,0 +1,21 @@
+id: "moonbeam-2021-02-12-moonbeam-storage-1490dbf7f6"
+source_record: "moonbeam-2021-02-12-moonbeam-storage-1490dbf7f6.yaml"
+project: "moonbeam"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "historical-reward-accounting"
+expected_missing_property: "historical-state-snapshot-consistency"
+
+expected_impact_band: "economic_accounting_integrity"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Live state reads are fine for same-block/current-round rewards"
+  - "Snapshots used only for reporting do not imply a payout bug"
+  - "Reward recalculation may be harmless if all recipients are recomputed from immutable events"
+notes:
+  - "Expected answer should preserve the phase 4 confidence boundary: likely/security-hardening."
+  - "Primary sensitive sink: staking reward distribution denominator and payout allocation."

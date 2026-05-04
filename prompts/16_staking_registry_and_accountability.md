@@ -43,6 +43,8 @@ Search patterns:
 - liveness accounting that is keyed by the wrong role or committee index space
 - validator, operator, signer, committee, relayer, or node registration paths where an ID-to-signer or ID-to-owner mapping is checked through a value lookup rather than an explicit presence or absence predicate on the canonical registry key
 - registry joins or reactivations that check signer uniqueness but not stable numeric ID, slot, operator ID, or historical participation identifiers that the protocol treats as non-reusable
+- delayed reward, slash, payout, or election paths that settle a historical round using live validator, delegator, signer, or committee state instead of the immutable snapshot from the earning or accountability period
+- queued staking operations such as revoke, decrease, unbond, redelegate, or withdrawal where each request is valid alone but the cumulative pending set violates minimum stake, maximum exposure, reward denominator, slashability, or accounting invariants
 
 Questions to answer:
 1. What economic or accountability invariant is the protocol relying on?

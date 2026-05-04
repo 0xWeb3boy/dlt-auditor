@@ -1,0 +1,51 @@
+id: "moonbeam-2021-12-21-moonbeam-core-logic-22c5fb01a3"
+source_finding: "2021-12-21-moonbeam-core-logic-22c5fb01a3.md"
+project: "moonbeam"
+date: "2021-12-21"
+language_tags: ["rust"]
+
+bug_family: "authz_and_role_gates"
+bug_class: "state-corruption"
+subsystem: "core-logic"
+architecture_tags: ["substrate", "evm-compatible", "runtime"]
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "destination-key-uniqueness"
+violated_invariant: "Ownership of one registered object must not authorize overwriting or taking over another already-registered object."
+trust_boundary: "registered-user->shared-author-identity-map"
+entrypoint_type: "registration-update-extrinsic"
+sensitive_sink: "author mapping registration storage"
+
+attacker_capabilities:
+  - "Own at least one author mapping association"
+  - "Submit an update choosing another occupied author id as the destination"
+exploit_preconditions:
+  - "Update path checks source ownership"
+  - "Destination association is not checked for vacancy before insert/remove"
+blast_radius: "chain-wide"
+
+impact_types:
+  - "state-integrity"
+  - "unauthorized-action"
+  - "identity-takeover"
+severity_guess: "high"
+severity_rationale: "A valid user could corrupt or replace another author association in shared consensus-adjacent identity state."
+
+code_shape_summary: "The update path verified the caller owned old_author_id, then inserted state at caller-controlled new_author_id without first proving the destination was unoccupied."
+search_motifs:
+  - "update_association(old_id, new_id) checks old owner only"
+  - "insert(new_key, existing_info) without contains_key(new_key)"
+  - "remove old mapping before/without destination uniqueness guard"
+negative_signals:
+  - "Overwrite may be safe if insert is known to fail on occupied keys"
+  - "Destination may be protected by a unique index checked in a lower layer"
+  - "Self-renaming to the same key may need special handling but is not takeover"
+patch_pattern: "Add a destination vacancy guard before removing the old mapping or inserting into the new key."
+
+source_refs: ["raw-findings/2021-12-21-moonbeam-core-logic-22c5fb01a3.md"]
+notes:
+  - "Enriched from the validated Moonbeam finding; confidence preserves the phase 4 verdict boundary."

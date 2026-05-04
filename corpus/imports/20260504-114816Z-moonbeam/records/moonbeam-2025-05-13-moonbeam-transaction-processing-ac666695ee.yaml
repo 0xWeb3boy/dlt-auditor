@@ -1,0 +1,51 @@
+id: "moonbeam-2025-05-13-moonbeam-transaction-processing-ac666695ee"
+source_finding: "2025-05-13-moonbeam-transaction-processing-ac666695ee.md"
+project: "moonbeam"
+date: "2025-05-13"
+language_tags: ["rust"]
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "evm-resource-accounting-and-reentrancy-hardening"
+subsystem: "transaction-processing"
+architecture_tags: ["substrate", "evm-compatible", "precompile", "runtime"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "canonical-resource-accounting-representation"
+violated_invariant: "Runtime API paths that simulate or trace EVM calls must use the same canonical transaction data model and reentrancy policy as normal execution."
+trust_boundary: "rpc/runtime-api-simulated-evm-call->runtime-resource-accounting"
+entrypoint_type: "evm-runtime-api-call-tracing"
+sensitive_sink: "proof-size/base-cost and reentrancy policy for EVM runtime APIs"
+
+attacker_capabilities:
+  - "Issue EVM runtime API call/create/trace requests"
+  - "Craft transaction data whose encoded length or reentrancy behavior stresses local estimators"
+exploit_preconditions:
+  - "Manual encoded-length estimation diverges from pallet-owned transaction data"
+  - "Reentrancy-prevention feature is not enabled on the owning pallet"
+blast_radius: "runtime-subsystem"
+
+impact_types:
+  - "resource-accounting"
+  - "denial-of-service"
+  - "reentrancy-hardening"
+severity_guess: "medium"
+severity_rationale: "Canonical accounting and reentrancy hardening reduce risk, but retained evidence does not prove a concrete bypass or exploit."
+
+code_shape_summary: "Runtime API paths hand-rolled transaction length/proof-size estimates. The patch constructs pallet_ethereum::TransactionData and enables forbid-evm-reentrancy."
+search_motifs:
+  - "manual estimated_transaction_len arithmetic in EVM API"
+  - "proof_size_base_cost computed outside owning pallet type"
+  - "forbid-evm-reentrancy feature added with accounting refactor"
+negative_signals:
+  - "Manual estimation may be safe if covered by exact tests against canonical encoding"
+  - "RPC simulation-only undercharging may not affect block production"
+  - "Feature enabling alone is not proof of a prior reentrancy exploit"
+patch_pattern: "Replace duplicated local size accounting with canonical pallet transaction data and enable the pallet-provided reentrancy guard feature."
+
+source_refs: ["raw-findings/2025-05-13-moonbeam-transaction-processing-ac666695ee.md"]
+notes:
+  - "Enriched from the validated Moonbeam finding; confidence preserves the phase 4 verdict boundary."

@@ -1,0 +1,51 @@
+id: "moonbeam-2020-05-13-moonbeam-cryptography-fb437475f4"
+source_finding: "2020-05-13-moonbeam-cryptography-fb437475f4.md"
+project: "moonbeam"
+date: "2020-05-13"
+language_tags: ["rust"]
+
+bug_family: "authz_and_role_gates"
+bug_class: "improper-authorization"
+subsystem: "cryptography"
+architecture_tags: ["substrate", "evm-compatible", "runtime"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "authorization-bound-dispatch"
+violated_invariant: "Only payloads that have passed the runtime's unsigned validation/signature gate should be able to persist validator selections or session snapshots."
+trust_boundary: "offchain-worker-or-user-origin->runtime-session-state"
+entrypoint_type: "unsigned-transaction-validation-path"
+sensitive_sink: "session validator and snapshot storage writes"
+
+attacker_capabilities:
+  - "Submit session persistence extrinsics or influence offchain-worker submissions"
+  - "Choose validator or snapshot payload fields accepted by the dispatch path"
+exploit_preconditions:
+  - "Legacy path accepts signed callers carrying raw session data"
+  - "No stronger unsigned validation/signature check protects the storage mutation before dispatch"
+blast_radius: "runtime-subsystem"
+
+impact_types:
+  - "unauthorized-action"
+  - "state-integrity"
+  - "validator-set-integrity"
+severity_guess: "medium"
+severity_rationale: "Session storage affects validator/snapshot state, but the retained evidence supports hardening rather than a proven public exploit."
+
+code_shape_summary: "A dispatchable accepted a signed origin and raw caller-provided vectors, then wrote session-critical storage directly. The patch moved the state update behind unsigned payloads plus a signature-bearing validation boundary."
+search_motifs:
+  - "ensure_signed(origin) followed by writes to validator/session snapshots"
+  - "dispatchable accepts raw Vec<AccountId> or snapshot data from caller"
+  - "offchain worker submit_signed path replaced by unsigned signed-payload validation"
+negative_signals:
+  - "Unsigned extrinsics are safe when validate_unsigned checks payload signature, freshness, and replay keys"
+  - "Signed administrative-only calls may be acceptable if governance/root is the only origin"
+  - "Pure telemetry snapshots with no consensus or reward effect are lower severity"
+patch_pattern: "Replace raw signed-origin persistence calls with unsigned signed-payload calls validated by the runtime before session storage is mutated."
+
+source_refs: ["raw-findings/2020-05-13-moonbeam-cryptography-fb437475f4.md"]
+notes:
+  - "Enriched from the validated Moonbeam finding; confidence preserves the phase 4 verdict boundary."

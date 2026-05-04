@@ -1,0 +1,51 @@
+id: "moonbeam-2026-01-08-moonbeam-staking-3c23690363"
+source_finding: "2026-01-08-moonbeam-staking-3c23690363.md"
+project: "moonbeam"
+date: "2026-01-08"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "state-corruption"
+subsystem: "staking"
+architecture_tags: ["substrate", "staking", "runtime"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-fix"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "cumulative-pending-delegation-accounting"
+violated_invariant: "Pending balance-changing requests must be validated and aggregated cumulatively before they affect stake snapshots or reward denominators."
+trust_boundary: "delegator-request-queue->staking-reward-accounting"
+entrypoint_type: "staking-delegation-decrease-request"
+sensitive_sink: "reward snapshot uncounted_stake and payout denominator"
+
+attacker_capabilities:
+  - "Submit multiple delegation decrease requests for the same collator/delegator pair"
+  - "Wait until reward snapshot accounting aggregates pending requests"
+exploit_preconditions:
+  - "Each decrease is validated independently"
+  - "Snapshot accounting sums pending decreases without capping by actual bond"
+blast_radius: "chain-wide"
+
+impact_types:
+  - "state-integrity"
+  - "economic-accounting"
+  - "reward-overmint-or-misallocation"
+severity_guess: "high"
+severity_rationale: "Stacked requests can corrupt reward accounting inputs and potentially overmint or misallocate staking rewards."
+
+code_shape_summary: "Validation checked a new decrease in isolation while reward snapshot code aggregated all pending decreases. The fix sums pending decreases during validation and caps accounting by actual bonded amount."
+search_motifs:
+  - "multiple pending Decrease requests for same delegation"
+  - "uncounted_stake updated from pending amount without min(amount, bond)"
+  - "MinDelegation check ignores scheduled_requests total"
+negative_signals:
+  - "Single pending action per pair enforced by storage key uniqueness is safe"
+  - "Pending decreases not used in payout denominator are lower impact"
+  - "Capping at bond amount elsewhere may neutralize aggregation overflow"
+patch_pattern: "Apply cumulative pending-request validation and cap derived reward accounting at the actual bonded balance before payout math."
+
+source_refs: ["raw-findings/2026-01-08-moonbeam-staking-3c23690363.md"]
+notes:
+  - "Enriched from the validated Moonbeam finding; confidence preserves the phase 4 verdict boundary."

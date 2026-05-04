@@ -1,0 +1,50 @@
+id: "moonbeam-2026-02-21-moonbeam-transaction-processing-8cff9775f9"
+source_finding: "2026-02-21-moonbeam-transaction-processing-8cff9775f9.md"
+project: "moonbeam"
+date: "2026-02-21"
+language_tags: ["rust"]
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "unprotected-transaction-admission"
+subsystem: "transaction-processing"
+architecture_tags: ["substrate", "evm-compatible", "runtime"]
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "ethereum-replay-protection-admission-policy"
+violated_invariant: "Transaction admission must enforce replay-protected signatures for Ethereum-format transactions on production networks."
+trust_boundary: "external-ethereum-transaction->runtime-transaction-pool-and-execution"
+entrypoint_type: "ethereum-transaction-admission"
+sensitive_sink: "legacy Ethereum transaction acceptance"
+
+attacker_capabilities:
+  - "Create or replay a legacy transaction without chain id"
+  - "Submit through RPC or transaction pool"
+exploit_preconditions:
+  - "AllowUnprotectedTxs is enabled in runtime config"
+  - "RPC path permits the same transaction class"
+blast_radius: "runtime-subsystem"
+
+impact_types:
+  - "request-forgery-or-replay"
+  - "transaction-admission-policy-bypass"
+severity_guess: "medium"
+severity_rationale: "Legacy unprotected transaction rejection is important replay hardening, but the evidence does not prove a concrete replay exploit."
+
+code_shape_summary: "A production runtime allowed unprotected legacy Ethereum transactions by configuration. The fix sets AllowUnprotectedTxs false and aligns RPC/tests with protected transaction requirements."
+search_motifs:
+  - "AllowUnprotectedTxs true across multiple runtimes"
+  - "legacy Ethereum transactions accepted without chain id"
+  - "RPC admission flag for unprotected txs changed to false"
+negative_signals:
+  - "Dev runtimes may allow unprotected txs for local testing"
+  - "Presence of legacy transaction support is not a bug if chain-id is required"
+  - "Replay risk is lower if signatures are domain-bound elsewhere"
+patch_pattern: "Set transaction-admission policy to reject unprotected legacy transactions consistently across runtime and node RPC code."
+
+source_refs: ["raw-findings/2026-02-21-moonbeam-transaction-processing-8cff9775f9.md"]
+notes:
+  - "Enriched from the validated Moonbeam finding; confidence preserves the phase 4 verdict boundary."

@@ -1,0 +1,51 @@
+id: "moonbeam-2023-01-10-moonbeam-transaction-processing-4fed3e0d2b"
+source_finding: "2023-01-10-moonbeam-transaction-processing-4fed3e0d2b.md"
+project: "moonbeam"
+date: "2023-01-10"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "smart-contract-xcm-execute-restriction"
+subsystem: "transaction-processing"
+architecture_tags: ["substrate", "evm-compatible", "precompile", "runtime"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "restricted-selector-policy"
+violated_invariant: "A precompile must identify restricted selectors before execution and enforce caller policy for operations that can execute cross-chain messages."
+trust_boundary: "evm-call-data->cross-chain-message-execution"
+entrypoint_type: "xcm-precompile-selector"
+sensitive_sink: "XCM execute operation"
+
+attacker_capabilities:
+  - "Submit calldata to the XCM utils precompile"
+  - "Choose an execute-family selector from a contract or restricted caller context"
+exploit_preconditions:
+  - "Restricted selectors are not checked before dispatch"
+  - "Smart-contract callers can reach execute functionality"
+blast_radius: "runtime-subsystem"
+
+impact_types:
+  - "unauthorized-action"
+  - "cross-domain-message-execution"
+  - "policy-bypass"
+severity_guess: "medium"
+severity_rationale: "XCM execute is sensitive, but retained evidence only proves selector hardening and test scaffolding rather than a released bypass."
+
+code_shape_summary: "The precompile did not have a small early parser for the first four selector bytes. The patch adds a bounds-checked read_u32_selector and a pre_check hook for execute selectors."
+search_motifs:
+  - "precompile dispatch lacks pre_check for execute selector"
+  - "ABI selector parsed only after caller policy would need it"
+  - "XCM execute exposed through utility precompile"
+negative_signals:
+  - "Selector checks are unnecessary if all target functions share the same caller policy"
+  - "The execute function may already reject contracts in deeper origin conversion"
+  - "Mock/test-only precompile code is not a production issue"
+patch_pattern: "Add early selector parsing and pre-dispatch policy checks for restricted XCM execute methods."
+
+source_refs: ["raw-findings/2023-01-10-moonbeam-transaction-processing-4fed3e0d2b.md"]
+notes:
+  - "Enriched from the validated Moonbeam finding; confidence preserves the phase 4 verdict boundary."

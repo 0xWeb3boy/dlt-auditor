@@ -1,0 +1,50 @@
+id: "moonbeam-2026-02-21-moonbeam-transaction-processing-05ce4c8c1a"
+source_finding: "2026-02-21-moonbeam-transaction-processing-05ce4c8c1a.md"
+project: "moonbeam"
+date: "2026-02-21"
+language_tags: ["rust"]
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "replay-protection-policy-hardening"
+subsystem: "transaction-processing"
+architecture_tags: ["substrate", "evm-compatible", "runtime"]
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "ethereum-replay-protection-admission-policy"
+violated_invariant: "A production chain should reject legacy Ethereum transactions that lack chain-id replay protection unless an explicit safe policy requires otherwise."
+trust_boundary: "external-ethereum-transaction->runtime-transaction-pool-and-execution"
+entrypoint_type: "ethereum-transaction-admission"
+sensitive_sink: "legacy Ethereum transaction acceptance"
+
+attacker_capabilities:
+  - "Submit legacy Ethereum transactions without chain id"
+  - "Reuse or relay signatures across compatible networks"
+exploit_preconditions:
+  - "AllowUnprotectedTxs is true"
+  - "RPC or tests permit legacy transactions without chain id"
+blast_radius: "runtime-subsystem"
+
+impact_types:
+  - "request-forgery-or-replay"
+  - "transaction-admission-policy-bypass"
+severity_guess: "medium"
+severity_rationale: "Rejecting unprotected transactions hardens replay policy; no concrete replay incident or fund loss is shown."
+
+code_shape_summary: "Runtime constants and RPC setup allowed unprotected legacy Ethereum transactions. The patch flips those booleans to false across networks and updates tests away from legacy txs."
+search_motifs:
+  - "AllowUnprotectedTxs: bool = true in production runtime"
+  - "RPC allows unprotected Ethereum transactions"
+  - "tests use legacy transaction without chain id"
+negative_signals:
+  - "Private/dev chains may intentionally allow legacy unprotected transactions"
+  - "Transactions with EIP-155 chain id are not in scope"
+  - "A mempool-only flag is lower risk if runtime rejects before inclusion"
+patch_pattern: "Disable unprotected transaction acceptance at both runtime configuration and RPC admission boundaries."
+
+source_refs: ["raw-findings/2026-02-21-moonbeam-transaction-processing-05ce4c8c1a.md"]
+notes:
+  - "Enriched from the validated Moonbeam finding; confidence preserves the phase 4 verdict boundary."

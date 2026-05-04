@@ -1,0 +1,51 @@
+id: "moonbeam-2021-09-01-moonbeam-transaction-processing-2819409ef8"
+source_finding: "2021-09-01-moonbeam-transaction-processing-2819409ef8.md"
+project: "moonbeam"
+date: "2021-09-01"
+language_tags: ["rust"]
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "fee-accounting-mismatch"
+subsystem: "transaction-processing"
+architecture_tags: ["substrate", "evm-compatible", "precompile", "runtime"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "fee-accounting-consistency"
+violated_invariant: "All transaction execution paths that consume block resources must route their fees through the same canonical accounting and distribution policy."
+trust_boundary: "evm-transaction-execution->runtime-fee-accounting"
+entrypoint_type: "evm-transaction-fee-hook"
+sensitive_sink: "transaction fee imbalance burn/treasury distribution"
+
+attacker_capabilities:
+  - "Submit Ethereum-format transactions"
+  - "Choose a path handled by pallet_evm rather than normal Substrate extrinsic charging"
+exploit_preconditions:
+  - "EVM OnChargeTransaction is unset or divergent"
+  - "Fee imbalance handling is expected to fund burn/treasury policy"
+blast_radius: "runtime-subsystem"
+
+impact_types:
+  - "fee-bypass"
+  - "economic-accounting"
+  - "treasury-accounting"
+severity_guess: "medium"
+severity_rationale: "Divergent fee hooks can undercharge or misroute fees, but retained evidence does not prove free execution or direct balance creation."
+
+code_shape_summary: "The EVM runtime configuration used a no-op fee hook while Substrate transactions used DealWithFees. The fix wires EVMCurrencyAdapter and adds the EVM callback for nonzero imbalances."
+search_motifs:
+  - "OnChargeTransaction = () in an EVM runtime config"
+  - "separate fee handlers for EVM and native transaction paths"
+  - "on_unbalanceds implemented but on_nonzero_unbalanced missing for another execution path"
+negative_signals:
+  - "A no-op hook may be safe in tests or fee-free dev networks"
+  - "Fees may be charged earlier by a separate mandatory adapter"
+  - "Distribution-only differences are lower severity if total fees are still collected"
+patch_pattern: "Attach the EVM execution path to the same currency adapter and burn/treasury imbalance policy used by native transactions."
+
+source_refs: ["raw-findings/2021-09-01-moonbeam-transaction-processing-2819409ef8.md"]
+notes:
+  - "Enriched from the validated Moonbeam finding; confidence preserves the phase 4 verdict boundary."

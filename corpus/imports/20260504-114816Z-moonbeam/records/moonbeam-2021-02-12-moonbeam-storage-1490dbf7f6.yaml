@@ -1,0 +1,51 @@
+id: "moonbeam-2021-02-12-moonbeam-storage-1490dbf7f6"
+source_finding: "2021-02-12-moonbeam-storage-1490dbf7f6.md"
+project: "moonbeam"
+date: "2021-02-12"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "historical-reward-accounting"
+subsystem: "storage"
+architecture_tags: ["substrate", "evm-compatible", "runtime"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "historical-state-snapshot-consistency"
+violated_invariant: "Delayed reward settlement must use the immutable stake exposure from the earning period, not mutable live stake state from payout time."
+trust_boundary: "mutable-current-staking-state->historical-reward-settlement"
+entrypoint_type: "delayed-reward-settlement"
+sensitive_sink: "staking reward distribution denominator and payout allocation"
+
+attacker_capabilities:
+  - "Change validator/delegator staking state between reward earning and payout"
+  - "Trigger or benefit from payout after the state transition window"
+exploit_preconditions:
+  - "Rewards are paid after a delay"
+  - "The payout path reads current candidate state instead of round-indexed exposure"
+blast_radius: "runtime-subsystem"
+
+impact_types:
+  - "state-integrity"
+  - "economic-accounting"
+  - "reward-misallocation"
+severity_guess: "medium"
+severity_rationale: "Incorrect historical accounting can misallocate staking rewards, but the evidence does not quantify loss or prove a profitable path."
+
+code_shape_summary: "A delayed payout function read live candidate/delegator state while settling rewards for an earlier round. The fix introduced/used round-indexed AtStake snapshots for payout weighting."
+search_motifs:
+  - "pay_stakers reads live Candidates for round_to_payout"
+  - "reward payout delayed by BondDuration without snapshot use"
+  - "AtStake or exposure snapshot created but not consumed by settlement"
+negative_signals:
+  - "Live state reads are fine for same-block/current-round rewards"
+  - "Snapshots used only for reporting do not imply a payout bug"
+  - "Reward recalculation may be harmless if all recipients are recomputed from immutable events"
+patch_pattern: "Record immutable per-round exposure and consume that snapshot during delayed settlement instead of querying mutable candidate state."
+
+source_refs: ["raw-findings/2021-02-12-moonbeam-storage-1490dbf7f6.md"]
+notes:
+  - "Enriched from the validated Moonbeam finding; confidence preserves the phase 4 verdict boundary."

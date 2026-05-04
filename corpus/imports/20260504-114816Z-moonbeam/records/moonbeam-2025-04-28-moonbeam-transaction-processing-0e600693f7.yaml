@@ -1,0 +1,51 @@
+id: "moonbeam-2025-04-28-moonbeam-transaction-processing-0e600693f7"
+source_finding: "2025-04-28-moonbeam-transaction-processing-0e600693f7.md"
+project: "moonbeam"
+date: "2025-04-28"
+language_tags: ["rust"]
+
+bug_family: "authz_and_role_gates"
+bug_class: "access-control"
+subsystem: "transaction-processing"
+architecture_tags: ["substrate", "evm-compatible", "precompile", "runtime"]
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "target-based-proxy-call-filtering"
+violated_invariant: "A proxy authorization grants only the target classes permitted by the proxy type; broad proxy types must still apply explicit target filtering at the EVM boundary."
+trust_boundary: "authorized-proxy->evm-call-target"
+entrypoint_type: "evm-proxy-precompile-subcall"
+sensitive_sink: "proxied EVM call target selection"
+
+attacker_capabilities:
+  - "Be authorized as a proxy or use an authorized proxy path"
+  - "Choose a target address that should be blocked by proxy policy"
+exploit_preconditions:
+  - "ProxyType::Any or equivalent branch bypasses target classification"
+  - "Target classification mishandles precompile vs no-code accounts"
+blast_radius: "chain-wide"
+
+impact_types:
+  - "unauthorized-action"
+  - "access-control"
+  - "precompile-policy-bypass"
+severity_guess: "high"
+severity_rationale: "The patch fixes explicit access-control mistakes in proxy target filtering, with comments tying the change to unauthorized contract-call prevention."
+
+code_shape_summary: "Runtime proxy filtering had an unconditional allow branch and a misclassified target branch. The fix classifies targets by code/precompile status and only allows intended target classes."
+search_motifs:
+  - "ProxyType::Any => true in EVM proxy filtering"
+  - "precompile predicate used in wrong direction for simple-account branch"
+  - "AccountCodesMetadata or target classifier added to proxy precompile"
+negative_signals:
+  - "ProxyType::Any may intentionally allow all targets only if user consent covers contract calls"
+  - "Read-only target calls have lower impact than state-changing calls"
+  - "A downstream target whitelist may make the broad branch harmless"
+patch_pattern: "Replace unconditional proxy allow logic with explicit target classification and whitelist-style policy for precompiles, no-code accounts, and contracts."
+
+source_refs: ["raw-findings/2025-04-28-moonbeam-transaction-processing-0e600693f7.md"]
+notes:
+  - "Enriched from the validated Moonbeam finding; confidence preserves the phase 4 verdict boundary."

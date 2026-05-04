@@ -1,0 +1,21 @@
+id: "moonbeam-2025-04-28-moonbeam-transaction-processing-0e600693f7"
+source_record: "moonbeam-2025-04-28-moonbeam-transaction-processing-0e600693f7.yaml"
+project: "moonbeam"
+
+expected_bug_family: "authz_and_role_gates"
+expected_bug_class: "access-control"
+expected_missing_property: "target-based-proxy-call-filtering"
+
+expected_impact_band: "authorization_to_evm_target"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "ProxyType::Any may intentionally allow all targets only if user consent covers contract calls"
+  - "Read-only target calls have lower impact than state-changing calls"
+  - "A downstream target whitelist may make the broad branch harmless"
+notes:
+  - "Expected answer should preserve the phase 4 confidence boundary: confirmed/security-fix."
+  - "Primary sensitive sink: proxied EVM call target selection."

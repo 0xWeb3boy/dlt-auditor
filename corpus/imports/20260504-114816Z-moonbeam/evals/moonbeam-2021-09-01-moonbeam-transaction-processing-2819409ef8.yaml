@@ -1,0 +1,21 @@
+id: "moonbeam-2021-09-01-moonbeam-transaction-processing-2819409ef8"
+source_record: "moonbeam-2021-09-01-moonbeam-transaction-processing-2819409ef8.yaml"
+project: "moonbeam"
+
+expected_bug_family: "resource_accounting_and_limits"
+expected_bug_class: "fee-accounting-mismatch"
+expected_missing_property: "fee-accounting-consistency"
+
+expected_impact_band: "resource_accounting_or_fee_integrity"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "A no-op hook may be safe in tests or fee-free dev networks"
+  - "Fees may be charged earlier by a separate mandatory adapter"
+  - "Distribution-only differences are lower severity if total fees are still collected"
+notes:
+  - "Expected answer should preserve the phase 4 confidence boundary: likely/security-hardening."
+  - "Primary sensitive sink: transaction fee imbalance burn/treasury distribution."

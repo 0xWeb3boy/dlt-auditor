@@ -1,0 +1,51 @@
+id: "moonbeam-2021-12-15-moonbeam-transaction-processing-aa99e9353b"
+source_finding: "2021-12-15-moonbeam-transaction-processing-aa99e9353b.md"
+project: "moonbeam"
+date: "2021-12-15"
+language_tags: ["rust"]
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "replay-or-signature-validation"
+subsystem: "transaction-processing"
+architecture_tags: ["substrate", "evm-compatible", "runtime"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "signature-domain-separation-and-origin-authentication"
+violated_invariant: "A signed authorization must be scoped to the intended network/domain and bound to an authenticated origin before it can change reward address state."
+trust_boundary: "user-signed-message->reward-address-state"
+entrypoint_type: "signed-reward-address-association"
+sensitive_sink: "crowdloan reward address association/change"
+
+attacker_capabilities:
+  - "Submit reward address association or change transactions"
+  - "Present a signature that may have been produced for another network or context"
+exploit_preconditions:
+  - "Reward address operations accept signatures or signed origins"
+  - "Domain/network identifier was absent or not wired into runtime config"
+blast_radius: "runtime-subsystem"
+
+impact_types:
+  - "request-forgery-or-replay"
+  - "unauthorized-action"
+  - "reward-redirection"
+severity_guess: "medium"
+severity_rationale: "Cross-domain replay could redirect reward authorization, but the evidence shows configuration hardening rather than the verifier or exploit."
+
+code_shape_summary: "Runtime config exposed reward address operations without visible per-network signature domain constants. The patch added signed origins and network-specific SignatureNetworkIdentifier values."
+search_motifs:
+  - "signature verifier config lacks chain/network identifier"
+  - "reward or claim address change authorized by reusable signed message"
+  - "same pallet deployed across networks without domain-separated prefix"
+negative_signals:
+  - "Verifier may already include genesis hash, chain id, or pallet-specific domain elsewhere"
+  - "Root-only operations before feature activation may not be externally exploitable"
+  - "Config-only changes need verifier evidence for confirmed replay claims"
+patch_pattern: "Wire authenticated origins and per-network signature domain identifiers into reward authorization runtime configuration."
+
+source_refs: ["raw-findings/2021-12-15-moonbeam-transaction-processing-aa99e9353b.md"]
+notes:
+  - "Enriched from the validated Moonbeam finding; confidence preserves the phase 4 verdict boundary."

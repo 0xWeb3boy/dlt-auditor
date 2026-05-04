@@ -1,0 +1,21 @@
+id: "moonbeam-2026-01-08-moonbeam-staking-3c23690363"
+source_record: "moonbeam-2026-01-08-moonbeam-staking-3c23690363.yaml"
+project: "moonbeam"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "state-corruption"
+expected_missing_property: "cumulative-pending-delegation-accounting"
+
+expected_impact_band: "staking_economic_integrity"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Single pending action per pair enforced by storage key uniqueness is safe"
+  - "Pending decreases not used in payout denominator are lower impact"
+  - "Capping at bond amount elsewhere may neutralize aggregation overflow"
+notes:
+  - "Expected answer should preserve the phase 4 confidence boundary: likely/security-fix."
+  - "Primary sensitive sink: reward snapshot uncounted_stake and payout denominator."

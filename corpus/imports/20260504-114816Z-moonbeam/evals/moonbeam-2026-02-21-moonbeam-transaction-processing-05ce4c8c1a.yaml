@@ -1,0 +1,21 @@
+id: "moonbeam-2026-02-21-moonbeam-transaction-processing-05ce4c8c1a"
+source_record: "moonbeam-2026-02-21-moonbeam-transaction-processing-05ce4c8c1a.yaml"
+project: "moonbeam"
+
+expected_bug_family: "signature_binding_and_signer_scope"
+expected_bug_class: "replay-protection-policy-hardening"
+expected_missing_property: "ethereum-replay-protection-admission-policy"
+
+expected_impact_band: "replay_protection_policy"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Private/dev chains may intentionally allow legacy unprotected transactions"
+  - "Transactions with EIP-155 chain id are not in scope"
+  - "A mempool-only flag is lower risk if runtime rejects before inclusion"
+notes:
+  - "Expected answer should preserve the phase 4 confidence boundary: confirmed/security-hardening."
+  - "Primary sensitive sink: legacy Ethereum transaction acceptance."

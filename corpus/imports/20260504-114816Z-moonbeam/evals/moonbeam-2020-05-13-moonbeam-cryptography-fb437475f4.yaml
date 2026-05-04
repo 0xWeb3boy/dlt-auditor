@@ -1,0 +1,21 @@
+id: "moonbeam-2020-05-13-moonbeam-cryptography-fb437475f4"
+source_record: "moonbeam-2020-05-13-moonbeam-cryptography-fb437475f4.yaml"
+project: "moonbeam"
+
+expected_bug_family: "authz_and_role_gates"
+expected_bug_class: "improper-authorization"
+expected_missing_property: "authorization-bound-dispatch"
+
+expected_impact_band: "authorization_to_session_state"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Unsigned extrinsics are safe when validate_unsigned checks payload signature, freshness, and replay keys"
+  - "Signed administrative-only calls may be acceptable if governance/root is the only origin"
+  - "Pure telemetry snapshots with no consensus or reward effect are lower severity"
+notes:
+  - "Expected answer should preserve the phase 4 confidence boundary: likely/security-hardening."
+  - "Primary sensitive sink: session validator and snapshot storage writes."

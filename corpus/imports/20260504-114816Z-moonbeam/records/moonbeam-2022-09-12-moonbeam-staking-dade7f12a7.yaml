@@ -1,0 +1,51 @@
+id: "moonbeam-2022-09-12-moonbeam-staking-dade7f12a7"
+source_finding: "2022-09-12-moonbeam-staking-dade7f12a7.md"
+project: "moonbeam"
+date: "2022-09-12"
+language_tags: ["rust"]
+
+bug_family: "authz_and_role_gates"
+bug_class: "evm-precompile-access-control-hardening"
+subsystem: "staking"
+architecture_tags: ["substrate", "staking", "runtime"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "precompile-caller-eligibility"
+violated_invariant: "Runtime-call precompiles must enforce caller-type policy at the boundary before decoding or dispatching sensitive selectors."
+trust_boundary: "evm-contract-call->runtime-dispatch-precompile"
+entrypoint_type: "evm-precompile-call"
+sensitive_sink: "proxy/dispatch runtime call bridge"
+
+attacker_capabilities:
+  - "Use a deployed EVM contract as the precompile caller"
+  - "Target proxy or dispatch precompile functionality"
+exploit_preconditions:
+  - "Proxy precompile does not reject contract-code callers"
+  - "Generic dispatch precompile remains registered"
+blast_radius: "chain-wide"
+
+impact_types:
+  - "unauthorized-action"
+  - "origin-confusion"
+  - "runtime-call-bypass"
+severity_guess: "high"
+severity_rationale: "Removing a generic dispatch bridge and adding contract-caller rejection closes a high-risk boundary, but exploit details remain unproven."
+
+code_shape_summary: "The EVM precompile boundary lacked a reusable caller eligibility check for code-bearing accounts. The fix queries AccountCodes before selector handling and removes the Dispatch precompile."
+search_motifs:
+  - "handle.context().caller used only after selector dispatch"
+  - "AddressU64 dispatch precompile in runtime precompile registry"
+  - "tests expect smart contract caller to revert"
+negative_signals:
+  - "Some precompiles intentionally support contract callers and are safe if read-only"
+  - "A no-code sentinel account exception may be valid"
+  - "Unregistered precompile addresses in production configs are not exploitable"
+patch_pattern: "Fail early for disallowed contract callers and narrow the runtime precompile surface by unregistering generic dispatch."
+
+source_refs: ["raw-findings/2022-09-12-moonbeam-staking-dade7f12a7.md"]
+notes:
+  - "Enriched from the validated Moonbeam finding; confidence preserves the phase 4 verdict boundary."

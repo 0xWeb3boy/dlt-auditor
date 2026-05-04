@@ -1,0 +1,51 @@
+id: "moonbeam-2023-10-31-moonbeam-transaction-processing-456027eece"
+source_finding: "2023-10-31-moonbeam-transaction-processing-456027eece.md"
+project: "moonbeam"
+date: "2023-10-31"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "proxy-call-filter-hardening"
+subsystem: "transaction-processing"
+architecture_tags: ["substrate", "evm-compatible", "precompile", "runtime"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "proxy-target-account-policy"
+violated_invariant: "A proxy call filter must reject target account classes that are not valid delegated real accounts before dispatching on behalf of them."
+trust_boundary: "proxy-origin->evm-contract-account-target"
+entrypoint_type: "runtime-call-filter"
+sensitive_sink: "proxy dispatch to EVM contract account"
+
+attacker_capabilities:
+  - "Submit RuntimeCall::Proxy::proxy"
+  - "Choose a real account corresponding to an address with deployed EVM code"
+exploit_preconditions:
+  - "Proxy call filter allows proxy calls by default"
+  - "The real account can map to an EVM contract account"
+blast_radius: "runtime-subsystem"
+
+impact_types:
+  - "unauthorized-action"
+  - "origin-confusion"
+  - "contract-account-policy-bypass"
+severity_guess: "medium"
+severity_rationale: "Targeting contract accounts through proxy dispatch can confuse account/origin policy, but the retained finding does not prove a concrete exploit."
+
+code_shape_summary: "The NormalFilter denied a few proxy variants but let proxy calls fall through. The patch adds an AccountCodes lookup on the real account and rejects proxy calls targeting contract accounts."
+search_motifs:
+  - "RuntimeCall::Proxy fallback allows proxy { real, .. }"
+  - "filter checks create_pure/kill_pure but not proxy target class"
+  - "AccountCodes contains_key added to call filter"
+negative_signals:
+  - "Proxying to contract accounts may be intended if downstream origin semantics are explicit"
+  - "A separate proxy type filter may already deny sensitive calls"
+  - "Additional DB read weight must be included to avoid accounting-only noise"
+patch_pattern: "Add explicit call-filter logic for proxy targets with deployed EVM code and charge the extra storage read in weights."
+
+source_refs: ["raw-findings/2023-10-31-moonbeam-transaction-processing-456027eece.md"]
+notes:
+  - "Enriched from the validated Moonbeam finding; confidence preserves the phase 4 verdict boundary."

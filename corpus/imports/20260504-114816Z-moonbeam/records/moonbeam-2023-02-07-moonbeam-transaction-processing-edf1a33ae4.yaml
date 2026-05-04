@@ -1,0 +1,51 @@
+id: "moonbeam-2023-02-07-moonbeam-transaction-processing-edf1a33ae4"
+source_finding: "2023-02-07-moonbeam-transaction-processing-edf1a33ae4.md"
+project: "moonbeam"
+date: "2023-02-07"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "precompile-call-policy-hardening"
+subsystem: "transaction-processing"
+architecture_tags: ["substrate", "evm-compatible", "precompile", "runtime"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "centralized-precompile-call-policy"
+violated_invariant: "Every precompile dispatch path must apply the same call-mode, recursion, and caller-policy checks before entering sensitive runtime logic."
+trust_boundary: "evm-call-context->precompile-policy-engine"
+entrypoint_type: "precompile-dispatch-common-checks"
+sensitive_sink: "precompile call/delegatecall/callcode execution"
+
+attacker_capabilities:
+  - "Invoke precompiles with varied call modes such as CALL, DELEGATECALL, or CALLCODE"
+  - "Reach a precompile whose local checks differ from shared policy"
+exploit_preconditions:
+  - "Policy checks are duplicated locally"
+  - "One dispatch path omits or diverges from the intended common checks"
+blast_radius: "runtime-subsystem"
+
+impact_types:
+  - "policy-bypass"
+  - "unauthorized-action"
+  - "precompile-boundary-hardening"
+severity_guess: "medium"
+severity_rationale: "Divergent call checks at precompile boundaries are security-relevant, but retained evidence shows hardening/refactor rather than a concrete bypass."
+
+code_shape_summary: "Multiple precompile dispatch paths had local delegatecall/callcode checks. The patch routes them through shared common_checks and common policy configuration."
+search_motifs:
+  - "local DELEGATECALL check duplicated in precompile_set"
+  - "common_checks introduced at precompile dispatch"
+  - "bespoke selector pre_check removed in favor of shared policy"
+negative_signals:
+  - "Refactoring to shared checks is not a vulnerability if all old local checks were equivalent"
+  - "Pure view precompiles may tolerate broader call modes"
+  - "Tests-only check summary changes are not security evidence alone"
+patch_pattern: "Centralize call-mode and recursion policy in shared precompile check infrastructure and invoke it from every dispatch path."
+
+source_refs: ["raw-findings/2023-02-07-moonbeam-transaction-processing-edf1a33ae4.md"]
+notes:
+  - "Enriched from the validated Moonbeam finding; confidence preserves the phase 4 verdict boundary."

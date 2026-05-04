@@ -1,0 +1,21 @@
+id: "moonbeam-2022-09-12-moonbeam-staking-dade7f12a7"
+source_record: "moonbeam-2022-09-12-moonbeam-staking-dade7f12a7.yaml"
+project: "moonbeam"
+
+expected_bug_family: "authz_and_role_gates"
+expected_bug_class: "evm-precompile-access-control-hardening"
+expected_missing_property: "precompile-caller-eligibility"
+
+expected_impact_band: "precompile_authorization_boundary"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Some precompiles intentionally support contract callers and are safe if read-only"
+  - "A no-code sentinel account exception may be valid"
+  - "Unregistered precompile addresses in production configs are not exploitable"
+notes:
+  - "Expected answer should preserve the phase 4 confidence boundary: likely/security-hardening."
+  - "Primary sensitive sink: proxy/dispatch runtime call bridge."

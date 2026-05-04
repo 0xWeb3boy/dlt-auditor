@@ -1,0 +1,21 @@
+id: "moonbeam-2023-01-19-moonbeam-transaction-processing-b133edf7fd"
+source_record: "moonbeam-2023-01-19-moonbeam-transaction-processing-b133edf7fd.yaml"
+project: "moonbeam"
+
+expected_bug_family: "resource_accounting_and_limits"
+expected_bug_class: "gas-accounting-hardening"
+expected_missing_property: "gas-limit-overhead-accounting"
+
+expected_impact_band: "resource_accounting_or_dos"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Gas checks are less security-critical if all downstream work is separately metered and atomic"
+  - "Overflow-safe types alone do not prove exploitable undercharging"
+  - "Read-only precompile calls have lower impact"
+notes:
+  - "Expected answer should preserve the phase 4 confidence boundary: likely/security-hardening."
+  - "Primary sensitive sink: randomness request/fulfillment subcall execution."

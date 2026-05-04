@@ -1,0 +1,21 @@
+id: "moonbeam-2021-12-21-moonbeam-core-logic-22c5fb01a3"
+source_record: "moonbeam-2021-12-21-moonbeam-core-logic-22c5fb01a3.yaml"
+project: "moonbeam"
+
+expected_bug_family: "authz_and_role_gates"
+expected_bug_class: "state-corruption"
+expected_missing_property: "destination-key-uniqueness"
+
+expected_impact_band: "authorization_state_integrity"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Overwrite may be safe if insert is known to fail on occupied keys"
+  - "Destination may be protected by a unique index checked in a lower layer"
+  - "Self-renaming to the same key may need special handling but is not takeover"
+notes:
+  - "Expected answer should preserve the phase 4 confidence boundary: confirmed/security-fix."
+  - "Primary sensitive sink: author mapping registration storage."

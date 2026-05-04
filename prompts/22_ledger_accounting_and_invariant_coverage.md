@@ -29,6 +29,8 @@ Search patterns:
 - final accounting checks that run before gas charging, rebates, storage refunds, generated objects, dynamic fields, or temporary-store writes are known. Re-run the conservation model at the actual finalization boundary and include all generated side effects.
 - alternate execution engines or fast paths that finalize state through different stores, caches, or deferred metadata. Check that finalized deltas, fee or surplus accounting, receipt data, and writes are propagated and flushed before canonical bank, end-block, or invariant code reads them
 - mempool or admission bookkeeping that affects future transaction ordering, nonce eligibility, or promotion. Record it only at final admission or prove every later rejection path rolls it back
+- reward or staking accounting where pending operations are summarized into aggregate fields. Check both admission-time validation and settlement-time aggregation; the aggregate must be capped by actual balances or shares and must not count more pending removal than exists.
+- historical payout calculations where nominal current balances, live membership, or mutable candidate state can differ from the snapshot that earned the reward.
 
 Questions to answer:
 1. What exact state entries can this transaction create, delete, or mutate directly and indirectly?

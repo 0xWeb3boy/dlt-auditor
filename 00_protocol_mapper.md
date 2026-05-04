@@ -153,6 +153,13 @@ Your task:
   - legacy compatibility adapters.
   For each adapter, identify the canonical native path it should match, the exact identity or address-association source, the validation function or message-server path it should reuse, and the final value-transfer, governance, or accounting sink.
   For VM, native, precompile, or host-function hooks, map the active execution frame separately from decomposed caller, callee, code address, input, gas, and read-only values. Identify where direct execution is distinguished from delegated or code-substituted execution, and where the hook finally receives authoritative call-frame state.
+  For every VM/native adapter, precompile, proxy bridge, or legacy compatibility path, build a caller/target class matrix:
+  - EOA, smart contract, precompile, system account, proxy/delegated account, root/governance origin.
+  For each class pair, identify:
+  - which selectors or methods are allowed,
+  - whether the target is classified by code, registry, precompile table, or native account state,
+  - whether policy is enforced before selector dispatch and before the final native sink,
+  - whether fee, gas, weight, proof-size, and return-data semantics match the canonical native path.
 22. Map consensus-visible result data separately from state writes:
   - acknowledgements,
   - ABCI or execution result data,

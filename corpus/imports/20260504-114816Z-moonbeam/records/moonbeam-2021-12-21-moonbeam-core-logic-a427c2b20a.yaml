@@ -1,0 +1,51 @@
+id: "moonbeam-2021-12-21-moonbeam-core-logic-a427c2b20a"
+source_finding: "2021-12-21-moonbeam-core-logic-a427c2b20a.md"
+project: "moonbeam"
+date: "2021-12-21"
+language_tags: ["rust"]
+
+bug_family: "authz_and_role_gates"
+bug_class: "association-integrity"
+subsystem: "core-logic"
+architecture_tags: ["substrate", "evm-compatible", "runtime"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "destination-key-uniqueness"
+violated_invariant: "A rename/update operation must prove both source ownership and destination availability before mutating a shared identity map."
+trust_boundary: "registered-user->shared-author-identity-map"
+entrypoint_type: "registration-update-extrinsic"
+sensitive_sink: "author mapping registration storage"
+
+attacker_capabilities:
+  - "Control a valid existing association"
+  - "Supply a destination author id that is already associated"
+exploit_preconditions:
+  - "Source ownership check succeeds"
+  - "Destination occupancy is not rejected before state transition"
+blast_radius: "chain-wide"
+
+impact_types:
+  - "state-integrity"
+  - "unauthorized-action"
+  - "identity-takeover"
+severity_guess: "high"
+severity_rationale: "The flaw can let an authorized user for one key disrupt another association; exact downstream consensus impact is not fully quantified."
+
+code_shape_summary: "A mapping update treated source ownership as sufficient authorization for a destination key. The fix rejects occupied destination keys before removing or inserting association state."
+search_motifs:
+  - "source owner check but no destination contains_key check"
+  - "association rename into caller-selected existing key"
+  - "AlreadyAssociated added to update path tests"
+negative_signals:
+  - "Destination collisions are harmless if aliases are intentionally allowed"
+  - "A lower-layer reservation map may enforce uniqueness already"
+  - "Admin-only migration code has different threat model"
+patch_pattern: "Fail closed on occupied destination ids and preserve existing associations by checking uniqueness before mutation."
+
+source_refs: ["raw-findings/2021-12-21-moonbeam-core-logic-a427c2b20a.md"]
+notes:
+  - "Enriched from the validated Moonbeam finding; confidence preserves the phase 4 verdict boundary."

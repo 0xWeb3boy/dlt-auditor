@@ -1,0 +1,21 @@
+id: "moonbeam-2026-02-21-moonbeam-transaction-processing-8cff9775f9"
+source_record: "moonbeam-2026-02-21-moonbeam-transaction-processing-8cff9775f9.yaml"
+project: "moonbeam"
+
+expected_bug_family: "signature_binding_and_signer_scope"
+expected_bug_class: "unprotected-transaction-admission"
+expected_missing_property: "ethereum-replay-protection-admission-policy"
+
+expected_impact_band: "replay_protection_policy"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Dev runtimes may allow unprotected txs for local testing"
+  - "Presence of legacy transaction support is not a bug if chain-id is required"
+  - "Replay risk is lower if signatures are domain-bound elsewhere"
+notes:
+  - "Expected answer should preserve the phase 4 confidence boundary: confirmed/security-hardening."
+  - "Primary sensitive sink: legacy Ethereum transaction acceptance."

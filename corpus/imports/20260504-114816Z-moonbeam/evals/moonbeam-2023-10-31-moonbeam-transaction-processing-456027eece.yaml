@@ -1,0 +1,21 @@
+id: "moonbeam-2023-10-31-moonbeam-transaction-processing-456027eece"
+source_record: "moonbeam-2023-10-31-moonbeam-transaction-processing-456027eece.yaml"
+project: "moonbeam"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "proxy-call-filter-hardening"
+expected_missing_property: "proxy-target-account-policy"
+
+expected_impact_band: "proxy_origin_policy"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Proxying to contract accounts may be intended if downstream origin semantics are explicit"
+  - "A separate proxy type filter may already deny sensitive calls"
+  - "Additional DB read weight must be included to avoid accounting-only noise"
+notes:
+  - "Expected answer should preserve the phase 4 confidence boundary: likely/security-hardening."
+  - "Primary sensitive sink: proxy dispatch to EVM contract account."

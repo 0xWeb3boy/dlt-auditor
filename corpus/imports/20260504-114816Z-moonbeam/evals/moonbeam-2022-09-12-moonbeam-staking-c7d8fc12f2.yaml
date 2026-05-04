@@ -1,0 +1,21 @@
+id: "moonbeam-2022-09-12-moonbeam-staking-c7d8fc12f2"
+source_record: "moonbeam-2022-09-12-moonbeam-staking-c7d8fc12f2.yaml"
+project: "moonbeam"
+
+expected_bug_family: "authz_and_role_gates"
+expected_bug_class: "evm-precompile-authorization-boundary-hardening"
+expected_missing_property: "precompile-caller-eligibility"
+
+expected_impact_band: "precompile_authorization_boundary"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Contract callers may be safe if downstream origin conversion always denies privileged calls"
+  - "Precompile may be dev-only or disabled by runtime feature flags"
+  - "EOA-only checks are less relevant for read-only precompiles"
+notes:
+  - "Expected answer should preserve the phase 4 confidence boundary: confirmed/security-hardening."
+  - "Primary sensitive sink: proxy/dispatch runtime call bridge."

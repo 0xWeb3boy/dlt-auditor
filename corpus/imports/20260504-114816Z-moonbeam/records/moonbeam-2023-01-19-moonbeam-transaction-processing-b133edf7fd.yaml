@@ -1,0 +1,51 @@
+id: "moonbeam-2023-01-19-moonbeam-transaction-processing-b133edf7fd"
+source_finding: "2023-01-19-moonbeam-transaction-processing-b133edf7fd.md"
+project: "moonbeam"
+date: "2023-01-19"
+language_tags: ["rust"]
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "gas-accounting-hardening"
+subsystem: "transaction-processing"
+architecture_tags: ["substrate", "evm-compatible", "precompile", "runtime"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "gas-limit-overhead-accounting"
+violated_invariant: "Precompile paths must account for their own overhead and downstream subcall costs before accepting work that can consume execution resources."
+trust_boundary: "evm-call-gas->runtime-randomness-precompile"
+entrypoint_type: "randomness-precompile-request-or-fulfillment"
+sensitive_sink: "randomness request/fulfillment subcall execution"
+
+attacker_capabilities:
+  - "Call randomness precompile request or fulfillment functions"
+  - "Choose gas limit values near arithmetic or remaining-gas boundaries"
+exploit_preconditions:
+  - "Gas limit plus overhead is not checked with overflow protection"
+  - "Fulfillment path can start without enough gas for preparation/finish costs"
+blast_radius: "runtime-subsystem"
+
+impact_types:
+  - "denial-of-service"
+  - "resource-accounting"
+  - "unexpected-revert"
+severity_guess: "medium"
+severity_rationale: "Incomplete gas accounting can cause underpriced or partially executed work, but no consensus or fund-loss exploit is established."
+
+code_shape_summary: "The precompile compared caller gas to request limits without adding subcall overhead and lacked a conservative remaining-gas check for fulfillment. The fix uses checked_add and upfront max-cost checks."
+search_motifs:
+  - "gas_limit checked without adding subcall_overhead"
+  - "checked_add added around gas accounting"
+  - "fulfillment starts before max prepare/finish cost check"
+negative_signals:
+  - "Gas checks are less security-critical if all downstream work is separately metered and atomic"
+  - "Overflow-safe types alone do not prove exploitable undercharging"
+  - "Read-only precompile calls have lower impact"
+patch_pattern: "Use checked arithmetic for gas-plus-overhead and reject calls early when remaining gas cannot cover worst-case preparation and finish costs."
+
+source_refs: ["raw-findings/2023-01-19-moonbeam-transaction-processing-b133edf7fd.md"]
+notes:
+  - "Enriched from the validated Moonbeam finding; confidence preserves the phase 4 verdict boundary."

@@ -1,0 +1,180 @@
+{
+  "repo": "/work/moonbeam",
+  "repo_slug": "moonbeam",
+  "kept_dir": "/work/moonbeam/validated-findings/kept",
+  "created_at_utc": "20260504-114816Z",
+  "finding_count": 19,
+  "findings": [
+    {
+      "id": "moonbeam-2020-05-13-moonbeam-cryptography-fb437475f4",
+      "source": "/work/moonbeam/validated-findings/kept/2020-05-13-moonbeam-cryptography-fb437475f4.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "improper-authorization",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "moonbeam-2021-02-12-moonbeam-storage-1490dbf7f6",
+      "source": "/work/moonbeam/validated-findings/kept/2021-02-12-moonbeam-storage-1490dbf7f6.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "historical-reward-accounting",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "moonbeam-2021-09-01-moonbeam-transaction-processing-2819409ef8",
+      "source": "/work/moonbeam/validated-findings/kept/2021-09-01-moonbeam-transaction-processing-2819409ef8.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "fee-accounting-mismatch",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "moonbeam-2021-12-15-moonbeam-transaction-processing-aa99e9353b",
+      "source": "/work/moonbeam/validated-findings/kept/2021-12-15-moonbeam-transaction-processing-aa99e9353b.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "replay-or-signature-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "moonbeam-2021-12-21-moonbeam-core-logic-22c5fb01a3",
+      "source": "/work/moonbeam/validated-findings/kept/2021-12-21-moonbeam-core-logic-22c5fb01a3.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "state-corruption",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "moonbeam-2021-12-21-moonbeam-core-logic-a427c2b20a",
+      "source": "/work/moonbeam/validated-findings/kept/2021-12-21-moonbeam-core-logic-a427c2b20a.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "association-integrity",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "moonbeam-2022-09-12-moonbeam-staking-c7d8fc12f2",
+      "source": "/work/moonbeam/validated-findings/kept/2022-09-12-moonbeam-staking-c7d8fc12f2.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "evm-precompile-authorization-boundary-hardening",
+      "subsystem": "staking",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "moonbeam-2022-09-12-moonbeam-staking-dade7f12a7",
+      "source": "/work/moonbeam/validated-findings/kept/2022-09-12-moonbeam-staking-dade7f12a7.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "evm-precompile-access-control-hardening",
+      "subsystem": "staking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "moonbeam-2023-01-10-moonbeam-transaction-processing-4fed3e0d2b",
+      "source": "/work/moonbeam/validated-findings/kept/2023-01-10-moonbeam-transaction-processing-4fed3e0d2b.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "smart-contract-xcm-execute-restriction",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "moonbeam-2023-01-19-moonbeam-transaction-processing-b133edf7fd",
+      "source": "/work/moonbeam/validated-findings/kept/2023-01-19-moonbeam-transaction-processing-b133edf7fd.md",
+      "bug_family": "resource_accounting_and_limits",
+      "bug_class": "gas-accounting-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "resource-accounting"
+    },
+    {
+      "id": "moonbeam-2023-02-07-moonbeam-transaction-processing-edf1a33ae4",
+      "source": "/work/moonbeam/validated-findings/kept/2023-02-07-moonbeam-transaction-processing-edf1a33ae4.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "precompile-call-policy-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "moonbeam-2023-10-31-moonbeam-transaction-processing-456027eece",
+      "source": "/work/moonbeam/validated-findings/kept/2023-10-31-moonbeam-transaction-processing-456027eece.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "proxy-call-filter-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "moonbeam-2025-04-28-moonbeam-transaction-processing-0e600693f7",
+      "source": "/work/moonbeam/validated-findings/kept/2025-04-28-moonbeam-transaction-processing-0e600693f7.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "access-control",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "moonbeam-2025-05-13-moonbeam-transaction-processing-ac666695ee",
+      "source": "/work/moonbeam/validated-findings/kept/2025-05-13-moonbeam-transaction-processing-ac666695ee.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "evm-resource-accounting-and-reentrancy-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "moonbeam-2026-01-08-moonbeam-staking-3c23690363",
+      "source": "/work/moonbeam/validated-findings/kept/2026-01-08-moonbeam-staking-3c23690363.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "state-corruption",
+      "subsystem": "staking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "moonbeam-2026-01-08-moonbeam-staking-5f3e4b30c6",
+      "source": "/work/moonbeam/validated-findings/kept/2026-01-08-moonbeam-staking-5f3e4b30c6.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "state-corruption",
+      "subsystem": "staking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "moonbeam-2026-02-18-moonbeam-cryptography-18b6a81dad",
+      "source": "/work/moonbeam/validated-findings/kept/2026-02-18-moonbeam-cryptography-18b6a81dad.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "permit-deadline-validation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "moonbeam-2026-02-21-moonbeam-transaction-processing-05ce4c8c1a",
+      "source": "/work/moonbeam/validated-findings/kept/2026-02-21-moonbeam-transaction-processing-05ce4c8c1a.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "replay-protection-policy-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "moonbeam-2026-02-21-moonbeam-transaction-processing-8cff9775f9",
+      "source": "/work/moonbeam/validated-findings/kept/2026-02-21-moonbeam-transaction-processing-8cff9775f9.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "unprotected-transaction-admission",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    }
+  ]
+}

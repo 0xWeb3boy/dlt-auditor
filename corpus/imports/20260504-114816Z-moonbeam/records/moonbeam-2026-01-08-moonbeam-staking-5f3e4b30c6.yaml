@@ -1,0 +1,51 @@
+id: "moonbeam-2026-01-08-moonbeam-staking-5f3e4b30c6"
+source_finding: "2026-01-08-moonbeam-staking-5f3e4b30c6.md"
+project: "moonbeam"
+date: "2026-01-08"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "state-corruption"
+subsystem: "staking"
+architecture_tags: ["substrate", "staking", "runtime"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-fix"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "cumulative-pending-delegation-accounting"
+violated_invariant: "A queue of pending stake decreases must never reduce counted stake by more than the real bonded amount for that delegation."
+trust_boundary: "delegator-request-queue->staking-reward-accounting"
+entrypoint_type: "staking-delegation-decrease-request"
+sensitive_sink: "reward snapshot denominator and payout allocation"
+
+attacker_capabilities:
+  - "Schedule stacked Decrease actions against the same delegation"
+  - "Reach a payout/snapshot round that aggregates those pending actions"
+exploit_preconditions:
+  - "Decrease requests are accepted one-by-one against current bond"
+  - "Aggregation can make uncounted stake exceed actual bond"
+blast_radius: "chain-wide"
+
+impact_types:
+  - "state-integrity"
+  - "economic-accounting"
+  - "reward-overmint-or-misallocation"
+severity_guess: "high"
+severity_rationale: "Corrupting the denominator of staking rewards is chain-economic impact even if exploit profitability is not fully quantified."
+
+code_shape_summary: "Request acceptance and reward accounting used inconsistent views of pending decreases. The patch aggregates scheduled decreases and clamps accounting to the real bond."
+search_motifs:
+  - "bonded_amount - decrease_amount check ignores queued decreases"
+  - "pending decrease amount added to uncounted_stake unchecked"
+  - "regression test for stacked decreases breaking reward accounting"
+negative_signals:
+  - "If request queue enforces one active decrease, cumulative validation is redundant"
+  - "If rewards are recomputed from actual balances only, denominator corruption may be non-security"
+  - "Administrative migration of stake requests has a different threat model"
+patch_pattern: "Use one cumulative invariant for pending stake decreases across request admission and reward snapshot aggregation."
+
+source_refs: ["raw-findings/2026-01-08-moonbeam-staking-5f3e4b30c6.md"]
+notes:
+  - "Enriched from the validated Moonbeam finding; confidence preserves the phase 4 verdict boundary."

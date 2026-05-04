@@ -1,0 +1,21 @@
+id: "moonbeam-2021-12-15-moonbeam-transaction-processing-aa99e9353b"
+source_record: "moonbeam-2021-12-15-moonbeam-transaction-processing-aa99e9353b.yaml"
+project: "moonbeam"
+
+expected_bug_family: "signature_binding_and_signer_scope"
+expected_bug_class: "replay-or-signature-validation"
+expected_missing_property: "signature-domain-separation-and-origin-authentication"
+
+expected_impact_band: "authorization_or_replay_hardening"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Verifier may already include genesis hash, chain id, or pallet-specific domain elsewhere"
+  - "Root-only operations before feature activation may not be externally exploitable"
+  - "Config-only changes need verifier evidence for confirmed replay claims"
+notes:
+  - "Expected answer should preserve the phase 4 confidence boundary: likely/security-hardening."
+  - "Primary sensitive sink: crowdloan reward address association/change."

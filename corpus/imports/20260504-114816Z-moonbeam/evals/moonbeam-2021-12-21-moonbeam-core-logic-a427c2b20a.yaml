@@ -1,0 +1,21 @@
+id: "moonbeam-2021-12-21-moonbeam-core-logic-a427c2b20a"
+source_record: "moonbeam-2021-12-21-moonbeam-core-logic-a427c2b20a.yaml"
+project: "moonbeam"
+
+expected_bug_family: "authz_and_role_gates"
+expected_bug_class: "association-integrity"
+expected_missing_property: "destination-key-uniqueness"
+
+expected_impact_band: "authorization_state_integrity"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Destination collisions are harmless if aliases are intentionally allowed"
+  - "A lower-layer reservation map may enforce uniqueness already"
+  - "Admin-only migration code has different threat model"
+notes:
+  - "Expected answer should preserve the phase 4 confidence boundary: likely/security-hardening."
+  - "Primary sensitive sink: author mapping registration storage."

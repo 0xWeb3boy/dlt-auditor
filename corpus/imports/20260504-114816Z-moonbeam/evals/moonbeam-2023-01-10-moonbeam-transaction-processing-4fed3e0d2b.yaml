@@ -1,0 +1,21 @@
+id: "moonbeam-2023-01-10-moonbeam-transaction-processing-4fed3e0d2b"
+source_record: "moonbeam-2023-01-10-moonbeam-transaction-processing-4fed3e0d2b.yaml"
+project: "moonbeam"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "smart-contract-xcm-execute-restriction"
+expected_missing_property: "restricted-selector-policy"
+
+expected_impact_band: "cross_domain_execution_policy"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Selector checks are unnecessary if all target functions share the same caller policy"
+  - "The execute function may already reject contracts in deeper origin conversion"
+  - "Mock/test-only precompile code is not a production issue"
+notes:
+  - "Expected answer should preserve the phase 4 confidence boundary: likely/security-hardening."
+  - "Primary sensitive sink: XCM execute operation."

@@ -1,0 +1,21 @@
+id: "moonbeam-2025-05-13-moonbeam-transaction-processing-ac666695ee"
+source_record: "moonbeam-2025-05-13-moonbeam-transaction-processing-ac666695ee.yaml"
+project: "moonbeam"
+
+expected_bug_family: "resource_accounting_and_limits"
+expected_bug_class: "evm-resource-accounting-and-reentrancy-hardening"
+expected_missing_property: "canonical-resource-accounting-representation"
+
+expected_impact_band: "resource_accounting_or_reentrancy_hardening"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Manual estimation may be safe if covered by exact tests against canonical encoding"
+  - "RPC simulation-only undercharging may not affect block production"
+  - "Feature enabling alone is not proof of a prior reentrancy exploit"
+notes:
+  - "Expected answer should preserve the phase 4 confidence boundary: likely/security-hardening."
+  - "Primary sensitive sink: proof-size/base-cost and reentrancy policy for EVM runtime APIs."

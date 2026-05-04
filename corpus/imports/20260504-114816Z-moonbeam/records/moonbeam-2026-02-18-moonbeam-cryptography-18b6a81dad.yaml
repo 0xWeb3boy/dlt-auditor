@@ -1,0 +1,51 @@
+id: "moonbeam-2026-02-18-moonbeam-cryptography-18b6a81dad"
+source_finding: "2026-02-18-moonbeam-cryptography-18b6a81dad.md"
+project: "moonbeam"
+date: "2026-02-18"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "permit-deadline-validation"
+subsystem: "cryptography"
+architecture_tags: ["substrate", "evm-compatible", "runtime"]
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "deadline-unit-consistency"
+violated_invariant: "Signed authorization deadlines must be compared in consistent units and fail closed on overflow before approving state changes."
+trust_boundary: "signed-permit-message->token-allowance-state"
+entrypoint_type: "erc20-permit-precompile"
+sensitive_sink: "permit allowance authorization"
+
+attacker_capabilities:
+  - "Possess or relay an expired signed permit"
+  - "Submit it during the unit-rounding window"
+exploit_preconditions:
+  - "Runtime timestamp is milliseconds"
+  - "Code floors current time to seconds before comparing to second-based deadline"
+blast_radius: "chain-wide"
+
+impact_types:
+  - "unauthorized-action"
+  - "signature-expiration-bypass"
+  - "allowance-misuse"
+severity_guess: "high"
+severity_rationale: "Expired permits can authorize token allowance changes after their intended deadline; overflow is handled fail-closed by the fix."
+
+code_shape_summary: "The permit guard divided the current millisecond timestamp by 1000, creating a floor-rounding window. The fix multiplies the deadline to milliseconds with checked_mul and compares directly."
+search_motifs:
+  - "timestamp / 1000 compared to deadline"
+  - "permit deadline checked after unit conversion with flooring"
+  - "checked_mul(1000) added to authorization expiry guard"
+negative_signals:
+  - "If both timestamp and deadline are already same units, unit normalization is not a bug"
+  - "A grace period explicitly specified by protocol may be intentional"
+  - "Read-only signature checks without state mutation have lower impact"
+patch_pattern: "Normalize deadline and current time to the same unit, use checked arithmetic for conversion, and reject expired or overflowing permits."
+
+source_refs: ["raw-findings/2026-02-18-moonbeam-cryptography-18b6a81dad.md"]
+notes:
+  - "Enriched from the validated Moonbeam finding; confidence preserves the phase 4 verdict boundary."

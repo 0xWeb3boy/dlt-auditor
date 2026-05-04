@@ -1,0 +1,21 @@
+id: "moonbeam-2023-02-07-moonbeam-transaction-processing-edf1a33ae4"
+source_record: "moonbeam-2023-02-07-moonbeam-transaction-processing-edf1a33ae4.yaml"
+project: "moonbeam"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "precompile-call-policy-hardening"
+expected_missing_property: "centralized-precompile-call-policy"
+
+expected_impact_band: "precompile_policy_integrity"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Refactoring to shared checks is not a vulnerability if all old local checks were equivalent"
+  - "Pure view precompiles may tolerate broader call modes"
+  - "Tests-only check summary changes are not security evidence alone"
+notes:
+  - "Expected answer should preserve the phase 4 confidence boundary: likely/security-hardening."
+  - "Primary sensitive sink: precompile call/delegatecall/callcode execution."
