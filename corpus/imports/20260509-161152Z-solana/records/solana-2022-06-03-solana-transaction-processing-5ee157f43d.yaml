@@ -1,0 +1,39 @@
+id: "solana-2022-06-03-solana-transaction-processing-5ee157f43d"
+source_finding: "2022-06-03-solana-transaction-processing-5ee157f43d.md"
+project: "solana"
+date: "2022-06-03"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "replay-domain-collision"
+subsystem: "transaction-processing"
+architecture_tags: ["transaction-processing", "infrastructure", "durable-nonce", "blockhash-domain-separation", "replay-protection"]
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "nonce-state-consistency"
+violated_invariant: "Protocol input must satisfy nonce state consistency before it can reach bank freezing/rooting, tower vote decision, fork-choice state, or consensus-visible status."
+trust_boundary: "peer-provided ledger/vote evidence to local consensus and fork-choice state"
+entrypoint_type: "block replay, vote processing, fork-choice update, or duplicate-slot recovery"
+sensitive_sink: "bank freezing/rooting, tower vote decision, fork-choice state, or consensus-visible status"
+
+attacker_capabilities: ["Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints."]
+exploit_preconditions: ["The malformed input reaches the sensitive sink before canonical validation rejects it."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["transaction-replay", "double-execution"]
+severity_guess: "Medium"
+severity_rationale: "The issue was confirmed as a security fix, but the available evidence does not establish direct high-impact loss."
+
+code_shape_summary: "The commit fixes a replay-domain collision between Solana durable nonce values and normal blockhashes. The commit message explicitly states that AdvanceNonceAccount could update a nonce to a raw blockhash, allowing a durable transaction to be executed both as a normal transaction and as a nonce transaction when that blockhash was used as recent_blockhash. The patch separates the domains and updates observed runtime and CLI nonce consumers to use the non..."
+search_motifs: ["search for replay domain collision checks near transaction-processing entrypoints", "compare validation before and after the nonce-state-consistency sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for state transitions where observation and enforcement use different coordinates"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path."]
+patch_pattern: "Domain-separate replay identifiers used by distinct transaction acceptance paths, then update nonce readers to consume the domain-separated nonce value rather than the raw stored blockhash field."
+
+source_refs: ["/testing/solana/validated-findings/kept/2022-06-03-solana-transaction-processing-5ee157f43d.md", "git:5ee157f43d86d4a70b5117c9e66246f65b177d90", "cli/src/nonce.rs:334", "runtime/src/bank.rs:13204", "runtime/src/bank.rs:12353", "cli/src/nonce.rs:599"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

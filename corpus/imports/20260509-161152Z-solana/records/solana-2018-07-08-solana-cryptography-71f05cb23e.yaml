@@ -1,0 +1,39 @@
+id: "solana-2018-07-08-solana-cryptography-71f05cb23e"
+source_finding: "2018-07-08-solana-cryptography-71f05cb23e.md"
+project: "solana"
+date: "2018-07-08"
+language_tags: ["rust"]
+
+bug_family: "authz_and_role_gates"
+bug_class: "timestamp-source-authorization"
+subsystem: "cryptography"
+architecture_tags: ["cryptography", "blockchain-core", "payment-plan", "timestamp", "authorization", "contract-witness"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "authorization-and-privilege-check"
+violated_invariant: "Protocol input must satisfy authorization and privilege check before it can reach consensus, accounting, or authorization-sensitive state."
+trust_boundary: "untrusted external input to protocol enforcement layer"
+entrypoint_type: "protocol input or state-transition entrypoint"
+sensitive_sink: "consensus, accounting, or authorization-sensitive state"
+
+attacker_capabilities: ["Can supply malformed or adversarial protocol input at the affected boundary."]
+exploit_preconditions: ["The sensitive operation is reachable without proving the exact authority, owner, signer, or privilege being assumed."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["unauthorized-condition-satisfaction"]
+severity_guess: "Low/Medium"
+severity_rationale: "The finding is useful security-hardening evidence; severity depends on reachability and missing compensating controls."
+
+code_shape_summary: "The patch fixes budget timestamp witness evaluation so future-payment conditions are checked against an explicit source public key before a locked budget can reduce to a payment. The evidence supports a contract-level authorization fix for timestamp sources, without proving a full exploit path or concrete loss."
+search_motifs: ["search for timestamp source authorization checks near cryptography entrypoints", "compare validation before and after the authorization-and-privilege-check sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for authority checks in wrappers but not at the final state-changing sink"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path.", "The account or authority is derived from trusted state and cannot be chosen by the caller."]
+patch_pattern: "Propagate source identity into condition evaluation and require timestamp witnesses to match the authority encoded in the budget condition before performing the state transition."
+
+source_refs: ["/testing/solana/validated-findings/kept/2018-07-08-solana-cryptography-71f05cb23e.md", "git:71f05cb23e447dd8edb1b38c7ef0ff8463c18354", "src/budget.rs:102", "src/budget.rs:161", "src/budget.rs:119", "src/budget.rs:144"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

@@ -1,0 +1,39 @@
+id: "solana-2022-02-24-solana-transaction-processing-3bee925967"
+source_finding: "2022-02-24-solana-transaction-processing-3bee925967.md"
+project: "solana"
+date: "2022-02-24"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "rent-resource-accounting-invariant"
+subsystem: "transaction-processing"
+architecture_tags: ["transaction-processing", "infrastructure", "rent-validation", "account-reallocation", "resource-accounting"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "resource-accounting-and-bounds"
+violated_invariant: "Protocol input must satisfy resource accounting and bounds before it can reach account balance/state mutation, fee/rent accounting, nonce state, or transaction commitment."
+trust_boundary: "signed client transaction to bank accounting and execution state"
+entrypoint_type: "transaction admission, sanitization, or execution path"
+sensitive_sink: "account balance/state mutation, fee/rent accounting, nonce state, or transaction commitment"
+
+attacker_capabilities: ["Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints."]
+exploit_preconditions: ["The node processes attacker-controlled volume before the missing limit or endpoint check is enforced."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["resource-accounting-invariant"]
+severity_guess: "Low/Medium"
+severity_rationale: "The finding is useful security-hardening evidence; severity depends on reachability and missing compensating controls."
+
+code_shape_summary: "The patch likely fixes a Solana runtime rent-validation invariant gap. The strongest evidence is the change to `RentState::transition_allowed_from`, which adds realloc-aware comparison of pre- and post-transaction `RentPaying` data sizes and rejects rent-paying-to-rent-paying transitions when the size changed."
+search_motifs: ["search for rent resource accounting invariant checks near transaction-processing entrypoints", "compare validation before and after the resource-accounting-and-bounds sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for allocation, serialization, fanout, or scheduling before quota checks"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path.", "The expensive allocation is bounded by a separately enforced stake, peer, or per-request quota."]
+patch_pattern: "Make the transition validation carry the missing state dimension, then reject transitions that violate the invariant at the rent-state boundary."
+
+source_refs: ["/testing/solana/validated-findings/kept/2022-02-24-solana-transaction-processing-3bee925967.md", "git:3bee9259672902cb47bf7f2f11e766b8ffee090b", "runtime/src/account_rent_state.rs:138", "runtime/src/bank.rs:17284", "sdk/src/system_transaction.rs:28", "runtime/src/account_rent_state.rs:31"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

@@ -1,0 +1,39 @@
+id: "solana-2019-03-08-solana-p2p-networking-c8c85ff93b"
+source_finding: "2019-03-08-solana-p2p-networking-c8c85ff93b.md"
+project: "solana"
+date: "2019-03-08"
+language_tags: ["rust"]
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "gossip-signature-integrity"
+subsystem: "p2p-networking"
+architecture_tags: ["p2p-networking", "blockchain-core", "gossip", "signature", "identity-binding", "security-hardening"]
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "signature-and-signer-binding"
+violated_invariant: "Protocol input must satisfy signature and signer binding before it can reach network resource allocation, peer metadata acceptance, repair scheduling, or packet fanout."
+trust_boundary: "untrusted peer network traffic to validator networking pipeline"
+entrypoint_type: "peer packet, gossip value, repair response, or QUIC/UDP ingress"
+sensitive_sink: "network resource allocation, peer metadata acceptance, repair scheduling, or packet fanout"
+
+attacker_capabilities: ["Can send peer-network traffic or influence peer-visible metadata.", "Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints."]
+exploit_preconditions: ["A signed artifact is accepted without fully binding the expected signer, domain, length, identity, or replay coordinate."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["integrity"]
+severity_guess: "Medium"
+severity_rationale: "The issue was confirmed as a security fix, but the available evidence does not establish direct high-impact loss."
+
+code_shape_summary: "The patch changes Solana gossip initialization so the local self ContactInfo is inserted through a dedicated insert_self path instead of the generic insert_info path. The new path checks that node_info.id matches the local node id, signs the ContactInfo with the local keypair, and only then inserts it into CRDS. This supports a likely security fix for preventing incorrectly signed self gossip records, though the provided evidence does not establish remo..."
+search_motifs: ["search for gossip signature integrity checks near p2p-networking entrypoints", "compare validation before and after the signature-and-signer-binding sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for signed payload fields that are decoded but not bound to signer/domain/replay state"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path.", "The signature library or sanitized message type already commits the disputed field unconditionally."]
+patch_pattern: "Use a self-specific insertion path for identity-bearing gossip records. Enforce the local identity match before signing, sign with the local keypair, and reject mismatched self records instead of passing them through generic CRDS insertion."
+
+source_refs: ["/testing/solana/validated-findings/kept/2019-03-08-solana-p2p-networking-c8c85ff93b.md", "git:c8c85ff93b9508f67fdfe891ee8c26990baef833", "core/src/cluster_info.rs:778", "core/src/cluster_info.rs:1504", "core/src/cluster_info.rs:177", "core/src/cluster_info.rs:819"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

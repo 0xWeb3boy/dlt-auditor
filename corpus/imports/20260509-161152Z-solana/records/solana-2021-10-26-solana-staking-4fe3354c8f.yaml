@@ -1,0 +1,39 @@
+id: "solana-2021-10-26-solana-staking-4fe3354c8f"
+source_finding: "2021-10-26-solana-staking-4fe3354c8f.md"
+project: "solana"
+date: "2021-10-26"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "unchecked-sysvar-account-input"
+subsystem: "staking"
+architecture_tags: ["staking", "blockchain-core", "sysvar", "instruction-introspection", "account-validation", "sdk-hardening"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "input-shape-validation"
+violated_invariant: "Protocol input must satisfy input shape validation before it can reach account balance/state mutation, fee/rent accounting, nonce state, or transaction commitment."
+trust_boundary: "signed client transaction to bank accounting and execution state"
+entrypoint_type: "transaction admission, sanitization, or execution path"
+sensitive_sink: "account balance/state mutation, fee/rent accounting, nonce state, or transaction commitment"
+
+attacker_capabilities: ["Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints."]
+exploit_preconditions: ["The malformed input reaches the sensitive sink before canonical validation rejects it."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["input-validation", "account-spoofing-resistance"]
+severity_guess: "Low/Medium"
+severity_rationale: "The finding is useful security-hardening evidence; severity depends on reachability and missing compensating controls."
+
+code_shape_summary: "The patch adds safer Solana instructions-sysvar helper APIs and updates an example caller to use one of them. The evidence supports security-relevant hardening around sysvar identity checks and relative instruction lookup error handling, but not a confirmed vulnerability fix."
+search_motifs: ["search for unchecked sysvar account input checks near staking entrypoints", "compare validation before and after the input-shape-validation sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path."]
+patch_pattern: "Add checked SDK helper APIs that accept AccountInfo, validate the expected sysvar id before reading, return typed ProgramError values for invalid inputs, and add regression tests for boundary behavior."
+
+source_refs: ["/testing/solana/validated-findings/kept/2021-10-26-solana-staking-4fe3354c8f.md", "git:4fe3354c8f78cc140c71ea9897cd663ac33dde11", "sdk/program/src/sysvar/instructions.rs:38", "sdk/program/src/sysvar/instructions.rs:89", "sdk/program/src/sysvar/instructions.rs:279", "programs/bpf/rust/instruction_introspection/src/lib.rs:37"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

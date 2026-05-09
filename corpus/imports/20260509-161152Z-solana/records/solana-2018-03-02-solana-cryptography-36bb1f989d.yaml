@@ -1,0 +1,39 @@
+id: "solana-2018-03-02-solana-cryptography-36bb1f989d"
+source_finding: "2018-03-02-solana-cryptography-36bb1f989d.md"
+project: "solana"
+date: "2018-03-02"
+language_tags: ["rust"]
+
+bug_family: "state_machine_and_lifecycle_consistency"
+bug_class: "double-spend-stale-accounting"
+subsystem: "cryptography"
+architecture_tags: ["cryptography", "blockchain-core", "double-spend", "stale-balance", "signature-validation", "replay-protection"]
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "immediate-state-reservation"
+violated_invariant: "Accepted spends must reserve or update spendable balance before any later spend is checked against the same account state."
+trust_boundary: "signed client spend event to local accountant balance state and historian logging"
+entrypoint_type: "signed deposit or transfer event accepted by the transaction-accounting path"
+sensitive_sink: "account balance mutation, spend acceptance, and signature reservation"
+
+attacker_capabilities: ["Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints."]
+exploit_preconditions: ["A previous spend can be accepted but not reflected in the balance checked by a later spend.", "Historian logging or duplicate-signature reservation is delayed relative to accountant acceptance."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["double-spend", "unauthorized-spend"]
+severity_guess: "High"
+severity_rationale: "The impact can affect funds, consensus safety, authorization boundaries, or runtime integrity when reachable."
+
+code_shape_summary: "Confirmed security fix for a double-spend window in the accountant/historian transaction path. The commit explicitly states that a client could spend funds before the accountant processed a previous spend, and the patch moves signed-event validation into the accountant path while updating balances immediately rather than depending only on later historian processing."
+search_motifs: ["search for double spend stale accounting checks near cryptography entrypoints", "compare balance checks against the point where accepted spends reserve or update state", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for delayed logging, batching, or historian pipelines that lag spend-accounting state"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path."]
+patch_pattern: "Move validation and state reservation/update ahead of delayed logging or processing, so accepted spends immediately affect the balance state used by subsequent spend checks."
+
+source_refs: ["/testing/solana/validated-findings/kept/2018-03-02-solana-cryptography-36bb1f989d.md", "git:36bb1f989d0c57cdbff9b31ed72cfa17d5221037", "src/accountant.rs:81", "src/accountant.rs:46", "src/accountant.rs:87", "src/historian.rs:46"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

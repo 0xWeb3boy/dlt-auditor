@@ -1,0 +1,39 @@
+id: "solana-2021-07-01-solana-cryptography-03d213d764"
+source_finding: "2021-07-01-solana-cryptography-03d213d764.md"
+project: "solana"
+date: "2021-07-01"
+language_tags: ["rust"]
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "transaction-signature-length-validation"
+subsystem: "cryptography"
+architecture_tags: ["cryptography", "blockchain-core", "transaction-validation", "signature", "rpc", "ledger", "security-hardening"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "signature-format-validation"
+violated_invariant: "Protocol input must satisfy signature format validation before it can reach RPC method execution, account scan, or transaction forwarding."
+trust_boundary: "untrusted RPC caller to node query/transaction service"
+entrypoint_type: "JSON-RPC request or RPC transaction submission"
+sensitive_sink: "RPC method execution, account scan, or transaction forwarding"
+
+attacker_capabilities: ["Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints.", "Can influence persisted, downloaded, or replayed state material, or trigger startup/recovery handling."]
+exploit_preconditions: ["A signed artifact is accepted without fully binding the expected signer, domain, length, identity, or replay coordinate."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["invalid-transaction-admission"]
+severity_guess: "Low/Medium"
+severity_rationale: "The finding is useful security-hardening evidence; severity depends on reachability and missing compensating controls."
+
+code_shape_summary: "The patch adds explicit `verify_signatures_len()` checks in RPC transaction verification and ledger entry verification/hashing paths. The evidence supports a security-relevant transaction validation hardening for rejecting transactions with extra or otherwise invalid signature counts, but it does not establish a concrete exploit such as forgery, replay, double-spend, or consensus divergence."
+search_motifs: ["search for transaction signature length validation checks near cryptography entrypoints", "compare validation before and after the signature-format-validation sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for signed payload fields that are decoded but not bound to signer/domain/replay state"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path.", "The signature library or sanitized message type already commits the disputed field unconditionally."]
+patch_pattern: "Add explicit structural validation for transaction signature-vector length at transaction admission and ledger verification boundaries."
+
+source_refs: ["/testing/solana/validated-findings/kept/2021-07-01-solana-cryptography-03d213d764.md", "git:03d213d764ebc3a7a4439ee8b678a3d1b439b8c3", "client/src/rpc_custom_error.rs:155", "rpc/src/rpc.rs:1900", "ledger/src/entry.rs:529", "client/src/rpc_custom_error.rs:53"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

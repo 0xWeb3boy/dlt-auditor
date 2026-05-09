@@ -1,0 +1,39 @@
+id: "solana-2021-03-16-solana-staking-999f81c56d"
+source_finding: "2021-03-16-solana-staking-999f81c56d.md"
+project: "solana"
+date: "2021-03-16"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "missing-resource-metering"
+subsystem: "staking"
+architecture_tags: ["staking", "blockchain-core", "bpf-loader", "cpi", "compute-budget", "resource-accounting", "security-hardening"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "resource-accounting-and-bounds"
+violated_invariant: "Protocol input must satisfy resource accounting and bounds before it can reach account owner/write privilege, executable program state, or runtime syscall side effect."
+trust_boundary: "untrusted program instruction/CPI frame to runtime account and privilege enforcement"
+entrypoint_type: "native program, loader, SBF/BPF, or CPI invocation"
+sensitive_sink: "account owner/write privilege, executable program state, or runtime syscall side effect"
+
+attacker_capabilities: ["Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints."]
+exploit_preconditions: ["The node processes attacker-controlled volume before the missing limit or endpoint check is enforced."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["resource-exhaustion"]
+severity_guess: "Medium"
+severity_rationale: "The impact primarily affects availability, liveness, or validator resource consumption rather than direct fund theft."
+
+code_shape_summary: "The patch is a resource-metering hardening change in Solana's BPF loader CPI path. It adds the `cpi_data_cost` feature gate and, when active, charges the compute meter for CPI account data bytes in both Rust and C account translation paths. The evidence supports CPI byte-accounting hardening, but not an access-control, staking, privilege-escalation, funds-loss, or proven denial-of-service finding."
+search_motifs: ["search for missing resource metering checks near staking entrypoints", "compare validation before and after the resource-accounting-and-bounds sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for allocation, serialization, fanout, or scheduling before quota checks"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path.", "The expensive allocation is bounded by a separately enforced stake, peer, or per-request quota."]
+patch_pattern: "Add feature-gated resource accounting at the point where CPI account data length is known, and apply the same accounting across equivalent Rust and C CPI translation paths by threading shared runtime context into the helper."
+
+source_refs: ["/testing/solana/validated-findings/kept/2021-03-16-solana-staking-999f81c56d.md", "git:999f81c56da44930de0cc946553f9b9b6170975f", "sdk/src/feature_set.rs:218", "programs/bpf_loader/src/syscalls.rs:1309", "programs/bpf_loader/src/syscalls.rs:1016", "programs/bpf_loader/src/syscalls.rs:1456"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

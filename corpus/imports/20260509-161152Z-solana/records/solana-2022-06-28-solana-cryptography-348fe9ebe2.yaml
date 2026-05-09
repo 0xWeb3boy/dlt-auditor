@@ -1,0 +1,39 @@
+id: "solana-2022-06-28-solana-cryptography-348fe9ebe2"
+source_finding: "2022-06-28-solana-cryptography-348fe9ebe2.md"
+project: "solana"
+date: "2022-06-28"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "late-network-input-validation"
+subsystem: "cryptography"
+architecture_tags: ["cryptography", "validator", "network-input", "shred-validation", "early-rejection", "dos-hardening"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "stake-accountability-invariant"
+violated_invariant: "Protocol input must satisfy stake accountability invariant before it can reach stake delegation, withdrawal, reward accounting, vote authority, or validator weight."
+trust_boundary: "signed stake/vote instruction to stake-weighted accounting state"
+entrypoint_type: "stake or vote program instruction"
+sensitive_sink: "stake delegation, withdrawal, reward accounting, vote authority, or validator weight"
+
+attacker_capabilities: ["Can send peer-network traffic or influence peer-visible metadata.", "Can interact with stake/vote accounts or validator-facing protocol paths under the affected preconditions."]
+exploit_preconditions: ["The malformed input reaches the sensitive sink before canonical validation rejects it."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["resource-exhaustion"]
+severity_guess: "Medium"
+severity_rationale: "The impact primarily affects availability, liveness, or validator resource consumption rather than direct fund theft."
+
+code_shape_summary: "The patch moves basic shred discard checks into the fetch stage so malformed, stale, out-of-range, wrong-version, or out-of-bounds-index shreds are dropped earlier. The evidence supports a resource-saving validation change on network input, but it does not establish a concrete vulnerability, exploit path, consensus bypass, or demonstrated denial-of-service condition."
+search_motifs: ["search for late network input validation checks near cryptography entrypoints", "compare validation before and after the stake-accountability-invariant sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path."]
+patch_pattern: "Consolidate basic packet-header validation into an early fetch-stage discard predicate and return explicit reject decisions with stats counters for each failure mode."
+
+source_refs: ["/testing/solana/validated-findings/kept/2022-06-28-solana-cryptography-348fe9ebe2.md", "git:348fe9ebe2656da5ce76998d29edcd2a2bf2d7bc", "ledger/src/shred.rs:707", "core/src/shred_fetch_stage.rs:205", "ledger/src/shred.rs:687", "ledger/src/shred.rs:681"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

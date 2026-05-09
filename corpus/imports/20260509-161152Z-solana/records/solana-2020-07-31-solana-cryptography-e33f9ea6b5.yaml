@@ -1,0 +1,39 @@
+id: "solana-2020-07-31-solana-cryptography-e33f9ea6b5"
+source_finding: "2020-07-31-solana-cryptography-e33f9ea6b5.md"
+project: "solana"
+date: "2020-07-31"
+language_tags: ["rust"]
+
+bug_family: "authz_and_role_gates"
+bug_class: "authorization-role-confusion"
+subsystem: "cryptography"
+architecture_tags: ["cryptography", "infrastructure", "stake-program", "authorization", "role-confusion", "lockup-bypass", "withdrawal"]
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "authorization-and-privilege-check"
+violated_invariant: "Protocol input must satisfy authorization and privilege check before it can reach stake delegation, withdrawal, reward accounting, vote authority, or validator weight."
+trust_boundary: "signed stake/vote instruction to stake-weighted accounting state"
+entrypoint_type: "stake or vote program instruction"
+sensitive_sink: "stake delegation, withdrawal, reward accounting, vote authority, or validator weight"
+
+attacker_capabilities: ["Can interact with stake/vote accounts or validator-facing protocol paths under the affected preconditions."]
+exploit_preconditions: ["The sensitive operation is reachable without proving the exact authority, owner, signer, or privilege being assumed."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["lockup-bypass", "authorization-bypass"]
+severity_guess: "High"
+severity_rationale: "The impact can affect funds, consensus safety, authorization boundaries, or runtime integrity when reachable."
+
+code_shape_summary: "The patch fixes a stake lockup bypass caused by treating custodian authorization as membership in a generic signer set. The strongest grounded claim is authority-role confusion in stake withdrawal lockup enforcement, not replay, cryptography, network, or validator repair logic."
+search_motifs: ["search for authorization role confusion checks near cryptography entrypoints", "compare validation before and after the authorization-and-privilege-check sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for authority checks in wrappers but not at the final state-changing sink"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path.", "The account or authority is derived from trusted state and cannot be chosen by the caller."]
+patch_pattern: "Replace generic signer-set checks for privileged role bypasses with explicit account-role binding, so each authorization decision is tied to the specific role account being evaluated."
+
+source_refs: ["/testing/solana/validated-findings/kept/2020-07-31-solana-cryptography-e33f9ea6b5.md", "git:e33f9ea6b587a5828c83aa0e5a165e68b5eac96a", "programs/stake/src/stake_state.rs:112", "core/src/non_circulating_supply.rs:24", "core/src/non_circulating_supply.rs:31", "programs/stake/src/stake_state.rs:823"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

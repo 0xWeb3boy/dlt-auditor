@@ -1,0 +1,39 @@
+id: "solana-2020-08-05-solana-transaction-processing-7b8e5a9f47"
+source_finding: "2020-08-05-solana-transaction-processing-7b8e5a9f47.md"
+project: "solana"
+date: "2020-08-05"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "missing-transaction-sanitization"
+subsystem: "transaction-processing"
+architecture_tags: ["transaction-processing", "blockchain-core", "rpc", "preflight", "input-validation", "transaction-sanitization", "security-hardening"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "input-shape-validation"
+violated_invariant: "Protocol input must satisfy input shape validation before it can reach RPC method execution, account scan, or transaction forwarding."
+trust_boundary: "untrusted RPC caller to node query/transaction service"
+entrypoint_type: "JSON-RPC request or RPC transaction submission"
+sensitive_sink: "RPC method execution, account scan, or transaction forwarding"
+
+attacker_capabilities: ["Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints."]
+exploit_preconditions: ["The malformed input reaches the sensitive sink before canonical validation rejects it."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["input-validation", "defense-in-depth"]
+severity_guess: "Low/Medium"
+severity_rationale: "The finding is useful security-hardening evidence; severity depends on reachability and missing compensating controls."
+
+code_shape_summary: "The patch adds transaction sanitization to Solana RPC preflight simulation batch preparation. The evidence supports a missing validation fix for malformed transaction structure, specifically an invalid program_id_index in a preflight test. It does not establish an exploitable security vulnerability or concrete impact beyond clean rejection of malformed input."
+search_motifs: ["search for missing transaction sanitization checks near transaction-processing entrypoints", "compare validation before and after the input-shape-validation sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path."]
+patch_pattern: "Run structural validation at the RPC preflight simulation batch boundary and propagate validation failures through the existing transaction error type."
+
+source_refs: ["/testing/solana/validated-findings/kept/2020-08-05-solana-transaction-processing-7b8e5a9f47.md", "git:7b8e5a9f47f9b4e2ed0024a2fee360b9ae0e24cc", "core/src/rpc.rs:3520", "runtime/src/bank.rs:1137", "sdk/src/transaction.rs:82", "runtime/src/accounts.rs:630"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

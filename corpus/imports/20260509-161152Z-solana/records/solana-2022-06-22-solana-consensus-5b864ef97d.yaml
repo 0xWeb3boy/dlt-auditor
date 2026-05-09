@@ -1,0 +1,39 @@
+id: "solana-2022-06-22-solana-consensus-5b864ef97d"
+source_finding: "2022-06-22-solana-consensus-5b864ef97d.md"
+project: "solana"
+date: "2022-06-22"
+language_tags: ["rust"]
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "quic-ingress-resource-limiting"
+subsystem: "consensus"
+architecture_tags: ["consensus", "blockchain-core", "quic", "network-ingress", "resource-limits", "stake-weighting", "dos-hardening"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "resource-accounting-and-bounds"
+violated_invariant: "Protocol input must satisfy resource accounting and bounds before it can reach network resource allocation, peer metadata acceptance, repair scheduling, or packet fanout."
+trust_boundary: "untrusted peer network traffic to validator networking pipeline"
+entrypoint_type: "peer packet, gossip value, repair response, or QUIC/UDP ingress"
+sensitive_sink: "network resource allocation, peer metadata acceptance, repair scheduling, or packet fanout"
+
+attacker_capabilities: ["Can send peer-network traffic or influence peer-visible metadata.", "Can interact with stake/vote accounts or validator-facing protocol paths under the affected preconditions."]
+exploit_preconditions: ["The node processes attacker-controlled volume before the missing limit or endpoint check is enforced."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["denial-of-service-hardening", "network-availability"]
+severity_guess: "Medium"
+severity_rationale: "The impact primarily affects availability, liveness, or validator resource consumption rather than direct fund theft."
+
+code_shape_summary: "The patch changes Solana's nonblocking QUIC server accept path to set per-connection concurrent unidirectional stream limits based on whether the remote IP is staked. Staked peers receive a calculated share based on stake and total stake, while unstaked peers receive a fixed cap. This may be availability or fairness hardening, but the supplied evidence does not prove an exploitable DoS issue or other security vulnerability."
+search_motifs: ["search for quic ingress resource limiting checks near consensus entrypoints", "compare validation before and after the resource-accounting-and-bounds sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for allocation, serialization, fanout, or scheduling before quota checks"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path.", "The expensive allocation is bounded by a separately enforced stake, peer, or per-request quota."]
+patch_pattern: "Apply the resource-control policy at the connection accept boundary after peer classification and before stream handling proceeds."
+
+source_refs: ["/testing/solana/validated-findings/kept/2022-06-22-solana-consensus-5b864ef97d.md", "git:5b864ef97dea4c66ece2d2582363e550852fa52d", "streamer/src/nonblocking/quic.rs:104", "streamer/src/nonblocking/quic.rs:125", "streamer/src/nonblocking/quic.rs:1", "core/src/find_packet_sender_stake_stage.rs:4"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

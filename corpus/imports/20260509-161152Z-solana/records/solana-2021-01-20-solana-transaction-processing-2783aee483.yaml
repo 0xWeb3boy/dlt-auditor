@@ -1,0 +1,39 @@
+id: "solana-2021-01-20-solana-transaction-processing-2783aee483"
+source_finding: "2021-01-20-solana-transaction-processing-2783aee483.md"
+project: "solana"
+date: "2021-01-20"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "input-validation"
+subsystem: "transaction-processing"
+architecture_tags: ["transaction-processing", "signature-parsing", "base58", "input-validation", "resource-bound", "sdk"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "signature-and-signer-binding"
+violated_invariant: "Protocol input must satisfy signature and signer binding before it can reach account balance/state mutation, fee/rent accounting, nonce state, or transaction commitment."
+trust_boundary: "signed client transaction to bank accounting and execution state"
+entrypoint_type: "transaction admission, sanitization, or execution path"
+sensitive_sink: "account balance/state mutation, fee/rent accounting, nonce state, or transaction commitment"
+
+attacker_capabilities: ["Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints."]
+exploit_preconditions: ["A signed artifact is accepted without fully binding the expected signer, domain, length, identity, or replay coordinate."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["resource-exhaustion-hardening"]
+severity_guess: "Medium"
+severity_rationale: "The impact primarily affects availability, liveness, or validator resource consumption rather than direct fund theft."
+
+code_shape_summary: "The patch adds an early maximum-length check to Solana SDK signature parsing before calling `bs58::decode`. This is grounded as input validation and parser resource-bound hardening, but the provided evidence does not establish a concrete vulnerability such as authentication bypass, replay, consensus failure, or demonstrated denial of service."
+search_motifs: ["search for input validation checks near transaction-processing entrypoints", "compare validation before and after the signature-and-signer-binding sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for signed payload fields that are decoded but not bound to signer/domain/replay state"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path.", "The signature library or sanitized message type already commits the disputed field unconditionally."]
+patch_pattern: "Add a pre-decode length bound at the parser boundary, using explicit constants for the expected byte size and maximum encoded length while preserving the existing decoded-size validation."
+
+source_refs: ["/testing/solana/validated-findings/kept/2021-01-20-solana-transaction-processing-2783aee483.md", "git:2783aee4839cad19f5c77a40bac498a071930f45", "sdk/src/signature.rs:144", "sdk/src/signature.rs:530", "sdk/src/signature.rs:59"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

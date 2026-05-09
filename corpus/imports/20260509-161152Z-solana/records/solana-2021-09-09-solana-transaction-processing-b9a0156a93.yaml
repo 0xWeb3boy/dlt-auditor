@@ -1,0 +1,39 @@
+id: "solana-2021-09-09-solana-transaction-processing-b9a0156a93"
+source_finding: "2021-09-09-solana-transaction-processing-b9a0156a93.md"
+project: "solana"
+date: "2021-09-09"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "improper-writable-account-validation"
+subsystem: "transaction-processing"
+architecture_tags: ["transaction-processing", "infrastructure", "writable-account-validation", "upgradeable-loader", "state-integrity", "access-control"]
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "authorization-and-privilege-check"
+violated_invariant: "Protocol input must satisfy authorization and privilege check before it can reach account owner/write privilege, executable program state, or runtime syscall side effect."
+trust_boundary: "untrusted program instruction/CPI frame to runtime account and privilege enforcement"
+entrypoint_type: "native program, loader, SBF/BPF, or CPI invocation"
+sensitive_sink: "account owner/write privilege, executable program state, or runtime syscall side effect"
+
+attacker_capabilities: ["Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints."]
+exploit_preconditions: ["The sensitive operation is reachable without proving the exact authority, owner, signer, or privilege being assumed."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["state-integrity", "access-control"]
+severity_guess: "Medium"
+severity_rationale: "The issue was confirmed as a security fix, but the available evidence does not establish direct high-impact loss."
+
+code_shape_summary: "The patch tightens Solana runtime account loading so writable executable accounts and upgradeable-loader-owned ProgramData/state accounts are rejected when the upgradeable loader is not present. The evidence supports a transaction validation and account access-control fix, but does not establish arbitrary code execution, unauthorized upgrade, or consensus divergence."
+search_motifs: ["search for improper writable account validation checks near transaction-processing entrypoints", "compare validation before and after the authorization-and-privilege-check sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for authority checks in wrappers but not at the final state-changing sink"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path.", "The account or authority is derived from trusted state and cannot be chosen by the caller."]
+patch_pattern: "Enforce the writable-account invariant during transaction account loading, using ownership and transaction context rather than executable status alone, and add explicit error accounting and regression coverage."
+
+source_refs: ["/testing/solana/validated-findings/kept/2021-09-09-solana-transaction-processing-b9a0156a93.md", "git:b9a0156a9359b44984e1f78e796f59bfcdca0d7d", "runtime/src/accounts.rs:229", "runtime/src/accounts.rs:248", "runtime/src/bank.rs:2953", "runtime/src/accounts.rs:1755"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

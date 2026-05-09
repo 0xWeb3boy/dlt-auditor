@@ -1,0 +1,39 @@
+id: "solana-2020-08-25-solana-core-logic-f162c6d1d0"
+source_finding: "2020-08-25-solana-core-logic-f162c6d1d0.md"
+project: "solana"
+date: "2020-08-25"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "pointer-alignment-validation"
+subsystem: "core-logic"
+architecture_tags: ["core-logic", "blockchain-core", "bpf-loader", "pointer-alignment", "unsafe-code", "abi-validation"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "input-shape-validation"
+violated_invariant: "Protocol input must satisfy input shape validation before it can reach account owner/write privilege, executable program state, or runtime syscall side effect."
+trust_boundary: "untrusted program instruction/CPI frame to runtime account and privilege enforcement"
+entrypoint_type: "native program, loader, SBF/BPF, or CPI invocation"
+sensitive_sink: "account owner/write privilege, executable program state, or runtime syscall side effect"
+
+attacker_capabilities: ["Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints."]
+exploit_preconditions: ["The malformed input reaches the sensitive sink before canonical validation rejects it."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["memory-safety", "runtime-integrity"]
+severity_guess: "High"
+severity_rationale: "The impact can affect funds, consensus safety, authorization boundaries, or runtime integrity when reachable."
+
+code_shape_summary: "The supported security-relevant change is pointer-alignment enforcement in Solana's BPF loader syscall translation path. The shown `translate_slice_mut!` macro previously translated a VM address and constructed a mutable typed slice with `from_raw_parts_mut` without a visible alignment check. The patch rejects VM addresses that are not aligned for the target type by returning `SyscallError::UnalignedPointer` before address translation and unsafe slice c..."
+search_motifs: ["search for pointer alignment validation checks near core-logic entrypoints", "compare validation before and after the input-shape-validation sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path."]
+patch_pattern: "Validate guest-controlled pointer alignment before converting translated memory into typed host slices, and fail closed with a dedicated error on misalignment."
+
+source_refs: ["/testing/solana/validated-findings/kept/2020-08-25-solana-core-logic-f162c6d1d0.md", "git:f162c6d1d00fdb7315f221780841e4ea8a769db7", "programs/bpf_loader/src/serialization.rs:1", "programs/bpf_loader/src/lib.rs:91", "programs/bpf_loader/src/syscalls.rs:201", "programs/bpf_loader/src/syscalls.rs:979"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

@@ -24,6 +24,7 @@ Focus on:
 
 Search patterns:
 - Structured authorization, execution, or proof containers reconstructed from multiple parallel lists. Validate exact cardinality and relational matching at construction or deserialization, not only after later execution begins.
+- Account-ledger transaction pipelines with several representations of the same account list or privilege set: raw message metas, sanitized transaction, loaded accounts, compiled instructions, inner-instruction frames, execution frames, and post-execution account deltas. Build a matrix and verify every transition preserves exact account identity, signer/writable privilege, owner/program binding, and duplicate-account semantics.
 - Reserved system entrypoints, native methods, upgrade hooks, or privileged locators that are allowed only through direct protocol paths. Deployment or bytecode admission should reject program-mediated calls to those reserved sinks.
 - Lookup APIs returning `Result<bool>`, optional status, or mixed transport/semantic status where callers may treat errors as absence, permission, or success. Security-sensitive classifiers should fail closed on lookup errors.
 - Versioned syntax, opcode, or feature checks that are present in comments, tests, or a narrow branch but not enforced at every deployment/admission path before activation.
@@ -43,6 +44,7 @@ Search patterns:
 - duplicate parsers or encoders that reconstruct the same semantics in multiple places instead of one canonical path
 - variable-length lists, blob streams, or nested objects that are consumed without asserting exact count, exact byte use, or no leftovers
 - fixed-width cryptographic encodings parsed before checking exact length, and compressed or decoded blob representations accepted before enforcing output-size limits
+- packet, datagram, frame, or receive-buffer paths that classify, forward, slice, or schedule work before exact payload length, backing-buffer capacity, trailing bytes, and destination length are checked against the original attacker-controlled bytes
 - boundary code that aborts on malformed lengths, variants, or encodings instead of returning an ordinary validation failure
 - peer-controlled parser, handshake, or stream failures that reach `unwrap`, `expect`, `panic`, assertion failure, or task-killing control flow instead of a structured validation, not-found, or disconnect error
 - message-specific deserializers that use a weaker size, trailing-byte, collection-length, or fixed-width encoding policy than the transport codec or canonical parser for the same peer-controlled bytes

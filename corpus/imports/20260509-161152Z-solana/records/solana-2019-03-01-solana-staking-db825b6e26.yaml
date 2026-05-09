@@ -1,0 +1,39 @@
+id: "solana-2019-03-01-solana-staking-db825b6e26"
+source_finding: "2019-03-01-solana-staking-db825b6e26.md"
+project: "solana"
+date: "2019-03-01"
+language_tags: ["rust"]
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "missing-signature-check"
+subsystem: "staking"
+architecture_tags: ["staking", "blockchain-core", "vote-program", "signature-check", "authorization", "security-hardening"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "signature-and-signer-binding"
+violated_invariant: "Protocol input must satisfy signature and signer binding before it can reach account owner/write privilege, executable program state, or runtime syscall side effect."
+trust_boundary: "untrusted program instruction/CPI frame to runtime account and privilege enforcement"
+entrypoint_type: "native program, loader, SBF/BPF, or CPI invocation"
+sensitive_sink: "account owner/write privilege, executable program state, or runtime syscall side effect"
+
+attacker_capabilities: ["Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints.", "Can interact with stake/vote accounts or validator-facing protocol paths under the affected preconditions."]
+exploit_preconditions: ["A signed artifact is accepted without fully binding the expected signer, domain, length, identity, or replay coordinate."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["authorization-bypass", "state-integrity"]
+severity_guess: "High"
+severity_rationale: "The impact can affect funds, consensus safety, authorization boundaries, or runtime integrity when reachable."
+
+code_shape_summary: "The patch moves a signer check from a blanket native vote entrypoint guard into sdk/src/vote_program.rs::process_vote, immediately before VoteState is deserialized, mutated, and serialized. This is security-relevant authorization hardening, but the provided evidence does not establish that unsigned votes were accepted through the normal runtime path before the patch, because the old entrypoint already rejected unsigned keyed_accounts[0] before dispatch."
+search_motifs: ["search for missing signature check checks near staking entrypoints", "compare validation before and after the signature-and-signer-binding sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for signed payload fields that are decoded but not bound to signer/domain/replay state"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path.", "The signature library or sanitized message type already commits the disputed field unconditionally."]
+patch_pattern: "Place authorization checks directly in the state-mutating function that requires them, while avoiding overbroad entrypoint assumptions for unrelated instruction variants."
+
+source_refs: ["/testing/solana/validated-findings/kept/2019-03-01-solana-staking-db825b6e26.md", "git:db825b6e2696aec4f9ae921594dc9159efeadffa", "programs/native/vote/src/lib.rs:22", "sdk/src/vote_program.rs:273", "sdk/src/transaction_builder.rs:54", "sdk/src/vote_program.rs:409"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

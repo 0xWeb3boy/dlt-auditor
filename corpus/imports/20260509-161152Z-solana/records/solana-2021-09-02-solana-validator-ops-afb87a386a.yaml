@@ -1,0 +1,39 @@
+id: "solana-2021-09-02-solana-validator-ops-afb87a386a"
+source_finding: "2021-09-02-solana-validator-ops-afb87a386a.md"
+project: "solana"
+date: "2021-09-02"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "unsafe-key-reuse"
+subsystem: "validator-ops"
+architecture_tags: ["validator-ops", "cli", "vote-account", "authorized-withdrawer", "key-separation", "security-hardening"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "stake-accountability-invariant"
+violated_invariant: "Protocol input must satisfy stake accountability invariant before it can reach stake delegation, withdrawal, reward accounting, vote authority, or validator weight."
+trust_boundary: "signed stake/vote instruction to stake-weighted accounting state"
+entrypoint_type: "stake or vote program instruction"
+sensitive_sink: "stake delegation, withdrawal, reward accounting, vote authority, or validator weight"
+
+attacker_capabilities: ["Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints.", "Can interact with stake/vote accounts or validator-facing protocol paths under the affected preconditions."]
+exploit_preconditions: ["The malformed input reaches the sensitive sink before canonical validation rejects it."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["key-separation", "authority-misconfiguration"]
+severity_guess: "Low/Medium"
+severity_rationale: "The finding is useful security-hardening evidence; severity depends on reachability and missing compensating controls."
+
+code_shape_summary: "The patch hardens Solana CLI vote account creation by making `authorized_withdrawer` a required concrete pubkey instead of an optional value that defaulted to the validator identity. It also adds an unsafe-configuration override flag and, in the shown evidence, rejects the authorized withdrawer being identical to the vote account pubkey unless that override is used."
+search_motifs: ["search for unsafe key reuse checks near validator-ops entrypoints", "compare validation before and after the stake-accountability-invariant sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path."]
+patch_pattern: "Require explicit input for a security-sensitive authority, remove implicit defaulting to operational keys, and gate known unsafe key reuse behind an explicit unsafe override."
+
+source_refs: ["/testing/solana/validated-findings/kept/2021-09-02-solana-validator-ops-afb87a386a.md", "git:afb87a386ab24e97e78116ac7688bc52b53bdf6b", "cli/src/vote.rs:352", "cli/src/vote.rs:594", "cli/src/vote.rs:1173", "cli/src/cli.rs:1944"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

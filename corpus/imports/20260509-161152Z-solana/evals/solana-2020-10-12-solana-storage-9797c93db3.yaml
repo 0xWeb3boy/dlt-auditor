@@ -1,0 +1,21 @@
+id: "solana-2020-10-12-solana-storage-9797c93db3"
+source_record: "solana-2020-10-12-solana-storage-9797c93db3.yaml"
+project: "solana"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "panic-on-invalid-native-loader-input"
+expected_missing_property: "input-shape-validation"
+
+expected_impact_band: "availability_or_resource_exhaustion"
+expected_severity_band: "medium_or_low"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "A prior canonical validator rejects the input before it reaches the sensitive sink."
+  - "The affected path is test-only, admin-only, or unreachable in production builds."
+  - "The apparent missing check is enforced by a shared callee on every equivalent path."
+notes:
+  - "Eval expectation derived from enriched corpus import, not from a fresh audit of the current checkout."
+  - "Positive detection should explain reachability, missing property, sensitive sink, impact, and at least one false-positive caveat."

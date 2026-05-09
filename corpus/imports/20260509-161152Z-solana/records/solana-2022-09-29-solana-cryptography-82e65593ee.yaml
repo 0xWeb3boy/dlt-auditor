@@ -1,0 +1,39 @@
+id: "solana-2022-09-29-solana-cryptography-82e65593ee"
+source_finding: "2022-09-29-solana-cryptography-82e65593ee.md"
+project: "solana"
+date: "2022-09-29"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "invalid-transaction-forwarding"
+subsystem: "cryptography"
+architecture_tags: ["cryptography", "validator", "transaction-forwarding", "sanitization", "invalid-transaction-filtering", "replay-hygiene"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "consensus-state-transition-invariant"
+violated_invariant: "Protocol input must satisfy consensus state transition invariant before it can reach bank freezing/rooting, tower vote decision, fork-choice state, or consensus-visible status."
+trust_boundary: "peer-provided ledger/vote evidence to local consensus and fork-choice state"
+entrypoint_type: "block replay, vote processing, fork-choice update, or duplicate-slot recovery"
+sensitive_sink: "bank freezing/rooting, tower vote decision, fork-choice state, or consensus-visible status"
+
+attacker_capabilities: ["Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints.", "Can interact with stake/vote accounts or validator-facing protocol paths under the affected preconditions."]
+exploit_preconditions: ["The malformed input reaches the sensitive sink before canonical validation rejects it."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["resource-exhaustion", "replay-hygiene"]
+severity_guess: "Medium"
+severity_rationale: "The impact primarily affects availability, liveness, or validator resource consumption rather than direct fund theft."
+
+code_shape_summary: "The patch filters or sanitizes invalid transaction and vote packets before adding them to forwarding batches, and updates buffer removal logic and tests around already-processed transactions. The evidence supports a correctness and resource-hygiene improvement in the forwarding path. It does not prove crashability, signature bypass, transaction forgery, downstream acceptance of invalid packets, or consensus failure."
+search_motifs: ["search for invalid transaction forwarding checks near cryptography entrypoints", "compare validation before and after the consensus-state-transition-invariant sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for state transitions where observation and enforcement use different coordinates"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path."]
+patch_pattern: "Move forwarding eligibility checks before staging: sanitize deserialized packets with active bank context, share sanitized transaction state with forwarding batch logic, and remove filtered packets from the unprocessed buffer."
+
+source_refs: ["/testing/solana/validated-findings/kept/2022-09-29-solana-cryptography-82e65593ee.md", "git:82e65593ee2a5993b903a769f74b1c298d021ea1", "core/src/latest_unprocessed_votes.rs:263", "core/src/forward_packet_batches_by_accounts.rs:95", "core/src/unprocessed_packet_batches.rs:165", "core/src/banking_stage.rs:3571"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

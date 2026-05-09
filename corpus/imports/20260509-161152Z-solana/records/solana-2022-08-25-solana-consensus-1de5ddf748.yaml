@@ -1,0 +1,39 @@
+id: "solana-2022-08-25-solana-consensus-1de5ddf748"
+source_finding: "2022-08-25-solana-consensus-1de5ddf748.md"
+project: "solana"
+date: "2022-08-25"
+language_tags: ["rust"]
+
+bug_family: "checked_arithmetic_and_parameter_bounds"
+bug_class: "arithmetic-overflow-hardening"
+subsystem: "consensus"
+architecture_tags: ["consensus", "validator", "vote-state", "integer-overflow", "checked-arithmetic", "hardening"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "checked-arithmetic-bounds"
+violated_invariant: "Protocol input must satisfy checked arithmetic bounds before it can reach bank freezing/rooting, tower vote decision, fork-choice state, or consensus-visible status."
+trust_boundary: "peer-provided ledger/vote evidence to local consensus and fork-choice state"
+entrypoint_type: "block replay, vote processing, fork-choice update, or duplicate-slot recovery"
+sensitive_sink: "bank freezing/rooting, tower vote decision, fork-choice state, or consensus-visible status"
+
+attacker_capabilities: ["Can interact with stake/vote accounts or validator-facing protocol paths under the affected preconditions."]
+exploit_preconditions: ["Attacker-influenced values can approach boundary conditions before arithmetic is checked or saturated."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["consensus-integrity"]
+severity_guess: "High"
+severity_rationale: "The impact can affect funds, consensus safety, authorization boundaries, or runtime integrity when reachable."
+
+code_shape_summary: "The patch adds checked arithmetic and fallible handling around Solana VoteStateUpdate and CompactVoteStateUpdate conversion. The evidence supports an arithmetic-overflow correctness and hardening change in vote-state compaction, but it does not establish a concrete vulnerability, exploit path, remote trigger, denial of service, or consensus divergence."
+search_motifs: ["search for arithmetic overflow hardening checks near consensus entrypoints", "compare validation before and after the checked-arithmetic-bounds sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path."]
+patch_pattern: "Replace unchecked integer addition and infallible compact vote conversion with checked_add, Option/Result-returning conversion, and explicit caller-side failure handling."
+
+source_refs: ["/testing/solana/validated-findings/kept/2022-08-25-solana-consensus-1de5ddf748.md", "git:1de5ddf748bb0794d094c8b5d5e653ba956e3af6", "core/src/replay_stage.rs:2013", "programs/vote/src/vote_state/mod.rs:326", "programs/vote/src/vote_state/mod.rs:451", "programs/vote/src/vote_state/mod.rs:417"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

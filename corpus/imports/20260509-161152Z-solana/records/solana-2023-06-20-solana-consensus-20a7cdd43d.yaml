@@ -1,0 +1,39 @@
+id: "solana-2023-06-20-solana-consensus-20a7cdd43d"
+source_finding: "2023-06-20-solana-consensus-20a7cdd43d.md"
+project: "solana"
+date: "2023-06-20"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-state-exposure"
+subsystem: "consensus"
+architecture_tags: ["consensus", "validator", "bank-api", "hard-forks", "state-encapsulation", "security-hardening"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "consensus-state-transition-invariant"
+violated_invariant: "Protocol input must satisfy consensus state transition invariant before it can reach bank freezing/rooting, tower vote decision, fork-choice state, or consensus-visible status."
+trust_boundary: "peer-provided ledger/vote evidence to local consensus and fork-choice state"
+entrypoint_type: "block replay, vote processing, fork-choice update, or duplicate-slot recovery"
+sensitive_sink: "bank freezing/rooting, tower vote decision, fork-choice state, or consensus-visible status"
+
+attacker_capabilities: ["Can interact with stake/vote accounts or validator-facing protocol paths under the affected preconditions."]
+exploit_preconditions: ["The malformed input reaches the sensitive sink before canonical validation rejects it."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["consensus-integrity"]
+severity_guess: "High"
+severity_rationale: "The impact can affect funds, consensus safety, authorization boundaries, or runtime integrity when reachable."
+
+code_shape_summary: "The patch appears to harden Solana's Bank HardForks API by replacing direct lock-based access with copied hard-fork data and Bank-mediated mutation. The commit message says callers could previously obtain read/write access to HardForks and that this could cause inconsistent handling of valid hard forks. However, the supplied evidence does not establish that an untrusted actor could exploit this, that consensus divergence occurred, or that the changed ca..."
+search_motifs: ["search for consensus state exposure checks near consensus entrypoints", "compare validation before and after the consensus-state-transition-invariant sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for state transitions where observation and enforcement use different coordinates"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path."]
+patch_pattern: "Encapsulate mutable consensus-adjacent state behind an owning API; return copies for read access and route mutation through methods that can enforce checks."
+
+source_refs: ["/testing/solana/validated-findings/kept/2023-06-20-solana-consensus-20a7cdd43d.md", "git:20a7cdd43d1dc0fa143efae79ccaf2ab22c38699", "core/src/validator.rs:666", "ledger-tool/src/main.rs:3113", "core/src/validator.rs:1671", "ledger-tool/src/main.rs:2244"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

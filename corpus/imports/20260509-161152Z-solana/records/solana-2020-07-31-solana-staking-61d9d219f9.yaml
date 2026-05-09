@@ -1,0 +1,39 @@
+id: "solana-2020-07-31-solana-staking-61d9d219f9"
+source_finding: "2020-07-31-solana-staking-61d9d219f9.md"
+project: "solana"
+date: "2020-07-31"
+language_tags: ["rust"]
+
+bug_family: "authz_and_role_gates"
+bug_class: "authorization-role-confusion"
+subsystem: "staking"
+architecture_tags: ["staking", "lockup", "authorization", "role-confusion", "signature", "custodian", "withdraw-authority"]
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "signature-and-signer-binding"
+violated_invariant: "Protocol input must satisfy signature and signer binding before it can reach account balance/state mutation, fee/rent accounting, nonce state, or transaction commitment."
+trust_boundary: "signed client transaction to bank accounting and execution state"
+entrypoint_type: "transaction admission, sanitization, or execution path"
+sensitive_sink: "account balance/state mutation, fee/rent accounting, nonce state, or transaction commitment"
+
+attacker_capabilities: ["Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints."]
+exploit_preconditions: ["The sensitive operation is reachable without proving the exact authority, owner, signer, or privilege being assumed.", "A signed artifact is accepted without fully binding the expected signer, domain, length, identity, or replay coordinate."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["access-control-bypass", "lockup-bypass", "economic-policy-bypass"]
+severity_guess: "Medium"
+severity_rationale: "The issue was confirmed as a security fix, but the available evidence does not establish direct high-impact loss."
+
+code_shape_summary: "The patch fixes a stake lockup role-confusion issue. Before the change, `Lockup::is_in_force` treated the lockup as not in force when the custodian public key appeared anywhere in a generic signer set. The commit message states this allowed a withdraw authority signature, and similarly fee-payer signing, to imply custodian authority when keys overlapped, causing lockup enforcement to be skipped. After the change, the lockup exemption is granted only whe..."
+search_motifs: ["search for authorization role confusion checks near staking entrypoints", "compare validation before and after the signature-and-signer-binding sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for signed payload fields that are decoded but not bound to signer/domain/replay state"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path.", "The signature library or sanitized message type already commits the disputed field unconditionally."]
+patch_pattern: "Replace broad signer-set authorization checks with explicit role-qualified authority input for security-sensitive exemptions."
+
+source_refs: ["/testing/solana/validated-findings/kept/2020-07-31-solana-staking-61d9d219f9.md", "git:61d9d219f943a8e5935d91dcc57ffad9b6ecbb0f", "programs/stake/src/stake_state.rs:112", "cli/src/stake.rs:1486", "cli/src/stake.rs:1536", "core/src/non_circulating_supply.rs:24"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

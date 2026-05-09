@@ -1,0 +1,39 @@
+id: "solana-2019-09-26-solana-staking-61930c0dd3"
+source_finding: "2019-09-26-solana-staking-61930c0dd3.md"
+project: "solana"
+date: "2019-09-26"
+language_tags: ["rust"]
+
+bug_family: "authz_and_role_gates"
+bug_class: "authorization-check-hardening"
+subsystem: "staking"
+architecture_tags: ["staking", "vote-program", "authorization", "signature-verification", "authority-model"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "signature-and-signer-binding"
+violated_invariant: "Protocol input must satisfy signature and signer binding before it can reach account owner/write privilege, executable program state, or runtime syscall side effect."
+trust_boundary: "untrusted program instruction/CPI frame to runtime account and privilege enforcement"
+entrypoint_type: "native program, loader, SBF/BPF, or CPI invocation"
+sensitive_sink: "account owner/write privilege, executable program state, or runtime syscall side effect"
+
+attacker_capabilities: ["Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints.", "Can interact with stake/vote accounts or validator-facing protocol paths under the affected preconditions."]
+exploit_preconditions: ["The sensitive operation is reachable without proving the exact authority, owner, signer, or privilege being assumed.", "A signed artifact is accepted without fully binding the expected signer, domain, length, identity, or replay coordinate."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["unauthorized-sensitive-operation"]
+severity_guess: "Low/Medium"
+severity_rationale: "The finding is useful security-hardening evidence; severity depends on reachability and missing compensating controls."
+
+code_shape_summary: "The evidence supports a likely authorization fix in Solana vote/stake authority handling. The strongest supported change is in vote withdrawal: the pre-patch path only required the vote account itself to be a signer, while the patched path loads VoteState and verifies vote_state.authorized_withdrawer against the vote account and other signers. Vote processing is also moved to shared verification of vote_state.authorized_voter. The stake changes appear t..."
+search_motifs: ["search for authorization check hardening checks near staking entrypoints", "compare validation before and after the signature-and-signer-binding sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for signed payload fields that are decoded but not bound to signer/domain/replay state"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path.", "The signature library or sanitized message type already commits the disputed field unconditionally."]
+patch_pattern: "Replace account-key or field-specific signer checks with validation against role-specific authority stored in account state, and thread additional signer accounts through the affected instruction paths."
+
+source_refs: ["/testing/solana/validated-findings/kept/2019-09-26-solana-staking-61930c0dd3.md", "git:61930c0dd3fac9924fe3f5e1c0d1d3491b9db10b", "programs/vote_api/src/vote_state.rs:385", "programs/vote_api/src/vote_state.rs:429", "programs/stake_api/src/stake_state.rs:44", "programs/stake_api/src/stake_state.rs:410"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

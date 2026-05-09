@@ -1,0 +1,39 @@
+id: "solana-2019-11-03-solana-consensus-d9a9d6547f"
+source_finding: "2019-11-03-solana-consensus-d9a9d6547f.md"
+project: "solana"
+date: "2019-11-03"
+language_tags: ["rust"]
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "signature-identity-binding"
+subsystem: "consensus"
+architecture_tags: ["consensus", "blockchain-core", "gossip", "crds", "signature", "identity-binding", "validator"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "signature-and-signer-binding"
+violated_invariant: "Protocol input must satisfy signature and signer binding before it can reach network resource allocation, peer metadata acceptance, repair scheduling, or packet fanout."
+trust_boundary: "untrusted peer network traffic to validator networking pipeline"
+entrypoint_type: "peer packet, gossip value, repair response, or QUIC/UDP ingress"
+sensitive_sink: "network resource allocation, peer metadata acceptance, repair scheduling, or packet fanout"
+
+attacker_capabilities: ["Can send peer-network traffic or influence peer-visible metadata.", "Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints.", "Can interact with stake/vote accounts or validator-facing protocol paths under the affected preconditions."]
+exploit_preconditions: ["A signed artifact is accepted without fully binding the expected signer, domain, length, identity, or replay coordinate."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["authenticity", "identity-binding"]
+severity_guess: "Low/Medium"
+severity_rationale: "The finding is useful security-hardening evidence; severity depends on reachability and missing compensating controls."
+
+code_shape_summary: "Likely security fix for incorrect CRDS gossip signing. The evidence shows removal of `Signable` implementations for `CrdsValue`, `Vote`, and `EpochSlots`, and a related gossip pull-request identity check changed to compare `ContactInfo.id` directly. This supports a signature/identity-binding issue, but the supplied snippets do not prove exploitability, forged ledger state, economic impact, or direct consensus failure."
+search_motifs: ["search for signature identity binding checks near consensus entrypoints", "compare validation before and after the signature-and-signer-binding sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for signed payload fields that are decoded but not bound to signer/domain/replay state"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path.", "The signature library or sanitized message type already commits the disputed field unconditionally."]
+patch_pattern: "Remove incorrect CRDS signing paths and use the concrete embedded identity for identity-sensitive gossip checks."
+
+source_refs: ["/testing/solana/validated-findings/kept/2019-11-03-solana-consensus-d9a9d6547f.md", "git:d9a9d6547f738169215accdadf3a19f12c9ed130", "core/src/crds_value.rs:180", "core/src/cluster_info.rs:1164", "core/src/crds_value.rs:64", "core/src/crds_value.rs:81"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

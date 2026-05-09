@@ -1,0 +1,39 @@
+id: "solana-2019-10-29-solana-staking-a587d05098"
+source_finding: "2019-10-29-solana-staking-a587d05098.md"
+project: "solana"
+date: "2019-10-29"
+language_tags: ["rust"]
+
+bug_family: "staking_registry_and_accountability"
+bug_class: "stake-redelegation-invariant-hardening"
+subsystem: "staking"
+architecture_tags: ["staking", "redelegation", "epoch-boundary", "state-transition-guard", "validator-consensus"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "consensus-state-transition-invariant"
+violated_invariant: "Protocol input must satisfy consensus state transition invariant before it can reach bank freezing/rooting, tower vote decision, fork-choice state, or consensus-visible status."
+trust_boundary: "peer-provided ledger/vote evidence to local consensus and fork-choice state"
+entrypoint_type: "block replay, vote processing, fork-choice update, or duplicate-slot recovery"
+sensitive_sink: "bank freezing/rooting, tower vote decision, fork-choice state, or consensus-visible status"
+
+attacker_capabilities: ["Can interact with stake/vote accounts or validator-facing protocol paths under the affected preconditions."]
+exploit_preconditions: ["The malformed input reaches the sensitive sink before canonical validation rejects it."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["protocol-integrity", "slashing-accounting-integrity"]
+severity_guess: "Low/Medium"
+severity_rationale: "The finding is useful security-hardening evidence; severity depends on reachability and missing compensating controls."
+
+code_shape_summary: "The patch changes Solana stake redelegation so a stake cannot be redelegated again when its recorded `voter_pubkey_epoch` equals the current `clock.epoch`. This replaces a looser `epoch: Epoch` parameter with the runtime clock and adds a `TooSoonToRedelegate` failure for same-epoch redelegation. The evidence supports a behavioral fix to redelegation rules, but not a confirmed or likely vulnerability."
+search_motifs: ["search for stake redelegation invariant hardening checks near staking entrypoints", "compare validation before and after the consensus-state-transition-invariant sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for state transitions where observation and enforcement use different coordinates"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path."]
+patch_pattern: "Add an explicit state-transition guard using authoritative runtime epoch data before mutating stake delegate history."
+
+source_refs: ["/testing/solana/validated-findings/kept/2019-10-29-solana-staking-a587d05098.md", "git:a587d05098add767482b97512d7937ecc7943f46", "programs/stake_api/src/stake_state.rs:352", "programs/stake_api/src/stake_state.rs:786", "programs/stake_api/src/stake_state.rs:820", "programs/stake_api/src/stake_state.rs:170"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

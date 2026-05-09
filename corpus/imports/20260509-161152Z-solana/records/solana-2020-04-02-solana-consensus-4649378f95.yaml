@@ -1,0 +1,39 @@
+id: "solana-2020-04-02-solana-consensus-4649378f95"
+source_finding: "2020-04-02-solana-consensus-4649378f95.md"
+project: "solana"
+date: "2020-04-02"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-vote-gating"
+subsystem: "consensus"
+architecture_tags: ["consensus", "blockchain-core", "validator", "replay", "tower", "switch-threshold", "vote-selection", "hardening"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "consensus-state-transition-invariant"
+violated_invariant: "Protocol input must satisfy consensus state transition invariant before it can reach bank freezing/rooting, tower vote decision, fork-choice state, or consensus-visible status."
+trust_boundary: "peer-provided ledger/vote evidence to local consensus and fork-choice state"
+entrypoint_type: "block replay, vote processing, fork-choice update, or duplicate-slot recovery"
+sensitive_sink: "bank freezing/rooting, tower vote decision, fork-choice state, or consensus-visible status"
+
+attacker_capabilities: ["Can interact with stake/vote accounts or validator-facing protocol paths under the affected preconditions."]
+exploit_preconditions: ["The malformed input reaches the sensitive sink before canonical validation rejects it."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["consensus-safety-risk"]
+severity_guess: "Low/Medium"
+severity_rationale: "The finding is useful security-hardening evidence; severity depends on reachability and missing compensating controls."
+
+code_shape_summary: "The patch changes Solana ReplayStage fork vote selection so `tower.check_switch_threshold(...)` is evaluated for the heaviest candidate bank and `switch_threshold` is required in the final vote condition. This is consensus-sensitive and may be security relevant, but the supplied evidence does not establish a concrete vulnerability, exploit path, or confirmed safety impact."
+search_motifs: ["search for consensus vote gating checks near consensus entrypoints", "compare validation before and after the consensus-state-transition-invariant sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for state transitions where observation and enforcement use different coordinates"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path."]
+patch_pattern: "Make the consensus predicate an explicit gate at the vote decision point instead of relying on fork-classification shortcuts and post-vote bookkeeping."
+
+source_refs: ["/testing/solana/validated-findings/kept/2020-04-02-solana-consensus-4649378f95.md", "git:4649378f950aa9a475c7f66a2391e289172d0e1b", "core/src/replay_stage.rs:1225", "core/src/replay_stage.rs:305", "core/src/replay_stage.rs:392", "core/src/replay_stage.rs:1281"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

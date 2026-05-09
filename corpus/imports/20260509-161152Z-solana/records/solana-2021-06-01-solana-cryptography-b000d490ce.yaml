@@ -1,0 +1,39 @@
+id: "solana-2021-06-01-solana-cryptography-b000d490ce"
+source_finding: "2021-06-01-solana-cryptography-b000d490ce.md"
+project: "solana"
+date: "2021-06-01"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "resource-exhaustion-mitigation"
+subsystem: "cryptography"
+architecture_tags: ["cryptography", "blockchain-core", "validator", "resource-control", "transaction-admission", "cost-model", "denial-of-service"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "resource-accounting-and-bounds"
+violated_invariant: "Protocol input must satisfy resource accounting and bounds before it can reach stake delegation, withdrawal, reward accounting, vote authority, or validator weight."
+trust_boundary: "signed stake/vote instruction to stake-weighted accounting state"
+entrypoint_type: "stake or vote program instruction"
+sensitive_sink: "stake delegation, withdrawal, reward accounting, vote authority, or validator weight"
+
+attacker_capabilities: ["Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints.", "Can interact with stake/vote accounts or validator-facing protocol paths under the affected preconditions."]
+exploit_preconditions: ["The node processes attacker-controlled volume before the missing limit or endpoint check is enforced."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["denial-of-service"]
+severity_guess: "Medium"
+severity_rationale: "The impact primarily affects availability, liveness, or validator resource consumption rather than direct fund theft."
+
+code_shape_summary: "The patch introduces cost-based transaction admission and accounting in Solana's banking stage. It adds CostModel/CostTracker plumbing, filters over-limit transactions into a retryable/unprocessed path, and accounts cost only for processed transactions. The evidence supports resource-management hardening, not a confirmed vulnerability fix, signature-validation fix, or replay fix."
+search_motifs: ["search for resource exhaustion mitigation checks near cryptography entrypoints", "compare validation before and after the resource-accounting-and-bounds sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for allocation, serialization, fanout, or scheduling before quota checks"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path.", "The expensive allocation is bounded by a separately enforced stake, peer, or per-request quota."]
+patch_pattern: "Introduce resource-budget admission control before transaction processing, defer over-limit transactions, and update shared budget state only for transactions actually processed."
+
+source_refs: ["/testing/solana/validated-findings/kept/2021-06-01-solana-cryptography-b000d490ce.md", "git:b000d490ce3b798bdf32410985cd121b4e768d8b", "core/src/banking_stage.rs:1068", "core/src/banking_stage.rs:1046", "core/src/banking_stage.rs:1179", "core/src/cost_tracker.rs:1"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

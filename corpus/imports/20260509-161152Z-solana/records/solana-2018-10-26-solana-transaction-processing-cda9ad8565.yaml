@@ -1,0 +1,39 @@
+id: "solana-2018-10-26-solana-transaction-processing-cda9ad8565"
+source_finding: "2018-10-26-solana-transaction-processing-cda9ad8565.md"
+project: "solana"
+date: "2018-10-26"
+language_tags: ["rust"]
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "incomplete-signature-verification"
+subsystem: "transaction-processing"
+architecture_tags: ["transaction-processing", "infrastructure", "signature-verification", "multi-signature", "packet-verification", "cryptographic-authorization"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "signature-and-signer-binding"
+violated_invariant: "Protocol input must satisfy signature and signer binding before it can reach account balance/state mutation, fee/rent accounting, nonce state, or transaction commitment."
+trust_boundary: "signed client transaction to bank accounting and execution state"
+entrypoint_type: "transaction admission, sanitization, or execution path"
+sensitive_sink: "account balance/state mutation, fee/rent accounting, nonce state, or transaction commitment"
+
+attacker_capabilities: ["Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints."]
+exploit_preconditions: ["A signed artifact is accepted without fully binding the expected signer, domain, length, identity, or replay coordinate."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["authorization-integrity"]
+severity_guess: "Low/Medium"
+severity_rationale: "The finding is useful security-hardening evidence; severity depends on reachability and missing compensating controls."
+
+code_shape_summary: "The patch likely fixes incomplete packet-level signature verification for transactions with multiple signatures. In src/sigverify.rs::verify_packet, the old code performed one Ed25519 signature::verify call, while the patched code loops over sig_len, checks each signature/public-key range against packet.meta.size, and verifies each pair over the message. The evidence supports a cryptographic authorization bug at the packet verifier level, but does not e..."
+search_motifs: ["search for incomplete signature verification checks near transaction-processing entrypoints", "compare validation before and after the signature-and-signer-binding sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for signed payload fields that are decoded but not bound to signer/domain/replay state"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path.", "The signature library or sanitized message type already commits the disputed field unconditionally."]
+patch_pattern: "Replace a single cryptographic authorization check with cardinality-aware verification over all declared authorization entries, with bounds checks before slicing untrusted packet data."
+
+source_refs: ["/testing/solana/validated-findings/kept/2018-10-26-solana-transaction-processing-cda9ad8565.md", "git:cda9ad8565eb99d4aac2bb9d46a986fcf056f479", "src/sigverify.rs:85", "src/sigverify.rs:310", "src/sigverify.rs:343", "src/bin/bench-tps.rs:294"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

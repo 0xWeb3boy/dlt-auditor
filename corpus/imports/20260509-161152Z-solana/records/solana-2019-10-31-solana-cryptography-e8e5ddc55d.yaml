@@ -1,0 +1,39 @@
+id: "solana-2019-10-31-solana-cryptography-e8e5ddc55d"
+source_finding: "2019-10-31-solana-cryptography-e8e5ddc55d.md"
+project: "solana"
+date: "2019-10-31"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-ledger-validation"
+subsystem: "cryptography"
+architecture_tags: ["cryptography", "infrastructure", "consensus", "ledger-validation", "proof-of-history", "replay", "state-integrity"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "consensus-state-transition-invariant"
+violated_invariant: "Protocol input must satisfy consensus state transition invariant before it can reach bank freezing/rooting, tower vote decision, fork-choice state, or consensus-visible status."
+trust_boundary: "peer-provided ledger/vote evidence to local consensus and fork-choice state"
+entrypoint_type: "block replay, vote processing, fork-choice update, or duplicate-slot recovery"
+sensitive_sink: "bank freezing/rooting, tower vote decision, fork-choice state, or consensus-visible status"
+
+attacker_capabilities: ["Can influence persisted, downloaded, or replayed state material, or trigger startup/recovery handling."]
+exploit_preconditions: ["The malformed input reaches the sensitive sink before canonical validation rejects it."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["ledger-integrity", "consensus-integrity"]
+severity_guess: "High"
+severity_rationale: "The impact can affect funds, consensus safety, authorization boundaries, or runtime integrity when reachable."
+
+code_shape_summary: "The patch adds explicit PoH/tick validation in Solana replay and blocktree processing paths. The strongest grounded claim is that replayed or loaded entries were missing explicit checks for tick hash counts and slot tick counts in the shown paths, and the patch rejects mismatches with typed block errors. The evidence supports a consensus/ledger-integrity hardening or likely security fix, but not a proven exploit or demonstrated network-level compromise."
+search_motifs: ["search for consensus ledger validation checks near cryptography entrypoints", "compare validation before and after the consensus-state-transition-invariant sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for state transitions where observation and enforcement use different coordinates"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path."]
+patch_pattern: "Add explicit pre-processing validation for PoH/tick invariants and reject mismatches through typed ledger/block errors before replay processing or bank freeze continues."
+
+source_refs: ["/testing/solana/validated-findings/kept/2019-10-31-solana-cryptography-e8e5ddc55d.md", "git:e8e5ddc55d20c57eec659da10c3f106cffef2f25", "core/src/replay_stage.rs:762", "ledger/src/blocktree_processor.rs:296", "core/src/replay_stage.rs:815", "ledger/src/blocktree_processor.rs:351"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

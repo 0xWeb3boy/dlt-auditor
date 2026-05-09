@@ -1,0 +1,39 @@
+id: "solana-2020-04-27-solana-cryptography-8ef097bf6f"
+source_finding: "2020-04-27-solana-cryptography-8ef097bf6f.md"
+project: "solana"
+date: "2020-04-27"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "missing-input-validation"
+subsystem: "cryptography"
+architecture_tags: ["cryptography", "input-validation", "deserialization", "transaction-validation", "gossip-protocol", "consensus-adjacent"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-fix"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "freshness-and-origin-validation"
+violated_invariant: "Protocol input must satisfy freshness and origin validation before it can reach network resource allocation, peer metadata acceptance, repair scheduling, or packet fanout."
+trust_boundary: "untrusted peer network traffic to validator networking pipeline"
+entrypoint_type: "peer packet, gossip value, repair response, or QUIC/UDP ingress"
+sensitive_sink: "network resource allocation, peer metadata acceptance, repair scheduling, or packet fanout"
+
+attacker_capabilities: ["Can send peer-network traffic or influence peer-visible metadata.", "Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints."]
+exploit_preconditions: ["A cached, delayed, or peer-provided value can outlive the state coordinate it is supposed to describe."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["state-integrity"]
+severity_guess: "Low/Medium"
+severity_rationale: "The finding is useful security-hardening evidence; severity depends on reachability and missing compensating controls."
+
+code_shape_summary: "The patch is best characterized as a likely security fix for missing structural validation after deserialization. The provided evidence shows new `Sanitize` implementations for CRDS payloads, gossip votes, epoch slots, and transactions, with bounds and consistency checks added before nested values are trusted. The exact exploit path or monetary impact is not established by the supplied snippets."
+search_motifs: ["search for missing input validation checks near cryptography entrypoints", "compare validation before and after the freshness-and-origin-validation sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for cached peer or state facts reused without slot/epoch/root freshness checks"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path."]
+patch_pattern: "Add explicit post-deserialization sanitization on protocol data types, reject out-of-range or structurally inconsistent fields, and recursively sanitize nested values before downstream processing."
+
+source_refs: ["/testing/solana/validated-findings/kept/2020-04-27-solana-cryptography-8ef097bf6f.md", "git:8ef097bf6f730fcb0bd8c63a2884df32375c8588", "core/src/crds_value.rs:78", "core/src/crds_value.rs:173", "core/src/epoch_slots.rs:219", "sdk/src/transaction.rs:88"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

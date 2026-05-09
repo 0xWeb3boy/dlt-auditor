@@ -1,0 +1,39 @@
+id: "solana-2022-12-02-solana-cryptography-87d939b319"
+source_finding: "2022-12-02-solana-cryptography-87d939b319.md"
+project: "solana"
+date: "2022-12-02"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "incorrect-cryptographic-key-derivation"
+subsystem: "cryptography"
+architecture_tags: ["cryptography", "elgamal", "key-derivation", "zk-proofs"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "input-shape-validation"
+violated_invariant: "Protocol input must satisfy input shape validation before it can reach consensus, accounting, or authorization-sensitive state."
+trust_boundary: "untrusted external input to protocol enforcement layer"
+entrypoint_type: "protocol input or state-transition entrypoint"
+sensitive_sink: "consensus, accounting, or authorization-sensitive state"
+
+attacker_capabilities: ["Can supply malformed or adversarial protocol input at the affected boundary."]
+exploit_preconditions: ["The malformed input reaches the sensitive sink before canonical validation rejects it."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["cryptographic-integrity"]
+severity_guess: "Low/Medium"
+severity_rationale: "The finding is useful security-hardening evidence; severity depends on reachability and missing compensating controls."
+
+code_shape_summary: "The patch fixes inconsistent ElGamal public-key derivation in the zk-token SDK. Before the change, `ElGamalPubkey::new` derived the public key as `secret * H`, while `keygen_with_scalar` used `secret.invert() * H`. After the change, `ElGamalPubkey::new` asserts the scalar is nonzero and uses `s.invert() * H`, and `keygen_with_scalar` delegates to that helper. The accompanying `pubkey_proof.rs` changes add test coverage for derived keypairs; they do not..."
+search_motifs: ["search for incorrect cryptographic key derivation checks near cryptography entrypoints", "compare validation before and after the input-shape-validation sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path."]
+patch_pattern: "Centralize cryptographic key derivation in one helper, enforce the scalar precondition there, and route all keypair construction paths through that helper. Add focused proof tests for the affected key construction path."
+
+source_refs: ["/testing/solana/validated-findings/kept/2022-12-02-solana-cryptography-87d939b319.md", "git:87d939b3197ee210acd77575bdf3aa492151bd3c", "zk-token-sdk/src/sigma_proofs/pubkey_proof.rs:150", "zk-token-sdk/src/sigma_proofs/pubkey_proof.rs:137", "zk-token-sdk/src/encryption/elgamal.rs:72", "zk-token-sdk/src/encryption/elgamal.rs:264"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

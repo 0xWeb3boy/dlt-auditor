@@ -1,0 +1,39 @@
+id: "solana-2019-08-21-solana-storage-e2d6f01ad3"
+source_finding: "2019-08-21-solana-storage-e2d6f01ad3.md"
+project: "solana"
+date: "2019-08-21"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "missing-genesis-blockhash-validation"
+subsystem: "storage"
+architecture_tags: ["storage", "validator-ops", "bootstrap-validation", "genesis-blockhash", "cluster-identity", "consensus-startup", "rpc"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "freshness-and-origin-validation"
+violated_invariant: "Protocol input must satisfy freshness and origin validation before it can reach RPC method execution, account scan, or transaction forwarding."
+trust_boundary: "untrusted RPC caller to node query/transaction service"
+entrypoint_type: "JSON-RPC request or RPC transaction submission"
+sensitive_sink: "RPC method execution, account scan, or transaction forwarding"
+
+attacker_capabilities: ["Can interact with stake/vote accounts or validator-facing protocol paths under the affected preconditions.", "Can influence persisted, downloaded, or replayed state material, or trigger startup/recovery handling."]
+exploit_preconditions: ["A cached, delayed, or peer-provided value can outlive the state coordinate it is supposed to describe."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["cluster-identity-mismatch", "validator-misconfiguration-prevention"]
+severity_guess: "Low/Medium"
+severity_rationale: "The finding is useful security-hardening evidence; severity depends on reachability and missing compensating controls."
+
+code_shape_summary: "The patch adds a validator startup check that compares the local ledger's genesis blockhash with an expected genesis blockhash obtained through the cluster entrypoint path. This is plausibly security-relevant cluster identity hardening, but the supplied evidence does not establish an exploitable vulnerability, attacker control, or concrete protocol impact, so it should not be treated as a confirmed security fix."
+search_motifs: ["search for missing genesis blockhash validation checks near storage entrypoints", "compare validation before and after the freshness-and-origin-validation sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for cached peer or state facts reused without slot/epoch/root freshness checks"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path."]
+patch_pattern: "Thread an expected identity value from bootstrap configuration into initialization, then validate the local state against it before constructing runtime state."
+
+source_refs: ["/testing/solana/validated-findings/kept/2019-08-21-solana-storage-e2d6f01ad3.md", "git:e2d6f01ad3c1fd35a391a09747f7378c5b655017", "core/src/validator.rs:495", "client/src/rpc_client.rs:398", "validator/src/main.rs:410", "core/src/validator.rs:57"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

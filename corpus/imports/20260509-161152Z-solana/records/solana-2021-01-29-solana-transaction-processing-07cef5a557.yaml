@@ -1,0 +1,39 @@
+id: "solana-2021-01-29-solana-transaction-processing-07cef5a557"
+source_finding: "2021-01-29-solana-transaction-processing-07cef5a557.md"
+project: "solana"
+date: "2021-01-29"
+language_tags: ["rust"]
+
+bug_family: "authz_and_role_gates"
+bug_class: "authorization-invariant-enforcement"
+subsystem: "transaction-processing"
+architecture_tags: ["transaction-processing", "blockchain-core", "upgradeable-loader", "authority-check", "access-control", "feature-gated"]
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "authorization-and-privilege-check"
+violated_invariant: "Protocol input must satisfy authorization and privilege check before it can reach account owner/write privilege, executable program state, or runtime syscall side effect."
+trust_boundary: "untrusted program instruction/CPI frame to runtime account and privilege enforcement"
+entrypoint_type: "native program, loader, SBF/BPF, or CPI invocation"
+sensitive_sink: "account owner/write privilege, executable program state, or runtime syscall side effect"
+
+attacker_capabilities: ["Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints."]
+exploit_preconditions: ["The sensitive operation is reachable without proving the exact authority, owner, signer, or privilege being assumed."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["access-control", "state-integrity"]
+severity_guess: "Medium"
+severity_rationale: "The issue was confirmed as a security fix, but the available evidence does not establish direct high-impact loss."
+
+code_shape_summary: "The patch adds an on-chain authorization consistency check in Solana's upgradeable BPF loader. The loader now rejects deploy or upgrade processing when the buffer account's recorded authority does not match the supplied upgrade/deploy authority, and it prevents clearing buffer authority to None under the same feature gate."
+search_motifs: ["search for authorization invariant enforcement checks near transaction-processing entrypoints", "compare validation before and after the authorization-and-privilege-check sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for authority checks in wrappers but not at the final state-changing sink"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path.", "The account or authority is derived from trusted state and cannot be chosen by the caller."]
+patch_pattern: "Enforce the authority invariant at the on-chain loader boundary by comparing persisted buffer authority against the operation authority before continuing, and prevent state transitions that would remove the authority needed for that check."
+
+source_refs: ["/testing/solana/validated-findings/kept/2021-01-29-solana-transaction-processing-07cef5a557.md", "git:07cef5a5572251f9b33de74e8ddd9897ed380406", "programs/bpf_loader/src/lib.rs:515", "programs/bpf_loader/src/lib.rs:619", "cli/src/program.rs:400", "programs/bpf_loader/src/lib.rs:1680"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

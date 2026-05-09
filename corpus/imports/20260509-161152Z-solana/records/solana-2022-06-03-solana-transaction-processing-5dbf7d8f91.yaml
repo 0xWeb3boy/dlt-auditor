@@ -1,0 +1,39 @@
+id: "solana-2022-06-03-solana-transaction-processing-5dbf7d8f91"
+source_finding: "2022-06-03-solana-transaction-processing-5dbf7d8f91.md"
+project: "solana"
+date: "2022-06-03"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "improper-packet-bounds-validation"
+subsystem: "transaction-processing"
+architecture_tags: ["transaction-processing", "network-ingress", "packet-validation", "bounds-checking", "input-validation", "denial-of-service", "rust-panic-hardening"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "input-shape-validation"
+violated_invariant: "Protocol input must satisfy input shape validation before it can reach account balance/state mutation, fee/rent accounting, nonce state, or transaction commitment."
+trust_boundary: "signed client transaction to bank accounting and execution state"
+entrypoint_type: "transaction admission, sanitization, or execution path"
+sensitive_sink: "account balance/state mutation, fee/rent accounting, nonce state, or transaction commitment"
+
+attacker_capabilities: ["Can send peer-network traffic or influence peer-visible metadata.", "Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints."]
+exploit_preconditions: ["The malformed input reaches the sensitive sink before canonical validation rejects it."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["availability"]
+severity_guess: "Medium"
+severity_rationale: "The impact primarily affects availability, liveness, or validator resource consumption rather than direct fund theft."
+
+code_shape_summary: "The patch is best classified as security hardening for Solana packet ingress. It changes Packet::data() from raw indexable payload access toward an Option-returning SliceIndex API, forcing callers to handle invalid packet ranges. The strongest supplied production evidence is perf/src/sigverify.rs, where tracer-packet detection no longer indexes packet.data()[range] directly and instead treats packet.data(range) returning None as a non-match. The evidenc..."
+search_motifs: ["search for improper packet bounds validation checks near transaction-processing entrypoints", "compare validation before and after the input-shape-validation sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path."]
+patch_pattern: "Replace raw packet-buffer exposure and direct caller-side slicing with range-based, Option-returning access that forces explicit invalid-offset handling."
+
+source_refs: ["/testing/solana/validated-findings/kept/2022-06-03-solana-transaction-processing-5dbf7d8f91.md", "git:5dbf7d8f91d343ca996b30dc2981691a6c9df443", "perf/src/sigverify.rs:325", "ledger/src/shred.rs:1030", "ledger/src/shred.rs:1074", "ledger/src/shred.rs:1123"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

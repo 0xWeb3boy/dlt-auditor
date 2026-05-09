@@ -1,0 +1,39 @@
+id: "solana-2021-08-20-solana-transaction-processing-967746abbf"
+source_finding: "2021-08-20-solana-transaction-processing-967746abbf.md"
+project: "solana"
+date: "2021-08-20"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "unbounded-serialization"
+subsystem: "transaction-processing"
+architecture_tags: ["transaction-processing", "rpc", "account-encoding", "base58", "serialization-bound", "resource-hardening"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "resource-accounting-and-bounds"
+violated_invariant: "Protocol input must satisfy resource accounting and bounds before it can reach RPC method execution, account scan, or transaction forwarding."
+trust_boundary: "untrusted RPC caller to node query/transaction service"
+entrypoint_type: "JSON-RPC request or RPC transaction submission"
+sensitive_sink: "RPC method execution, account scan, or transaction forwarding"
+
+attacker_capabilities: ["Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints."]
+exploit_preconditions: ["The node processes attacker-controlled volume before the missing limit or endpoint check is enforced."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["resource-exhaustion"]
+severity_guess: "Medium"
+severity_rationale: "The impact primarily affects availability, liveness, or validator resource consumption rather than direct fund theft."
+
+code_shape_summary: "The patch adds a size guard around base58 account-data encoding in Solana's account decoder and aligns RPC handling with the same `MAX_BASE58_BYTES` limit. Oversized account data now returns an explicit error string instead of being base58-encoded. The evidence supports serialization resource bounding, but does not prove a vulnerability, exploit path, crash, privilege bypass, consensus impact, or confirmed denial of service."
+search_motifs: ["search for unbounded serialization checks near transaction-processing entrypoints", "compare validation before and after the resource-accounting-and-bounds sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for allocation, serialization, fanout, or scheduling before quota checks"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path.", "The expensive allocation is bounded by a separately enforced stake, peer, or per-request quota."]
+patch_pattern: "Add a centralized size check before resource-sensitive serialization and reuse the same limit across decoder and RPC paths."
+
+source_refs: ["/testing/solana/validated-findings/kept/2021-08-20-solana-transaction-processing-967746abbf.md", "git:967746abbf1cb6fb1355323eb812373d0a1fc558", "rpc/src/rpc_subscriptions.rs:1447", "account-decoder/src/lib.rs:62", "rpc/src/rpc_subscriptions.rs:1430", "rpc/src/rpc_pubsub.rs:836"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

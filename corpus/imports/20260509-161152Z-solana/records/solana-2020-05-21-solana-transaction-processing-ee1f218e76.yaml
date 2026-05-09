@@ -1,0 +1,39 @@
+id: "solana-2020-05-21-solana-transaction-processing-ee1f218e76"
+source_finding: "2020-05-21-solana-transaction-processing-ee1f218e76.md"
+project: "solana"
+date: "2020-05-21"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "rpc-input-validation-panic-hardening"
+subsystem: "transaction-processing"
+architecture_tags: ["transaction-processing", "rpc", "input-validation", "error-handling", "panic-avoidance", "transaction-deserialization"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "input-shape-validation"
+violated_invariant: "Protocol input must satisfy input shape validation before it can reach RPC method execution, account scan, or transaction forwarding."
+trust_boundary: "untrusted RPC caller to node query/transaction service"
+entrypoint_type: "JSON-RPC request or RPC transaction submission"
+sensitive_sink: "RPC method execution, account scan, or transaction forwarding"
+
+attacker_capabilities: ["Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints."]
+exploit_preconditions: ["The malformed input reaches the sensitive sink before canonical validation rejects it."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["availability-hardening"]
+severity_guess: "Medium"
+severity_rationale: "The impact primarily affects availability, liveness, or validator resource consumption rather than direct fund theft."
+
+code_shape_summary: "The patch changes RPC parameter error handling in `core/src/rpc.rs`. The strongest grounded change is replacing an unchecked `bs58::decode(...).into_vec().unwrap()` in `deserialize_bs58_transaction` with fallible error propagation returning `InvalidParams`. Other changes reclassify oversized transactions, transaction deserialization failures, pubkey parse failures, and signature parse failures from `InvalidRequest` to `InvalidParams`. The evidence suppo..."
+search_motifs: ["search for rpc input validation panic hardening checks near transaction-processing entrypoints", "compare validation before and after the input-shape-validation sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path."]
+patch_pattern: "Replace unchecked decoding and generic request errors at the RPC boundary with fallible parameter validation that returns structured `InvalidParams` responses."
+
+source_refs: ["/testing/solana/validated-findings/kept/2020-05-21-solana-transaction-processing-ee1f218e76.md", "git:ee1f218e764e725cdc8b4e4d244d7c9a3067343f", "core/src/rpc.rs:1609", "core/src/rpc.rs:2687", "core/src/rpc.rs:685", "core/src/rpc.rs:1626"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

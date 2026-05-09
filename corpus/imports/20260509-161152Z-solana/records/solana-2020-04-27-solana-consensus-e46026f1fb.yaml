@@ -1,0 +1,39 @@
+id: "solana-2020-04-27-solana-consensus-e46026f1fb"
+source_finding: "2020-04-27-solana-consensus-e46026f1fb.md"
+project: "solana"
+date: "2020-04-27"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "missing-deserialization-validation"
+subsystem: "consensus"
+architecture_tags: ["consensus", "input-validation", "deserialization", "sanitize", "transaction", "gossip"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "freshness-and-origin-validation"
+violated_invariant: "Protocol input must satisfy freshness and origin validation before it can reach network resource allocation, peer metadata acceptance, repair scheduling, or packet fanout."
+trust_boundary: "untrusted peer network traffic to validator networking pipeline"
+entrypoint_type: "peer packet, gossip value, repair response, or QUIC/UDP ingress"
+sensitive_sink: "network resource allocation, peer metadata acceptance, repair scheduling, or packet fanout"
+
+attacker_capabilities: ["Can send peer-network traffic or influence peer-visible metadata.", "Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints."]
+exploit_preconditions: ["A cached, delayed, or peer-provided value can outlive the state coordinate it is supposed to describe."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["protocol-integrity", "input-validation"]
+severity_guess: "Low/Medium"
+severity_rationale: "The finding is useful security-hardening evidence; severity depends on reachability and missing compensating controls."
+
+code_shape_summary: "The patch is best classified as a likely security fix for missing post-deserialization validation. The provided hunks show new `Sanitize` implementations for CRDS slot-related values, votes, and transactions, adding bounds checks and structural consistency checks that were not shown before. The commit subject directly frames the issue as unsanitized deserialized input with SOL-impacting consequences, but the supplied evidence does not establish the full..."
+search_motifs: ["search for missing deserialization validation checks near consensus entrypoints", "compare validation before and after the freshness-and-origin-validation sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for cached peer or state facts reused without slot/epoch/root freshness checks"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path."]
+patch_pattern: "Add explicit `Sanitize` implementations at deserialization-facing protocol data boundaries, reject invalid values with `SanitizeError`, and recursively validate nested protocol objects before downstream use."
+
+source_refs: ["/testing/solana/validated-findings/kept/2020-04-27-solana-consensus-e46026f1fb.md", "git:e46026f1fb6613c3400aef7b695a155eacae281a", "core/src/crds_value.rs:94", "core/src/crds_value.rs:209", "core/src/crds_value.rs:181", "sdk/src/transaction.rs:85"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

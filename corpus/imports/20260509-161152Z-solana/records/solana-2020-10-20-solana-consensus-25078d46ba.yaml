@@ -1,0 +1,39 @@
+id: "solana-2020-10-20-solana-consensus-25078d46ba"
+source_finding: "2020-10-20-solana-consensus-25078d46ba.md"
+project: "solana"
+date: "2020-10-20"
+language_tags: ["rust"]
+
+bug_family: "state_machine_and_lifecycle_consistency"
+bug_class: "gossip-stale-peer-fanout"
+subsystem: "consensus"
+architecture_tags: ["consensus", "blockchain-core", "gossip", "crds", "availability", "dos-mitigation", "validator"]
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "freshness-and-origin-validation"
+violated_invariant: "Protocol input must satisfy freshness and origin validation before it can reach network resource allocation, peer metadata acceptance, repair scheduling, or packet fanout."
+trust_boundary: "untrusted peer network traffic to validator networking pipeline"
+entrypoint_type: "peer packet, gossip value, repair response, or QUIC/UDP ingress"
+sensitive_sink: "network resource allocation, peer metadata acceptance, repair scheduling, or packet fanout"
+
+attacker_capabilities: ["Can send peer-network traffic or influence peer-visible metadata.", "Can interact with stake/vote accounts or validator-facing protocol paths under the affected preconditions."]
+exploit_preconditions: ["A cached, delayed, or peer-provided value can outlive the state coordinate it is supposed to describe."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["availability"]
+severity_guess: "Medium"
+severity_rationale: "The impact primarily affects availability, liveness, or validator resource consumption rather than direct fund theft."
+
+code_shape_summary: "The patch hardens Solana CRDS gossip push target selection by filtering inactive peers out of normal push options. The evidence supports a gossip-layer availability hardening for redundant traffic toward offline or stale nodes, not a consensus, signature, or funds-loss vulnerability."
+search_motifs: ["search for gossip stale peer fanout checks near consensus entrypoints", "compare validation before and after the freshness-and-origin-validation sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for cached peer or state facts reused without slot/epoch/root freshness checks"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path."]
+patch_pattern: "Add freshness-aware eligibility checks at the gossip push target-selection point, excluding stale peers from routine fanout while preserving bounded retry behavior for staked peers."
+
+source_refs: ["/testing/solana/validated-findings/kept/2020-10-20-solana-consensus-25078d46ba.md", "git:25078d46baed14e4f9b8617a8afa36629a1fa047", "core/src/crds_gossip_push.rs:372", "core/src/crds_gossip_pull.rs:282", "core/src/crds_gossip_push.rs:794", "core/src/crds_gossip_push.rs:677"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

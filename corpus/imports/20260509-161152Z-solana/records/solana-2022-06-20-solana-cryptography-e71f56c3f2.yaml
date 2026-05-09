@@ -1,0 +1,39 @@
+id: "solana-2022-06-20-solana-cryptography-e71f56c3f2"
+source_finding: "2022-06-20-solana-cryptography-e71f56c3f2.md"
+project: "solana"
+date: "2022-06-20"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "unchecked-packet-slice-access"
+subsystem: "cryptography"
+architecture_tags: ["cryptography", "infrastructure", "packet-parsing", "bounds-checking", "untrusted-input", "sigverify", "denial-of-service"]
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "input-shape-validation"
+violated_invariant: "Protocol input must satisfy input shape validation before it can reach consensus, accounting, or authorization-sensitive state."
+trust_boundary: "untrusted external input to protocol enforcement layer"
+entrypoint_type: "protocol input or state-transition entrypoint"
+sensitive_sink: "consensus, accounting, or authorization-sensitive state"
+
+attacker_capabilities: ["Can supply malformed or adversarial protocol input at the affected boundary."]
+exploit_preconditions: ["The malformed input reaches the sensitive sink before canonical validation rejects it."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["denial-of-service"]
+severity_guess: "Medium"
+severity_rationale: "The impact primarily affects availability, liveness, or validator resource consumption rather than direct fund theft."
+
+code_shape_summary: "The patch likely security-hardens Solana packet ingress and sigverify parsing by replacing raw packet byte indexing with a `Packet::data(...)` accessor that returns `Option`, forcing call sites to handle invalid offsets explicitly. The evidence supports bounds-checking hardening, not a proven signature bypass, replay flaw, memory corruption issue, or confirmed exploitable crash."
+search_motifs: ["search for unchecked packet slice access checks near cryptography entrypoints", "compare validation before and after the input-shape-validation sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path."]
+patch_pattern: "Replace direct packet buffer indexing with a bounds-checked accessor returning `Option`, then require each call site to convert invalid offsets into the appropriate local failure behavior."
+
+source_refs: ["/testing/solana/validated-findings/kept/2022-06-20-solana-cryptography-e71f56c3f2.md", "git:e71f56c3f2910e6d73e91452fea401c8b7d5ded6", "perf/src/sigverify.rs:328", "perf/src/sigverify.rs:276", "perf/src/sigverify.rs:118", "perf/src/sigverify.rs:422"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

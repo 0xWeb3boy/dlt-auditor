@@ -1,0 +1,39 @@
+id: "solana-2020-05-28-solana-staking-0c68f27ac3"
+source_finding: "2020-05-28-solana-staking-0c68f27ac3.md"
+project: "solana"
+date: "2020-05-28"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "denial-of-service"
+subsystem: "staking"
+architecture_tags: ["staking", "blockchain-core", "repair", "denial-of-service", "resource-exhaustion", "bounded-work"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "resource-accounting-and-bounds"
+violated_invariant: "Protocol input must satisfy resource accounting and bounds before it can reach network resource allocation, peer metadata acceptance, repair scheduling, or packet fanout."
+trust_boundary: "untrusted peer network traffic to validator networking pipeline"
+entrypoint_type: "peer packet, gossip value, repair response, or QUIC/UDP ingress"
+sensitive_sink: "network resource allocation, peer metadata acceptance, repair scheduling, or packet fanout"
+
+attacker_capabilities: ["Can send peer-network traffic or influence peer-visible metadata."]
+exploit_preconditions: ["The node processes attacker-controlled volume before the missing limit or endpoint check is enforced."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["availability", "resource-exhaustion"]
+severity_guess: "Medium"
+severity_rationale: "The impact primarily affects availability, liveness, or validator resource consumption rather than direct fund theft."
+
+code_shape_summary: "Commit 0c68f27ac3 changes `core/src/serve_repair.rs` in the orphan repair response path. The supported issue is a denial-of-service/resource-exhaustion risk where `ServeRepair::run_orphan` could keep walking parent slot metadata after packet construction failed, because no packet was pushed and the response-count limit did not advance."
+search_motifs: ["search for denial of service checks near staking entrypoints", "compare validation before and after the resource-accounting-and-bounds sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for allocation, serialization, fanout, or scheduling before quota checks"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path.", "The expensive allocation is bounded by a separately enforced stake, peer, or per-request quota."]
+patch_pattern: "Fail closed in bounded response-generation loops: if an outbound packet cannot be constructed, stop traversal instead of continuing with unchanged progress counters."
+
+source_refs: ["/testing/solana/validated-findings/kept/2020-05-28-solana-staking-0c68f27ac3.md", "git:0c68f27ac3c8d66935ed5f79dcf9fca1dc17883b", "core/src/serve_repair.rs:867", "core/src/serve_repair.rs:533"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

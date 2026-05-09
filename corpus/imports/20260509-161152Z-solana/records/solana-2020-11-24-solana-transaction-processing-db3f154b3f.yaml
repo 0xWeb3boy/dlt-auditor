@@ -1,0 +1,39 @@
+id: "solana-2020-11-24-solana-transaction-processing-db3f154b3f"
+source_finding: "2020-11-24-solana-transaction-processing-db3f154b3f.md"
+project: "solana"
+date: "2020-11-24"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "durable-nonce-failed-transaction-state-persistence"
+subsystem: "transaction-processing"
+architecture_tags: ["transaction-processing", "blockchain-core", "durable-nonce", "failed-transaction-atomicity", "state-integrity"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "nonce-state-consistency"
+violated_invariant: "Protocol input must satisfy nonce state consistency before it can reach account balance/state mutation, fee/rent accounting, nonce state, or transaction commitment."
+trust_boundary: "signed client transaction to bank accounting and execution state"
+entrypoint_type: "transaction admission, sanitization, or execution path"
+sensitive_sink: "account balance/state mutation, fee/rent accounting, nonce state, or transaction commitment"
+
+attacker_capabilities: ["Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints."]
+exploit_preconditions: ["The malformed input reaches the sensitive sink before canonical validation rejects it."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["state-integrity"]
+severity_guess: "Low/Medium"
+severity_rationale: "The finding is useful security-hardening evidence; severity depends on reachability and missing compensating controls."
+
+code_shape_summary: "The supported finding is a likely Solana runtime state-integrity fix in durable nonce transaction handling. The strongest evidence is the change in `Accounts::collect_accounts_to_store` from storing any writable account to storing writable accounts only on successful execution, or on failed durable-nonce execution when the account is the nonce account or fee payer. Related fee-calculator changes appear to support consistent durable-nonce metadata handli..."
+search_motifs: ["search for durable nonce failed transaction state persistence checks near transaction-processing entrypoints", "compare validation before and after the nonce-state-consistency sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for state transitions where observation and enforcement use different coordinates"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path."]
+patch_pattern: "Narrow failed-transaction persistence exceptions by making the durable nonce special case explicit: keep the ordinary success path, but on durable nonce instruction failure only allow nonce and fee-payer state to be stored."
+
+source_refs: ["/testing/solana/validated-findings/kept/2020-11-24-solana-transaction-processing-db3f154b3f.md", "git:db3f154b3fa452414ee734f8e32c69f877b82d9e", "runtime/src/accounts.rs:863", "core/src/transaction_status_service.rs:73", "runtime/src/accounts.rs:320", "runtime/src/accounts.rs:832"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

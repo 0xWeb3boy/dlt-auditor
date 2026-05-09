@@ -1,0 +1,39 @@
+id: "solana-2020-05-26-solana-storage-03abd3ddd7"
+source_finding: "2020-05-26-solana-storage-03abd3ddd7.md"
+project: "solana"
+date: "2020-05-26"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "missing-privilege-check"
+subsystem: "storage"
+architecture_tags: ["storage", "blockchain-core", "bpf-loader", "cross-program-invocation", "privilege-escalation", "access-control"]
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "authorization-and-privilege-check"
+violated_invariant: "Protocol input must satisfy authorization and privilege check before it can reach canonical bank state, account storage, snapshot acceptance, or ledger root."
+trust_boundary: "persisted or downloaded ledger/account state to trusted runtime reconstruction"
+entrypoint_type: "snapshot load, blockstore replay, accounts hash verification, or storage maintenance"
+sensitive_sink: "canonical bank state, account storage, snapshot acceptance, or ledger root"
+
+attacker_capabilities: ["Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints.", "Can influence persisted, downloaded, or replayed state material, or trigger startup/recovery handling."]
+exploit_preconditions: ["The sensitive operation is reachable without proving the exact authority, owner, signer, or privilege being assumed."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["privilege-escalation", "state-integrity"]
+severity_guess: "High"
+severity_rationale: "The impact can affect funds, consensus safety, authorization boundaries, or runtime integrity when reachable."
+
+code_shape_summary: "Commit 03abd3ddd7 is supported as a security fix for Solana's BPF cross-program invocation path. The strongest evidence is the new verify_instruction helper in programs/bpf_loader/src/syscalls.rs, explicitly introduced with a privilege-escalation check and invoked before Message construction and dispatch."
+search_motifs: ["search for missing privilege check checks near storage entrypoints", "compare validation before and after the authorization-and-privilege-check sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for authority checks in wrappers but not at the final state-changing sink"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path.", "The account or authority is derived from trusted state and cannot be chosen by the caller."]
+patch_pattern: "Add a pre-dispatch privilege validation gate at the BPF CPI syscall boundary."
+
+source_refs: ["/testing/solana/validated-findings/kept/2020-05-26-solana-storage-03abd3ddd7.md", "git:03abd3ddd70b1e362098be5bbf253e4169891d4c", "runtime/src/message_processor.rs:123", "programs/bpf_loader/src/lib.rs:184", "programs/bpf_loader/src/syscalls.rs:688", "programs/bpf_loader/src/syscalls.rs:742"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

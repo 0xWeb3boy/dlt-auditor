@@ -1,0 +1,1260 @@
+{
+  "repo": "/testing/solana",
+  "repo_slug": "solana",
+  "kept_dir": "/testing/solana/validated-findings/kept",
+  "created_at_utc": "20260509-161152Z",
+  "finding_count": 139,
+  "findings": [
+    {
+      "id": "solana-2018-03-02-solana-cryptography-36bb1f989d",
+      "source": "/testing/solana/validated-findings/kept/2018-03-02-solana-cryptography-36bb1f989d.md",
+      "bug_family": "state_machine_and_lifecycle_consistency",
+      "bug_class": "double-spend-stale-accounting",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "lifecycle-cleanup"
+    },
+    {
+      "id": "solana-2018-04-05-solana-transaction-processing-c960e8d351",
+      "source": "/testing/solana/validated-findings/kept/2018-04-05-solana-transaction-processing-c960e8d351.md",
+      "bug_family": "attestation_trust_and_freshness",
+      "bug_class": "freshness-anchor-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "freshness"
+    },
+    {
+      "id": "solana-2018-07-08-solana-cryptography-71f05cb23e",
+      "source": "/testing/solana/validated-findings/kept/2018-07-08-solana-cryptography-71f05cb23e.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "timestamp-source-authorization",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "solana-2018-10-26-solana-transaction-processing-cda9ad8565",
+      "source": "/testing/solana/validated-findings/kept/2018-10-26-solana-transaction-processing-cda9ad8565.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "incomplete-signature-verification",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "solana-2018-12-01-solana-cryptography-34c3a0cc1f",
+      "source": "/testing/solana/validated-findings/kept/2018-12-01-solana-cryptography-34c3a0cc1f.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "gossip-signature-verification-hardening",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "solana-2019-02-15-solana-core-logic-132c664e18",
+      "source": "/testing/solana/validated-findings/kept/2019-02-15-solana-core-logic-132c664e18.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "cross-program-state-mutation",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2019-02-22-solana-transaction-processing-66891d9d4e",
+      "source": "/testing/solana/validated-findings/kept/2019-02-22-solana-transaction-processing-66891d9d4e.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "access-control",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "solana-2019-02-28-solana-staking-20e4edec61",
+      "source": "/testing/solana/validated-findings/kept/2019-02-28-solana-staking-20e4edec61.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "vote-account-binding-confusion",
+      "subsystem": "staking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2019-03-01-solana-staking-db825b6e26",
+      "source": "/testing/solana/validated-findings/kept/2019-03-01-solana-staking-db825b6e26.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "missing-signature-check",
+      "subsystem": "staking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "solana-2019-03-08-solana-p2p-networking-c8c85ff93b",
+      "source": "/testing/solana/validated-findings/kept/2019-03-08-solana-p2p-networking-c8c85ff93b.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "gossip-signature-integrity",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "solana-2019-03-18-solana-staking-61a4b998fa",
+      "source": "/testing/solana/validated-findings/kept/2019-03-18-solana-staking-61a4b998fa.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-vote-safety-hardening",
+      "subsystem": "staking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2019-03-18-solana-staking-89c42ecd3f",
+      "source": "/testing/solana/validated-findings/kept/2019-03-18-solana-staking-89c42ecd3f.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-vote-safety-hardening",
+      "subsystem": "staking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2019-05-20-solana-transaction-processing-ead15d294e",
+      "source": "/testing/solana/validated-findings/kept/2019-05-20-solana-transaction-processing-ead15d294e.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "panic-prone-input-parsing",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2019-06-10-solana-consensus-807c69d97c",
+      "source": "/testing/solana/validated-findings/kept/2019-06-10-solana-consensus-807c69d97c.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "account-permission-invariant-hardening",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2019-06-20-solana-cryptography-aacb38864c",
+      "source": "/testing/solana/validated-findings/kept/2019-06-20-solana-cryptography-aacb38864c.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "invalid-fork-replay-handling",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2019-07-31-solana-staking-1a0003fbcc",
+      "source": "/testing/solana/validated-findings/kept/2019-07-31-solana-staking-1a0003fbcc.md",
+      "bug_family": "staking_registry_and_accountability",
+      "bug_class": "stake-withdrawal-epoch-accounting-hardening",
+      "subsystem": "staking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "accountability-enforcement"
+    },
+    {
+      "id": "solana-2019-07-31-solana-staking-9278201198",
+      "source": "/testing/solana/validated-findings/kept/2019-07-31-solana-staking-9278201198.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-withdrawal-state-guard",
+      "subsystem": "staking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2019-08-21-solana-storage-e2d6f01ad3",
+      "source": "/testing/solana/validated-findings/kept/2019-08-21-solana-storage-e2d6f01ad3.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-genesis-blockhash-validation",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2019-09-12-solana-staking-5dceeec1ca",
+      "source": "/testing/solana/validated-findings/kept/2019-09-12-solana-staking-5dceeec1ca.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "improper-authorization",
+      "subsystem": "staking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "solana-2019-09-25-solana-staking-43795193c4",
+      "source": "/testing/solana/validated-findings/kept/2019-09-25-solana-staking-43795193c4.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "authorization-hardening",
+      "subsystem": "staking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "solana-2019-09-26-solana-staking-61930c0dd3",
+      "source": "/testing/solana/validated-findings/kept/2019-09-26-solana-staking-61930c0dd3.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "authorization-check-hardening",
+      "subsystem": "staking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "solana-2019-10-15-solana-storage-78d5c1de9a",
+      "source": "/testing/solana/validated-findings/kept/2019-10-15-solana-storage-78d5c1de9a.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "account-data-size-boundary-enforcement",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2019-10-29-solana-staking-a587d05098",
+      "source": "/testing/solana/validated-findings/kept/2019-10-29-solana-staking-a587d05098.md",
+      "bug_family": "staking_registry_and_accountability",
+      "bug_class": "stake-redelegation-invariant-hardening",
+      "subsystem": "staking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "accountability-enforcement"
+    },
+    {
+      "id": "solana-2019-10-31-solana-cryptography-e8e5ddc55d",
+      "source": "/testing/solana/validated-findings/kept/2019-10-31-solana-cryptography-e8e5ddc55d.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-ledger-validation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2019-11-03-solana-consensus-d9a9d6547f",
+      "source": "/testing/solana/validated-findings/kept/2019-11-03-solana-consensus-d9a9d6547f.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "signature-identity-binding",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "solana-2019-12-20-solana-cryptography-3c361eb759",
+      "source": "/testing/solana/validated-findings/kept/2019-12-20-solana-cryptography-3c361eb759.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "snapshot-integrity-validation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2020-01-15-solana-cryptography-b16c30b4c6",
+      "source": "/testing/solana/validated-findings/kept/2020-01-15-solana-cryptography-b16c30b4c6.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "state-hash-alignment-bug",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2020-02-07-solana-staking-fa00803fbf",
+      "source": "/testing/solana/validated-findings/kept/2020-02-07-solana-staking-fa00803fbf.md",
+      "bug_family": "attestation_trust_and_freshness",
+      "bug_class": "gossip-freshness-validation",
+      "subsystem": "staking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "freshness"
+    },
+    {
+      "id": "solana-2020-02-14-solana-staking-535ee281e8",
+      "source": "/testing/solana/validated-findings/kept/2020-02-14-solana-staking-535ee281e8.md",
+      "bug_family": "attestation_trust_and_freshness",
+      "bug_class": "peer-gossip-freshness-validation",
+      "subsystem": "staking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "freshness"
+    },
+    {
+      "id": "solana-2020-02-26-solana-consensus-242afa7e6b",
+      "source": "/testing/solana/validated-findings/kept/2020-02-26-solana-consensus-242afa7e6b.md",
+      "bug_family": "attestation_trust_and_freshness",
+      "bug_class": "untrusted-bootstrap-data-validation",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "freshness"
+    },
+    {
+      "id": "solana-2020-02-26-solana-consensus-87cfac12dd",
+      "source": "/testing/solana/validated-findings/kept/2020-02-26-solana-consensus-87cfac12dd.md",
+      "bug_family": "attestation_trust_and_freshness",
+      "bug_class": "bootstrap-trust-validation",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "freshness"
+    },
+    {
+      "id": "solana-2020-03-16-solana-cryptography-1cc66f0cd7",
+      "source": "/testing/solana/validated-findings/kept/2020-03-16-solana-cryptography-1cc66f0cd7.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "validator-state-consistency-hardening",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2020-03-16-solana-cryptography-dc347dd3d7",
+      "source": "/testing/solana/validated-findings/kept/2020-03-16-solana-cryptography-dc347dd3d7.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "validator-state-consistency-hardening",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2020-04-02-solana-consensus-0139236464",
+      "source": "/testing/solana/validated-findings/kept/2020-04-02-solana-consensus-0139236464.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-vote-guard-hardening",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2020-04-02-solana-consensus-4649378f95",
+      "source": "/testing/solana/validated-findings/kept/2020-04-02-solana-consensus-4649378f95.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-vote-gating",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2020-04-16-solana-consensus-66abe45ea1",
+      "source": "/testing/solana/validated-findings/kept/2020-04-16-solana-consensus-66abe45ea1.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "state-consistency-monitoring",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2020-04-27-solana-consensus-e46026f1fb",
+      "source": "/testing/solana/validated-findings/kept/2020-04-27-solana-consensus-e46026f1fb.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-deserialization-validation",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2020-04-27-solana-cryptography-8ef097bf6f",
+      "source": "/testing/solana/validated-findings/kept/2020-04-27-solana-cryptography-8ef097bf6f.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-input-validation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2020-04-27-solana-cryptography-9c6f613f8c",
+      "source": "/testing/solana/validated-findings/kept/2020-04-27-solana-cryptography-9c6f613f8c.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "protocol-input-validation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2020-05-02-solana-cryptography-f37f83fd12",
+      "source": "/testing/solana/validated-findings/kept/2020-05-02-solana-cryptography-f37f83fd12.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "transaction-sanitization-ordering",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2020-05-02-solana-transaction-processing-fa254ff18f",
+      "source": "/testing/solana/validated-findings/kept/2020-05-02-solana-transaction-processing-fa254ff18f.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "malformed-transaction-validation-ordering",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2020-05-08-solana-cryptography-f98bfda6f9",
+      "source": "/testing/solana/validated-findings/kept/2020-05-08-solana-cryptography-f98bfda6f9.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "disabled-signature-verification-path",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "solana-2020-05-21-solana-transaction-processing-ee1f218e76",
+      "source": "/testing/solana/validated-findings/kept/2020-05-21-solana-transaction-processing-ee1f218e76.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "rpc-input-validation-panic-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2020-05-26-solana-storage-03abd3ddd7",
+      "source": "/testing/solana/validated-findings/kept/2020-05-26-solana-storage-03abd3ddd7.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-privilege-check",
+      "subsystem": "storage",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2020-05-26-solana-storage-8c8e2c4b2b",
+      "source": "/testing/solana/validated-findings/kept/2020-05-26-solana-storage-8c8e2c4b2b.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "cross-program-invocation-privilege-escalation",
+      "subsystem": "storage",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2020-05-28-solana-rpc-client-api-bc86ee8d13",
+      "source": "/testing/solana/validated-findings/kept/2020-05-28-solana-rpc-client-api-bc86ee8d13.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "repair-response-gating-bypass",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2020-05-28-solana-staking-0c68f27ac3",
+      "source": "/testing/solana/validated-findings/kept/2020-05-28-solana-staking-0c68f27ac3.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "denial-of-service",
+      "subsystem": "staking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2020-05-28-solana-staking-e68621b8bb",
+      "source": "/testing/solana/validated-findings/kept/2020-05-28-solana-staking-e68621b8bb.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "denial-of-service",
+      "subsystem": "staking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2020-06-30-solana-cryptography-88eeb817e4",
+      "source": "/testing/solana/validated-findings/kept/2020-06-30-solana-cryptography-88eeb817e4.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "validator-restart-precondition-hardening",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2020-07-21-solana-staking-e07c00710a",
+      "source": "/testing/solana/validated-findings/kept/2020-07-21-solana-staking-e07c00710a.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "reward-accounting-invariant",
+      "subsystem": "staking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2020-07-31-solana-cryptography-e33f9ea6b5",
+      "source": "/testing/solana/validated-findings/kept/2020-07-31-solana-cryptography-e33f9ea6b5.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "authorization-role-confusion",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "solana-2020-07-31-solana-staking-61d9d219f9",
+      "source": "/testing/solana/validated-findings/kept/2020-07-31-solana-staking-61d9d219f9.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "authorization-role-confusion",
+      "subsystem": "staking",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "solana-2020-08-05-solana-transaction-processing-7b8e5a9f47",
+      "source": "/testing/solana/validated-findings/kept/2020-08-05-solana-transaction-processing-7b8e5a9f47.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-transaction-sanitization",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2020-08-06-solana-cryptography-5c4b8153c6",
+      "source": "/testing/solana/validated-findings/kept/2020-08-06-solana-cryptography-5c4b8153c6.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-off-curve-address-validation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2020-08-17-solana-staking-d9ae092637",
+      "source": "/testing/solana/validated-findings/kept/2020-08-17-solana-staking-d9ae092637.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "rent-exemption-recheck-bypass",
+      "subsystem": "staking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2020-08-25-solana-core-logic-f162c6d1d0",
+      "source": "/testing/solana/validated-findings/kept/2020-08-25-solana-core-logic-f162c6d1d0.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "pointer-alignment-validation",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2020-09-15-solana-core-logic-b5c7ad3a9b",
+      "source": "/testing/solana/validated-findings/kept/2020-09-15-solana-core-logic-b5c7ad3a9b.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "validator-network-exposure-hardening",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2020-10-01-solana-staking-e3773d919c",
+      "source": "/testing/solana/validated-findings/kept/2020-10-01-solana-staking-e3773d919c.md",
+      "bug_family": "checked_arithmetic_and_parameter_bounds",
+      "bug_class": "integer-overflow",
+      "subsystem": "staking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "arithmetic-bounds"
+    },
+    {
+      "id": "solana-2020-10-02-solana-storage-29af9d1a36",
+      "source": "/testing/solana/validated-findings/kept/2020-10-02-solana-storage-29af9d1a36.md",
+      "bug_family": "checked_arithmetic_and_parameter_bounds",
+      "bug_class": "integer-overflow-accounting",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "arithmetic-bounds"
+    },
+    {
+      "id": "solana-2020-10-12-solana-storage-9797c93db3",
+      "source": "/testing/solana/validated-findings/kept/2020-10-12-solana-storage-9797c93db3.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "panic-on-invalid-native-loader-input",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2020-10-20-solana-consensus-25078d46ba",
+      "source": "/testing/solana/validated-findings/kept/2020-10-20-solana-consensus-25078d46ba.md",
+      "bug_family": "state_machine_and_lifecycle_consistency",
+      "bug_class": "gossip-stale-peer-fanout",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "lifecycle-cleanup"
+    },
+    {
+      "id": "solana-2020-10-28-solana-cryptography-ae91270961",
+      "source": "/testing/solana/validated-findings/kept/2020-10-28-solana-cryptography-ae91270961.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "udp-amplification-via-source-spoofing",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2020-10-28-solana-cryptography-f19778b7d9",
+      "source": "/testing/solana/validated-findings/kept/2020-10-28-solana-cryptography-f19778b7d9.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "udp-reflection-amplification",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2020-10-29-solana-cryptography-06067dd823",
+      "source": "/testing/solana/validated-findings/kept/2020-10-29-solana-cryptography-06067dd823.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "udp-amplification-missing-endpoint-validation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2020-11-13-solana-transaction-processing-5a61827702",
+      "source": "/testing/solana/validated-findings/kept/2020-11-13-solana-transaction-processing-5a61827702.md",
+      "bug_family": "checked_arithmetic_and_parameter_bounds",
+      "bug_class": "integer-overflow",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "arithmetic-bounds"
+    },
+    {
+      "id": "solana-2020-11-13-solana-transaction-processing-f6b65b033e",
+      "source": "/testing/solana/validated-findings/kept/2020-11-13-solana-transaction-processing-f6b65b033e.md",
+      "bug_family": "checked_arithmetic_and_parameter_bounds",
+      "bug_class": "arithmetic-overflow-in-validation-counter",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "arithmetic-bounds"
+    },
+    {
+      "id": "solana-2020-11-16-solana-staking-e12cb457fb",
+      "source": "/testing/solana/validated-findings/kept/2020-11-16-solana-staking-e12cb457fb.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "account-owner-validation",
+      "subsystem": "staking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2020-11-19-solana-storage-a8c29505f0",
+      "source": "/testing/solana/validated-findings/kept/2020-11-19-solana-storage-a8c29505f0.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "panic-dos",
+      "subsystem": "storage",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2020-11-20-solana-storage-0ad7b64961",
+      "source": "/testing/solana/validated-findings/kept/2020-11-20-solana-storage-0ad7b64961.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-input-validation",
+      "subsystem": "storage",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2020-11-20-solana-storage-ff38a46af6",
+      "source": "/testing/solana/validated-findings/kept/2020-11-20-solana-storage-ff38a46af6.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "remote-denial-of-service",
+      "subsystem": "storage",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2020-11-24-solana-transaction-processing-db3f154b3f",
+      "source": "/testing/solana/validated-findings/kept/2020-11-24-solana-transaction-processing-db3f154b3f.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "durable-nonce-failed-transaction-state-persistence",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2020-12-15-solana-consensus-75e9e321de",
+      "source": "/testing/solana/validated-findings/kept/2020-12-15-solana-consensus-75e9e321de.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-state-publication-race",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2020-12-15-solana-consensus-db339cb925",
+      "source": "/testing/solana/validated-findings/kept/2020-12-15-solana-consensus-db339cb925.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-state-ordering-race",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2020-12-15-solana-consensus-ef9f54b3d4",
+      "source": "/testing/solana/validated-findings/kept/2020-12-15-solana-consensus-ef9f54b3d4.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-state-race",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2020-12-17-solana-cryptography-ff728e5e56",
+      "source": "/testing/solana/validated-findings/kept/2020-12-17-solana-cryptography-ff728e5e56.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "rent-exemption-undercheck",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2021-01-09-solana-staking-4470afceaa",
+      "source": "/testing/solana/validated-findings/kept/2021-01-09-solana-staking-4470afceaa.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "authority-model-hardening",
+      "subsystem": "staking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2021-01-19-solana-cryptography-540e23c987",
+      "source": "/testing/solana/validated-findings/kept/2021-01-19-solana-cryptography-540e23c987.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "account-locking-invariant",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2021-01-20-solana-transaction-processing-2783aee483",
+      "source": "/testing/solana/validated-findings/kept/2021-01-20-solana-transaction-processing-2783aee483.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "input-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2021-01-21-solana-transaction-processing-9dd5d4407b",
+      "source": "/testing/solana/validated-findings/kept/2021-01-21-solana-transaction-processing-9dd5d4407b.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "input-bound-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2021-01-22-solana-cryptography-77572a7c53",
+      "source": "/testing/solana/validated-findings/kept/2021-01-22-solana-cryptography-77572a7c53.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "cpi-writable-privilege-tracking",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2021-01-23-solana-cryptography-480a35d678",
+      "source": "/testing/solana/validated-findings/kept/2021-01-23-solana-cryptography-480a35d678.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "improper-privilege-propagation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2021-01-29-solana-transaction-processing-07cef5a557",
+      "source": "/testing/solana/validated-findings/kept/2021-01-29-solana-transaction-processing-07cef5a557.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "authorization-invariant-enforcement",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "solana-2021-01-29-solana-transaction-processing-08bda35fd6",
+      "source": "/testing/solana/validated-findings/kept/2021-01-29-solana-transaction-processing-08bda35fd6.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "access-control",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "solana-2021-01-29-solana-transaction-processing-893cc76472",
+      "source": "/testing/solana/validated-findings/kept/2021-01-29-solana-transaction-processing-893cc76472.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "authorization-invariant-bypass",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "solana-2021-02-13-solana-transaction-processing-99012f022e",
+      "source": "/testing/solana/validated-findings/kept/2021-02-13-solana-transaction-processing-99012f022e.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "input-size-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2021-03-11-solana-core-logic-cc38ae72e7",
+      "source": "/testing/solana/validated-findings/kept/2021-03-11-solana-core-logic-cc38ae72e7.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "writable-account-boundary-hardening",
+      "subsystem": "core-logic",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2021-03-16-solana-staking-999f81c56d",
+      "source": "/testing/solana/validated-findings/kept/2021-03-16-solana-staking-999f81c56d.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-resource-metering",
+      "subsystem": "staking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2021-04-06-solana-transaction-processing-03d3ae1cb9",
+      "source": "/testing/solana/validated-findings/kept/2021-04-06-solana-transaction-processing-03d3ae1cb9.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "resource-control-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2021-04-06-solana-transaction-processing-f6780d72b1",
+      "source": "/testing/solana/validated-findings/kept/2021-04-06-solana-transaction-processing-f6780d72b1.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "faucet-rate-limit-scope",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2021-05-28-solana-consensus-2f7f243022",
+      "source": "/testing/solana/validated-findings/kept/2021-05-28-solana-consensus-2f7f243022.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "read-only-account-modification-bypass",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2021-05-28-solana-consensus-a3240aebde",
+      "source": "/testing/solana/validated-findings/kept/2021-05-28-solana-consensus-a3240aebde.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "read-only-account-mutation",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2021-06-01-solana-cryptography-b000d490ce",
+      "source": "/testing/solana/validated-findings/kept/2021-06-01-solana-cryptography-b000d490ce.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "resource-exhaustion-mitigation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2021-06-06-solana-transaction-processing-8f5e773caf",
+      "source": "/testing/solana/validated-findings/kept/2021-06-06-solana-transaction-processing-8f5e773caf.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "missing-authorization",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "solana-2021-06-06-solana-transaction-processing-e5ea16fad8",
+      "source": "/testing/solana/validated-findings/kept/2021-06-06-solana-transaction-processing-e5ea16fad8.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "authorization-check-bypass",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "solana-2021-06-07-solana-transaction-processing-b777bbf7db",
+      "source": "/testing/solana/validated-findings/kept/2021-06-07-solana-transaction-processing-b777bbf7db.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "missing-authorization-check",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "solana-2021-07-01-solana-cryptography-03d213d764",
+      "source": "/testing/solana/validated-findings/kept/2021-07-01-solana-cryptography-03d213d764.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "transaction-signature-length-validation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "solana-2021-07-01-solana-cryptography-d5961e9d9f",
+      "source": "/testing/solana/validated-findings/kept/2021-07-01-solana-cryptography-d5961e9d9f.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "transaction-signature-length-validation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "solana-2021-07-13-solana-cryptography-350baece21",
+      "source": "/testing/solana/validated-findings/kept/2021-07-13-solana-cryptography-350baece21.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "panic-on-invalid-transaction-index",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2021-08-18-solana-transaction-processing-6f31882260",
+      "source": "/testing/solana/validated-findings/kept/2021-08-18-solana-transaction-processing-6f31882260.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "bpf-syscall-memory-overlap-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2021-08-20-solana-transaction-processing-967746abbf",
+      "source": "/testing/solana/validated-findings/kept/2021-08-20-solana-transaction-processing-967746abbf.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "unbounded-serialization",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2021-09-02-solana-validator-ops-afb87a386a",
+      "source": "/testing/solana/validated-findings/kept/2021-09-02-solana-validator-ops-afb87a386a.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "unsafe-key-reuse",
+      "subsystem": "validator-ops",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2021-09-02-solana-validator-ops-e288459cf2",
+      "source": "/testing/solana/validated-findings/kept/2021-09-02-solana-validator-ops-e288459cf2.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "unsafe-authority-default",
+      "subsystem": "validator-ops",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2021-09-08-solana-transaction-processing-38bbb77989",
+      "source": "/testing/solana/validated-findings/kept/2021-09-08-solana-transaction-processing-38bbb77989.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "account-mutability-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2021-09-09-solana-transaction-processing-3eee222667",
+      "source": "/testing/solana/validated-findings/kept/2021-09-09-solana-transaction-processing-3eee222667.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "improper-writable-account-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2021-09-09-solana-transaction-processing-b9a0156a93",
+      "source": "/testing/solana/validated-findings/kept/2021-09-09-solana-transaction-processing-b9a0156a93.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "improper-writable-account-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2021-10-06-solana-cryptography-1dd6dc3709",
+      "source": "/testing/solana/validated-findings/kept/2021-10-06-solana-cryptography-1dd6dc3709.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "resource-accounting-hardening",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2021-10-06-solana-cryptography-db85d659b9",
+      "source": "/testing/solana/validated-findings/kept/2021-10-06-solana-cryptography-db85d659b9.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "resource-accounting-hardening",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2021-10-15-solana-consensus-44ff30b65b",
+      "source": "/testing/solana/validated-findings/kept/2021-10-15-solana-consensus-44ff30b65b.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-repair-retry-hardening",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2021-10-26-solana-staking-4fe3354c8f",
+      "source": "/testing/solana/validated-findings/kept/2021-10-26-solana-staking-4fe3354c8f.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "unchecked-sysvar-account-input",
+      "subsystem": "staking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2021-12-06-solana-consensus-e123883b26",
+      "source": "/testing/solana/validated-findings/kept/2021-12-06-solana-consensus-e123883b26.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-rent-exemption-check",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2021-12-07-solana-consensus-83e01442a7",
+      "source": "/testing/solana/validated-findings/kept/2021-12-07-solana-consensus-83e01442a7.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "rent-exemption-invariant-hardening",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2021-12-07-solana-consensus-89d2f34a03",
+      "source": "/testing/solana/validated-findings/kept/2021-12-07-solana-consensus-89d2f34a03.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "protocol-invariant-enforcement",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2022-01-28-solana-validator-ops-a71f05f86c",
+      "source": "/testing/solana/validated-findings/kept/2022-01-28-solana-validator-ops-a71f05f86c.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "cpi-duplicate-account-privilege-escalation",
+      "subsystem": "validator-ops",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2022-02-17-solana-transaction-processing-2120ef5808",
+      "source": "/testing/solana/validated-findings/kept/2022-02-17-solana-transaction-processing-2120ef5808.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "precompile-lifecycle-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2022-02-24-solana-storage-97d40ba3da",
+      "source": "/testing/solana/validated-findings/kept/2022-02-24-solana-storage-97d40ba3da.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "rent-state-validation-bypass",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "solana-2022-02-24-solana-transaction-processing-3bee925967",
+      "source": "/testing/solana/validated-findings/kept/2022-02-24-solana-transaction-processing-3bee925967.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "rent-resource-accounting-invariant",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2022-05-07-solana-cryptography-10f6845071",
+      "source": "/testing/solana/validated-findings/kept/2022-05-07-solana-cryptography-10f6845071.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "improper-transaction-sanitization",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2022-05-25-solana-cryptography-880684565c",
+      "source": "/testing/solana/validated-findings/kept/2022-05-25-solana-cryptography-880684565c.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "packet-payload-boundary-hardening",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2022-06-02-solana-cryptography-1c2ae470c5",
+      "source": "/testing/solana/validated-findings/kept/2022-06-02-solana-cryptography-1c2ae470c5.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "network-admission-control-hardening",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2022-06-02-solana-cryptography-a781cff386",
+      "source": "/testing/solana/validated-findings/kept/2022-06-02-solana-cryptography-a781cff386.md",
+      "bug_family": "staking_registry_and_accountability",
+      "bug_class": "quic-stake-admission-control",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "accountability-enforcement"
+    },
+    {
+      "id": "solana-2022-06-03-solana-transaction-processing-5dbf7d8f91",
+      "source": "/testing/solana/validated-findings/kept/2022-06-03-solana-transaction-processing-5dbf7d8f91.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "improper-packet-bounds-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2022-06-03-solana-transaction-processing-5ee157f43d",
+      "source": "/testing/solana/validated-findings/kept/2022-06-03-solana-transaction-processing-5ee157f43d.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "replay-domain-collision",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2022-06-08-solana-cryptography-165ee12ed4",
+      "source": "/testing/solana/validated-findings/kept/2022-06-08-solana-cryptography-165ee12ed4.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "nonce-authority-validation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2022-06-16-solana-transaction-processing-7a4d64a5e3",
+      "source": "/testing/solana/validated-findings/kept/2022-06-16-solana-transaction-processing-7a4d64a5e3.md",
+      "bug_family": "resource_accounting_and_limits",
+      "bug_class": "missing-resource-limit-enforcement",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "resource-accounting"
+    },
+    {
+      "id": "solana-2022-06-20-solana-cryptography-529b856998",
+      "source": "/testing/solana/validated-findings/kept/2022-06-20-solana-cryptography-529b856998.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "packet-buffer-read-boundary-hardening",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2022-06-20-solana-cryptography-e71f56c3f2",
+      "source": "/testing/solana/validated-findings/kept/2022-06-20-solana-cryptography-e71f56c3f2.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "unchecked-packet-slice-access",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2022-06-22-solana-consensus-5b864ef97d",
+      "source": "/testing/solana/validated-findings/kept/2022-06-22-solana-consensus-5b864ef97d.md",
+      "bug_family": "resource_accounting_and_limits",
+      "bug_class": "quic-ingress-resource-limiting",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "resource-accounting"
+    },
+    {
+      "id": "solana-2022-06-28-solana-cryptography-348fe9ebe2",
+      "source": "/testing/solana/validated-findings/kept/2022-06-28-solana-cryptography-348fe9ebe2.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "late-network-input-validation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2022-08-25-solana-consensus-1de5ddf748",
+      "source": "/testing/solana/validated-findings/kept/2022-08-25-solana-consensus-1de5ddf748.md",
+      "bug_family": "checked_arithmetic_and_parameter_bounds",
+      "bug_class": "arithmetic-overflow-hardening",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "arithmetic-bounds"
+    },
+    {
+      "id": "solana-2022-08-26-solana-transaction-processing-c846221bb8",
+      "source": "/testing/solana/validated-findings/kept/2022-08-26-solana-transaction-processing-c846221bb8.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-snapshot-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2022-09-22-solana-transaction-processing-565aacc23a",
+      "source": "/testing/solana/validated-findings/kept/2022-09-22-solana-transaction-processing-565aacc23a.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-account-mutability-check",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2022-09-29-solana-cryptography-82e65593ee",
+      "source": "/testing/solana/validated-findings/kept/2022-09-29-solana-cryptography-82e65593ee.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "invalid-transaction-forwarding",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2022-12-02-solana-cryptography-87d939b319",
+      "source": "/testing/solana/validated-findings/kept/2022-12-02-solana-cryptography-87d939b319.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "incorrect-cryptographic-key-derivation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2023-01-31-solana-cryptography-a5af54669a",
+      "source": "/testing/solana/validated-findings/kept/2023-01-31-solana-cryptography-a5af54669a.md",
+      "bug_family": "resource_accounting_and_limits",
+      "bug_class": "missing-resource-limit",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "resource-accounting"
+    },
+    {
+      "id": "solana-2023-02-01-solana-cryptography-8270f29b0c",
+      "source": "/testing/solana/validated-findings/kept/2023-02-01-solana-cryptography-8270f29b0c.md",
+      "bug_family": "resource_accounting_and_limits",
+      "bug_class": "missing-resource-limit",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "resource-accounting"
+    },
+    {
+      "id": "solana-2023-02-15-solana-cryptography-cf0a149add",
+      "source": "/testing/solana/validated-findings/kept/2023-02-15-solana-cryptography-cf0a149add.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "signature-commitment-hardening",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "solana-2023-05-25-solana-transaction-processing-9d6c921b5f",
+      "source": "/testing/solana/validated-findings/kept/2023-05-25-solana-transaction-processing-9d6c921b5f.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "underconstrained-transaction-classification",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2023-06-20-solana-consensus-20a7cdd43d",
+      "source": "/testing/solana/validated-findings/kept/2023-06-20-solana-consensus-20a7cdd43d.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-state-exposure",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "solana-2023-09-05-solana-consensus-a8e83c8720",
+      "source": "/testing/solana/validated-findings/kept/2023-09-05-solana-consensus-a8e83c8720.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-duplicate-slot-state-recovery",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    }
+  ]
+}

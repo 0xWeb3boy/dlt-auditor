@@ -1,0 +1,39 @@
+id: "solana-2021-10-06-solana-cryptography-1dd6dc3709"
+source_finding: "2021-10-06-solana-cryptography-1dd6dc3709.md"
+project: "solana"
+date: "2021-10-06"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "resource-accounting-hardening"
+subsystem: "cryptography"
+architecture_tags: ["cryptography", "validator", "resource-control", "cost-model", "block-cost-limit", "replay", "blockstore"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "resource-accounting-and-bounds"
+violated_invariant: "Protocol input must satisfy resource accounting and bounds before it can reach bank freezing/rooting, tower vote decision, fork-choice state, or consensus-visible status."
+trust_boundary: "peer-provided ledger/vote evidence to local consensus and fork-choice state"
+entrypoint_type: "block replay, vote processing, fork-choice update, or duplicate-slot recovery"
+sensitive_sink: "bank freezing/rooting, tower vote decision, fork-choice state, or consensus-visible status"
+
+attacker_capabilities: ["Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints.", "Can interact with stake/vote accounts or validator-facing protocol paths under the affected preconditions."]
+exploit_preconditions: ["The node processes attacker-controlled volume before the missing limit or endpoint check is enforced."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["availability", "resource-exhaustion"]
+severity_guess: "Medium"
+severity_rationale: "The impact primarily affects availability, liveness, or validator resource consumption rather than direct fund theft."
+
+code_shape_summary: "The evidence supports a conservative security-hardening classification for Solana's cost-model/resource-accounting subsystem. The commit broadly introduces and wires cost tracking, execution-cost feedback, bounded cost-table state, persistence, and block cost rejection. It does not establish a specific exploit, cryptographic flaw, or proven prior consensus violation."
+search_motifs: ["search for resource accounting hardening checks near cryptography entrypoints", "compare validation before and after the resource-accounting-and-bounds sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for allocation, serialization, fanout, or scheduling before quota checks"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path.", "The expensive allocation is bounded by a separately enforced stake, peer, or per-request quota."]
+patch_pattern: "Add explicit bounded resource accounting and cost enforcement across banking, runtime, replay, and storage paths."
+
+source_refs: ["/testing/solana/validated-findings/kept/2021-10-06-solana-cryptography-1dd6dc3709.md", "git:1dd6dc3709b9676b99bedec36db51c0c95731972", "ledger-tool/src/main.rs:731", "runtime/src/bank.rs:3653", "core/src/replay_stage.rs:1833", "ledger/src/blockstore.rs:8892"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

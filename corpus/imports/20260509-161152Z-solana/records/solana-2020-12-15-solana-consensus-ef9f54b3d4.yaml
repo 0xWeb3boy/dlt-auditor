@@ -1,0 +1,39 @@
+id: "solana-2020-12-15-solana-consensus-ef9f54b3d4"
+source_finding: "2020-12-15-solana-consensus-ef9f54b3d4.md"
+project: "solana"
+date: "2020-12-15"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-state-race"
+subsystem: "consensus"
+architecture_tags: ["consensus", "blockchain-core", "validator", "replay", "race-condition", "accounts-hash"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "state-root-consistency"
+violated_invariant: "Protocol input must satisfy state root consistency before it can reach bank freezing/rooting, tower vote decision, fork-choice state, or consensus-visible status."
+trust_boundary: "peer-provided ledger/vote evidence to local consensus and fork-choice state"
+entrypoint_type: "block replay, vote processing, fork-choice update, or duplicate-slot recovery"
+sensitive_sink: "bank freezing/rooting, tower vote decision, fork-choice state, or consensus-visible status"
+
+attacker_capabilities: ["Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints.", "Can interact with stake/vote accounts or validator-facing protocol paths under the affected preconditions."]
+exploit_preconditions: ["Startup, replay, or persistence accepts state material before recomputing or comparing the canonical commitment."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["consensus-failure"]
+severity_guess: "Low/Medium"
+severity_rationale: "The finding is useful security-hardening evidence; severity depends on reachability and missing compensating controls."
+
+code_shape_summary: "The patch likely fixes a consensus-runtime race in Solana Bank tick registration. The grounded evidence is that tick_height was previously advanced before the blockhash/recent-blockhash sysvar boundary work completed, while the added comment states ReplayStage begins accounts delta hash calculation after observing the boundary tick height. The patch reorders tick publication after those updates and rejects tick registration once freezing has started."
+search_motifs: ["search for consensus state race checks near consensus entrypoints", "compare validation before and after the state-root-consistency sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for state transitions where observation and enforcement use different coordinates"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path."]
+patch_pattern: "Move publication of a consensus-observed boundary signal after the state it represents has been fully committed, and block concurrent mutation once freezing begins."
+
+source_refs: ["/testing/solana/validated-findings/kept/2020-12-15-solana-consensus-ef9f54b3d4.md", "git:ef9f54b3d4e04ff91c702345344cfb932360ee82", "core/src/replay_stage.rs:2606", "runtime/src/bank.rs:2293", "runtime/src/bank.rs:2305", "core/src/replay_stage.rs:2559"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

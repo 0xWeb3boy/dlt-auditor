@@ -1,0 +1,39 @@
+id: "solana-2019-03-18-solana-staking-61a4b998fa"
+source_finding: "2019-03-18-solana-staking-61a4b998fa.md"
+project: "solana"
+date: "2019-03-18"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-vote-safety-hardening"
+subsystem: "staking"
+architecture_tags: ["staking", "consensus", "validator", "voting", "lockout", "fork-choice", "replay", "security-hardening"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "consensus-state-transition-invariant"
+violated_invariant: "Protocol input must satisfy consensus state transition invariant before it can reach bank freezing/rooting, tower vote decision, fork-choice state, or consensus-visible status."
+trust_boundary: "peer-provided ledger/vote evidence to local consensus and fork-choice state"
+entrypoint_type: "block replay, vote processing, fork-choice update, or duplicate-slot recovery"
+sensitive_sink: "bank freezing/rooting, tower vote decision, fork-choice state, or consensus-visible status"
+
+attacker_capabilities: ["Can interact with stake/vote accounts or validator-facing protocol paths under the affected preconditions."]
+exploit_preconditions: ["The malformed input reaches the sensitive sink before canonical validation rejects it."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["consensus-integrity", "validator-safety"]
+severity_guess: "High"
+severity_rationale: "The impact can affect funds, consensus safety, authorization boundaries, or runtime integrity when reachable."
+
+code_shape_summary: "The evidence supports that this commit implements Solana locktower voting and related VoteState helpers/tests. It replaces placeholder latest-slot voting with locktower-oriented bank selection inputs, but the provided evidence does not establish a concrete vulnerability, attacker path, or exploitable consensus failure. Treat this as security-relevant protocol mechanism work, not a validated vulnerability fix."
+search_motifs: ["search for consensus vote safety hardening checks near staking entrypoints", "compare validation before and after the consensus-state-transition-invariant sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for state transitions where observation and enforcement use different coordinates"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path."]
+patch_pattern: "Implement consensus vote-selection support by adding fork ancestry data, integrating locktower voting into replay, and adding VoteState helper/test coverage."
+
+source_refs: ["/testing/solana/validated-findings/kept/2019-03-18-solana-staking-61a4b998fa.md", "git:61a4b998fa4978badadf23dfae81765c114ed849", "core/src/bank_forks.rs:28", "core/src/replay_stage.rs:126", "programs/vote_api/src/vote_state.rs:471", "programs/vote_api/src/vote_state.rs:114"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

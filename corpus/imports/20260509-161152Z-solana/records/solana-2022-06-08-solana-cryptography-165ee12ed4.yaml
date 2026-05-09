@@ -1,0 +1,39 @@
+id: "solana-2022-06-08-solana-cryptography-165ee12ed4"
+source_finding: "2022-06-08-solana-cryptography-165ee12ed4.md"
+project: "solana"
+date: "2022-06-08"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "nonce-authority-validation"
+subsystem: "cryptography"
+architecture_tags: ["cryptography", "blockchain-core", "durable-nonce", "authorization", "signature-validation", "replay-sensitive"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "nonce-state-consistency"
+violated_invariant: "Protocol input must satisfy nonce state consistency before it can reach bank freezing/rooting, tower vote decision, fork-choice state, or consensus-visible status."
+trust_boundary: "peer-provided ledger/vote evidence to local consensus and fork-choice state"
+entrypoint_type: "block replay, vote processing, fork-choice update, or duplicate-slot recovery"
+sensitive_sink: "bank freezing/rooting, tower vote decision, fork-choice state, or consensus-visible status"
+
+attacker_capabilities: ["Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints."]
+exploit_preconditions: ["The malformed input reaches the sensitive sink before canonical validation rejects it."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["unauthorized-transaction-acceptance", "replay-risk"]
+severity_guess: "Low/Medium"
+severity_rationale: "The finding is useful security-hardening evidence; severity depends on reachability and missing compensating controls."
+
+code_shape_summary: "The commit message states that durable nonce transactions not signed by the nonce authority are rejected. The shown code evidence supports part of that fix: nonce account verification now returns Option<Data> instead of a boolean, preserving initialized nonce account state for downstream validation. The exact authority-signature rejection branch is not present in the provided snippets, so this should be treated as a likely security fix rather than a ful..."
+search_motifs: ["search for nonce authority validation checks near cryptography entrypoints", "compare validation before and after the nonce-state-consistency sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for state transitions where observation and enforcement use different coordinates"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path."]
+patch_pattern: "Return validated nonce account state instead of a lossy boolean so downstream code can enforce additional nonce-account invariants such as authority authorization."
+
+source_refs: ["/testing/solana/validated-findings/kept/2022-06-08-solana-cryptography-165ee12ed4.md", "git:165ee12ed46fca585925cd1e61939c3bf12cf868", "sdk/src/nonce_account.rs:25", "send-transaction-service/src/send_transaction_service.rs:238", "runtime/src/nonce_keyed_account.rs:1107", "sdk/src/nonce_account.rs:60"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

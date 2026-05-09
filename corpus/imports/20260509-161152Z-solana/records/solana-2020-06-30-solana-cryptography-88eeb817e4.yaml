@@ -1,0 +1,39 @@
+id: "solana-2020-06-30-solana-cryptography-88eeb817e4"
+source_finding: "2020-06-30-solana-cryptography-88eeb817e4.md"
+project: "solana"
+date: "2020-06-30"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "validator-restart-precondition-hardening"
+subsystem: "cryptography"
+architecture_tags: ["cryptography", "validator-ops", "consensus", "restart", "ledger", "supermajority", "fail-fast", "configuration-validation"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "consensus-state-transition-invariant"
+violated_invariant: "Protocol input must satisfy consensus state transition invariant before it can reach bank freezing/rooting, tower vote decision, fork-choice state, or consensus-visible status."
+trust_boundary: "peer-provided ledger/vote evidence to local consensus and fork-choice state"
+entrypoint_type: "block replay, vote processing, fork-choice update, or duplicate-slot recovery"
+sensitive_sink: "bank freezing/rooting, tower vote decision, fork-choice state, or consensus-visible status"
+
+attacker_capabilities: ["Can interact with stake/vote accounts or validator-facing protocol paths under the affected preconditions.", "Can influence persisted, downloaded, or replayed state material, or trigger startup/recovery handling."]
+exploit_preconditions: ["The malformed input reaches the sensitive sink before canonical validation rejects it."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["consensus-safety", "validator-startup-safety"]
+severity_guess: "Low/Medium"
+severity_rationale: "The finding is useful security-hardening evidence; severity depends on reachability and missing compensating controls."
+
+code_shape_summary: "The patch adds restart guard rails for Solana validator startup. `wait_for_supermajority` now returns an error signal when the configured wait slot is greater than the local bank slot, and startup exits on that signal. The validator config path also begins parsing `expected_bank_hash`. The evidence supports operational restart safety hardening, but does not establish a concrete vulnerability, attacker path, or exploitable consensus failure."
+search_motifs: ["search for validator restart precondition hardening checks near cryptography entrypoints", "compare validation before and after the consensus-state-transition-invariant sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for state transitions where observation and enforcement use different coordinates"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path."]
+patch_pattern: "Convert a silent restart precondition helper into an explicit fail-fast guard, and propagate configured expected state into validator configuration."
+
+source_refs: ["/testing/solana/validated-findings/kept/2020-06-30-solana-cryptography-88eeb817e4.md", "git:88eeb817e4f3dc873e34f11d330d93ec25dcff39", "core/src/validator.rs:708", "validator/src/main.rs:906", "core/src/validator.rs:394", "core/src/validator.rs:702"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

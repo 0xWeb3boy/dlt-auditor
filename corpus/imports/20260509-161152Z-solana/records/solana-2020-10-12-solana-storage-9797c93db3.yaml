@@ -1,0 +1,39 @@
+id: "solana-2020-10-12-solana-storage-9797c93db3"
+source_finding: "2020-10-12-solana-storage-9797c93db3.md"
+project: "solana"
+date: "2020-10-12"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "panic-on-invalid-native-loader-input"
+subsystem: "storage"
+architecture_tags: ["storage", "blockchain-core", "runtime", "native-loader", "input-validation", "panic-to-error", "availability-hardening"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "input-shape-validation"
+violated_invariant: "Protocol input must satisfy input shape validation before it can reach canonical bank state, account storage, snapshot acceptance, or ledger root."
+trust_boundary: "persisted or downloaded ledger/account state to trusted runtime reconstruction"
+entrypoint_type: "snapshot load, blockstore replay, accounts hash verification, or storage maintenance"
+sensitive_sink: "canonical bank state, account storage, snapshot acceptance, or ledger root"
+
+attacker_capabilities: ["Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints.", "Can influence persisted, downloaded, or replayed state material, or trigger startup/recovery handling."]
+exploit_preconditions: ["The malformed input reaches the sensitive sink before canonical validation rejects it."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["availability"]
+severity_guess: "Medium"
+severity_rationale: "The impact primarily affects availability, liveness, or validator resource consumption rather than direct fund theft."
+
+code_shape_summary: "The patch hardens Solana's runtime native-loader path by replacing unchecked first-account access and several panic paths with explicit error returns. The evidence supports improved handling for empty account lists, invalid UTF-8 account data, empty or leading-NUL native names, executable path failures, missing entrypoints, and library load failures. However, the supplied material does not prove that these conditions were reachable by an untrusted trans..."
+search_motifs: ["search for panic on invalid native loader input checks near storage entrypoints", "compare validation before and after the input-shape-validation sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path."]
+patch_pattern: "Convert panic-prone native-loader failure handling into explicit Result propagation, and validate account-derived loader inputs before use."
+
+source_refs: ["/testing/solana/validated-findings/kept/2020-10-12-solana-storage-9797c93db3.md", "git:9797c93db3cbb8e7c7b8d41574af6575d1e3b8a5", "runtime/src/message_processor.rs:455", "runtime/src/native_loader.rs:139", "runtime/src/native_loader.rs:57", "runtime/src/native_loader.rs:112"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

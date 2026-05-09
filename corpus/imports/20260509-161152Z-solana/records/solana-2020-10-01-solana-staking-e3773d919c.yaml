@@ -1,0 +1,39 @@
+id: "solana-2020-10-01-solana-staking-e3773d919c"
+source_finding: "2020-10-01-solana-staking-e3773d919c.md"
+project: "solana"
+date: "2020-10-01"
+language_tags: ["rust"]
+
+bug_family: "checked_arithmetic_and_parameter_bounds"
+bug_class: "integer-overflow"
+subsystem: "staking"
+architecture_tags: ["staking", "runtime", "rent-distribution", "integer-overflow", "economic-accounting", "consensus", "validator-accounting"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "checked-arithmetic-bounds"
+violated_invariant: "Protocol input must satisfy checked arithmetic bounds before it can reach bank freezing/rooting, tower vote decision, fork-choice state, or consensus-visible status."
+trust_boundary: "peer-provided ledger/vote evidence to local consensus and fork-choice state"
+entrypoint_type: "block replay, vote processing, fork-choice update, or duplicate-slot recovery"
+sensitive_sink: "bank freezing/rooting, tower vote decision, fork-choice state, or consensus-visible status"
+
+attacker_capabilities: ["Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints.", "Can interact with stake/vote accounts or validator-facing protocol paths under the affected preconditions."]
+exploit_preconditions: ["Attacker-influenced values can approach boundary conditions before arithmetic is checked or saturated."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["economic-integrity", "consensus-integrity"]
+severity_guess: "High"
+severity_rationale: "The impact can affect funds, consensus safety, authorization boundaries, or runtime integrity when reachable."
+
+code_shape_summary: "The provided evidence supports an overflow-prone rent distribution calculation in Solana runtime accounting, but it does not establish an exploitable security vulnerability. The patch replaces `u64` intermediate multiplication in validator rent-share calculation with feature-gated `u128` arithmetic and tightens leftover lamport handling. This is plausibly security-relevant consensus/economic hardening, but the vulnerability thesis is not proven from the..."
+search_motifs: ["search for integer overflow checks near staking entrypoints", "compare validation before and after the checked-arithmetic-bounds sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path."]
+patch_pattern: "Use widened integer arithmetic for proportional accounting calculations and enforce the post-distribution accounting invariant at the point where the distribution is computed."
+
+source_refs: ["/testing/solana/validated-findings/kept/2020-10-01-solana-staking-e3773d919c.md", "git:e3773d919cf80f58918136cc604b05464c1bec8a", "runtime/src/bank.rs:2430", "runtime/src/bank.rs:2448", "runtime/src/bank.rs:2513", "runtime/src/bank.rs:2483"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

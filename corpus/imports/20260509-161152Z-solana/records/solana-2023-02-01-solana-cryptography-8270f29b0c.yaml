@@ -1,0 +1,39 @@
+id: "solana-2023-02-01-solana-cryptography-8270f29b0c"
+source_finding: "2023-02-01-solana-cryptography-8270f29b0c.md"
+project: "solana"
+date: "2023-02-01"
+language_tags: ["rust"]
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "missing-resource-limit"
+subsystem: "cryptography"
+architecture_tags: ["cryptography", "runtime", "account-loading", "resource-limit", "denial-of-service", "feature-gated"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "resource-accounting-and-bounds"
+violated_invariant: "Protocol input must satisfy resource accounting and bounds before it can reach account balance/state mutation, fee/rent accounting, nonce state, or transaction commitment."
+trust_boundary: "signed client transaction to bank accounting and execution state"
+entrypoint_type: "transaction admission, sanitization, or execution path"
+sensitive_sink: "account balance/state mutation, fee/rent accounting, nonce state, or transaction commitment"
+
+attacker_capabilities: ["Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints."]
+exploit_preconditions: ["The node processes attacker-controlled volume before the missing limit or endpoint check is enforced."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["denial-of-service", "resource-exhaustion"]
+severity_guess: "Medium"
+severity_rationale: "The impact primarily affects availability, liveness, or validator resource consumption rather than direct fund theft."
+
+code_shape_summary: "The patch adds a feature-gated cap on total loaded account data during Solana transaction account loading. The evidence supports resource-consumption hardening in the runtime account-loading path, not cryptography, replay, signature validation, consensus divergence, or proven exploitability."
+search_motifs: ["search for missing resource limit checks near cryptography entrypoints", "compare validation before and after the resource-accounting-and-bounds sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for allocation, serialization, fanout, or scheduling before quota checks"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path.", "The expensive allocation is bounded by a separately enforced stake, peer, or per-request quota."]
+patch_pattern: "Add a feature-gated runtime resource budget, account for usage while loading transaction accounts, and reject transactions that exceed the budget with a dedicated error."
+
+source_refs: ["/testing/solana/validated-findings/kept/2023-02-01-solana-cryptography-8270f29b0c.md", "git:8270f29b0ce35d5b2c5e21c4e0d4f247ffd67b90", "runtime/src/accounts.rs:3800", "runtime/src/accounts.rs:240", "sdk/src/transaction/error.rs:150", "runtime/src/accounts.rs:359"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

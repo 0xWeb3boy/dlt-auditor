@@ -46,6 +46,7 @@ Search patterns:
 - validator, operator, signer, committee, relayer, or node registration paths where an ID-to-signer or ID-to-owner mapping is checked through a value lookup rather than an explicit presence or absence predicate on the canonical registry key
 - registry joins or reactivations that check signer uniqueness but not stable numeric ID, slot, operator ID, or historical participation identifiers that the protocol treats as non-reusable
 - delayed reward, slash, payout, or election paths that settle a historical round using live validator, delegator, signer, or committee state instead of the immutable snapshot from the earning or accountability period
+- stake, vote, reward, rent, and withdrawal paths where the relevant epoch, effective stake window, warmup or cooldown state, historical credits, or earning period differs from the account's current balance or current authority. Historical rewards and accountability should use the snapshot from the period being settled.
 - queued staking operations such as revoke, decrease, unbond, redelegate, or withdrawal where each request is valid alone but the cumulative pending set violates minimum stake, maximum exposure, reward denominator, slashability, or accounting invariants
 
 Questions to answer:

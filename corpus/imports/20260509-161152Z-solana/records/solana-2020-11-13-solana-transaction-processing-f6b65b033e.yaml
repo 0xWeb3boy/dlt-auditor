@@ -1,0 +1,39 @@
+id: "solana-2020-11-13-solana-transaction-processing-f6b65b033e"
+source_finding: "2020-11-13-solana-transaction-processing-f6b65b033e.md"
+project: "solana"
+date: "2020-11-13"
+language_tags: ["rust"]
+
+bug_family: "checked_arithmetic_and_parameter_bounds"
+bug_class: "arithmetic-overflow-in-validation-counter"
+subsystem: "transaction-processing"
+architecture_tags: ["transaction-processing", "blockchain-core", "ledger-validation", "tick-verification", "arithmetic-overflow", "proof-of-history"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "checked-arithmetic-bounds"
+violated_invariant: "Protocol input must satisfy checked arithmetic bounds before it can reach canonical bank state, account storage, snapshot acceptance, or ledger root."
+trust_boundary: "persisted or downloaded ledger/account state to trusted runtime reconstruction"
+entrypoint_type: "snapshot load, blockstore replay, accounts hash verification, or storage maintenance"
+sensitive_sink: "canonical bank state, account storage, snapshot acceptance, or ledger root"
+
+attacker_capabilities: ["Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints.", "Can influence persisted, downloaded, or replayed state material, or trigger startup/recovery handling."]
+exploit_preconditions: ["Attacker-influenced values can approach boundary conditions before arithmetic is checked or saturated."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["validation-integrity"]
+severity_guess: "Low/Medium"
+severity_rationale: "The finding is useful security-hardening evidence; severity depends on reachability and missing compensating controls."
+
+code_shape_summary: "The patch fixes overflow-sensitive arithmetic in `ledger/src/entry.rs` during tick hash count verification. The running `tick_hash_count` previously used direct `u64` addition and now uses `saturating_add`, so oversized cumulative counts cannot wrap before the exact equality check against `hashes_per_tick`."
+search_motifs: ["search for arithmetic overflow in validation counter checks near transaction-processing entrypoints", "compare validation before and after the checked-arithmetic-bounds sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path."]
+patch_pattern: "Use overflow-safe arithmetic for validation counters that enforce protocol invariants."
+
+source_refs: ["/testing/solana/validated-findings/kept/2020-11-13-solana-transaction-processing-f6b65b033e.md", "git:f6b65b033eaa09d484c1581459d897d2fe12996f", "ledger/src/entry.rs:901", "ledger/src/entry.rs:623"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

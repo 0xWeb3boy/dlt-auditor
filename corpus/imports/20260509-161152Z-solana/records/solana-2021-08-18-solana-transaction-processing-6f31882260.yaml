@@ -1,0 +1,39 @@
+id: "solana-2021-08-18-solana-transaction-processing-6f31882260"
+source_finding: "2021-08-18-solana-transaction-processing-6f31882260.md"
+project: "solana"
+date: "2021-08-18"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "bpf-syscall-memory-overlap-validation"
+subsystem: "transaction-processing"
+architecture_tags: ["transaction-processing", "blockchain-core", "bpf-loader", "syscall-validation", "memory-overlap", "feature-gated-hardening"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "input-shape-validation"
+violated_invariant: "Protocol input must satisfy input shape validation before it can reach account owner/write privilege, executable program state, or runtime syscall side effect."
+trust_boundary: "untrusted program instruction/CPI frame to runtime account and privilege enforcement"
+entrypoint_type: "native program, loader, SBF/BPF, or CPI invocation"
+sensitive_sink: "account owner/write privilege, executable program state, or runtime syscall side effect"
+
+attacker_capabilities: ["Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints."]
+exploit_preconditions: ["The malformed input reaches the sensitive sink before canonical validation rejects it."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["runtime-integrity", "sandbox-validation"]
+severity_guess: "High"
+severity_rationale: "The impact can affect funds, consensus safety, authorization boundaries, or runtime integrity when reachable."
+
+code_shape_summary: "The patch fixes the overlap guard used by Solana's BPF loader `memcpy` syscall. The old inline predicate only checked one apparent address ordering; the patched code uses a feature-gated call to `check_overlapping(src_addr, dst_addr, n)` and adds/registers the `mem_overlap_fix` feature. The evidence supports a BPF syscall guard correctness fix, but not stronger claims such as theft, privilege escalation, host memory access, or validator crash."
+search_motifs: ["search for bpf syscall memory overlap validation checks near transaction-processing entrypoints", "compare validation before and after the input-shape-validation sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path."]
+patch_pattern: "Replace a local one-sided range-overlap predicate with a centralized overlap checker, and gate the behavior change through the feature set."
+
+source_refs: ["/testing/solana/validated-findings/kept/2021-08-18-solana-transaction-processing-6f31882260.md", "git:6f318822602385fb7fa09fe5fec558ca29231090", "sdk/src/feature_set.rs:232", "programs/bpf_loader/src/syscalls.rs:1231", "sdk/src/feature_set.rs:180", "programs/bpf_loader/src/syscalls.rs:21"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

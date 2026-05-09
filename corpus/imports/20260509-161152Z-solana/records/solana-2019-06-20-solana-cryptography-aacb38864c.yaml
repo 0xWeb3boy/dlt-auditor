@@ -1,0 +1,39 @@
+id: "solana-2019-06-20-solana-cryptography-aacb38864c"
+source_finding: "2019-06-20-solana-cryptography-aacb38864c.md"
+project: "solana"
+date: "2019-06-20"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "invalid-fork-replay-handling"
+subsystem: "cryptography"
+architecture_tags: ["cryptography", "infrastructure", "consensus", "replay", "fork-handling", "dead-slot", "validation-hardening"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "consensus-state-transition-invariant"
+violated_invariant: "Protocol input must satisfy consensus state transition invariant before it can reach bank freezing/rooting, tower vote decision, fork-choice state, or consensus-visible status."
+trust_boundary: "peer-provided ledger/vote evidence to local consensus and fork-choice state"
+entrypoint_type: "block replay, vote processing, fork-choice update, or duplicate-slot recovery"
+sensitive_sink: "bank freezing/rooting, tower vote decision, fork-choice state, or consensus-visible status"
+
+attacker_capabilities: ["Can supply malformed or adversarial protocol input at the affected boundary."]
+exploit_preconditions: ["The malformed input reaches the sensitive sink before canonical validation rejects it."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["consensus-integrity", "replay-integrity"]
+severity_guess: "High"
+severity_rationale: "The impact can affect funds, consensus safety, authorization boundaries, or runtime integrity when reachable."
+
+code_shape_summary: "The patch improves Solana replay-stage dead-fork handling by classifying some replay failures as fatal, marking the affected slot dead, and skipping forks already marked dead in replay progress. The evidence supports consensus-replay correctness and possible security relevance, but it does not establish an exploitable vulnerability, finalized consensus divergence, fund loss, or attacker control."
+search_motifs: ["search for invalid fork replay handling checks near cryptography entrypoints", "compare validation before and after the consensus-state-transition-invariant sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for state transitions where observation and enforcement use different coordinates"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path."]
+patch_pattern: "Detect fatal replay failures, record the affected slot as dead, and avoid replaying slots already marked dead."
+
+source_refs: ["/testing/solana/validated-findings/kept/2019-06-20-solana-cryptography-aacb38864c.md", "git:aacb38864cd8ebc4b78e387a91ba71ded5872f78", "core/src/replay_stage.rs:274", "core/src/blocktree.rs:858", "core/src/replay_stage.rs:295", "core/src/replay_stage.rs:412"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

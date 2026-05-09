@@ -1,0 +1,39 @@
+id: "solana-2021-02-13-solana-transaction-processing-99012f022e"
+source_finding: "2021-02-13-solana-transaction-processing-99012f022e.md"
+project: "solana"
+date: "2021-02-13"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "input-size-validation"
+subsystem: "transaction-processing"
+architecture_tags: ["transaction-processing", "solana", "sdk", "hash-parsing", "base58", "input-validation", "security-hardening"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "input-shape-validation"
+violated_invariant: "Protocol input must satisfy input shape validation before it can reach account balance/state mutation, fee/rent accounting, nonce state, or transaction commitment."
+trust_boundary: "signed client transaction to bank accounting and execution state"
+entrypoint_type: "transaction admission, sanitization, or execution path"
+sensitive_sink: "account balance/state mutation, fee/rent accounting, nonce state, or transaction commitment"
+
+attacker_capabilities: ["Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints."]
+exploit_preconditions: ["The malformed input reaches the sensitive sink before canonical validation rejects it."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["parser-hardening", "resource-exhaustion-mitigation"]
+severity_guess: "Medium"
+severity_rationale: "The impact primarily affects availability, liveness, or validator resource consumption rather than direct fund theft."
+
+code_shape_summary: "The patch adds a maximum base58 string length check to Solana SDK Hash parsing. Hash::from_str now rejects strings longer than 44 characters with ParseHashError::WrongSize before calling bs58::decode. This is grounded as input-size validation and parser hardening, but the evidence does not prove a vulnerability or show that oversized input causes a security impact."
+search_motifs: ["search for input size validation checks near transaction-processing entrypoints", "compare validation before and after the input-shape-validation sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path."]
+patch_pattern: "Add an early encoded-input length guard before decoding fixed-size base58 data, while retaining the decoded-byte-length check."
+
+source_refs: ["/testing/solana/validated-findings/kept/2021-02-13-solana-transaction-processing-99012f022e.md", "git:99012f022e523ea7ea5e1a2620f35623f2549d9a", "sdk/program/src/hash.rs:68", "sdk/program/src/hash.rs:179", "sdk/program/src/hash.rs:7"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

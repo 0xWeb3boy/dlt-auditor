@@ -1,0 +1,39 @@
+id: "solana-2020-02-26-solana-consensus-242afa7e6b"
+source_finding: "2020-02-26-solana-consensus-242afa7e6b.md"
+project: "solana"
+date: "2020-02-26"
+language_tags: ["rust"]
+
+bug_family: "attestation_trust_and_freshness"
+bug_class: "untrusted-bootstrap-data-validation"
+subsystem: "consensus"
+architecture_tags: ["consensus", "validator-bootstrap", "genesis", "rpc", "validation"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "freshness-and-origin-validation"
+violated_invariant: "Protocol input must satisfy freshness and origin validation before it can reach RPC method execution, account scan, or transaction forwarding."
+trust_boundary: "untrusted RPC caller to node query/transaction service"
+entrypoint_type: "JSON-RPC request or RPC transaction submission"
+sensitive_sink: "RPC method execution, account scan, or transaction forwarding"
+
+attacker_capabilities: ["Can interact with stake/vote accounts or validator-facing protocol paths under the affected preconditions.", "Can influence persisted, downloaded, or replayed state material, or trigger startup/recovery handling."]
+exploit_preconditions: ["A cached, delayed, or peer-provided value can outlive the state coordinate it is supposed to describe."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["consensus-integrity"]
+severity_guess: "High"
+severity_rationale: "The impact can affect funds, consensus safety, authorization boundaries, or runtime integrity when reachable."
+
+code_shape_summary: "The evidence supports a likely security fix in Solana validator bootstrap. The commit subject states that genesis config downloaded over RPC is now validated before acceptance, and the snippets show the genesis path changed from a generic ledger download into a dedicated `download_genesis` function that receives `ValidatorConfig`. The exact validation predicate is not shown, so the finding should not claim a proven exploit or concrete consensus split."
+search_motifs: ["search for untrusted bootstrap data validation checks near consensus entrypoints", "compare validation before and after the freshness-and-origin-validation sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for cached peer or state facts reused without slot/epoch/root freshness checks"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path."]
+patch_pattern: "Add a validation boundary around remotely supplied bootstrap state before it becomes the validator's accepted local genesis state."
+
+source_refs: ["/testing/solana/validated-findings/kept/2020-02-26-solana-consensus-242afa7e6b.md", "git:242afa7e6bd0e3bbe7686a5549653fc83a4d50ef", "validator/src/main.rs:424", "validator/src/main.rs:81", "core/src/validator.rs:349", "validator/src/main.rs:1074"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

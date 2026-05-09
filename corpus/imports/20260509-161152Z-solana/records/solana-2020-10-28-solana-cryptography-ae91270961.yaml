@@ -1,0 +1,39 @@
+id: "solana-2020-10-28-solana-cryptography-ae91270961"
+source_finding: "2020-10-28-solana-cryptography-ae91270961.md"
+project: "solana"
+date: "2020-10-28"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "udp-amplification-via-source-spoofing"
+subsystem: "cryptography"
+architecture_tags: ["cryptography", "blockchain-core", "gossip-protocol", "udp", "source-address-spoofing", "ddos-amplification", "endpoint-proof"]
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "network-endpoint-validation"
+violated_invariant: "Protocol input must satisfy network endpoint validation before it can reach network resource allocation, peer metadata acceptance, repair scheduling, or packet fanout."
+trust_boundary: "untrusted peer network traffic to validator networking pipeline"
+entrypoint_type: "peer packet, gossip value, repair response, or QUIC/UDP ingress"
+sensitive_sink: "network resource allocation, peer metadata acceptance, repair scheduling, or packet fanout"
+
+attacker_capabilities: ["Can send peer-network traffic or influence peer-visible metadata."]
+exploit_preconditions: ["The node processes attacker-controlled volume before the missing limit or endpoint check is enforced."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["denial-of-service", "traffic-amplification"]
+severity_guess: "Medium"
+severity_rationale: "The impact primarily affects availability, liveness, or validator resource consumption rather than direct fund theft."
+
+code_shape_summary: "Confirmed security fix for spoofed-source UDP amplification in Solana gossip pull handling. The commit body explicitly describes PullRequest source spoofing causing much larger PullResponse traffic to a victim, and the patch adds Ping/Pong handling plus a pull-request gate that filters requests before response generation unless the source address has passed the endpoint check."
+search_motifs: ["search for udp amplification via source spoofing checks near cryptography entrypoints", "compare validation before and after the network-endpoint-validation sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path."]
+patch_pattern: "Add endpoint proof before amplification-prone UDP responses, cache successful ping-pong checks, verify Ping/Pong protocol messages, and gate PullRequest response generation on that proof."
+
+source_refs: ["/testing/solana/validated-findings/kept/2020-10-28-solana-cryptography-ae91270961.md", "git:ae91270961599869e846fd7dd642c3c9090b8085", "core/src/cluster_info.rs:2091", "core/src/cluster_info.rs:2018", "core/src/cluster_info.rs:428", "core/src/cluster_info.rs:1941"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

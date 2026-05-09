@@ -1,0 +1,39 @@
+id: "solana-2021-01-09-solana-staking-4470afceaa"
+source_finding: "2021-01-09-solana-staking-4470afceaa.md"
+project: "solana"
+date: "2021-01-09"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "authority-model-hardening"
+subsystem: "staking"
+architecture_tags: ["staking", "blockchain-core", "bpf-loader", "upgradeable-loader", "authority", "access-control", "immutable-buffer"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "authorization-and-privilege-check"
+violated_invariant: "Protocol input must satisfy authorization and privilege check before it can reach account owner/write privilege, executable program state, or runtime syscall side effect."
+trust_boundary: "untrusted program instruction/CPI frame to runtime account and privilege enforcement"
+entrypoint_type: "native program, loader, SBF/BPF, or CPI invocation"
+sensitive_sink: "account owner/write privilege, executable program state, or runtime syscall side effect"
+
+attacker_capabilities: ["Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints."]
+exploit_preconditions: ["The sensitive operation is reachable without proving the exact authority, owner, signer, or privilege being assumed."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["access-control"]
+severity_guess: "Low/Medium"
+severity_rationale: "The finding is useful security-hardening evidence; severity depends on reachability and missing compensating controls."
+
+code_shape_summary: "The evidence supports a BPF upgradeable loader change that adds explicit Buffer authority handling and immutable-buffer rejection, with related CLI routing for setting buffer authority. It does not support the heuristic baseline's staking, panic, denial-of-service, or consensus claims. This may be security-relevant authority-model work, but the vulnerability thesis is not established from the supplied hunks."
+search_motifs: ["search for authority model hardening checks near staking entrypoints", "compare validation before and after the authorization-and-privilege-check sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for authority checks in wrappers but not at the final state-changing sink"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path.", "The account or authority is derived from trusted state and cannot be chosen by the caller."]
+patch_pattern: "Add explicit Buffer authority state handling at the loader instruction boundary and keep raw byte-write helpers limited to bounds-checked mutation, with authorization enforced by callers."
+
+source_refs: ["/testing/solana/validated-findings/kept/2021-01-09-solana-staking-4470afceaa.md", "git:4470afceaa0fcaeeca43bd73f6737b4488a56262", "programs/bpf_loader/src/lib.rs:508", "programs/bpf_loader/src/lib.rs:109", "cli/src/program.rs:869", "programs/bpf_loader/src/lib.rs:576"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

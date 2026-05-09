@@ -1,0 +1,39 @@
+id: "solana-2021-10-15-solana-consensus-44ff30b65b"
+source_finding: "2021-10-15-solana-consensus-44ff30b65b.md"
+project: "solana"
+date: "2021-10-15"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-repair-retry-hardening"
+subsystem: "consensus"
+architecture_tags: ["consensus", "validator", "ancestor-repair", "retry", "byzantine-resilience", "hardening"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "consensus-state-transition-invariant"
+violated_invariant: "Protocol input must satisfy consensus state transition invariant before it can reach network resource allocation, peer metadata acceptance, repair scheduling, or packet fanout."
+trust_boundary: "untrusted peer network traffic to validator networking pipeline"
+entrypoint_type: "peer packet, gossip value, repair response, or QUIC/UDP ingress"
+sensitive_sink: "network resource allocation, peer metadata acceptance, repair scheduling, or packet fanout"
+
+attacker_capabilities: ["Can send peer-network traffic or influence peer-visible metadata.", "Can interact with stake/vote accounts or validator-facing protocol paths under the affected preconditions."]
+exploit_preconditions: ["The malformed input reaches the sensitive sink before canonical validation rejects it."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["consensus-liveness", "validator-resilience"]
+severity_guess: "Medium"
+severity_rationale: "The impact primarily affects availability, liveness, or validator resource consumption rather than direct fund theft."
+
+code_shape_summary: "The patch adds retry handling for `DuplicateAncestorDecision::InvalidSample` and `SampleNotDuplicateConfirmed` in Solana's ancestor hashes service. This is plausibly consensus-adjacent recovery hardening, but the provided evidence does not establish a concrete security vulnerability, attacker-controlled trigger, or consensus safety failure. Treat it as unclear security relevance rather than a confirmed or likely security fix."
+search_motifs: ["search for consensus repair retry hardening checks near consensus entrypoints", "compare validation before and after the consensus-state-transition-invariant sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for state transitions where observation and enforcement use different coordinates"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path."]
+patch_pattern: "Add an explicit retryability predicate, preserve the affected slot across the decision boundary, and requeue retryable decisions into the existing repair scheduling pool."
+
+source_refs: ["/testing/solana/validated-findings/kept/2021-10-15-solana-consensus-44ff30b65b.md", "git:44ff30b65b3b61c1079907415e0efd478ec632ff", "core/src/duplicate_repair_status.rs:27", "core/src/ancestor_hashes_service.rs:305", "core/src/ancestor_hashes_service.rs:507", "core/src/ancestor_hashes_service.rs:378"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

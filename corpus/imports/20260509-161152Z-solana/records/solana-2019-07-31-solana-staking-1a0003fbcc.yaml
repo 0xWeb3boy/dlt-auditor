@@ -1,0 +1,39 @@
+id: "solana-2019-07-31-solana-staking-1a0003fbcc"
+source_finding: "2019-07-31-solana-staking-1a0003fbcc.md"
+project: "solana"
+date: "2019-07-31"
+language_tags: ["rust"]
+
+bug_family: "staking_registry_and_accountability"
+bug_class: "stake-withdrawal-epoch-accounting-hardening"
+subsystem: "staking"
+architecture_tags: ["staking", "withdrawal", "epoch-accounting", "stake-accounting", "security-hardening"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "stake-accountability-invariant"
+violated_invariant: "Protocol input must satisfy stake accountability invariant before it can reach stake delegation, withdrawal, reward accounting, vote authority, or validator weight."
+trust_boundary: "signed stake/vote instruction to stake-weighted accounting state"
+entrypoint_type: "stake or vote program instruction"
+sensitive_sink: "stake delegation, withdrawal, reward accounting, vote authority, or validator weight"
+
+attacker_capabilities: ["Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints.", "Can interact with stake/vote accounts or validator-facing protocol paths under the affected preconditions."]
+exploit_preconditions: ["The malformed input reaches the sensitive sink before canonical validation rejects it."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["stake-accounting-integrity", "withdrawal-policy-enforcement"]
+severity_guess: "Low/Medium"
+severity_rationale: "The finding is useful security-hardening evidence; severity depends on reachability and missing compensating controls."
+
+code_shape_summary: "The patch changes Solana staking epoch accounting behavior. In stake_state.rs, withdraw now rejects a StakeState::Stake account with stake.deactivated == std::u64::MAX before calculating staked balance, and then uses stake.stake(clock.stakers_epoch) instead of stake.stake(clock.epoch). The bank.rs changes shown are tests that query epoch_vote_accounts(epoch) and assert expected stake weights. This may be security relevant because staking and vote weight..."
+search_motifs: ["search for stake withdrawal epoch accounting hardening checks near staking entrypoints", "compare validation before and after the stake-accountability-invariant sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path."]
+patch_pattern: "Use the protocol's intended epoch snapshot for stake accounting and add an explicit guard for still-active stake before withdrawal calculations proceed."
+
+source_refs: ["/testing/solana/validated-findings/kept/2019-07-31-solana-staking-1a0003fbcc.md", "git:1a0003fbcc1ffdb15e5283f4cb0f5c31b33c62f5", "programs/stake_api/src/stake_state.rs:288", "runtime/src/bank.rs:2438", "runtime/src/bank.rs:2489", "runtime/src/bank.rs:2507"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

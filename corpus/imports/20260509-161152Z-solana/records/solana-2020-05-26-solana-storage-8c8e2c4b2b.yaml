@@ -1,0 +1,39 @@
+id: "solana-2020-05-26-solana-storage-8c8e2c4b2b"
+source_finding: "2020-05-26-solana-storage-8c8e2c4b2b.md"
+project: "solana"
+date: "2020-05-26"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "cross-program-invocation-privilege-escalation"
+subsystem: "storage"
+architecture_tags: ["storage", "blockchain-core", "bpf-loader", "cross-program-invocation", "privilege-escalation", "account-privilege-check"]
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "authorization-and-privilege-check"
+violated_invariant: "Protocol input must satisfy authorization and privilege check before it can reach canonical bank state, account storage, snapshot acceptance, or ledger root."
+trust_boundary: "persisted or downloaded ledger/account state to trusted runtime reconstruction"
+entrypoint_type: "snapshot load, blockstore replay, accounts hash verification, or storage maintenance"
+sensitive_sink: "canonical bank state, account storage, snapshot acceptance, or ledger root"
+
+attacker_capabilities: ["Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints.", "Can influence persisted, downloaded, or replayed state material, or trigger startup/recovery handling."]
+exploit_preconditions: ["The sensitive operation is reachable without proving the exact authority, owner, signer, or privilege being assumed."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["privilege-escalation", "authorization-bypass", "state-integrity"]
+severity_guess: "High"
+severity_rationale: "The impact can affect funds, consensus safety, authorization boundaries, or runtime integrity when reachable."
+
+code_shape_summary: "The patch is a security fix for privilege escalation in Solana's BPF cross-program invocation path. The grounded evidence shows a new `verify_instruction` check in `programs/bpf_loader/src/syscalls.rs`, a call to that verification before callee message construction, and VM setup changed to pass caller parameter accounts so the syscall layer has the account privilege context needed for the check."
+search_motifs: ["search for cross program invocation privilege escalation checks near storage entrypoints", "compare validation before and after the authorization-and-privilege-check sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for authority checks in wrappers but not at the final state-changing sink"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path.", "The account or authority is derived from trusted state and cannot be chosen by the caller."]
+patch_pattern: "Add pre-dispatch privilege validation at the BPF CPI syscall boundary and thread caller account context into the VM/syscall layer."
+
+source_refs: ["/testing/solana/validated-findings/kept/2020-05-26-solana-storage-8c8e2c4b2b.md", "git:8c8e2c4b2b70669846150af5564135392b9eee51", "runtime/src/message_processor.rs:123", "programs/bpf_loader/src/lib.rs:184", "programs/bpf_loader/src/syscalls.rs:688", "programs/bpf_loader/src/syscalls.rs:742"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

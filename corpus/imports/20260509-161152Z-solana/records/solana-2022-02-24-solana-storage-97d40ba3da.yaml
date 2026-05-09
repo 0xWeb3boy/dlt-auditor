@@ -1,0 +1,39 @@
+id: "solana-2022-02-24-solana-storage-97d40ba3da"
+source_finding: "2022-02-24-solana-storage-97d40ba3da.md"
+project: "solana"
+date: "2022-02-24"
+language_tags: ["rust"]
+
+bug_family: "authz_and_role_gates"
+bug_class: "rent-state-validation-bypass"
+subsystem: "storage"
+architecture_tags: ["storage", "blockchain-runtime", "rent-validation", "account-resize", "state-invariant", "economic-invariant"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "input-shape-validation"
+violated_invariant: "Protocol input must satisfy input shape validation before it can reach canonical bank state, account storage, snapshot acceptance, or ledger root."
+trust_boundary: "persisted or downloaded ledger/account state to trusted runtime reconstruction"
+entrypoint_type: "snapshot load, blockstore replay, accounts hash verification, or storage maintenance"
+sensitive_sink: "canonical bank state, account storage, snapshot acceptance, or ledger root"
+
+attacker_capabilities: ["Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints.", "Can influence persisted, downloaded, or replayed state material, or trigger startup/recovery handling."]
+exploit_preconditions: ["The malformed input reaches the sensitive sink before canonical validation rejects it."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["economic-integrity", "state-integrity"]
+severity_guess: "High"
+severity_rationale: "The impact can affect funds, consensus safety, authorization boundaries, or runtime integrity when reachable."
+
+code_shape_summary: "The patch likely fixes a runtime rent-state validation bypass. The central supported change is in `runtime/src/account_rent_state.rs`, where `RentState::transition_allowed_from` now carries `do_support_realloc` and compares pre/post data sizes for `RentPaying(data_size)` accounts. This supports the commit subject that resized accounts must be rent exempt. The evidence does not support the heuristic claims about panics, malformed decoding, cryptographic..."
+search_motifs: ["search for rent state validation bypass checks near storage entrypoints", "compare validation before and after the input-shape-validation sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path."]
+patch_pattern: "Preserve enough state for post-transaction validation to distinguish unchanged legacy rent-paying accounts from resized rent-paying accounts, and reject the resized-below-rent-exempt case."
+
+source_refs: ["/testing/solana/validated-findings/kept/2022-02-24-solana-storage-97d40ba3da.md", "git:97d40ba3da7f70fb6f0f6e905f718c13820c09a4", "runtime/src/account_rent_state.rs:165", "runtime/src/bank.rs:16981", "sdk/src/system_transaction.rs:28", "runtime/src/account_rent_state.rs:32"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

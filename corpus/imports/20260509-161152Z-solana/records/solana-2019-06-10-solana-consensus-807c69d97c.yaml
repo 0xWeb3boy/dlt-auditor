@@ -1,0 +1,39 @@
+id: "solana-2019-06-10-solana-consensus-807c69d97c"
+source_finding: "2019-06-10-solana-consensus-807c69d97c.md"
+project: "solana"
+date: "2019-06-10"
+language_tags: ["rust"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "account-permission-invariant-hardening"
+subsystem: "consensus"
+architecture_tags: ["consensus", "runtime", "accounts", "credit-only-accounts", "authorization", "state-integrity", "hardening"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "authorization-and-privilege-check"
+violated_invariant: "Protocol input must satisfy authorization and privilege check before it can reach bank freezing/rooting, tower vote decision, fork-choice state, or consensus-visible status."
+trust_boundary: "peer-provided ledger/vote evidence to local consensus and fork-choice state"
+entrypoint_type: "block replay, vote processing, fork-choice update, or duplicate-slot recovery"
+sensitive_sink: "bank freezing/rooting, tower vote decision, fork-choice state, or consensus-visible status"
+
+attacker_capabilities: ["Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints."]
+exploit_preconditions: ["The sensitive operation is reachable without proving the exact authority, owner, signer, or privilege being assumed."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["runtime-authorization-hardening", "account-state-integrity"]
+severity_guess: "Low/Medium"
+severity_rationale: "The finding is useful security-hardening evidence; severity depends on reachability and missing compensating controls."
+
+code_shape_summary: "The patch adds explicit verification checks for non-debitable credit-only accounts and updates account storage to carry lamport-credit metadata. This is plausibly security relevant because it concerns runtime account authorization semantics, but the provided evidence does not establish a concrete vulnerability, exploit path, or production impact. It may be part of safely implementing or refactoring the credit-only account model."
+search_motifs: ["search for account permission invariant hardening checks near consensus entrypoints", "compare validation before and after the authorization-and-privilege-check sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for authority checks in wrappers but not at the final state-changing sink"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path.", "The account or authority is derived from trusted state and cannot be chosen by the caller."]
+patch_pattern: "Add explicit invariant checks for a special account permission class and propagate the corresponding credit metadata through the storage boundary."
+
+source_refs: ["/testing/solana/validated-findings/kept/2019-06-10-solana-consensus-807c69d97c.md", "git:807c69d97cc2949961b2a4214251dc4dd8104406", "runtime/src/accounts.rs:553", "runtime/src/accounts.rs:570", "runtime/src/message_processor.rs:73", "runtime/src/message_processor.rs:84"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

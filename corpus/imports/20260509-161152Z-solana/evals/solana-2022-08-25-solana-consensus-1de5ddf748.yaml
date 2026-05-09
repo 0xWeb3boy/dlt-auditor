@@ -1,0 +1,21 @@
+id: "solana-2022-08-25-solana-consensus-1de5ddf748"
+source_record: "solana-2022-08-25-solana-consensus-1de5ddf748.yaml"
+project: "solana"
+
+expected_bug_family: "checked_arithmetic_and_parameter_bounds"
+expected_bug_class: "arithmetic-overflow-hardening"
+expected_missing_property: "checked-arithmetic-bounds"
+
+expected_impact_band: "integrity_or_funds"
+expected_severity_band: "high_or_medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "A prior canonical validator rejects the input before it reaches the sensitive sink."
+  - "The affected path is test-only, admin-only, or unreachable in production builds."
+  - "The apparent missing check is enforced by a shared callee on every equivalent path."
+notes:
+  - "Eval expectation derived from enriched corpus import, not from a fresh audit of the current checkout."
+  - "Positive detection should explain reachability, missing property, sensitive sink, impact, and at least one false-positive caveat."

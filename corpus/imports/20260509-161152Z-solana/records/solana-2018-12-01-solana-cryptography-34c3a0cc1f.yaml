@@ -1,0 +1,39 @@
+id: "solana-2018-12-01-solana-cryptography-34c3a0cc1f"
+source_finding: "2018-12-01-solana-cryptography-34c3a0cc1f.md"
+project: "solana"
+date: "2018-12-01"
+language_tags: ["rust"]
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "gossip-signature-verification-hardening"
+subsystem: "cryptography"
+architecture_tags: ["cryptography", "infrastructure", "gossip", "signature-verification", "security-hardening"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "signature-and-signer-binding"
+violated_invariant: "Protocol input must satisfy signature and signer binding before it can reach network resource allocation, peer metadata acceptance, repair scheduling, or packet fanout."
+trust_boundary: "untrusted peer network traffic to validator networking pipeline"
+entrypoint_type: "peer packet, gossip value, repair response, or QUIC/UDP ingress"
+sensitive_sink: "network resource allocation, peer metadata acceptance, repair scheduling, or packet fanout"
+
+attacker_capabilities: ["Can send peer-network traffic or influence peer-visible metadata.", "Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints."]
+exploit_preconditions: ["A signed artifact is accepted without fully binding the expected signer, domain, length, identity, or replay coordinate."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["gossip-message-integrity"]
+severity_guess: "Low/Medium"
+severity_rationale: "The finding is useful security-hardening evidence; severity depends on reachability and missing compensating controls."
+
+code_shape_summary: "The patch is likely a security fix for Solana CRDS gossip. The strongest grounded evidence is that CRDS value variants gain signature-bearing data and `Signable` sign/verify dispatch, while prune-message handling gains destination, wallclock, current-time, expiration, and error-return behavior. The evidence supports missing signature-verification and freshness validation in the gossip subsystem, but it does not show a complete exploit path or every enfo..."
+search_motifs: ["search for gossip signature verification hardening checks near cryptography entrypoints", "compare validation before and after the signature-and-signer-binding sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for signed payload fields that are decoded but not bound to signer/domain/replay state"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path.", "The signature library or sanitized message type already commits the disputed field unconditionally."]
+patch_pattern: "Add authentication and freshness validation support at the CRDS gossip value and prune-message boundaries."
+
+source_refs: ["/testing/solana/validated-findings/kept/2018-12-01-solana-cryptography-34c3a0cc1f.md", "git:34c3a0cc1f668323bf77ae6d477bed9011836050", "src/crds_gossip.rs:511", "src/crds_value.rs:190", "src/crds_gossip.rs:68", "src/crds_value.rs:29"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

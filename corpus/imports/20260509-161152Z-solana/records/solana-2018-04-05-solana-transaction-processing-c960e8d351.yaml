@@ -1,0 +1,39 @@
+id: "solana-2018-04-05-solana-transaction-processing-c960e8d351"
+source_finding: "2018-04-05-solana-transaction-processing-c960e8d351.md"
+project: "solana"
+date: "2018-04-05"
+language_tags: ["rust"]
+
+bug_family: "attestation_trust_and_freshness"
+bug_class: "freshness-anchor-validation"
+subsystem: "transaction-processing"
+architecture_tags: ["transaction-processing", "blockchain-core", "last-id-validation", "replay-window", "signature-cache", "fail-closed-validation"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "signature-and-signer-binding"
+violated_invariant: "Protocol input must satisfy signature and signer binding before it can reach bank freezing/rooting, tower vote decision, fork-choice state, or consensus-visible status."
+trust_boundary: "peer-provided ledger/vote evidence to local consensus and fork-choice state"
+entrypoint_type: "block replay, vote processing, fork-choice update, or duplicate-slot recovery"
+sensitive_sink: "bank freezing/rooting, tower vote decision, fork-choice state, or consensus-visible status"
+
+attacker_capabilities: ["Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints."]
+exploit_preconditions: ["A signed artifact is accepted without fully binding the expected signer, domain, length, identity, or replay coordinate.", "A cached, delayed, or peer-provided value can outlive the state coordinate it is supposed to describe."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["replay-protection", "transaction-freshness"]
+severity_guess: "Low/Medium"
+severity_rationale: "The finding is useful security-hardening evidence; severity depends on reachability and missing compensating controls."
+
+code_shape_summary: "The patch changes accountant last_id handling so transaction validation fails closed for unknown last_id values instead of accepting and registering them on demand. The provided evidence supports a replay/freshness hardening finding, but does not prove a concrete double-spend, signature-forgery, or balance-bypass vulnerability."
+search_motifs: ["search for freshness anchor validation checks near transaction-processing entrypoints", "compare validation before and after the signature-and-signer-binding sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for signed payload fields that are decoded but not bound to signer/domain/replay state"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path.", "The signature library or sanitized message type already commits the disputed field unconditionally."]
+patch_pattern: "Separate ledger entry registration from transaction validation, and fail closed when validation receives an unknown ledger freshness anchor."
+
+source_refs: ["/testing/solana/validated-findings/kept/2018-04-05-solana-transaction-processing-c960e8d351.md", "git:c960e8d35177ea949f5f01e869ab9bcc3d76805d", "src/accountant.rs:340", "src/accountant.rs:86", "src/accountant.rs:63", "src/accountant.rs:370"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

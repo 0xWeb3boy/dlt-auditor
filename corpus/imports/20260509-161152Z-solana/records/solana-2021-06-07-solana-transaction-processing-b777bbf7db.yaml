@@ -1,0 +1,39 @@
+id: "solana-2021-06-07-solana-transaction-processing-b777bbf7db"
+source_finding: "2021-06-07-solana-transaction-processing-b777bbf7db.md"
+project: "solana"
+date: "2021-06-07"
+language_tags: ["rust"]
+
+bug_family: "authz_and_role_gates"
+bug_class: "missing-authorization-check"
+subsystem: "transaction-processing"
+architecture_tags: ["transaction-processing", "blockchain-core", "authorization", "signature-validation", "zero-value-transfer"]
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "signature-and-signer-binding"
+violated_invariant: "Protocol input must satisfy signature and signer binding before it can reach account balance/state mutation, fee/rent accounting, nonce state, or transaction commitment."
+trust_boundary: "signed client transaction to bank accounting and execution state"
+entrypoint_type: "transaction admission, sanitization, or execution path"
+sensitive_sink: "account balance/state mutation, fee/rent accounting, nonce state, or transaction commitment"
+
+attacker_capabilities: ["Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints."]
+exploit_preconditions: ["The sensitive operation is reachable without proving the exact authority, owner, signer, or privilege being assumed.", "A signed artifact is accepted without fully binding the expected signer, domain, length, identity, or replay coordinate."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["authorization-bypass"]
+severity_guess: "High"
+severity_rationale: "The impact can affect funds, consensus safety, authorization boundaries, or runtime integrity when reachable."
+
+code_shape_summary: "The supported finding is limited to authorization hardening in Solana's runtime system-program transfer path. Before the patch, `transfer` returned `Ok(())` immediately for `lamports == 0`, before checking whether the source account signed. After the patch, that early return is feature-gated, so once `system_transfer_zero_check` is active, zero-lamport transfers enter the normal signer-validation path and unsigned transfers fail with `InstructionError::..."
+search_motifs: ["search for missing authorization check checks near transaction-processing entrypoints", "compare validation before and after the signature-and-signer-binding sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for signed payload fields that are decoded but not bound to signer/domain/replay state"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path.", "The signature library or sanitized message type already commits the disputed field unconditionally."]
+patch_pattern: "Gate or remove zero-value fast paths that bypass authorization so no-op amounts still pass through the same signature validation required for the instruction type."
+
+source_refs: ["/testing/solana/validated-findings/kept/2021-06-07-solana-transaction-processing-b777bbf7db.md", "git:b777bbf7db326a8c943c6aa65acca4096b2fae74", "transaction-status/src/parse_stake.rs:310", "runtime/src/system_instruction_processor.rs:1102", "runtime/src/system_instruction_processor.rs:880", "runtime/src/system_instruction_processor.rs:201"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

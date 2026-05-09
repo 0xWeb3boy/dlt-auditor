@@ -1,0 +1,39 @@
+id: "solana-2020-02-07-solana-staking-fa00803fbf"
+source_finding: "2020-02-07-solana-staking-fa00803fbf.md"
+project: "solana"
+date: "2020-02-07"
+language_tags: ["rust"]
+
+bug_family: "attestation_trust_and_freshness"
+bug_class: "gossip-freshness-validation"
+subsystem: "staking"
+architecture_tags: ["staking", "blockchain-core", "gossip", "crds", "freshness-validation", "untrusted-input", "timestamp-overflow"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "freshness-and-origin-validation"
+violated_invariant: "Protocol input must satisfy freshness and origin validation before it can reach network resource allocation, peer metadata acceptance, repair scheduling, or packet fanout."
+trust_boundary: "untrusted peer network traffic to validator networking pipeline"
+entrypoint_type: "peer packet, gossip value, repair response, or QUIC/UDP ingress"
+sensitive_sink: "network resource allocation, peer metadata acceptance, repair scheduling, or packet fanout"
+
+attacker_capabilities: ["Can send peer-network traffic or influence peer-visible metadata."]
+exploit_preconditions: ["A cached, delayed, or peer-provided value can outlive the state coordinate it is supposed to describe."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["network-state-integrity", "state-consistency"]
+severity_guess: "Low/Medium"
+severity_rationale: "The finding is useful security-hardening evidence; severity depends on reachability and missing compensating controls."
+
+code_shape_summary: "The patch adds freshness validation for CrdsValue entries received through gossip pull responses before inserting them into CRDS. It also threads stake/epoch-aware timeout data into packet handling and makes related push-message timeout arithmetic overflow-aware. This is plausibly security relevant because the data is peer-supplied gossip input, but the provided evidence does not prove a vulnerability impact beyond stale or future-timestamped values rea..."
+search_motifs: ["search for gossip freshness validation checks near staking entrypoints", "compare validation before and after the freshness-and-origin-validation sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for cached peer or state facts reused without slot/epoch/root freshness checks"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path."]
+patch_pattern: "Validate peer-supplied gossip state before inserting it into shared local state, using overflow-aware timestamp arithmetic and policy-specific timeout exceptions."
+
+source_refs: ["/testing/solana/validated-findings/kept/2020-02-07-solana-staking-fa00803fbf.md", "git:fa00803fbf6e60d4d5ad4bea52aee71fce59993d", "core/src/crds_gossip_pull.rs:222", "core/src/cluster_info.rs:1641", "core/src/crds_gossip_push.rs:139", "core/src/cluster_info.rs:1292"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

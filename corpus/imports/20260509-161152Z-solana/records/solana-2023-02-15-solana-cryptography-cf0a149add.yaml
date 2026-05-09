@@ -1,0 +1,39 @@
+id: "solana-2023-02-15-solana-cryptography-cf0a149add"
+source_finding: "2023-02-15-solana-cryptography-cf0a149add.md"
+project: "solana"
+date: "2023-02-15"
+language_tags: ["rust"]
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "signature-commitment-hardening"
+subsystem: "cryptography"
+architecture_tags: ["cryptography", "blockchain-core", "signature", "merkle-proof", "commitment-binding", "serialization-layout"]
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "signature-and-signer-binding"
+violated_invariant: "Protocol input must satisfy signature and signer binding before it can reach account balance/state mutation, fee/rent accounting, nonce state, or transaction commitment."
+trust_boundary: "signed client transaction to bank accounting and execution state"
+entrypoint_type: "transaction admission, sanitization, or execution path"
+sensitive_sink: "account balance/state mutation, fee/rent accounting, nonce state, or transaction commitment"
+
+attacker_capabilities: ["Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints."]
+exploit_preconditions: ["A signed artifact is accepted without fully binding the expected signer, domain, length, identity, or replay coordinate."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["cryptographic-integrity-hardening"]
+severity_guess: "Low/Medium"
+severity_rationale: "The finding is useful security-hardening evidence; severity depends on reachability and missing compensating controls."
+
+code_shape_summary: "The patch removes the embedded Merkle root from serialized Merkle shred branch data, changes proof handling from root-plus-proof branches to proof-only data, and updates tests so signed data resolves to `SignedData::MerkleRoot`. This is plausibly security relevant because it changes cryptographic commitment handling, but the evidence does not prove a vulnerability in the previous behavior. Treat as unclear hardening/layout work rather than a validated s..."
+search_motifs: ["search for signature commitment hardening checks near cryptography entrypoints", "compare validation before and after the signature-and-signer-binding sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for signed payload fields that are decoded but not bound to signer/domain/replay state"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path.", "The signature library or sanitized message type already commits the disputed field unconditionally."]
+patch_pattern: "Change the serialized Merkle shred format so proof data no longer carries an embedded root, and use the Merkle root commitment as the canonical signed data."
+
+source_refs: ["/testing/solana/validated-findings/kept/2023-02-15-solana-cryptography-cf0a149add.md", "git:cf0a149add033e644eb1d18b1694192825e84323", "ledger/src/shred/merkle.rs:620", "ledger/src/shred/merkle.rs:538", "ledger/src/shred/merkle.rs:747", "ledger/src/shred/merkle.rs:1430"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."

@@ -1,0 +1,39 @@
+id: "solana-2021-01-29-solana-transaction-processing-08bda35fd6"
+source_finding: "2021-01-29-solana-transaction-processing-08bda35fd6.md"
+project: "solana"
+date: "2021-01-29"
+language_tags: ["rust"]
+
+bug_family: "authz_and_role_gates"
+bug_class: "access-control"
+subsystem: "transaction-processing"
+architecture_tags: ["transaction-processing", "blockchain-core", "program-upgrade", "access-control", "authority-check", "feature-gated"]
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "eval_positive", "taxonomy_refinement"]
+
+missing_property: "authorization-and-privilege-check"
+violated_invariant: "Protocol input must satisfy authorization and privilege check before it can reach account owner/write privilege, executable program state, or runtime syscall side effect."
+trust_boundary: "untrusted program instruction/CPI frame to runtime account and privilege enforcement"
+entrypoint_type: "native program, loader, SBF/BPF, or CPI invocation"
+sensitive_sink: "account owner/write privilege, executable program state, or runtime syscall side effect"
+
+attacker_capabilities: ["Can submit crafted transactions, instructions, or program inputs accepted by normal node entrypoints."]
+exploit_preconditions: ["The sensitive operation is reachable without proving the exact authority, owner, signer, or privilege being assumed."]
+blast_radius: "Potentially affects the specific subsystem and any equivalent admission, replay, recovery, or adapter path that reaches the same sink."
+
+impact_types: ["state-integrity"]
+severity_guess: "Medium"
+severity_rationale: "The issue was confirmed as a security fix, but the available evidence does not establish direct high-impact loss."
+
+code_shape_summary: "The patch adds a feature-gated authority-equivalence check in the upgradeable BPF loader. Previously the loader verified that the supplied account was a Buffer but ignored its authority_address in the shown deploy/upgrade verification path. After the patch, mismatched buffer and upgrade authorities fail with IncorrectAuthority, and buffer authority removal is rejected under the same feature gate."
+search_motifs: ["search for access control checks near transaction-processing entrypoints", "compare validation before and after the authorization-and-privilege-check sensitive sink", "trace equivalent paths: admission vs execution, live vs replay, and success vs failure handling", "look for authority checks in wrappers but not at the final state-changing sink"]
+negative_signals: ["A prior canonical validator rejects the input before it reaches the sensitive sink.", "The affected path is test-only, admin-only, or unreachable in production builds.", "The apparent missing check is enforced by a shared callee on every equivalent path.", "The account or authority is derived from trusted state and cannot be chosen by the caller."]
+patch_pattern: "Add an explicit feature-gated authorization invariant in the loader path, then prevent state transitions that would bypass or make that invariant impossible to evaluate."
+
+source_refs: ["/testing/solana/validated-findings/kept/2021-01-29-solana-transaction-processing-08bda35fd6.md", "git:08bda35fd67be479d1ef9f6ed6c3d6cf907c4c72", "programs/bpf_loader/src/lib.rs:515", "programs/bpf_loader/src/lib.rs:619", "cli/src/program.rs:400", "programs/bpf_loader/src/lib.rs:1682"]
+notes:
+  - "Enriched from the raw finding using structured frontmatter, summary, root-cause, fix, and validation sections."
+  - "Confidence reflects the imported finding verdict; rerank in a new repo only after reachability and compensating controls are checked."
