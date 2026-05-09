@@ -1,0 +1,56 @@
+id: "nibiru-2024-08-14-nibiru-transaction-processing-e54ce5ce"
+source_finding: "2024-08-14-nibiru-transaction-processing-e54ce5ce.md"
+project: "nibiru"
+date: "2024-08-14"
+language_tags: ["go", "solidity"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "accounting-or-state-drift"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "blockchain"
+  - "cosmos-sdk"
+  - "evm-integration"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "origin-aware supply conservation"
+violated_invariant: "A token bridge must conserve value according to the origin of the mapped asset: returning a wrapped representation should release existing backing or burn representation, not mint new backing supply."
+trust_boundary: "ERC20 token callback/bridge path crosses into native bank mint, burn, and module-account accounting."
+entrypoint_type: "token bridge precompile conversion from ERC20 representation back to bank coin"
+sensitive_sink: "bank mint/burn and module-to-user bank transfer"
+
+attacker_capabilities:
+  - "Hold or obtain bridge representation tokens"
+  - "Trigger ERC20-to-bank conversion for mappings with different origin semantics"
+exploit_preconditions:
+  - "The mapping records whether the token was created from a native coin or an ERC20"
+  - "The old conversion path mints bank coins regardless of origin"
+  - "Module-held backing or ERC20 representation accounting can diverge from minted supply"
+blast_radius: "Can affect supply integrity for a mapped asset and the module account backing that asset."
+
+impact_types:
+  - "supply-accounting"
+  - "state-integrity"
+  - "economic-integrity"
+severity_guess: "high"
+severity_rationale: "Incorrect mint-versus-release behavior in a bridge can inflate or desynchronize supply, though direct attacker profit was not proven."
+
+code_shape_summary: "A bridge conversion path treated all token mappings the same and minted native coins where bank-origin mappings should burn representation and release backing."
+search_motifs:
+  - "MintCoins inside ERC20-to-bank conversion"
+  - "mapping has IsMadeFromCoin or origin flag ignored"
+  - "module account balance checked in regression"
+  - "burn moved before SendCoinsFromModuleToAccount"
+negative_signals:
+  - "Do not flag ERC20-origin mappings that legitimately mint/burn native representation"
+  - "Need evidence of runtime mint/burn path, not only metadata setup"
+  - "Direct theft should not be claimed unless module balances are withdrawable by attacker"
+patch_pattern: "Branch conversion accounting by token origin: burn returned representation for bank-origin mappings and transfer existing module-held backing instead of minting new bank supply."
+
+source_refs: ["/testing/nibiru/validated-findings/kept/2024-08-14-nibiru-transaction-processing-e54ce5ce.md"]
+notes:
+  - "Enriched from validated finding; preserve likely/confirmed distinction when using as retrieval evidence."

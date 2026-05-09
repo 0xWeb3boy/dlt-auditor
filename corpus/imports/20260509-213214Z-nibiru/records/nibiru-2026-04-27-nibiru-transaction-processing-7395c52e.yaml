@@ -1,0 +1,56 @@
+id: "nibiru-2026-04-27-nibiru-transaction-processing-7395c52e"
+source_finding: "2026-04-27-nibiru-transaction-processing-7395c52e.md"
+project: "nibiru"
+date: "2026-04-27"
+language_tags: ["go", "solidity"]
+
+bug_family: "authz_and_role_gates"
+bug_class: "callback-context-access-control"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "blockchain"
+  - "cosmos-sdk"
+  - "evm-integration"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "callback-context authorization"
+violated_invariant: "A privileged or module-originated callback context must not be allowed to invoke mutable native precompile methods unless that context is explicitly authorized for the method."
+trust_boundary: "Contract callback execution crosses from EVM into native module precompile authority checks."
+entrypoint_type: "FunToken or Wasm precompile call from VM callback context"
+sensitive_sink: "mutable native precompile method execution"
+
+attacker_capabilities:
+  - "Deploy contract code that reenters precompiles during token transfer or callback"
+  - "Trigger execution where the VM sender flag/module context is set"
+exploit_preconditions:
+  - "Mutable precompile method is reachable during callback context"
+  - "Authorization logic does not distinguish user calls from VM/module-originated callbacks"
+  - "The method can affect native state or bridge balances"
+blast_radius: "Potentially affects any mutable precompile protected only by ordinary call/read-only checks; exact exploit impact was not proven."
+
+impact_types:
+  - "access-control"
+  - "state-integrity"
+  - "callback-guard"
+severity_guess: "high"
+severity_rationale: "Callback-context authorization failures can expose privileged native sinks, but the validated case remains likely hardening without demonstrated loss."
+
+code_shape_summary: "Mutable precompile methods added an explicit VM-sender guard so callback-originated execution cannot reach native state-changing logic."
+search_motifs:
+  - "assertNotVMCaller added to sendToEvm or execute"
+  - "IsVMSenderCtx checked after readonly check"
+  - "delegatecall security patch for precompiles"
+  - "callback context error for mutable method"
+negative_signals:
+  - "Do not flag query/view precompiles that cannot mutate state"
+  - "Need evidence the context flag corresponds to privileged/module-originated execution"
+  - "Avoid duplicate findings when the same commit already covers the same guard"
+patch_pattern: "Treat callback context as an authorization dimension and deny mutable native precompile methods when that context indicates VM/module-originated execution."
+
+source_refs: ["/testing/nibiru/validated-findings/kept/2026-04-27-nibiru-transaction-processing-7395c52e.md"]
+notes:
+  - "Enriched from validated finding; preserve likely/confirmed distinction when using as retrieval evidence."

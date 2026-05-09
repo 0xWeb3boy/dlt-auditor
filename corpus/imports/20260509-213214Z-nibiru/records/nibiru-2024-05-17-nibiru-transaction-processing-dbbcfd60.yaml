@@ -1,0 +1,55 @@
+id: "nibiru-2024-05-17-nibiru-transaction-processing-dbbcfd60"
+source_finding: "2024-05-17-nibiru-transaction-processing-dbbcfd60.md"
+project: "nibiru"
+date: "2024-05-17"
+language_tags: ["go", "solidity"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "missing-transaction-validation"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "blockchain"
+  - "cosmos-sdk"
+  - "evm-integration"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "keeper-level basic message validation"
+violated_invariant: "A transaction message must satisfy its basic syntactic and semantic validation before it is converted into an execution object or passed to the state transition engine."
+trust_boundary: "Externally supplied transaction bytes cross from message handling into EVM execution."
+entrypoint_type: "EVM transaction message handler"
+sensitive_sink: "transaction conversion and ApplyEvmTx execution"
+
+attacker_capabilities:
+  - "Submit malformed or edge-case EVM transaction messages"
+  - "Bypass client-side validation by sending directly to the node or mempool path"
+exploit_preconditions:
+  - "Keeper entrypoint can be reached without prior equivalent ValidateBasic enforcement"
+  - "Malformed fields can survive into conversion or execution"
+  - "Downstream execution assumes basic fields are already sane"
+blast_radius: "Potentially affects transaction admission and EVM execution reliability; concrete exploit impact was not proven."
+
+impact_types:
+  - "input-validation-hardening"
+  - "transaction-integrity"
+severity_guess: "medium"
+severity_rationale: "Missing entrypoint validation can expose parsing or execution assumptions, but the validated evidence did not show crash, replay, or consensus corruption."
+
+code_shape_summary: "A state-changing transaction handler added an explicit basic-validation gate before converting and executing a foreign-runtime transaction."
+search_motifs:
+  - "msg.ValidateBasic missing at keeper entrypoint"
+  - "conversion to geth/core transaction before validation"
+  - "tests added for invalid intrinsic gas or malformed transaction"
+  - "handler assumes ante or client validation already ran"
+negative_signals:
+  - "Do not flag if an earlier mandatory ante path always validates the same message"
+  - "Formatting-only gas changes are not evidence"
+  - "Chain ID changes need replay evidence before being treated as security"
+patch_pattern: "Fail fast at the keeper boundary with basic message validation before context unwrap, transaction conversion, gas checks, or execution."
+
+source_refs: ["/testing/nibiru/validated-findings/kept/2024-05-17-nibiru-transaction-processing-dbbcfd60.md"]
+notes:
+  - "Enriched from validated finding; preserve likely/confirmed distinction when using as retrieval evidence."

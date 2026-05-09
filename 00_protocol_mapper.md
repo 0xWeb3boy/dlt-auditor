@@ -172,6 +172,7 @@ Your task:
   - whether the target is classified by code, registry, precompile table, or native account state,
   - whether policy is enforced before selector dispatch and before the final native sink,
   - whether fee, gas, weight, proof-size, and return-data semantics match the canonical native path.
+  For every VM/native adapter or precompile, also build a caller-mode matrix for direct user calls, contract calls, delegated or proxy calls, and module-originated callbacks. For each mutable method, identify where the active execution frame, caller class, read-only flag, gas budget, and native authority are checked before the native sink.
 22. Map consensus-visible result data separately from state writes:
   - acknowledgements,
   - ABCI or execution result data,

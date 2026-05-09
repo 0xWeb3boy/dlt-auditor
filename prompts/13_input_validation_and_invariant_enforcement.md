@@ -77,6 +77,7 @@ Search patterns:
 - production-mode configuration that accepts sample secrets, placeholder keys, fixture tokens, localhost credentials, or default passwords for privileged admin, prover, relayer, sequencer, validator, or bridge endpoints. Prefer fail-closed startup; warnings alone are hardening, not full mitigation
 - VM, interpreter, or transaction execution helpers where a semantic error is wrapped, converted, unwrapped, or pattern-matched before deciding transaction validity. Ensure failed contract, runtime, or VM results cannot be transformed into success-like control flow by helper return-shape changes.
 - sponsored, delegated, or multi-principal transactions where authorization, balance, postcondition, fee, or asset checks use an origin, sponsor, caller, or submitter principal. Compare each check against the exact principal whose asset, balance, authority, or state object is consumed at the sink.
+- financial state transitions where validation runs before all generated effects are known. For margin, collateral, vault, lending, staking, or bridge flows, recompute the final post-state after fees, funding, transfer callbacks, withdrawals, and generated module effects, then enforce solvency, conservation, and liquidation invariants at that final boundary.
 - protocol types with public struct fields, generic enums, raw byte variants, or ad hoc builders that can bypass constructor-enforced size, type, domain, or semantic invariants.
 
 Questions to answer:

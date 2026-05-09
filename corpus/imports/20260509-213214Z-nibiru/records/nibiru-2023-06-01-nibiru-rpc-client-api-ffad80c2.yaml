@@ -1,0 +1,56 @@
+id: "nibiru-2023-06-01-nibiru-rpc-client-api-ffad80c2"
+source_finding: "2023-06-01-nibiru-rpc-client-api-ffad80c2.md"
+project: "nibiru"
+date: "2023-06-01"
+language_tags: ["go", "solidity"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "missing-margin-ratio-check"
+subsystem: "rpc-client-api"
+architecture_tags:
+  - "blockchain"
+  - "cosmos-sdk"
+  - "evm-integration"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "post-withdrawal collateralization check"
+violated_invariant: "Any margin withdrawal or position mutation must validate the resulting position against liquidation thresholds before releasing collateral or committing state."
+trust_boundary: "Trader-controlled margin operation crosses into vault withdrawal and collateral accounting."
+entrypoint_type: "state-changing margin removal / position update transaction"
+sensitive_sink: "vault withdrawal and persisted position margin state"
+
+attacker_capabilities:
+  - "Open or maintain a leveraged position"
+  - "Request margin removal or position updates that reduce collateral after funding is applied"
+exploit_preconditions:
+  - "Margin removal updates the position before collateral leaves the vault"
+  - "The old path does not check the updated position against spot/TWAP liquidation thresholds"
+  - "The requested withdrawal would leave the account undercollateralized"
+blast_radius: "Per-market economic exposure; unsafe withdrawals can leave the protocol with bad debt or unfair liquidation state."
+
+impact_types:
+  - "undercollateralized-position"
+  - "economic-distortion"
+  - "bad-debt-risk"
+severity_guess: "high"
+severity_rationale: "Collateral withdrawal below maintenance margin can directly affect protocol solvency, even though the finding is validated as likely hardening rather than proven loss."
+
+code_shape_summary: "A margin-removal path needed a shared final-state collateralization check before vault withdrawal. The pattern is missing invariant enforcement after applying funding and margin deltas."
+search_motifs:
+  - "RemoveMargin withdraws before final margin check"
+  - "helper computes margin ratio but not used on all mutation paths"
+  - "spot and TWAP notionals used inconsistently"
+  - "vault withdrawal follows local state mutation without validation"
+negative_signals:
+  - "Do not flag read-only margin queries"
+  - "Do not overstate if the path only refactors existing equivalent checks"
+  - "A check before mutation is insufficient if funding or withdrawal changes the final state"
+patch_pattern: "Introduce one margin-ratio helper, call it from every position mutation path after all deltas are applied, and block vault withdrawals when the final position is liquidatable."
+
+source_refs: ["/testing/nibiru/validated-findings/kept/2023-06-01-nibiru-rpc-client-api-ffad80c2.md"]
+notes:
+  - "Enriched from validated finding; preserve likely/confirmed distinction when using as retrieval evidence."

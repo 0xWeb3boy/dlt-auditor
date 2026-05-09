@@ -1,0 +1,56 @@
+id: "nibiru-2024-10-24-nibiru-rpc-client-api-dd27f4b6"
+source_finding: "2024-10-24-nibiru-rpc-client-api-dd27f4b6.md"
+project: "nibiru"
+date: "2024-10-24"
+language_tags: ["go", "solidity"]
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "evm-gas-resource-control-hardening"
+subsystem: "rpc-client-api"
+architecture_tags:
+  - "blockchain"
+  - "cosmos-sdk"
+  - "evm-integration"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "bounded helper-call gas and revert isolation"
+violated_invariant: "System-mediated contract calls must run under a predictable gas cap and must not commit intermediate state when the contract reverts or errors."
+trust_boundary: "Native keeper helper crosses into attacker-supplied ERC20 contract code."
+entrypoint_type: "keeper-initiated EVM contract helper call"
+sensitive_sink: "EVM execution with gas consumption and cached-context commit behavior"
+
+attacker_capabilities:
+  - "Deploy ERC20 code with expensive or reverting behavior"
+  - "Trigger protocol helper paths that call token methods internally"
+exploit_preconditions:
+  - "The protocol performs contract calls on behalf of system logic"
+  - "Gas limit derivation or commit context can be influenced by execution outcome"
+  - "State writes could occur before final success is known"
+blast_radius: "Primarily affects node resources and state isolation around EVM helper calls."
+
+impact_types:
+  - "resource-exhaustion"
+  - "state-integrity"
+  - "failure-containment"
+severity_guess: "medium"
+severity_rationale: "Resource exhaustion and accidental state commit are serious hardening targets, but the validated evidence did not show a concrete exploit or chain halt."
+
+code_shape_summary: "A native helper that calls arbitrary contract code was changed to use a fixed gas cap and cached execution context so reverts do not leak state."
+search_motifs:
+  - "CallContract helper computes custom gas from commit context"
+  - "comments mention malicious gas-intensive ERC20"
+  - "ApplyEvmMsg runs without CacheContext"
+  - "gas used unknown on failed contract call"
+negative_signals:
+  - "Do not classify ordinary eth_call gas configuration as security without attacker-controlled contract execution"
+  - "Need evidence that helper is reachable from state-changing protocol code"
+  - "A cache context alone is not enough if no state mutation can occur"
+patch_pattern: "Use a conservative gas cap for helper contract calls, execute against a cache context, and commit only after successful execution with explicit error handling."
+
+source_refs: ["/testing/nibiru/validated-findings/kept/2024-10-24-nibiru-rpc-client-api-dd27f4b6.md"]
+notes:
+  - "Enriched from validated finding; preserve likely/confirmed distinction when using as retrieval evidence."

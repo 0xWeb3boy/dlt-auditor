@@ -1,0 +1,56 @@
+id: "nibiru-2026-04-27-nibiru-transaction-processing-224de766"
+source_finding: "2026-04-27-nibiru-transaction-processing-224de766.md"
+project: "nibiru"
+date: "2026-04-27"
+language_tags: ["go", "solidity"]
+
+bug_family: "authz_and_role_gates"
+bug_class: "access-control"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "blockchain"
+  - "cosmos-sdk"
+  - "evm-integration"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "authorization for asset mapping creation"
+violated_invariant: "Creation of mainnet asset mappings that bind external token contracts to native denominations must be restricted to governance, authority, or explicitly permissioned accounts."
+trust_boundary: "Externally submitted mapping-creation transaction crosses into privileged registry state for bridge assets."
+entrypoint_type: "CreateFunToken message handler"
+sensitive_sink: "FunToken mapping registry and fee/registration flow"
+
+attacker_capabilities:
+  - "Submit a mapping creation transaction with an arbitrary ERC20 or bank denom"
+  - "Control the external token contract being registered"
+exploit_preconditions:
+  - "Mainnet path lacks authority or sudo permission checks"
+  - "The mapping registry accepts user-provided token metadata/address"
+  - "Downstream bridge/precompile logic trusts registered mappings"
+blast_radius: "Can pollute or abuse the asset mapping registry; downstream impact depends on how mappings are used by bridge/precompile flows."
+
+impact_types:
+  - "privilege-misuse"
+  - "registry-integrity"
+  - "asset-mapping-control"
+severity_guess: "high"
+severity_rationale: "Unauthorized mainnet asset mapping can become a launch point for bridge abuse, but direct asset compromise was not proven in the validation output."
+
+code_shape_summary: "A public asset-mapping creation path gained a mainnet-only authority/sudo gate before registration can proceed."
+search_motifs:
+  - "CreateFunToken lacks authority check"
+  - "mapping registry write before permission check"
+  - "tests for permissioned ERC20 and coin mappings"
+  - "mainnet chain ID branch added around registration"
+negative_signals:
+  - "Non-mainnet permissionless mapping may be intentional"
+  - "Creation fees do not replace authorization for privileged registries"
+  - "Need evidence the mapping affects trusted bridge behavior before claiming theft"
+patch_pattern: "Check chain environment, require configured authority or sudo permission before registration, and cover both ERC20-origin and native-coin mapping creation paths with tests."
+
+source_refs: ["/testing/nibiru/validated-findings/kept/2026-04-27-nibiru-transaction-processing-224de766.md"]
+notes:
+  - "Enriched from validated finding; preserve likely/confirmed distinction when using as retrieval evidence."

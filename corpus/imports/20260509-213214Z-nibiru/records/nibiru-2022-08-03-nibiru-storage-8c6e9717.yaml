@@ -1,0 +1,56 @@
+id: "nibiru-2022-08-03-nibiru-storage-8c6e9717"
+source_finding: "2022-08-03-nibiru-storage-8c6e9717.md"
+project: "nibiru"
+date: "2022-08-03"
+language_tags: ["go", "solidity"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "insufficient-margin-validation"
+subsystem: "storage"
+architecture_tags:
+  - "blockchain"
+  - "cosmos-sdk"
+  - "evm-integration"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "post-state solvency validation"
+violated_invariant: "Leveraged position updates must be rejected if the resulting position would be below maintenance margin or create bad debt after all price, funding, and margin effects are applied."
+trust_boundary: "User-submitted derivatives trading message crosses into privileged margin accounting and vault solvency state."
+entrypoint_type: "state-changing trading transaction / keeper message handler"
+sensitive_sink: "position update and vault accounting that can admit undercollateralized exposure"
+
+attacker_capabilities:
+  - "Submit open or update position transactions with extreme leverage or adverse margin parameters"
+  - "Choose timing and market conditions around TWAP-dependent margin checks"
+exploit_preconditions:
+  - "Protocol accepts the position update before checking the final post-update margin ratio"
+  - "A market configuration allows the submitted trade to push account equity near or below maintenance requirements"
+  - "No later liquidation or bad-debt guard rejects the same state transition before commit"
+blast_radius: "Primarily affects the perpetuals market and its vault; repeated use can externalize losses to liquidity providers or insurance/backstop mechanisms."
+
+impact_types:
+  - "economic-integrity"
+  - "bad-debt-risk"
+  - "solvency-invariant"
+severity_guess: "high"
+severity_rationale: "A successful bypass can create undercollateralized exposure and bad debt, though the validated evidence did not prove a full exploit trace."
+
+code_shape_summary: "A leveraged trading flow failed to consistently validate the final position state after updates. The reusable shape is a state transition that mutates margin exposure before enforcing maintenance-margin and bad-debt invariants."
+search_motifs:
+  - "post-update margin ratio checked only on some paths"
+  - "tests treating extreme leverage or bad debt as success"
+  - "position update helpers that mutate margin before validation"
+  - "liquidation threshold check absent after withdraw/remove/update operations"
+negative_signals:
+  - "Margin tests alone are not security evidence unless runtime acceptance changed"
+  - "Do not claim exploitability if only test setup or TWAP timing changed"
+  - "A later liquidation mechanism may reduce but not replace pre-commit solvency checks"
+patch_pattern: "Centralize post-update solvency validation, run it after all position mutations and funding effects, return a typed margin-too-low error, and remove tests that bless bad-debt states."
+
+source_refs: ["/testing/nibiru/validated-findings/kept/2022-08-03-nibiru-storage-8c6e9717.md"]
+notes:
+  - "Enriched from validated finding; preserve likely/confirmed distinction when using as retrieval evidence."

@@ -1,0 +1,56 @@
+id: "nibiru-2024-10-26-nibiru-transaction-processing-c6249126"
+source_finding: "2024-10-26-nibiru-transaction-processing-c6249126.md"
+project: "nibiru"
+date: "2024-10-26"
+language_tags: ["go", "solidity"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "precompile-rollback-hardening"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "blockchain"
+  - "cosmos-sdk"
+  - "evm-integration"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "atomic rollback of cross-runtime side effects"
+violated_invariant: "All native side effects produced during a precompile call must share the same transaction journal and rollback boundary as the EVM call that triggered them."
+trust_boundary: "EVM precompile execution crosses into SDK multistore and module account state."
+entrypoint_type: "state-changing EVM precompile call"
+sensitive_sink: "SDK multistore cache snapshots, StateDB journal, and commit path"
+
+attacker_capabilities:
+  - "Invoke precompile methods from EVM execution"
+  - "Cause nested calls, reverts, or errors after native side effects are staged"
+exploit_preconditions:
+  - "Precompile side effects are stored outside the main EVM journal or with a stale context"
+  - "Failure paths can revert EVM state without reverting native multistore effects equivalently"
+  - "Commit/account reads may use a different transaction context than the precompile side effects"
+blast_radius: "Can desynchronize EVM-visible state and native module state for transactions involving precompiles."
+
+impact_types:
+  - "state-integrity"
+  - "rollback-integrity"
+  - "cross-runtime-consistency"
+severity_guess: "high"
+severity_rationale: "Broken rollback boundaries in precompile execution can leave inconsistent committed state, though the evidence did not prove a concrete value loss."
+
+code_shape_summary: "Precompile multistore snapshots were moved into the main transaction journal and tied to the EVM transaction context to preserve atomic rollback semantics."
+search_motifs:
+  - "precompile snapshots stored outside StateDB journal"
+  - "synthetic state object for native side effects"
+  - "commit uses ctx instead of evmTxCtx"
+  - "revert path handles EVM journal but not native cache"
+negative_signals:
+  - "Do not flag read-only precompiles"
+  - "Need a state-changing native side effect plus possible revert/error path"
+  - "Mere refactoring of context plumbing is not enough without rollback semantics"
+patch_pattern: "Record native precompile snapshots as journal entries, propagate snapshot errors, and use the same transaction context for reads, commits, and rollbacks."
+
+source_refs: ["/testing/nibiru/validated-findings/kept/2024-10-26-nibiru-transaction-processing-c6249126.md"]
+notes:
+  - "Enriched from validated finding; preserve likely/confirmed distinction when using as retrieval evidence."

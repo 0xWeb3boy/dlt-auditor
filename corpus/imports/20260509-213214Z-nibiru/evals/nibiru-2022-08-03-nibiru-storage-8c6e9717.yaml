@@ -1,0 +1,21 @@
+id: "nibiru-2022-08-03-nibiru-storage-8c6e9717"
+source_record: "nibiru-2022-08-03-nibiru-storage-8c6e9717.yaml"
+project: "nibiru"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "insufficient-margin-validation"
+expected_missing_property: "post-state solvency validation"
+
+expected_impact_band: "economic_integrity"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Margin tests alone are not security evidence unless runtime acceptance changed"
+  - "Do not claim exploitability if only test setup or TWAP timing changed"
+  - "A later liquidation mechanism may reduce but not replace pre-commit solvency checks"
+notes:
+  - "Expected answer should identify the generic invariant and avoid overstating impact beyond likely evidence."
+  - "Centralize post-update solvency validation, run it after all position mutations and funding effects, return a typed margin-too-low error, and remove tests that bless bad-debt states."

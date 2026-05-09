@@ -1,0 +1,56 @@
+id: "nibiru-2026-04-24-nibiru-transaction-processing-c239445c"
+source_finding: "2026-04-24-nibiru-transaction-processing-c239445c.md"
+project: "nibiru"
+date: "2026-04-24"
+language_tags: ["go", "solidity"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "missing-vm-callback-guard"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "blockchain"
+  - "cosmos-sdk"
+  - "evm-integration"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "callback-context validation"
+violated_invariant: "Mutable native precompile methods must reject calls made while execution is inside a VM-originated contract callback or module-caller context."
+trust_boundary: "User-controlled EVM contract callback crosses into native precompile methods that can mutate bank, bridge, or Wasm state."
+entrypoint_type: "mutable EVM precompile call during ERC20/module-originated callback"
+sensitive_sink: "FunToken sendToEvm and Wasm execute native state transitions"
+
+attacker_capabilities:
+  - "Deploy ERC20 or contract code that calls back into a precompile during transfer/execution"
+  - "Reach protocol paths where the VM/module is the active caller context"
+exploit_preconditions:
+  - "Native precompile method is callable during VM callback context"
+  - "The callback preserves or confuses privileged module caller state"
+  - "No early guard blocks mutable methods before argument parsing and state work"
+blast_radius: "State-changing native precompile paths reachable from callback context; concrete asset loss was not proven in the generated finding."
+
+impact_types:
+  - "state-integrity"
+  - "callback-access-control"
+  - "privileged-context-confusion"
+severity_guess: "high"
+severity_rationale: "Privileged callback context reaching mutable native sinks can be severe, but this finding is kept as likely hardening because the full exploit path was not proven in the report."
+
+code_shape_summary: "Mutable precompile handlers lacked an execution-context guard and could be reached while the SDK context indicated a VM-originated callback."
+search_motifs:
+  - "delegatecall or callback into precompile during ERC20 transfer"
+  - "IsVMSenderCtx guard added before mutable method parsing"
+  - "method disabled during EVM-originated contract callback"
+  - "precompile send/execute callable from module-originated contract code"
+negative_signals:
+  - "Read-only precompile methods may be safe in callback context"
+  - "Do not claim fund theft without a demonstrated privileged sink and preserved caller"
+  - "Revert-reason propagation is support behavior, not the root issue"
+patch_pattern: "Add a shared callback-context guard and invoke it at the top of every mutable precompile method before parsing inputs or touching native state."
+
+source_refs: ["/testing/nibiru/validated-findings/kept/2026-04-24-nibiru-transaction-processing-c239445c.md"]
+notes:
+  - "Enriched from validated finding; preserve likely/confirmed distinction when using as retrieval evidence."

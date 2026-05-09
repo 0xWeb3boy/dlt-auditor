@@ -1,0 +1,55 @@
+id: "nibiru-2026-01-28-nibiru-rpc-client-api-9d08af56"
+source_finding: "2026-01-28-nibiru-rpc-client-api-9d08af56.md"
+project: "nibiru"
+date: "2026-01-28"
+language_tags: ["go", "solidity"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "vulnerable-dependency"
+subsystem: "rpc-client-api"
+architecture_tags:
+  - "blockchain"
+  - "cosmos-sdk"
+  - "evm-integration"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-fix"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "patched dependency baseline"
+violated_invariant: "Consensus and networking dependencies with published security advisories must be upgraded to a patched version across every module that can build or test the node."
+trust_boundary: "Application dependency lockfiles cross into upstream consensus/networking implementation code."
+entrypoint_type: "build-time dependency selection for node, SDK, and test modules"
+sensitive_sink: "CometBFT consensus/networking library version used by the application"
+
+attacker_capabilities:
+  - "Exploit the upstream advisory conditions if an affected node runs the vulnerable version"
+exploit_preconditions:
+  - "The deployed build resolves to a vulnerable upstream dependency version"
+  - "The advisory applies to reachable consensus/networking code"
+  - "The patch version is not consistently pinned across modules"
+blast_radius: "Potentially chain-wide if the upstream CometBFT advisory affects live node behavior; exact impact depends on CSA-2026-001."
+
+impact_types:
+  - "upstream-advisory-remediation"
+  - "dependency-risk"
+  - "consensus-or-network-risk"
+severity_guess: "high"
+severity_rationale: "Security dependency fixes in consensus libraries are high-priority, but local exploit details were not present in the finding."
+
+code_shape_summary: "A security advisory remediation upgraded the CometBFT dependency to a patched version across module manifests and checksums."
+search_motifs:
+  - "commit references CSA or security advisory"
+  - "go.mod/go.sum-only upgrade for consensus dependency"
+  - "same dependency pinned in root and internal SDK modules"
+  - "patched version mentioned in commit body"
+negative_signals:
+  - "Dependency churn alone is not security without advisory or version evidence"
+  - "Do not invent the upstream root cause if the advisory details are absent"
+  - "Ensure all build modules, not just tests, resolve to the patched version"
+patch_pattern: "Pin the patched upstream version consistently in every relevant module and refresh lock/checksum files so builds cannot resolve the vulnerable baseline."
+
+source_refs: ["/testing/nibiru/validated-findings/kept/2026-01-28-nibiru-rpc-client-api-9d08af56.md"]
+notes:
+  - "Enriched from validated finding; preserve likely/confirmed distinction when using as retrieval evidence."

@@ -1,0 +1,144 @@
+{
+  "repo": "/testing/nibiru",
+  "repo_slug": "nibiru",
+  "kept_dir": "/testing/nibiru/validated-findings/kept",
+  "created_at_utc": "20260509-213214Z",
+  "finding_count": 15,
+  "findings": [
+    {
+      "id": "nibiru-2022-08-03-nibiru-storage-8c6e9717",
+      "source": "/testing/nibiru/validated-findings/kept/2022-08-03-nibiru-storage-8c6e9717.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "insufficient-margin-validation",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "nibiru-2023-06-01-nibiru-rpc-client-api-ffad80c2",
+      "source": "/testing/nibiru/validated-findings/kept/2023-06-01-nibiru-rpc-client-api-ffad80c2.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-margin-ratio-check",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "nibiru-2024-05-17-nibiru-transaction-processing-dbbcfd60",
+      "source": "/testing/nibiru/validated-findings/kept/2024-05-17-nibiru-transaction-processing-dbbcfd60.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-transaction-validation",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "nibiru-2024-08-14-nibiru-transaction-processing-e54ce5ce",
+      "source": "/testing/nibiru/validated-findings/kept/2024-08-14-nibiru-transaction-processing-e54ce5ce.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "accounting-or-state-drift",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "nibiru-2024-10-24-nibiru-rpc-client-api-dd27f4b6",
+      "source": "/testing/nibiru/validated-findings/kept/2024-10-24-nibiru-rpc-client-api-dd27f4b6.md",
+      "bug_family": "resource_accounting_and_limits",
+      "bug_class": "evm-gas-resource-control-hardening",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "resource-accounting"
+    },
+    {
+      "id": "nibiru-2024-10-26-nibiru-transaction-processing-c6249126",
+      "source": "/testing/nibiru/validated-findings/kept/2024-10-26-nibiru-transaction-processing-c6249126.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "precompile-rollback-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "nibiru-2024-12-28-nibiru-transaction-processing-1a256f2a",
+      "source": "/testing/nibiru/validated-findings/kept/2024-12-28-nibiru-transaction-processing-1a256f2a.md",
+      "bug_family": "resource_accounting_and_limits",
+      "bug_class": "recursive-gas-forwarding",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "resource-accounting"
+    },
+    {
+      "id": "nibiru-2025-01-06-nibiru-transaction-processing-350b9e97",
+      "source": "/testing/nibiru/validated-findings/kept/2025-01-06-nibiru-transaction-processing-350b9e97.md",
+      "bug_family": "resource_accounting_and_limits",
+      "bug_class": "gas-accounting-undercharge",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "resource-accounting"
+    },
+    {
+      "id": "nibiru-2025-01-08-nibiru-transaction-processing-20531e7d",
+      "source": "/testing/nibiru/validated-findings/kept/2025-01-08-nibiru-transaction-processing-20531e7d.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "accounting-or-state-drift",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "nibiru-2025-01-26-nibiru-staking-3f5be387",
+      "source": "/testing/nibiru/validated-findings/kept/2025-01-26-nibiru-staking-3f5be387.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "cross-runtime-state-sync",
+      "subsystem": "staking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "nibiru-2026-01-22-nibiru-rpc-client-api-59336f71",
+      "source": "/testing/nibiru/validated-findings/kept/2026-01-22-nibiru-rpc-client-api-59336f71.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-nondeterminism",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "nibiru-2026-01-28-nibiru-rpc-client-api-9d08af56",
+      "source": "/testing/nibiru/validated-findings/kept/2026-01-28-nibiru-rpc-client-api-9d08af56.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "vulnerable-dependency",
+      "subsystem": "rpc-client-api",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "nibiru-2026-04-24-nibiru-transaction-processing-c239445c",
+      "source": "/testing/nibiru/validated-findings/kept/2026-04-24-nibiru-transaction-processing-c239445c.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-vm-callback-guard",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "nibiru-2026-04-27-nibiru-transaction-processing-224de766",
+      "source": "/testing/nibiru/validated-findings/kept/2026-04-27-nibiru-transaction-processing-224de766.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "access-control",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "nibiru-2026-04-27-nibiru-transaction-processing-7395c52e",
+      "source": "/testing/nibiru/validated-findings/kept/2026-04-27-nibiru-transaction-processing-7395c52e.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "callback-context-access-control",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "authorization"
+    }
+  ]
+}

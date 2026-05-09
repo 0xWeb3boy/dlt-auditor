@@ -1,0 +1,56 @@
+id: "nibiru-2025-01-06-nibiru-transaction-processing-350b9e97"
+source_finding: "2025-01-06-nibiru-transaction-processing-350b9e97.md"
+project: "nibiru"
+date: "2025-01-06"
+language_tags: ["go", "solidity"]
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "gas-accounting-undercharge"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "blockchain"
+  - "cosmos-sdk"
+  - "evm-integration"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement", "eval_seed"]
+
+missing_property: "accurate gas measurement for wrapped operations"
+violated_invariant: "A wrapper that charges gas for delegated state operations must measure the real operation cost, not a discounted or zero-cost substitute context."
+trust_boundary: "Protocol wrapper crosses from a high-level bank operation into low-level KV/transient store gas accounting."
+entrypoint_type: "bank operation wrapped by a forced gas invariant helper"
+sensitive_sink: "transaction gas meter charge for storage-heavy bank side effects"
+
+attacker_capabilities:
+  - "Trigger wrapped bank operations repeatedly or with storage patterns that consume KV gas"
+  - "Rely on the protocol wrapper to undercharge actual work"
+exploit_preconditions:
+  - "The wrapper measures work using a substitute context"
+  - "The substitute context applies zero-cost KV/transient gas configs"
+  - "The original transaction meter is charged from the reduced measurement"
+blast_radius: "Can underprice storage-heavy operations and affect node resource fairness across the chain."
+
+impact_types:
+  - "resource-accounting"
+  - "resource-exhaustion-risk"
+  - "fee-undercharge"
+severity_guess: "medium"
+severity_rationale: "The undercharge is confirmed and affects resource fairness, but the record does not prove a chain halt or direct economic theft."
+
+code_shape_summary: "A gas invariant wrapper measured bank operations under zero-cost store gas settings and then charged the real transaction meter from that discounted measurement."
+search_motifs:
+  - "WithKVGasConfig(zeroCostGasConfig)"
+  - "substitute gas meter used for measurement"
+  - "ForceGasInvariant charges original meter after wrapped operation"
+  - "tests change expected gas from zero/low to non-zero/higher"
+negative_signals:
+  - "Do not flag test-only gas meters"
+  - "InfiniteGasMeter can be correct when used only to avoid double charging while preserving store gas configs"
+  - "Need evidence that measured gas is later charged to the user transaction"
+patch_pattern: "Measure wrapped work without zero-cost store configs, avoid premature exhaustion with an infinite substitute meter, and assert non-zero measured gas in tests."
+
+source_refs: ["/testing/nibiru/validated-findings/kept/2025-01-06-nibiru-transaction-processing-350b9e97.md"]
+notes:
+  - "Enriched from validated finding; preserve likely/confirmed distinction when using as retrieval evidence."

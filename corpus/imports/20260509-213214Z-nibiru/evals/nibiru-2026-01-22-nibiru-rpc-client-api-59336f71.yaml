@@ -1,0 +1,21 @@
+id: "nibiru-2026-01-22-nibiru-rpc-client-api-59336f71"
+source_record: "nibiru-2026-01-22-nibiru-rpc-client-api-59336f71.yaml"
+project: "nibiru"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "consensus-nondeterminism"
+expected_missing_property: "deterministic iteration order"
+
+expected_impact_band: "consensus_safety"
+expected_severity_band: "critical"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Map iteration in read-only RPC code is not consensus-critical"
+  - "Sorting only for presentation does not fix state write nondeterminism elsewhere"
+  - "Need evidence iteration affects writes, events, or app hash"
+notes:
+  - "Expected answer should identify the generic invariant and avoid overstating impact beyond confirmed evidence."
+  - "Extract keys, sort them canonically, and use that ordered list for all state writes, reward calculations, and consensus-visible event emission."

@@ -1,0 +1,21 @@
+id: "nibiru-2024-12-28-nibiru-transaction-processing-1a256f2a"
+source_record: "nibiru-2024-12-28-nibiru-transaction-processing-1a256f2a.yaml"
+project: "nibiru"
+
+expected_bug_family: "resource_accounting_and_limits"
+expected_bug_class: "recursive-gas-forwarding"
+expected_missing_property: "recursive gas forwarding bound"
+
+expected_impact_band: "resource_control"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Do not flag single non-recursive helper calls with bounded gas"
+  - "Need attacker-controlled callee code or reentry route"
+  - "Resource risk should not be reframed as fund theft without evidence"
+notes:
+  - "Expected answer should identify the generic invariant and avoid overstating impact beyond likely evidence."
+  - "Compute nested call gas from remaining transaction gas, subtract a 1/64 reserve, cap by configured maximum, and add malicious-recursion regression coverage."

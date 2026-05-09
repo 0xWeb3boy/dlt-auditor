@@ -81,6 +81,8 @@ When the patch clearly tightens a validator, consensus, proof, traffic-control, 
 
 For security-hardening findings, distinguish direct exploit fixes from boundary tightening. Dependency upgrades, stricter config parsing, offline signing support, and added mismatch checks should be retained as hardening only when attacker control or end-to-end exploitability is not shown.
 
+For bridge, precompile, or cross-runtime findings, distinguish the proven boundary fix from the hypothesized exploit chain. It is acceptable to keep a finding as security-hardening when the patch blocks a privileged callback, registry, gas, rollback, or mirror-state boundary, but do not claim theft, minting, consensus failure, or full exploitability unless the attacker path reaches the value or consensus sink in code.
+
 Use three evidence levels for hardening-only findings: (1) a reachable attacker-controlled input crosses the boundary and can trigger the old behavior; (2) the patch closes a real boundary but reachability or exploit consequence is uncertain; (3) the patch is defensive cleanup, refactoring, observability, or operator-safety without a demonstrated hostile path. Preserve levels 2 and 3 as corpus lessons, but keep the impact language proportional.
 
 For parser, recovery, and resource-hardening findings, explicitly classify which proof is missing:

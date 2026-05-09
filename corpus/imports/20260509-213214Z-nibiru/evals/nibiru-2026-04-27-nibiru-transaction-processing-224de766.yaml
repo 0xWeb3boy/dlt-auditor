@@ -1,0 +1,21 @@
+id: "nibiru-2026-04-27-nibiru-transaction-processing-224de766"
+source_record: "nibiru-2026-04-27-nibiru-transaction-processing-224de766.yaml"
+project: "nibiru"
+
+expected_bug_family: "authz_and_role_gates"
+expected_bug_class: "access-control"
+expected_missing_property: "authorization for asset mapping creation"
+
+expected_impact_band: "access_control"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Non-mainnet permissionless mapping may be intentional"
+  - "Creation fees do not replace authorization for privileged registries"
+  - "Need evidence the mapping affects trusted bridge behavior before claiming theft"
+notes:
+  - "Expected answer should identify the generic invariant and avoid overstating impact beyond likely evidence."
+  - "Check chain environment, require configured authority or sudo permission before registration, and cover both ERC20-origin and native-coin mapping creation paths with tests."

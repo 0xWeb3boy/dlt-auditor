@@ -1,0 +1,56 @@
+id: "nibiru-2025-01-08-nibiru-transaction-processing-20531e7d"
+source_finding: "2025-01-08-nibiru-transaction-processing-20531e7d.md"
+project: "nibiru"
+date: "2025-01-08"
+language_tags: ["go", "solidity"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "accounting-or-state-drift"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "blockchain"
+  - "cosmos-sdk"
+  - "evm-integration"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "input-amount based burn invariant"
+violated_invariant: "When converting a bridge representation, the native-side burn or debit must match the user-supplied amount accepted by the protocol, not a post-transfer amount that a malicious token can reduce."
+trust_boundary: "User-controlled ERC20 transfer semantics cross into native bank burn accounting."
+entrypoint_type: "FunToken conversion from bank coin to ERC20-origin token"
+sensitive_sink: "bank coin burn amount and supply accounting"
+
+attacker_capabilities:
+  - "Deploy or use a fee-on-transfer ERC20"
+  - "Trigger conversion where actual received amount differs from requested amount"
+exploit_preconditions:
+  - "The protocol trusts ERC20 transfer return/actualSentAmount for native burn amount"
+  - "The ERC20 can charge fees or otherwise reduce amount delivered"
+  - "The original bank coin amount has already been accepted from the user side"
+blast_radius: "Affects supply conservation for the mapped bank representation; repeated use can leave unburned native representation."
+
+impact_types:
+  - "supply-accounting"
+  - "economic-integrity"
+  - "state-drift"
+severity_guess: "high"
+severity_rationale: "Burning less than the accepted amount can break supply accounting for a bridge asset; exploit profit was not fully demonstrated."
+
+code_shape_summary: "A conversion path burned native bank representation based on a token-reported received amount instead of the original input amount, allowing fee-on-transfer behavior to skew supply accounting."
+search_motifs:
+  - "actualSentAmount used as burn amount"
+  - "fee-charging ERC20 regression test"
+  - "convertCoinToEvmBornERC20 burns transfer result"
+  - "input coin amount differs from ERC20 transfer output"
+negative_signals:
+  - "Do not flag ordinary ERC20 transfers where output amount is intentionally the asset delivered"
+  - "Need a native supply burn/debit tied to token callback result"
+  - "Fee-on-transfer support may intentionally account for net amount if no native supply was pre-accepted"
+patch_pattern: "Burn or debit the full original input amount for native accounting, while treating token transfer return values only as ERC20-side execution results."
+
+source_refs: ["/testing/nibiru/validated-findings/kept/2025-01-08-nibiru-transaction-processing-20531e7d.md"]
+notes:
+  - "Enriched from validated finding; preserve likely/confirmed distinction when using as retrieval evidence."

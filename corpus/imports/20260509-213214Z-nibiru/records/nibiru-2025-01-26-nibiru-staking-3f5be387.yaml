@@ -1,0 +1,56 @@
+id: "nibiru-2025-01-26-nibiru-staking-3f5be387"
+source_finding: "2025-01-26-nibiru-staking-3f5be387.md"
+project: "nibiru"
+date: "2025-01-26"
+language_tags: ["go", "solidity"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "cross-runtime-state-sync"
+subsystem: "staking"
+architecture_tags:
+  - "blockchain"
+  - "cosmos-sdk"
+  - "evm-integration"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "cross-runtime balance synchronization"
+violated_invariant: "When native module operations move balances visible to another runtime, both runtimes must observe the same balances before execution continues."
+trust_boundary: "EVM contract execution crosses through a Wasm/native staking precompile into bank module account transfers."
+entrypoint_type: "EVM-to-Wasm staking flow that delegates coins to a module account"
+sensitive_sink: "EVM StateDB account cache for sender and module account balances"
+
+attacker_capabilities:
+  - "Execute EVM contract logic that invokes Wasm/native staking paths"
+  - "Use the EVM-denominated bank asset whose balances are mirrored in StateDB"
+exploit_preconditions:
+  - "Native delegation moves EVM-denom coins from account to module"
+  - "The EVM StateDB cache is not refreshed for both affected accounts"
+  - "Subsequent EVM-visible reads or operations use stale balances"
+blast_radius: "Affects cross-runtime balance correctness for staking and module-account flows involving the EVM denomination."
+
+impact_types:
+  - "state-accounting"
+  - "cross-runtime-consistency"
+  - "balance-integrity"
+severity_guess: "high"
+severity_rationale: "Stale mirrored balances can enable dirty-state behavior across runtimes, though concrete theft or permanent loss was not proven."
+
+code_shape_summary: "A native bank delegation wrapper now synchronizes EVM-visible account state for both sender and recipient module accounts after EVM-denom balance movement."
+search_motifs:
+  - "DelegateCoinsFromAccountToModule wrapper"
+  - "SyncStateDBWithAccount after bank delegation"
+  - "DirtyStateAttack regression"
+  - "module account balance changes not mirrored to EVM StateDB"
+negative_signals:
+  - "Do not flag transfers of denoms not mirrored into the foreign runtime"
+  - "Need subsequent runtime visibility or cache dependence"
+  - "A sync on only sender may be insufficient when recipient is a module account"
+patch_pattern: "Wrap native module transfers for mirrored denoms and refresh all affected runtime account caches immediately after the native operation succeeds."
+
+source_refs: ["/testing/nibiru/validated-findings/kept/2025-01-26-nibiru-staking-3f5be387.md"]
+notes:
+  - "Enriched from validated finding; preserve likely/confirmed distinction when using as retrieval evidence."

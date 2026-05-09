@@ -1,0 +1,56 @@
+id: "nibiru-2026-01-22-nibiru-rpc-client-api-59336f71"
+source_finding: "2026-01-22-nibiru-rpc-client-api-59336f71.md"
+project: "nibiru"
+date: "2026-01-22"
+language_tags: ["go", "solidity"]
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-nondeterminism"
+subsystem: "rpc-client-api"
+architecture_tags:
+  - "blockchain"
+  - "cosmos-sdk"
+  - "evm-integration"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement", "eval_seed"]
+
+missing_property: "deterministic iteration order"
+violated_invariant: "Consensus-visible state updates and event outputs must be derived from deterministic iteration over collections on every validator."
+trust_boundary: "In-memory map aggregation crosses into consensus state updates, reward distribution, and block-result events."
+entrypoint_type: "oracle end-block or keeper reward/update path"
+sensitive_sink: "validator miss counters, reward distribution, and emitted validator performance events"
+
+attacker_capabilities:
+  - "Influence membership or contents of the map through normal protocol activity"
+  - "Wait for validators to execute the same map in different process-specific iteration orders"
+exploit_preconditions:
+  - "Consensus path ranges over an unordered map"
+  - "Iteration order affects state writes, rewards, events, or app hash"
+  - "No sorting or canonicalization is applied before the writes"
+blast_radius: "Chain-wide consensus risk; validators can compute different app hashes and halt or fork."
+
+impact_types:
+  - "state-divergence"
+  - "consensus-failure"
+  - "determinism"
+severity_guess: "critical"
+severity_rationale: "Confirmed nondeterministic consensus execution can produce AppHash mismatches and halt/fork the network."
+
+code_shape_summary: "Consensus logic ranged over a Go map while updating oracle validator state and rewards; the fix canonicalized validator address order before all consensus-visible effects."
+search_motifs:
+  - "range over map in BeginBlock/EndBlock/keeper consensus path"
+  - "comments mention AppHash mismatch or nondeterminism"
+  - "helper returns sorted keys before state writes"
+  - "events or rewards emitted from map iteration order"
+negative_signals:
+  - "Map iteration in read-only RPC code is not consensus-critical"
+  - "Sorting only for presentation does not fix state write nondeterminism elsewhere"
+  - "Need evidence iteration affects writes, events, or app hash"
+patch_pattern: "Extract keys, sort them canonically, and use that ordered list for all state writes, reward calculations, and consensus-visible event emission."
+
+source_refs: ["/testing/nibiru/validated-findings/kept/2026-01-22-nibiru-rpc-client-api-59336f71.md"]
+notes:
+  - "Enriched from validated finding; preserve likely/confirmed distinction when using as retrieval evidence."

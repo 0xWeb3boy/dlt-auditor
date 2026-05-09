@@ -1,0 +1,21 @@
+id: "nibiru-2025-01-06-nibiru-transaction-processing-350b9e97"
+source_record: "nibiru-2025-01-06-nibiru-transaction-processing-350b9e97.yaml"
+project: "nibiru"
+
+expected_bug_family: "resource_accounting_and_limits"
+expected_bug_class: "gas-accounting-undercharge"
+expected_missing_property: "accurate gas measurement for wrapped operations"
+
+expected_impact_band: "resource_control"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Do not flag test-only gas meters"
+  - "InfiniteGasMeter can be correct when used only to avoid double charging while preserving store gas configs"
+  - "Need evidence that measured gas is later charged to the user transaction"
+notes:
+  - "Expected answer should identify the generic invariant and avoid overstating impact beyond confirmed evidence."
+  - "Measure wrapped work without zero-cost store configs, avoid premature exhaustion with an infinite substitute meter, and assert non-zero measured gas in tests."

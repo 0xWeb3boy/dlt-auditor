@@ -1,0 +1,56 @@
+id: "nibiru-2024-12-28-nibiru-transaction-processing-1a256f2a"
+source_finding: "2024-12-28-nibiru-transaction-processing-1a256f2a.md"
+project: "nibiru"
+date: "2024-12-28"
+language_tags: ["go", "solidity"]
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "recursive-gas-forwarding"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "blockchain"
+  - "cosmos-sdk"
+  - "evm-integration"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses: ["retrieval_exemplar", "taxonomy_refinement"]
+
+missing_property: "recursive gas forwarding bound"
+violated_invariant: "Nested contract calls made by protocol helpers must forward gas from the transaction remaining budget, not grant each recursive call a fresh fixed allowance."
+trust_boundary: "Protocol ERC20 helper crosses into user-controlled token code that can recurse back into precompiles."
+entrypoint_type: "FunToken/ERC20 mint or burn helper call"
+sensitive_sink: "recursive CallContract execution and transaction gas meter"
+
+attacker_capabilities:
+  - "Deploy ERC20 code that recursively calls protocol precompiles"
+  - "Trigger mint or burn paths that call the ERC20 contract"
+exploit_preconditions:
+  - "Helper calls use a fixed gas limit independent of remaining transaction gas"
+  - "The called contract can reenter a path that invokes the helper again"
+  - "No EIP-150-style reduction caps recursive gas forwarding"
+blast_radius: "Affects resource use and liveness of transaction execution involving malicious mapped ERC20s."
+
+impact_types:
+  - "resource-exhaustion"
+  - "gas-accounting"
+  - "denial-of-service-risk"
+severity_guess: "medium"
+severity_rationale: "Recursive gas grant bugs can amplify resource use; the evidence supports hardening but not theft or consensus failure."
+
+code_shape_summary: "A recursive ERC20/precompile path now computes forwarded call gas from remaining transaction gas with a 63/64-style cap instead of passing a fresh fixed limit."
+search_motifs:
+  - "CallContract(... Erc20GasLimitExecute) inside mint/burn"
+  - "comment mentions EIP-150 or recursive ERC20 precompile calls"
+  - "malicious recursive ERC20 regression test"
+  - "gas limit not derived from ctx.GasMeter().GasRemaining"
+negative_signals:
+  - "Do not flag single non-recursive helper calls with bounded gas"
+  - "Need attacker-controlled callee code or reentry route"
+  - "Resource risk should not be reframed as fund theft without evidence"
+patch_pattern: "Compute nested call gas from remaining transaction gas, subtract a 1/64 reserve, cap by configured maximum, and add malicious-recursion regression coverage."
+
+source_refs: ["/testing/nibiru/validated-findings/kept/2024-12-28-nibiru-transaction-processing-1a256f2a.md"]
+notes:
+  - "Enriched from validated finding; preserve likely/confirmed distinction when using as retrieval evidence."

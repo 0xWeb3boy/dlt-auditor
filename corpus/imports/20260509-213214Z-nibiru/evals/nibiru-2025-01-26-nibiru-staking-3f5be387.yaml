@@ -1,0 +1,21 @@
+id: "nibiru-2025-01-26-nibiru-staking-3f5be387"
+source_record: "nibiru-2025-01-26-nibiru-staking-3f5be387.yaml"
+project: "nibiru"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "cross-runtime-state-sync"
+expected_missing_property: "cross-runtime balance synchronization"
+
+expected_impact_band: "state_integrity"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Do not flag transfers of denoms not mirrored into the foreign runtime"
+  - "Need subsequent runtime visibility or cache dependence"
+  - "A sync on only sender may be insufficient when recipient is a module account"
+notes:
+  - "Expected answer should identify the generic invariant and avoid overstating impact beyond likely evidence."
+  - "Wrap native module transfers for mirrored denoms and refresh all affected runtime account caches immediately after the native operation succeeds."

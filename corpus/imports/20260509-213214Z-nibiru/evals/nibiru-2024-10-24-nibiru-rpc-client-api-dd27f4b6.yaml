@@ -1,0 +1,21 @@
+id: "nibiru-2024-10-24-nibiru-rpc-client-api-dd27f4b6"
+source_record: "nibiru-2024-10-24-nibiru-rpc-client-api-dd27f4b6.yaml"
+project: "nibiru"
+
+expected_bug_family: "resource_accounting_and_limits"
+expected_bug_class: "evm-gas-resource-control-hardening"
+expected_missing_property: "bounded helper-call gas and revert isolation"
+
+expected_impact_band: "resource_control"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Do not classify ordinary eth_call gas configuration as security without attacker-controlled contract execution"
+  - "Need evidence that helper is reachable from state-changing protocol code"
+  - "A cache context alone is not enough if no state mutation can occur"
+notes:
+  - "Expected answer should identify the generic invariant and avoid overstating impact beyond likely evidence."
+  - "Use a conservative gas cap for helper contract calls, execute against a cache context, and commit only after successful execution with explicit error handling."

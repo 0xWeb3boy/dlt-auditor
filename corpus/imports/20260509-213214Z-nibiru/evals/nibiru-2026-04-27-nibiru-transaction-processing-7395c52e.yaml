@@ -1,0 +1,21 @@
+id: "nibiru-2026-04-27-nibiru-transaction-processing-7395c52e"
+source_record: "nibiru-2026-04-27-nibiru-transaction-processing-7395c52e.yaml"
+project: "nibiru"
+
+expected_bug_family: "authz_and_role_gates"
+expected_bug_class: "callback-context-access-control"
+expected_missing_property: "callback-context authorization"
+
+expected_impact_band: "access_control"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Do not flag query/view precompiles that cannot mutate state"
+  - "Need evidence the context flag corresponds to privileged/module-originated execution"
+  - "Avoid duplicate findings when the same commit already covers the same guard"
+notes:
+  - "Expected answer should identify the generic invariant and avoid overstating impact beyond likely evidence."
+  - "Treat callback context as an authorization dimension and deny mutable native precompile methods when that context indicates VM/module-originated execution."

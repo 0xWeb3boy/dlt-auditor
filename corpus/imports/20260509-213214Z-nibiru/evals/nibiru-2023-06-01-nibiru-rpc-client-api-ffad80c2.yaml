@@ -1,0 +1,21 @@
+id: "nibiru-2023-06-01-nibiru-rpc-client-api-ffad80c2"
+source_record: "nibiru-2023-06-01-nibiru-rpc-client-api-ffad80c2.yaml"
+project: "nibiru"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "missing-margin-ratio-check"
+expected_missing_property: "post-withdrawal collateralization check"
+
+expected_impact_band: "economic_integrity"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Do not flag read-only margin queries"
+  - "Do not overstate if the path only refactors existing equivalent checks"
+  - "A check before mutation is insufficient if funding or withdrawal changes the final state"
+notes:
+  - "Expected answer should identify the generic invariant and avoid overstating impact beyond likely evidence."
+  - "Introduce one margin-ratio helper, call it from every position mutation path after all deltas are applied, and block vault withdrawals when the final position is liquidatable."

@@ -1,0 +1,21 @@
+id: "nibiru-2024-05-17-nibiru-transaction-processing-dbbcfd60"
+source_record: "nibiru-2024-05-17-nibiru-transaction-processing-dbbcfd60.yaml"
+project: "nibiru"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "missing-transaction-validation"
+expected_missing_property: "keeper-level basic message validation"
+
+expected_impact_band: "transaction_integrity"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Do not flag if an earlier mandatory ante path always validates the same message"
+  - "Formatting-only gas changes are not evidence"
+  - "Chain ID changes need replay evidence before being treated as security"
+notes:
+  - "Expected answer should identify the generic invariant and avoid overstating impact beyond likely evidence."
+  - "Fail fast at the keeper boundary with basic message validation before context unwrap, transaction conversion, gas checks, or execution."
