@@ -1,0 +1,32 @@
+id: "agave-2026-05-07-agave-transaction-processing-775558cbef"
+source_record: "agave-2026-05-07-agave-transaction-processing-775558cbef.yaml"
+project: "agave"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "hardening-or-correctness-fix"
+expected_missing_property: "format-specific-index-bounds"
+expected_trust_boundary: "serialized-transaction->transaction-view-parser"
+expected_entrypoint_type: "transaction-parser"
+expected_sensitive_sink: "static account key frame and fixed-size program-id helper cache"
+
+expected_impact_band: "transaction parser bounds hardening"
+expected_severity_band: "medium"
+expected_primary_impacts:
+  - "malformed-transaction-rejection"
+  - "denial-of-service"
+  - "validation-hardening"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+positive_detection_motifs:
+  - "txv1 OOB static account count"
+  - "MAX_STATIC_ACCOUNTS differs from format-specific packet max"
+  - "u8 program_id_index indexes fixed flags array"
+  - "FILTER_SIZE should cover 256 possible indexes"
+false_positive_cautions:
+  - "OOB in a memory-safe language may be a panic/DoS rather than memory corruption."
+  - "Do not claim consensus divergence without evidence the malformed transaction can be accepted differently by validators."
+notes:
+  - "Enriched eval target from the Agave validated-findings kept corpus import."
+  - "Transaction parsers and helper caches must enforce the maximum count and index domain for the specific transaction format before using attacker-controlled indexes."

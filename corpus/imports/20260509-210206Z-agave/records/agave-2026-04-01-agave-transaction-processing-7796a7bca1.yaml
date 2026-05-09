@@ -1,0 +1,60 @@
+id: "agave-2026-04-01-agave-transaction-processing-7796a7bca1"
+source_finding: "2026-04-01-agave-transaction-processing-7796a7bca1.md"
+project: "agave"
+date: "2026-04-01"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "malformed-transaction-rejection"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "validator-based"
+  - "sigverify"
+  - "transaction-parser"
+  - "network-packets"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "canonical-parse-before-verification"
+violated_invariant: "Untrusted transaction packets should pass canonical structural sanitization before signature-verification code trusts offsets, versions, or account lengths."
+trust_boundary: "network-packet->signature-verification"
+entrypoint_type: "transaction-packet-verification"
+sensitive_sink: "sigverify packet acceptance and forwarding"
+
+attacker_capabilities:
+  - "Send serialized transaction packets with unsupported versions or malformed account/pubkey lengths."
+  - "Target byte-layout assumptions in signature verification."
+exploit_preconditions:
+  - "Sigverify derives offsets or fields manually before canonical sanitization."
+  - "Malformed packets can reach later verification or forwarding decisions."
+blast_radius: "validator-local-transaction-ingress"
+
+impact_types:
+  - "malformed-transaction-rejection"
+  - "validation-hardening"
+severity_guess: "low"
+severity_rationale: "Canonical parsing in sigverify reduces malformed-input risk, but the evidence did not prove old packets passed verification or reached execution."
+
+code_shape_summary: "A signature-verification path parses transaction byte layout manually instead of constructing the canonical sanitized transaction view first."
+search_motifs:
+  - "manual transaction offsets in sigverify"
+  - "verify_packet without sanitized transaction view"
+  - "unsupported message version accepted by parser"
+  - "invalid pubkey length reaches signature path"
+negative_signals:
+  - "Canonical sanitization is already guaranteed before sigverify."
+  - "The manual parser rejects all unsupported versions and invalid lengths equivalently."
+  - "Malformed packets are only used in unit tests and cannot reach network ingress."
+patch_pattern: "Gate sigverify packet handling on successful canonical sanitized transaction-view construction and reject missing or malformed packet data early."
+
+source_refs:
+  - "/testing/agave/validated-findings/kept/2026-04-01-agave-transaction-processing-7796a7bca1.md"
+notes:
+  - "Enriched from validated phase 4 finding in the prepared Agave corpus import."
+  - "Treat as confirmed only when the validation verdict and source evidence prove exploitability; most entries here are hardening exemplars."

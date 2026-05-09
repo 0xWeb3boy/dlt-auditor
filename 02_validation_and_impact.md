@@ -83,6 +83,12 @@ For security-hardening findings, distinguish direct exploit fixes from boundary 
 
 Use three evidence levels for hardening-only findings: (1) a reachable attacker-controlled input crosses the boundary and can trigger the old behavior; (2) the patch closes a real boundary but reachability or exploit consequence is uncertain; (3) the patch is defensive cleanup, refactoring, observability, or operator-safety without a demonstrated hostile path. Preserve levels 2 and 3 as corpus lessons, but keep the impact language proportional.
 
+For parser, recovery, and resource-hardening findings, explicitly classify which proof is missing:
+- missing reachability: old behavior is bad if reached, but attacker control is unproven;
+- missing consequence: attacker-controlled input reaches the boundary, but impact beyond rejection/hardening is unproven;
+- duplicate-check uncertainty: patch centralizes or duplicates validation, but old equivalent checks may have existed elsewhere;
+- operator-local hardening: the trust decision is real but affects CLI, monitoring, or tooling rather than protocol state.
+
 Then assess impact:
 1. What can an attacker actually cause?
 2. Does it affect consensus integrity, finalized state integrity, settlement integrity, bridge safety, privileged data access, slashing/accountability, or only availability?

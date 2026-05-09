@@ -1,0 +1,61 @@
+id: "agave-2025-12-27-agave-cryptography-346847efe6"
+source_finding: "2025-12-27-agave-cryptography-346847efe6.md"
+project: "agave"
+date: "2025-12-27"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "nonce-state-validation-timing"
+subsystem: "cryptography"
+architecture_tags:
+  - "validator-based"
+  - "transaction-pipeline"
+  - "durable-nonce"
+  - "svm"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "fresh-state-revalidation"
+violated_invariant: "Mutable replay-protection state and its authority must be reloaded and validated at the execution boundary, not only at an earlier preflight or age-check boundary."
+trust_boundary: "signed-transaction->svm-execution"
+entrypoint_type: "transaction-state-transition"
+sensitive_sink: "durable nonce execution state acceptance"
+
+attacker_capabilities:
+  - "Submit durable-nonce transactions whose nonce account state may change between early checking and execution."
+  - "Exercise close/reopen, spoofed, already-used, or authority-changed nonce-account cases."
+exploit_preconditions:
+  - "Nonce account locks or execution ordering allow account state to differ after an early check."
+  - "The processing path trusts stale nonce authority/state when constructing execution state."
+blast_radius: "transaction-validity-state"
+
+impact_types:
+  - "replay-protection"
+  - "state-integrity"
+  - "unauthorized-action"
+severity_guess: "medium"
+severity_rationale: "Fresh nonce validation protects replay-sensitive transaction state, but the evidence did not prove unauthorized acceptance, fund loss, or a concrete exploit."
+
+code_shape_summary: "Nonce authority and account state are validated early in bank transaction-age handling, then reused later even though the nonce account is mutable before SVM processing."
+search_motifs:
+  - "durable nonce authority checked before execution and not reloaded"
+  - "NonceInfo constructed during transaction age check"
+  - "closed reopened spoofed nonce account comment"
+  - "mutable account state validated too early"
+negative_signals:
+  - "Strict account locks make nonce state immutable between check and execution."
+  - "The execution boundary reloads and revalidates nonce state before any effect."
+  - "The early check is only a cache hint and not trusted for acceptance."
+patch_pattern: "Defer nonce execution-state construction to SVM processing and reload/revalidate the current nonce account and authority immediately before processing."
+
+source_refs:
+  - "/testing/agave/validated-findings/kept/2025-12-27-agave-cryptography-346847efe6.md"
+notes:
+  - "Enriched from validated phase 4 finding in the prepared Agave corpus import."
+  - "Treat as confirmed only when the validation verdict and source evidence prove exploitability; most entries here are hardening exemplars."

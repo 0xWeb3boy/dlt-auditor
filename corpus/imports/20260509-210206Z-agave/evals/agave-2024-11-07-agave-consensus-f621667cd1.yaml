@@ -1,0 +1,32 @@
+id: "agave-2024-11-07-agave-consensus-f621667cd1"
+source_record: "agave-2024-11-07-agave-consensus-f621667cd1.yaml"
+project: "agave"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "unauthenticated-constructor-exposure"
+expected_missing_property: "authenticated-construction"
+expected_trust_boundary: "local-producer-api->p2p-gossip-state"
+expected_entrypoint_type: "internal-constructor"
+expected_sensitive_sink: "CRDS gossip value creation and insertion"
+
+expected_impact_band: "authenticity hardening"
+expected_severity_band: "low"
+expected_primary_impacts:
+  - "metadata-authenticity"
+  - "p2p-integrity"
+  - "consensus-metadata-integrity"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+positive_detection_motifs:
+  - "public new_unsigned constructor on signed network message"
+  - "default signature value outside cfg(test)"
+  - "constructor for authenticated gossip value without keypair"
+  - "test helper exposed as production API"
+false_positive_cautions:
+  - "Constructor hardening is often a preventive API fix, not proof of a remote vulnerability."
+  - "Do not claim consensus failure unless unsigned values can actually enter verified gossip state."
+notes:
+  - "Enriched eval target from the Agave validated-findings kept corpus import."
+  - "Production constructors for signed network metadata should require signing material or otherwise make unsigned construction impossible outside tests."

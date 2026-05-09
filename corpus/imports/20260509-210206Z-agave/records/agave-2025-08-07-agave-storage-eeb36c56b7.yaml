@@ -1,0 +1,60 @@
+id: "agave-2025-08-07-agave-storage-eeb36c56b7"
+source_finding: "2025-08-07-agave-storage-eeb36c56b7.md"
+project: "agave"
+date: "2025-08-07"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "resource-exhaustion-hardening"
+subsystem: "storage"
+architecture_tags:
+  - "validator-based"
+  - "snapshot"
+  - "archive-unpack"
+  - "resource-limits"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "allocation-bound-by-concrete-input"
+violated_invariant: "Temporary buffers for untrusted or semi-trusted archive unpacking should be bounded by concrete input size and configured limits, not by a larger abstract output limit alone."
+trust_boundary: "snapshot-or-genesis-archive->node-filesystem"
+entrypoint_type: "archive-unpack-path"
+sensitive_sink: "temporary unpack write-buffer allocation"
+
+attacker_capabilities:
+  - "Provide, mirror, or influence archive files that a node unpacks."
+  - "Choose archive sizes that interact poorly with configured unpack limits."
+exploit_preconditions:
+  - "The node unpacks an attacker-influenced or untrusted archive."
+  - "Buffer sizing is derived from a high apparent-output limit rather than the smaller concrete input size."
+blast_radius: "node-local"
+
+impact_types:
+  - "resource-exhaustion"
+  - "node-availability"
+severity_guess: "low"
+severity_rationale: "The change reduces unnecessary memory/backlog exposure, but no exploit path, crash, OOM, or attacker-controlled distribution channel was proven."
+
+code_shape_summary: "Archive unpacking chooses temporary write-buffer sizes from broad configured output limits, including a forced minimum, instead of the smaller actual archive size."
+search_motifs:
+  - "archive unpack buffer from apparent unpacked size limit"
+  - "minimum write buffer allocation for small archive"
+  - "allocation ignores input archive metadata length"
+  - "min(input_size, limit) missing in decompression path"
+negative_signals:
+  - "The archive source is strictly local and trusted."
+  - "A separate hard cap already bounds actual allocation below risky levels."
+  - "The patch only changes throughput tuning without changing allocation bounds."
+patch_pattern: "Compute unpack buffers from min(input archive size, effective unpack limit), cap them, and adjust downstream buffer handling for smaller bounded writes."
+
+source_refs:
+  - "/testing/agave/validated-findings/kept/2025-08-07-agave-storage-eeb36c56b7.md"
+notes:
+  - "Enriched from validated phase 4 finding in the prepared Agave corpus import."
+  - "Treat as confirmed only when the validation verdict and source evidence prove exploitability; most entries here are hardening exemplars."

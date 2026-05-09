@@ -1,0 +1,62 @@
+id: "agave-2026-01-09-agave-consensus-8cebdeb9b0"
+source_finding: "2026-01-09-agave-consensus-8cebdeb9b0.md"
+project: "agave"
+date: "2026-01-09"
+language_tags:
+  - "rust"
+
+bug_family: "authz_and_role_gates"
+bug_class: "improper-vote-authorization-filtering"
+subsystem: "consensus"
+architecture_tags:
+  - "validator-based"
+  - "consensus"
+  - "vote-ingestion"
+  - "authorized-voter"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "current-epoch-vote-authorization"
+violated_invariant: "Consensus vote buffering must verify that a vote is signed by the current authorized voter for the vote account before mutating latest-vote state."
+trust_boundary: "validator-or-peer-vote-packet->consensus-vote-storage"
+entrypoint_type: "consensus-vote-ingestion"
+sensitive_sink: "latest vote state update in vote storage"
+
+attacker_capabilities:
+  - "Submit or relay vote packets for a staked vote account."
+  - "Use a signer that is not the current epoch authorized voter for that vote account."
+exploit_preconditions:
+  - "Vote storage checks stake presence but not the epoch authorized-voter mapping before state mutation."
+  - "The malformed vote reaches the batching/replenish insertion path."
+blast_radius: "consensus-vote-state"
+
+impact_types:
+  - "consensus-integrity"
+  - "vote-state-integrity"
+  - "unauthorized-action"
+severity_guess: "high"
+severity_rationale: "The confirmed missing authorization check sits before consensus-facing latest-vote mutation; downstream impact is not fully proven, so high is a conservative upper band rather than critical."
+
+code_shape_summary: "A vote packet ingestion layer verifies that a vote account has stake but mutates latest-vote state without first matching the signer against the current epoch authorized-voter map."
+search_motifs:
+  - "update_latest_vote before authorized voter check"
+  - "stake presence checked without epoch_authorized_voters lookup"
+  - "vote packet signer not compared to authorized voter"
+  - "insert batch with replenish accepts unauthorized vote"
+negative_signals:
+  - "The same layer verifies authorized voter before any state mutation."
+  - "The updated state is purely diagnostic and never feeds scheduling, replay, or consensus logic."
+  - "A lower layer cryptographically rejects unauthorized votes before this function is reachable."
+patch_pattern: "Filter votes at the vote-storage ingestion boundary by current epoch authorized-voter mapping before updating latest-vote state."
+
+source_refs:
+  - "/testing/agave/validated-findings/kept/2026-01-09-agave-consensus-8cebdeb9b0.md"
+notes:
+  - "Enriched from validated phase 4 finding in the prepared Agave corpus import."
+  - "Treat as confirmed only when the validation verdict and source evidence prove exploitability; most entries here are hardening exemplars."

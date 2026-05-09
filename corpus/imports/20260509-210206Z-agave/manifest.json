@@ -1,0 +1,135 @@
+{
+  "repo": "/testing/agave",
+  "repo_slug": "agave",
+  "kept_dir": "/testing/agave/validated-findings/kept",
+  "created_at_utc": "20260509-210206Z",
+  "finding_count": 14,
+  "findings": [
+    {
+      "id": "agave-2024-09-11-agave-transaction-processing-f0a77e94bf",
+      "source": "/testing/agave/validated-findings/kept/2024-09-11-agave-transaction-processing-f0a77e94bf.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "durable-nonce-consumption",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "agave-2024-11-07-agave-consensus-f621667cd1",
+      "source": "/testing/agave/validated-findings/kept/2024-11-07-agave-consensus-f621667cd1.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "unauthenticated-constructor-exposure",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "agave-2025-03-10-agave-cryptography-b30fb49ad2",
+      "source": "/testing/agave/validated-findings/kept/2025-03-10-agave-cryptography-b30fb49ad2.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "panic-on-invalid-transaction",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "agave-2025-08-07-agave-storage-eeb36c56b7",
+      "source": "/testing/agave/validated-findings/kept/2025-08-07-agave-storage-eeb36c56b7.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "resource-exhaustion-hardening",
+      "subsystem": "storage",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "agave-2025-10-15-agave-p2p-networking-589d58b07f",
+      "source": "/testing/agave/validated-findings/kept/2025-10-15-agave-p2p-networking-589d58b07f.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "connection-rate-limit-hardening",
+      "subsystem": "p2p-networking",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "agave-2025-12-27-agave-cryptography-346847efe6",
+      "source": "/testing/agave/validated-findings/kept/2025-12-27-agave-cryptography-346847efe6.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "nonce-state-validation-timing",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "agave-2026-01-09-agave-consensus-8cebdeb9b0",
+      "source": "/testing/agave/validated-findings/kept/2026-01-09-agave-consensus-8cebdeb9b0.md",
+      "bug_family": "authz_and_role_gates",
+      "bug_class": "improper-vote-authorization-filtering",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "authorization"
+    },
+    {
+      "id": "agave-2026-03-16-agave-consensus-be02fe6ee0",
+      "source": "/testing/agave/validated-findings/kept/2026-03-16-agave-consensus-be02fe6ee0.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-validation-failure-masking",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "agave-2026-04-01-agave-transaction-processing-7796a7bca1",
+      "source": "/testing/agave/validated-findings/kept/2026-04-01-agave-transaction-processing-7796a7bca1.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "malformed-transaction-rejection",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "agave-2026-04-08-agave-consensus-9021f430fb",
+      "source": "/testing/agave/validated-findings/kept/2026-04-08-agave-consensus-9021f430fb.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "resource-exhaustion-hardening",
+      "subsystem": "consensus",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "agave-2026-04-20-agave-transaction-processing-b9365a82f6",
+      "source": "/testing/agave/validated-findings/kept/2026-04-20-agave-transaction-processing-b9365a82f6.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "transaction-sanitization-hardening",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "agave-2026-04-27-agave-validator-ops-7b7ffdd747",
+      "source": "/testing/agave/validated-findings/kept/2026-04-27-agave-validator-ops-7b7ffdd747.md",
+      "bug_family": "signature_binding_and_signer_scope",
+      "bug_class": "cli-validator-info-signer-check",
+      "subsystem": "validator-ops",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "signer-authorization"
+    },
+    {
+      "id": "agave-2026-04-30-agave-cryptography-26af74dd48",
+      "source": "/testing/agave/validated-findings/kept/2026-04-30-agave-cryptography-26af74dd48.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "consensus-protocol-validation",
+      "subsystem": "cryptography",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    },
+    {
+      "id": "agave-2026-05-07-agave-transaction-processing-775558cbef",
+      "source": "/testing/agave/validated-findings/kept/2026-05-07-agave-transaction-processing-775558cbef.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "hardening-or-correctness-fix",
+      "subsystem": "transaction-processing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "input-validation"
+    }
+  ]
+}

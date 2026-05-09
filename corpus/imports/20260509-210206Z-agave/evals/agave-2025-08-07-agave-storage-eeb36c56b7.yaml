@@ -1,0 +1,31 @@
+id: "agave-2025-08-07-agave-storage-eeb36c56b7"
+source_record: "agave-2025-08-07-agave-storage-eeb36c56b7.yaml"
+project: "agave"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "resource-exhaustion-hardening"
+expected_missing_property: "allocation-bound-by-concrete-input"
+expected_trust_boundary: "snapshot-or-genesis-archive->node-filesystem"
+expected_entrypoint_type: "archive-unpack-path"
+expected_sensitive_sink: "temporary unpack write-buffer allocation"
+
+expected_impact_band: "resource hardening"
+expected_severity_band: "low"
+expected_primary_impacts:
+  - "resource-exhaustion"
+  - "node-availability"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+positive_detection_motifs:
+  - "archive unpack buffer from apparent unpacked size limit"
+  - "minimum write buffer allocation for small archive"
+  - "allocation ignores input archive metadata length"
+  - "min(input_size, limit) missing in decompression path"
+false_positive_cautions:
+  - "Performance-oriented buffer tuning should not be treated as security without an untrusted archive source or resource impact."
+  - "Do not infer decompression bomb exposure unless expansion limits are missing too."
+notes:
+  - "Enriched eval target from the Agave validated-findings kept corpus import."
+  - "Temporary buffers for untrusted or semi-trusted archive unpacking should be bounded by concrete input size and configured limits, not by a larger abstract output limit alone."

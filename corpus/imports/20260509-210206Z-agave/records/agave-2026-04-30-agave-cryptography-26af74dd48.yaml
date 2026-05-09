@@ -1,0 +1,61 @@
+id: "agave-2026-04-30-agave-cryptography-26af74dd48"
+source_finding: "2026-04-30-agave-cryptography-26af74dd48.md"
+project: "agave"
+date: "2026-04-30"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-protocol-validation"
+subsystem: "cryptography"
+architecture_tags:
+  - "validator-based"
+  - "ledger"
+  - "erasure-recovery"
+  - "consensus-protocol"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "consistent-recovered-data-validation"
+violated_invariant: "Data recovered through erasure or repair paths must satisfy the same protocol validity rules as directly received consensus data before ledger insertion."
+trust_boundary: "erasure-recovered-shred->blockstore"
+entrypoint_type: "ledger-recovery-path"
+sensitive_sink: "recovered shred acceptance and blockstore insertion"
+
+attacker_capabilities:
+  - "Influence shred sets used for recovery or produce data that yields recovered shreds with unexpected metadata."
+  - "Exploit differences between direct receive validation and recovered-data validation."
+exploit_preconditions:
+  - "Recovered shreds follow a separate path that omits feature-gated data-complete flag validation."
+  - "The recovered shred can be inserted or considered before the same rule is applied."
+blast_radius: "ledger-consensus-data"
+
+impact_types:
+  - "consensus-integrity"
+  - "ledger-integrity"
+  - "malformed-data-rejection"
+severity_guess: "medium"
+severity_rationale: "Recovered shreds are consensus-sensitive ledger data; inconsistent validation can matter, but no exploit, signature bypass, or state-corruption scenario was proven."
+
+code_shape_summary: "The ledger recovery path constructs or inserts recovered shreds through a separate code path that may not apply the current protocol rule for unexpected data-complete flags."
+search_motifs:
+  - "recovered shreds bypass direct validation rule"
+  - "data_complete flag not checked after Reed Solomon recovery"
+  - "ShredRecoveryContext missing from blockstore insertion"
+  - "feature gated shred validation absent in recovery path"
+negative_signals:
+  - "Recovered shreds are re-run through the exact same validator as received shreds before use."
+  - "The unexpected flag cannot be attacker-influenced or cannot survive recovery."
+  - "The change only adds test coverage without altering recovery handling."
+patch_pattern: "Route recovered shreds through protocol-aware recovery context and add regression coverage that feature-gated invalid recovered data shreds are discarded."
+
+source_refs:
+  - "/testing/agave/validated-findings/kept/2026-04-30-agave-cryptography-26af74dd48.md"
+notes:
+  - "Enriched from validated phase 4 finding in the prepared Agave corpus import."
+  - "Treat as confirmed only when the validation verdict and source evidence prove exploitability; most entries here are hardening exemplars."

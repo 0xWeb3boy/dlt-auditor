@@ -1,0 +1,32 @@
+id: "agave-2026-04-30-agave-cryptography-26af74dd48"
+source_record: "agave-2026-04-30-agave-cryptography-26af74dd48.yaml"
+project: "agave"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "consensus-protocol-validation"
+expected_missing_property: "consistent-recovered-data-validation"
+expected_trust_boundary: "erasure-recovered-shred->blockstore"
+expected_entrypoint_type: "ledger-recovery-path"
+expected_sensitive_sink: "recovered shred acceptance and blockstore insertion"
+
+expected_impact_band: "consensus data validation hardening"
+expected_severity_band: "medium"
+expected_primary_impacts:
+  - "consensus-integrity"
+  - "ledger-integrity"
+  - "malformed-data-rejection"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+positive_detection_motifs:
+  - "recovered shreds bypass direct validation rule"
+  - "data_complete flag not checked after Reed Solomon recovery"
+  - "ShredRecoveryContext missing from blockstore insertion"
+  - "feature gated shred validation absent in recovery path"
+false_positive_cautions:
+  - "Do not treat all recovery refactors as security; the key signal is inconsistent validation across ingress paths."
+  - "Do not claim signature bypass unless the recovered data can evade cryptographic shred checks."
+notes:
+  - "Enriched eval target from the Agave validated-findings kept corpus import."
+  - "Data recovered through erasure or repair paths must satisfy the same protocol validity rules as directly received consensus data before ledger insertion."

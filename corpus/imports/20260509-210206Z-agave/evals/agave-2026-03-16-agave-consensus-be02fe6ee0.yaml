@@ -1,0 +1,32 @@
+id: "agave-2026-03-16-agave-consensus-be02fe6ee0"
+source_record: "agave-2026-03-16-agave-consensus-be02fe6ee0.yaml"
+project: "agave"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "consensus-validation-failure-masking"
+expected_missing_property: "conjunctive-error-propagation"
+expected_trust_boundary: "block-replay-and-verification-results->dead-slot-decision"
+expected_entrypoint_type: "consensus-replay-completion"
+expected_sensitive_sink: "dead-slot marking and replay-stage failure handling"
+
+expected_impact_band: "consensus validation hardening"
+expected_severity_band: "medium"
+expected_primary_impacts:
+  - "consensus-integrity"
+  - "fork-choice-integrity"
+  - "invalid-slot-processing"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+positive_detection_motifs:
+  - "Result::or used to combine validation results"
+  - "replay result and verify result require both success"
+  - "dead slot marking skipped when one async task succeeds"
+  - "validation error masking in consensus pipeline"
+false_positive_cautions:
+  - "Not every Result::or is wrong; flag only when both validations must succeed."
+  - "Avoid claiming finality compromise without evidence that the masked error reaches voting or rooting."
+notes:
+  - "Enriched eval target from the Agave validated-findings kept corpus import."
+  - "When two independent validation tasks guard the same consensus decision, success should require both to succeed and failure from either task must remain visible."

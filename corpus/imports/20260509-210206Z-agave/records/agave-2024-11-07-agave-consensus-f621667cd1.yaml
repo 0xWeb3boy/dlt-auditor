@@ -1,0 +1,61 @@
+id: "agave-2024-11-07-agave-consensus-f621667cd1"
+source_finding: "2024-11-07-agave-consensus-f621667cd1.md"
+project: "agave"
+date: "2024-11-07"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "unauthenticated-constructor-exposure"
+subsystem: "consensus"
+architecture_tags:
+  - "validator-based"
+  - "p2p-gossip"
+  - "signed-metadata"
+  - "internal-api"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "authenticated-construction"
+violated_invariant: "Production constructors for signed network metadata should require signing material or otherwise make unsigned construction impossible outside tests."
+trust_boundary: "local-producer-api->p2p-gossip-state"
+entrypoint_type: "internal-constructor"
+sensitive_sink: "CRDS gossip value creation and insertion"
+
+attacker_capabilities:
+  - "Influence or introduce production code paths that construct gossip metadata through exposed constructors."
+  - "Supply or route unsigned metadata if another production path accepts constructor output without signing."
+exploit_preconditions:
+  - "Unsigned construction is available outside test code."
+  - "Downstream insertion or broadcast assumes constructor output is already authenticated."
+blast_radius: "node-local-to-gossip-network-metadata"
+
+impact_types:
+  - "metadata-authenticity"
+  - "p2p-integrity"
+  - "consensus-metadata-integrity"
+severity_guess: "low"
+severity_rationale: "The patch removes an unsafe construction footgun in a signed gossip type, but the evidence did not show a production misuse or remote acceptance bypass."
+
+code_shape_summary: "A signed gossip value type exposed both signed and unsigned constructors in production, leaving the authenticity invariant to caller discipline instead of the type interface."
+search_motifs:
+  - "public new_unsigned constructor on signed network message"
+  - "default signature value outside cfg(test)"
+  - "constructor for authenticated gossip value without keypair"
+  - "test helper exposed as production API"
+negative_signals:
+  - "Unsigned constructors are cfg(test), private, or impossible to call in production."
+  - "Every production insertion path independently signs or verifies before use."
+  - "The type is purely local test data and never crosses a network or consensus boundary."
+patch_pattern: "Make the signed constructor the public production path and restrict unsigned construction helpers to test-only/internal visibility."
+
+source_refs:
+  - "/testing/agave/validated-findings/kept/2024-11-07-agave-consensus-f621667cd1.md"
+notes:
+  - "Enriched from validated phase 4 finding in the prepared Agave corpus import."
+  - "Treat as confirmed only when the validation verdict and source evidence prove exploitability; most entries here are hardening exemplars."

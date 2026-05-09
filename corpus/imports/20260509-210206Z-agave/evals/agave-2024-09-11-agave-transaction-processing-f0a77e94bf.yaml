@@ -1,0 +1,32 @@
+id: "agave-2024-09-11-agave-transaction-processing-f0a77e94bf"
+source_record: "agave-2024-09-11-agave-transaction-processing-f0a77e94bf.yaml"
+project: "agave"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "durable-nonce-consumption"
+expected_missing_property: "nonce-consumption-on-rollback"
+expected_trust_boundary: "user-transaction->banking-stage"
+expected_entrypoint_type: "transaction-handler"
+expected_sensitive_sink: "durable nonce account rollback state and transaction age fallback"
+
+expected_impact_band: "localized replay-protection failure"
+expected_severity_band: "medium"
+expected_primary_impacts:
+  - "replay-protection"
+  - "state-integrity"
+  - "fee-accounting"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+positive_detection_motifs:
+  - "durable nonce rollback account preserves old nonce data"
+  - "fee-only transaction with nonce account also acting as fee payer"
+  - "check transaction age fallback separates nonce check from nonce advance"
+  - "rollback combines fee lamports with stale nonce state"
+false_positive_cautions:
+  - "Do not classify ordinary nonce refactors as security unless rollback or fee-only handling can preserve stale nonce state."
+  - "Do not infer signature bypass or fund theft without an end-to-end replay or authorization proof."
+notes:
+  - "Enriched eval target from the Agave validated-findings kept corpus import."
+  - "A replay-protection nonce that has entered fee-paying transaction handling must remain consumed even if execution rolls back or only fees are charged."

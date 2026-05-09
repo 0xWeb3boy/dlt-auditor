@@ -1,0 +1,60 @@
+id: "agave-2025-03-10-agave-cryptography-b30fb49ad2"
+source_finding: "2025-03-10-agave-cryptography-b30fb49ad2.md"
+project: "agave"
+date: "2025-03-10"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "panic-on-invalid-transaction"
+subsystem: "cryptography"
+architecture_tags:
+  - "validator-based"
+  - "mempool"
+  - "transaction-buffer"
+  - "availability"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "post-removal-control-flow"
+violated_invariant: "After invalid untrusted work is removed from an indexed container, the same iteration must not continue into code that assumes the removed item still exists."
+trust_boundary: "network-transaction->banking-stage-buffer"
+entrypoint_type: "transaction-ingress-buffer"
+sensitive_sink: "transaction container lookup guarded by panic-on-missing expect"
+
+attacker_capabilities:
+  - "Submit malformed, expired, or otherwise invalid transaction packets."
+  - "Trigger buffering paths that remove a transaction before later per-item processing completes."
+exploit_preconditions:
+  - "The receive-and-buffer loop removes the current transaction id."
+  - "Subsequent code in the same iteration performs an infallible lookup or expect on that id."
+blast_radius: "validator-local"
+
+impact_types:
+  - "denial-of-service"
+  - "node-availability"
+severity_guess: "medium"
+severity_rationale: "A panic in transaction ingress can affect validator availability, but the evidence did not prove process-wide termination or network-wide denial of service."
+
+code_shape_summary: "A packet buffering loop deletes invalid entries from an id-indexed transaction container, then falls through to later code that treats the deleted id as present."
+search_motifs:
+  - "remove_by_id followed by expect transaction must exist"
+  - "invalid transaction removed without continue"
+  - "expired blockhash branch deletes current item then dereferences it"
+  - "container deletion and same-loop infallible lookup"
+negative_signals:
+  - "The lookup after removal is optional and handled without panic."
+  - "The code always continues or returns immediately after deleting the current item."
+  - "The removed item is not attacker-influenced or the path is test-only."
+patch_pattern: "Add immediate continue/return after removing invalid items so later processing cannot dereference removed container entries."
+
+source_refs:
+  - "/testing/agave/validated-findings/kept/2025-03-10-agave-cryptography-b30fb49ad2.md"
+notes:
+  - "Enriched from validated phase 4 finding in the prepared Agave corpus import."
+  - "Treat as confirmed only when the validation verdict and source evidence prove exploitability; most entries here are hardening exemplars."

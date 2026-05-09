@@ -1,0 +1,32 @@
+id: "agave-2026-04-08-agave-consensus-9021f430fb"
+source_record: "agave-2026-04-08-agave-consensus-9021f430fb.yaml"
+project: "agave"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "resource-exhaustion-hardening"
+expected_missing_property: "in-flight-capacity-accounting"
+expected_trust_boundary: "network-packet->sigverify-pipeline"
+expected_entrypoint_type: "packet-verification-queue"
+expected_sensitive_sink: "sigverify verifier capacity and forwarding pipeline"
+
+expected_impact_band: "remote availability hardening"
+expected_severity_band: "medium"
+expected_primary_impacts:
+  - "denial-of-service"
+  - "resource-exhaustion"
+  - "node-availability"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+positive_detection_motifs:
+  - "sigverify in_flight_count leak"
+  - "drop packets when verifier capacity reached"
+  - "async verifier capacity not checked before receive"
+  - "in-flight counter not decremented on send path"
+false_positive_cautions:
+  - "Capacity metrics alone are not a vulnerability unless they gate real work."
+  - "Do not claim invalid-signature acceptance from packet-dropping/backpressure changes."
+notes:
+  - "Enriched eval target from the Agave validated-findings kept corpus import."
+  - "Asynchronous verification pipelines must account for in-flight work and drop or backpressure new untrusted packets before capacity is exceeded."

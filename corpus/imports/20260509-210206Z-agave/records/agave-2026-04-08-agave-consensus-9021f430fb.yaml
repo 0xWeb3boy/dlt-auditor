@@ -1,0 +1,61 @@
+id: "agave-2026-04-08-agave-consensus-9021f430fb"
+source_finding: "2026-04-08-agave-consensus-9021f430fb.md"
+project: "agave"
+date: "2026-04-08"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "resource-exhaustion-hardening"
+subsystem: "consensus"
+architecture_tags:
+  - "validator-based"
+  - "sigverify"
+  - "backpressure"
+  - "resource-limits"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "in-flight-capacity-accounting"
+violated_invariant: "Asynchronous verification pipelines must account for in-flight work and drop or backpressure new untrusted packets before capacity is exceeded."
+trust_boundary: "network-packet->sigverify-pipeline"
+entrypoint_type: "packet-verification-queue"
+sensitive_sink: "sigverify verifier capacity and forwarding pipeline"
+
+attacker_capabilities:
+  - "Flood transaction packets toward the verifier pipeline."
+  - "Exploit accounting gaps where work is accepted without consuming or releasing in-flight capacity correctly."
+exploit_preconditions:
+  - "The verifier accepts packets while in-flight count is at or above capacity."
+  - "In-flight accounting can leak or fail to decrement around async send/verify completion."
+blast_radius: "validator-local"
+
+impact_types:
+  - "denial-of-service"
+  - "resource-exhaustion"
+  - "node-availability"
+severity_guess: "medium"
+severity_rationale: "Sigverify is remotely fed and resource-sensitive, but the evidence did not show an actual validator crash, exhaustion reproduction, or consensus impact."
+
+code_shape_summary: "A packet verification service accepts asynchronous work without a single shared in-flight counter that is checked before enqueueing and updated across verify/send completion."
+search_motifs:
+  - "sigverify in_flight_count leak"
+  - "drop packets when verifier capacity reached"
+  - "async verifier capacity not checked before receive"
+  - "in-flight counter not decremented on send path"
+negative_signals:
+  - "The queue is bounded and enforces backpressure before allocation or verification work."
+  - "In-flight accounting is purely metrics and not an admission decision."
+  - "The input source is trusted or rate-limited elsewhere."
+patch_pattern: "Introduce shared in-flight accounting, check capacity before accepting new packets, drop over-capacity packets, and count those drops for observability."
+
+source_refs:
+  - "/testing/agave/validated-findings/kept/2026-04-08-agave-consensus-9021f430fb.md"
+notes:
+  - "Enriched from validated phase 4 finding in the prepared Agave corpus import."
+  - "Treat as confirmed only when the validation verdict and source evidence prove exploitability; most entries here are hardening exemplars."

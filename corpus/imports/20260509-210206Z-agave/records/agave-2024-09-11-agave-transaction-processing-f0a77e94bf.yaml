@@ -1,0 +1,61 @@
+id: "agave-2024-09-11-agave-transaction-processing-f0a77e94bf"
+source_finding: "2024-09-11-agave-transaction-processing-f0a77e94bf.md"
+project: "agave"
+date: "2024-09-11"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "durable-nonce-consumption"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "validator-based"
+  - "account-based-state"
+  - "transaction-pipeline"
+  - "durable-nonce"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "nonce-consumption-on-rollback"
+violated_invariant: "A replay-protection nonce that has entered fee-paying transaction handling must remain consumed even if execution rolls back or only fees are charged."
+trust_boundary: "user-transaction->banking-stage"
+entrypoint_type: "transaction-handler"
+sensitive_sink: "durable nonce account rollback state and transaction age fallback"
+
+attacker_capabilities:
+  - "Submit durable-nonce transactions that fail after fee charging or enter a fee-only path."
+  - "Choose transactions where the nonce account and fee payer interactions exercise rollback construction."
+exploit_preconditions:
+  - "The implementation advances or checks nonce state before a later rollback path constructs account state."
+  - "Rollback can restore nonce account data independently from fee/rent side effects."
+blast_radius: "validator-local-to-chain-wide-replay-protection"
+
+impact_types:
+  - "replay-protection"
+  - "state-integrity"
+  - "fee-accounting"
+severity_guess: "medium"
+severity_rationale: "Nonce reuse can undermine replay protection for affected durable-nonce transactions, but the source evidence did not prove successful production replay, fund theft, or consensus divergence."
+
+code_shape_summary: "A durable-nonce path checks transaction age and charges fees, then uses rollback account construction that can accidentally restore pre-advance nonce data for failed or fee-only transactions."
+search_motifs:
+  - "durable nonce rollback account preserves old nonce data"
+  - "fee-only transaction with nonce account also acting as fee payer"
+  - "check transaction age fallback separates nonce check from nonce advance"
+  - "rollback combines fee lamports with stale nonce state"
+negative_signals:
+  - "Nonce advancement is persisted before any rollback state is captured."
+  - "A later mandatory nonce-state check rejects reuse before execution."
+  - "The changed code only alters tests or metrics without touching rollback state."
+patch_pattern: "Move nonce advancement into the fallback/fee-paying path and ensure rollback copies the already-advanced nonce data when reconstructing accounts."
+
+source_refs:
+  - "/testing/agave/validated-findings/kept/2024-09-11-agave-transaction-processing-f0a77e94bf.md"
+notes:
+  - "Enriched from validated phase 4 finding in the prepared Agave corpus import."
+  - "Treat as confirmed only when the validation verdict and source evidence prove exploitability; most entries here are hardening exemplars."

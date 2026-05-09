@@ -30,6 +30,7 @@ Search patterns:
 - fixed-capacity local buffers that are never compared against peer-declared, parsed, decompressed, or negotiated frame size before the state machine waits for progress
 - helper contracts documented in comments, headers, type wrappers, or surrounding checks that are stronger than the checks enforced at call sites
 - callers that validate only logical element count while the callee consumes bytes, alignment, sentinel space, transcript capacity, or serialized length
+- fixed arrays, bitsets, filters, or caches indexed by attacker-controlled parser fields where the parser's accepted numeric domain is wider than the helper storage. Bounds must be format-specific and enforced before indexing, not inferred from a different transaction, message, or protocol version.
 - fallback or error paths that return partially initialized bytes, stale stack content, or environment-shaped diagnostics to a protocol-visible sink
 
 Questions to answer:

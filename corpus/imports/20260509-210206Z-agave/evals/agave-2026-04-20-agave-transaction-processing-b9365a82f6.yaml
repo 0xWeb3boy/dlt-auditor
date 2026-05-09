@@ -1,0 +1,31 @@
+id: "agave-2026-04-20-agave-transaction-processing-b9365a82f6"
+source_record: "agave-2026-04-20-agave-transaction-processing-b9365a82f6.yaml"
+project: "agave"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "transaction-sanitization-hardening"
+expected_missing_property: "complete-transaction-structure-sanitization"
+expected_trust_boundary: "serialized-transaction->transaction-view"
+expected_entrypoint_type: "transaction-sanitizer"
+expected_sensitive_sink: "sanitized transaction view exposed to downstream execution and verification"
+
+expected_impact_band: "transaction validation hardening"
+expected_severity_band: "low_or_medium"
+expected_primary_impacts:
+  - "malformed-transaction-rejection"
+  - "validation-hardening"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+positive_detection_motifs:
+  - "sanitized transaction view missing duplicate address check"
+  - "signature count mismatch not rejected at sanitize boundary"
+  - "version-specific transaction size limit absent"
+  - "heap size config not checked during transaction sanitize"
+false_positive_cautions:
+  - "Sanitizer centralization may be correctness cleanup unless a pre-fix malformed input is accepted."
+  - "Do not claim signature bypass or consensus split without a concrete malformed transaction path."
+notes:
+  - "Enriched eval target from the Agave validated-findings kept corpus import."
+  - "A transaction view should be rejected at the sanitize boundary if size, signature counts, account limits, duplicate addresses, header fields, or config fields violate protocol bounds."

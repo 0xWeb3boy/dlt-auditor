@@ -1,0 +1,61 @@
+id: "agave-2025-10-15-agave-p2p-networking-589d58b07f"
+source_finding: "2025-10-15-agave-p2p-networking-589d58b07f.md"
+project: "agave"
+date: "2025-10-15"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "connection-rate-limit-hardening"
+subsystem: "p2p-networking"
+architecture_tags:
+  - "validator-based"
+  - "p2p"
+  - "quic"
+  - "rate-limiting"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "admission-token-consumption"
+violated_invariant: "Every accepted remote connection attempt should consume the appropriate global and per-peer admission budget before expensive work continues."
+trust_boundary: "remote-peer->quic-listener"
+entrypoint_type: "p2p-connection-admission"
+sensitive_sink: "QUIC connection registration and token-bucket rate limiter"
+
+attacker_capabilities:
+  - "Open many QUIC connection attempts from one or more IP addresses."
+  - "Time connection attempts around admission checks that do not consume quota."
+exploit_preconditions:
+  - "The limiter exposes a non-consuming allowed check in an admission path."
+  - "Expensive connection processing continues before global or per-IP tokens are consumed."
+blast_radius: "validator-local"
+
+impact_types:
+  - "denial-of-service"
+  - "resource-exhaustion"
+  - "p2p-availability"
+severity_guess: "medium"
+severity_rationale: "Remote connection admission is an availability boundary; token-accounting bugs can amplify load, but no concrete DoS reproduction or resource measurements were provided."
+
+code_shape_summary: "A QUIC ingress path checks whether requests are allowed but does not consistently consume token-bucket capacity at the point where connection work proceeds."
+search_motifs:
+  - "is_allowed used instead of consume_tokens in admission path"
+  - "global request limiter checked after expensive connection setup"
+  - "per IP register connection does not consume token"
+  - "token bucket ordering around handshake"
+negative_signals:
+  - "The allowance check is only advisory and a later mandatory consume gate precedes all expensive work."
+  - "Lower transport layers already enforce the same per-peer budget."
+  - "The path is not remotely reachable."
+patch_pattern: "Replace non-consuming allowance checks with explicit token consumption and add early global request-budget gates before continuing connection handling."
+
+source_refs:
+  - "/testing/agave/validated-findings/kept/2025-10-15-agave-p2p-networking-589d58b07f.md"
+notes:
+  - "Enriched from validated phase 4 finding in the prepared Agave corpus import."
+  - "Treat as confirmed only when the validation verdict and source evidence prove exploitability; most entries here are hardening exemplars."

@@ -44,6 +44,8 @@ Search patterns:
 - rollback paths in authenticated or persisted state that restore a nearby object but not the exact mutated coordinate
 - invalid, syncing, timeout, empty-response, and already-known states that update state in one path but not the analogous path
 - paths that validate authority, reserve state, or prepared state early but persist the authoritative result only on success, leaving failure, replay, or abort paths with stale lifecycle, nonce, or replay state
+- replay-protection coordinates such as nonces, sequences, tickets, reservations, or pending vote markers that are advanced, reserved, or consumed before a transaction or message is fully successful. Compare fee-only, failed, aborted, rollback, retry, and replay paths; preserving fees or other side effects while restoring the old replay coordinate is high signal.
+- early construction of execution-state objects from mutable accounts, registry entries, epoch authority maps, or lifecycle-controlled state. If the object can change before execution or dequeue, reload and revalidate it at the sink rather than trusting the admission-time object.
 - parent operations that queue or spawn protocol-generated child work, where failure or filtering of the child should rewind the parent group but the code only drops the child result
 - round, epoch, or session scoped privileged work queues where enqueue, wake-up, dequeue, and replay use different freshness or authorization sources
 - startup, constructor, and background-maintenance paths that initialize security-sensitive loops from persisted state. Oversized, stale, impossible, or fork-incompatible persisted values should be sanitized or rejected before they drive reorg, milestone, sync, verifier, or peer-churn decisions

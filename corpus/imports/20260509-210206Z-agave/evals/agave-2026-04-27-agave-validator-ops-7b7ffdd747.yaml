@@ -1,0 +1,32 @@
+id: "agave-2026-04-27-agave-validator-ops-7b7ffdd747"
+source_record: "agave-2026-04-27-agave-validator-ops-7b7ffdd747.yaml"
+project: "agave"
+
+expected_bug_family: "signature_binding_and_signer_scope"
+expected_bug_class: "cli-validator-info-signer-check"
+expected_missing_property: "signer-bit-propagation"
+expected_trust_boundary: "on-chain-metadata-or-rpc-response->operator-cli"
+expected_entrypoint_type: "cli-metadata-scan"
+expected_sensitive_sink: "validator-info display and publish metadata selection"
+
+expected_impact_band: "operator metadata authenticity"
+expected_severity_band: "low"
+expected_primary_impacts:
+  - "metadata-authenticity"
+  - "operator-misleading"
+  - "cli-availability"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+positive_detection_motifs:
+  - "parse validator info returns pubkey without signer flag"
+  - "publish path matches existing metadata without requiring signer true"
+  - "validator info account scan unwraps malformed data"
+  - "CLI display trusts unsigned metadata record"
+false_positive_cautions:
+  - "CLI-only authenticity fixes are usually low severity unless they affect automated operations."
+  - "Do not infer validator takeover or protocol authorization bypass from metadata display hardening."
+notes:
+  - "Enriched eval target from the Agave validated-findings kept corpus import."
+  - "Tools that select or trust identity metadata must carry signer/authenticity bits from parsing into the downstream decision, and malformed records must be rejected without panics."

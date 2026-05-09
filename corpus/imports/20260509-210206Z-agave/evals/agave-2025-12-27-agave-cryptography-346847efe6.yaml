@@ -1,0 +1,32 @@
+id: "agave-2025-12-27-agave-cryptography-346847efe6"
+source_record: "agave-2025-12-27-agave-cryptography-346847efe6.yaml"
+project: "agave"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "nonce-state-validation-timing"
+expected_missing_property: "fresh-state-revalidation"
+expected_trust_boundary: "signed-transaction->svm-execution"
+expected_entrypoint_type: "transaction-state-transition"
+expected_sensitive_sink: "durable nonce execution state acceptance"
+
+expected_impact_band: "replay-sensitive state hardening"
+expected_severity_band: "medium"
+expected_primary_impacts:
+  - "replay-protection"
+  - "state-integrity"
+  - "unauthorized-action"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+positive_detection_motifs:
+  - "durable nonce authority checked before execution and not reloaded"
+  - "NonceInfo constructed during transaction age check"
+  - "closed reopened spoofed nonce account comment"
+  - "mutable account state validated too early"
+false_positive_cautions:
+  - "Moving validation later is not enough for a finding unless mutable state can become stale."
+  - "Do not infer cryptographic primitive failure from nonce-state authorization timing."
+notes:
+  - "Enriched eval target from the Agave validated-findings kept corpus import."
+  - "Mutable replay-protection state and its authority must be reloaded and validated at the execution boundary, not only at an earlier preflight or age-check boundary."

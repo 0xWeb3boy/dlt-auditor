@@ -68,6 +68,8 @@ Search patterns:
 - EVM/native adapters where an allowed proxy or delegated caller can indirectly reach smart contracts, generic dispatch, governance, staking, or value-transfer sinks that the native proxy type would not allow.
 - alternate entrypoints that call keepers, managers, or storage helpers directly instead of constructing the canonical message object and using the same validation or dispatch path as native transactions
 - committee or signer systems where "is a member" is weaker than "is the coordinator", "is the proposer", "is the aggregator", "is the selected signer", or "is the owner for this exact round and message". Check command execution, queue dequeue, retry, and replay paths for the same role predicate.
+- consensus, staking, vote, committee, or attestation buffers that first check broad eligibility such as account existence, stake presence, membership, or syntactic signature validity, then mutate latest-state, cached vote state, scheduling state, or fork-choice inputs before checking the exact active signer or role for the current epoch, round, view, or authority map.
+- parsers for identity or metadata records that produce both content and authenticity evidence, such as signer-present, owner-verified, proof-verified, or source-verified flags. Verify the downstream display, publish, update, reuse, or selection decision consumes the authenticity flag and does not trust only the parsed identity.
 
 Questions to answer:
 1. Who is supposed to be allowed to call this path?

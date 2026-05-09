@@ -1,0 +1,31 @@
+id: "agave-2026-04-01-agave-transaction-processing-7796a7bca1"
+source_record: "agave-2026-04-01-agave-transaction-processing-7796a7bca1.yaml"
+project: "agave"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "malformed-transaction-rejection"
+expected_missing_property: "canonical-parse-before-verification"
+expected_trust_boundary: "network-packet->signature-verification"
+expected_entrypoint_type: "transaction-packet-verification"
+expected_sensitive_sink: "sigverify packet acceptance and forwarding"
+
+expected_impact_band: "transaction validation hardening"
+expected_severity_band: "low_or_medium"
+expected_primary_impacts:
+  - "malformed-transaction-rejection"
+  - "validation-hardening"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+positive_detection_motifs:
+  - "manual transaction offsets in sigverify"
+  - "verify_packet without sanitized transaction view"
+  - "unsupported message version accepted by parser"
+  - "invalid pubkey length reaches signature path"
+false_positive_cautions:
+  - "Parser unification is security-relevant only when the old parser handled untrusted bytes."
+  - "Do not infer signature forgery unless malformed packets bypass cryptographic checks."
+notes:
+  - "Enriched eval target from the Agave validated-findings kept corpus import."
+  - "Untrusted transaction packets should pass canonical structural sanitization before signature-verification code trusts offsets, versions, or account lengths."

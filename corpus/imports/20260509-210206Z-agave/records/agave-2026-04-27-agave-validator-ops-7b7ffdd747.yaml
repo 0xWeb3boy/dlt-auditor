@@ -1,0 +1,61 @@
+id: "agave-2026-04-27-agave-validator-ops-7b7ffdd747"
+source_finding: "2026-04-27-agave-validator-ops-7b7ffdd747.md"
+project: "agave"
+date: "2026-04-27"
+language_tags:
+  - "rust"
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "cli-validator-info-signer-check"
+subsystem: "validator-ops"
+architecture_tags:
+  - "validator-based"
+  - "cli"
+  - "metadata"
+  - "signer-scope"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "signer-bit-propagation"
+violated_invariant: "Tools that select or trust identity metadata must carry signer/authenticity bits from parsing into the downstream decision, and malformed records must be rejected without panics."
+trust_boundary: "on-chain-metadata-or-rpc-response->operator-cli"
+entrypoint_type: "cli-metadata-scan"
+sensitive_sink: "validator-info display and publish metadata selection"
+
+attacker_capabilities:
+  - "Create unsigned or malformed validator-info-like records that appear during CLI scans."
+  - "Influence operator-visible metadata by relying on parsing paths that drop signer information."
+exploit_preconditions:
+  - "The CLI treats parsed metadata as existing validator-owned metadata without checking the signer bit."
+  - "Malformed account data is scanned with unwrap/error behavior."
+blast_radius: "operator-local"
+
+impact_types:
+  - "metadata-authenticity"
+  - "operator-misleading"
+  - "cli-availability"
+severity_guess: "low"
+severity_rationale: "The issue affects CLI trust and robustness around validator metadata, with no proven protocol-state, fund, consensus, or takeover impact."
+
+code_shape_summary: "A CLI parser extracts validator metadata but drops whether the validator pubkey actually signed, then selection/display logic treats unsigned or malformed records like trusted entries."
+search_motifs:
+  - "parse validator info returns pubkey without signer flag"
+  - "publish path matches existing metadata without requiring signer true"
+  - "validator info account scan unwraps malformed data"
+  - "CLI display trusts unsigned metadata record"
+negative_signals:
+  - "The signer bit is checked before any metadata is displayed, selected, or reused."
+  - "The data is explicitly labeled unauthenticated and used only for diagnostics."
+  - "On-chain transaction authorization, not CLI parsing, is the only security boundary in question."
+patch_pattern: "Return signer/authenticity metadata from parsing, require it in publish/get selection logic, and convert malformed account parsing to graceful rejection."
+
+source_refs:
+  - "/testing/agave/validated-findings/kept/2026-04-27-agave-validator-ops-7b7ffdd747.md"
+notes:
+  - "Enriched from validated phase 4 finding in the prepared Agave corpus import."
+  - "Treat as confirmed only when the validation verdict and source evidence prove exploitability; most entries here are hardening exemplars."

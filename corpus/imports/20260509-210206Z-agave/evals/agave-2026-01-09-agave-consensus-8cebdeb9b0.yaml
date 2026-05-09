@@ -1,0 +1,32 @@
+id: "agave-2026-01-09-agave-consensus-8cebdeb9b0"
+source_record: "agave-2026-01-09-agave-consensus-8cebdeb9b0.yaml"
+project: "agave"
+
+expected_bug_family: "authz_and_role_gates"
+expected_bug_class: "improper-vote-authorization-filtering"
+expected_missing_property: "current-epoch-vote-authorization"
+expected_trust_boundary: "validator-or-peer-vote-packet->consensus-vote-storage"
+expected_entrypoint_type: "consensus-vote-ingestion"
+expected_sensitive_sink: "latest vote state update in vote storage"
+
+expected_impact_band: "consensus authorization failure"
+expected_severity_band: "medium_or_high"
+expected_primary_impacts:
+  - "consensus-integrity"
+  - "vote-state-integrity"
+  - "unauthorized-action"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+positive_detection_motifs:
+  - "update_latest_vote before authorized voter check"
+  - "stake presence checked without epoch_authorized_voters lookup"
+  - "vote packet signer not compared to authorized voter"
+  - "insert batch with replenish accepts unauthorized vote"
+false_positive_cautions:
+  - "Do not flag vote parsing changes unless authorization is checked before state mutation."
+  - "Distinguish stake-account existence from authorized-voter signer validation."
+notes:
+  - "Enriched eval target from the Agave validated-findings kept corpus import."
+  - "Consensus vote buffering must verify that a vote is signed by the current authorized voter for the vote account before mutating latest-vote state."

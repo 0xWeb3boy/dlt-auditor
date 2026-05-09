@@ -134,6 +134,8 @@ Your task:
   - duplicate guards,
   - insertion, forwarding, and execution-scheduling points,
   - cleanup, expiry, or garbage-collection policy.
+18a. For every replay-sensitive coordinate such as nonce, sequence, ticket, reservation, vote freshness, or local pending state, build a lifecycle timeline across admission, fee/resource charging, execution, failure, rollback, replay, and cleanup. Identify where the coordinate is consumed or reserved, where it is reloaded from authoritative state, and which failure paths must preserve the consumed state instead of restoring the pre-admission value.
+18b. For every quota, token bucket, permit, in-flight counter, archive/decompression buffer, and worker-pool budget, map query, consume/reserve, release, drop, and error paths separately. Distinguish "is allowed" checks from checks that actually consume capacity, and note whether allocation formulas use concrete input size, declared output size, configured limits, or the minimum of those bounds.
 19. Map validator, committee, signer, or trust-list material by namespace:
   - long-term identity keys, ephemeral signing keys, publisher keys, manifests, revocation caches, validator lists, committee lists, trust-list publishers, quorum or threshold policy, remote fetch policy, and p2p propagation.
   For each namespace, note:

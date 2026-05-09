@@ -1,0 +1,61 @@
+id: "agave-2026-03-16-agave-consensus-be02fe6ee0"
+source_finding: "2026-03-16-agave-consensus-be02fe6ee0.md"
+project: "agave"
+date: "2026-03-16"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-validation-failure-masking"
+subsystem: "consensus"
+architecture_tags:
+  - "validator-based"
+  - "consensus"
+  - "replay-stage"
+  - "async-validation"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "conjunctive-error-propagation"
+violated_invariant: "When two independent validation tasks guard the same consensus decision, success should require both to succeed and failure from either task must remain visible."
+trust_boundary: "block-replay-and-verification-results->dead-slot-decision"
+entrypoint_type: "consensus-replay-completion"
+sensitive_sink: "dead-slot marking and replay-stage failure handling"
+
+attacker_capabilities:
+  - "Deliver or influence blocks/slots that can make replay or verification fail independently."
+  - "Rely on one successful validation branch masking another branch failure."
+exploit_preconditions:
+  - "Independent replay and verification results are combined with disjunctive semantics."
+  - "The combined result controls dead-slot or failure-handling behavior."
+blast_radius: "validator-local-to-consensus-safety"
+
+impact_types:
+  - "consensus-integrity"
+  - "fork-choice-integrity"
+  - "invalid-slot-processing"
+severity_guess: "medium"
+severity_rationale: "Masking validation errors in replay-stage logic is consensus-sensitive, but no exploit, vote-safety bypass, or finalization impact was demonstrated."
+
+code_shape_summary: "Replay-stage completion combines two independent Result values with an OR-like operation, allowing success from one branch to hide failure from the other."
+search_motifs:
+  - "Result::or used to combine validation results"
+  - "replay result and verify result require both success"
+  - "dead slot marking skipped when one async task succeeds"
+  - "validation error masking in consensus pipeline"
+negative_signals:
+  - "The OR combines alternative equivalent checks where either success is intentionally sufficient."
+  - "Masked errors are used only for logging and cannot affect consensus decisions."
+  - "A separate mandatory check marks the slot dead on either failure."
+patch_pattern: "Replace disjunctive Result aggregation with conjunctive success semantics before consensus failure-handling decisions."
+
+source_refs:
+  - "/testing/agave/validated-findings/kept/2026-03-16-agave-consensus-be02fe6ee0.md"
+notes:
+  - "Enriched from validated phase 4 finding in the prepared Agave corpus import."
+  - "Treat as confirmed only when the validation verdict and source evidence prove exploitability; most entries here are hardening exemplars."

@@ -1,0 +1,32 @@
+id: "agave-2025-10-15-agave-p2p-networking-589d58b07f"
+source_record: "agave-2025-10-15-agave-p2p-networking-589d58b07f.yaml"
+project: "agave"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "connection-rate-limit-hardening"
+expected_missing_property: "admission-token-consumption"
+expected_trust_boundary: "remote-peer->quic-listener"
+expected_entrypoint_type: "p2p-connection-admission"
+expected_sensitive_sink: "QUIC connection registration and token-bucket rate limiter"
+
+expected_impact_band: "remote availability hardening"
+expected_severity_band: "medium"
+expected_primary_impacts:
+  - "denial-of-service"
+  - "resource-exhaustion"
+  - "p2p-availability"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+positive_detection_motifs:
+  - "is_allowed used instead of consume_tokens in admission path"
+  - "global request limiter checked after expensive connection setup"
+  - "per IP register connection does not consume token"
+  - "token bucket ordering around handshake"
+false_positive_cautions:
+  - "Rate-limit refactors are not security findings unless admission ordering or token consumption changes."
+  - "Do not claim bypass of authentication or consensus validation from connection accounting alone."
+notes:
+  - "Enriched eval target from the Agave validated-findings kept corpus import."
+  - "Every accepted remote connection attempt should consume the appropriate global and per-peer admission budget before expensive work continues."

@@ -1,0 +1,60 @@
+id: "agave-2026-04-20-agave-transaction-processing-b9365a82f6"
+source_finding: "2026-04-20-agave-transaction-processing-b9365a82f6.md"
+project: "agave"
+date: "2026-04-20"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "transaction-sanitization-hardening"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "validator-based"
+  - "transaction-parser"
+  - "sanitization"
+  - "versioned-transactions"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "complete-transaction-structure-sanitization"
+violated_invariant: "A transaction view should be rejected at the sanitize boundary if size, signature counts, account limits, duplicate addresses, header fields, or config fields violate protocol bounds."
+trust_boundary: "serialized-transaction->transaction-view"
+entrypoint_type: "transaction-sanitizer"
+sensitive_sink: "sanitized transaction view exposed to downstream execution and verification"
+
+attacker_capabilities:
+  - "Submit serialized transactions with malformed headers, duplicate accounts, bad signature counts, oversized payloads, or invalid config fields."
+  - "Target differences between transaction versions and their size/account limits."
+exploit_preconditions:
+  - "Malformed transaction views can be constructed before all structural invariants are checked."
+  - "Downstream code assumes the view has already been sanitized."
+blast_radius: "transaction-processing-boundary"
+
+impact_types:
+  - "malformed-transaction-rejection"
+  - "validation-hardening"
+severity_guess: "low"
+severity_rationale: "The patch strengthens a critical sanitizer, but the evidence did not prove a specific malformed transaction reached execution or caused consensus, fund, or availability impact."
+
+code_shape_summary: "Transaction-view sanitization is split or incomplete, leaving version-specific size limits, signature/account consistency, duplicate-address rejection, and config/header checks unevenly enforced."
+search_motifs:
+  - "sanitized transaction view missing duplicate address check"
+  - "signature count mismatch not rejected at sanitize boundary"
+  - "version-specific transaction size limit absent"
+  - "heap size config not checked during transaction sanitize"
+negative_signals:
+  - "A canonical sanitizer already enforces the same invariants before any downstream use."
+  - "The change only reorganizes comments or function order."
+  - "Malformed inputs are rejected by deserialization before a transaction view exists."
+patch_pattern: "Centralize sanitize flow and add explicit version-aware checks for size, signatures, accounts, duplicate addresses, headers, lookups, and config fields."
+
+source_refs:
+  - "/testing/agave/validated-findings/kept/2026-04-20-agave-transaction-processing-b9365a82f6.md"
+notes:
+  - "Enriched from validated phase 4 finding in the prepared Agave corpus import."
+  - "Treat as confirmed only when the validation verdict and source evidence prove exploitability; most entries here are hardening exemplars."

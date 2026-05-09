@@ -1,0 +1,31 @@
+id: "agave-2025-03-10-agave-cryptography-b30fb49ad2"
+source_record: "agave-2025-03-10-agave-cryptography-b30fb49ad2.yaml"
+project: "agave"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "panic-on-invalid-transaction"
+expected_missing_property: "post-removal-control-flow"
+expected_trust_boundary: "network-transaction->banking-stage-buffer"
+expected_entrypoint_type: "transaction-ingress-buffer"
+expected_sensitive_sink: "transaction container lookup guarded by panic-on-missing expect"
+
+expected_impact_band: "validator availability"
+expected_severity_band: "medium"
+expected_primary_impacts:
+  - "denial-of-service"
+  - "node-availability"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+positive_detection_motifs:
+  - "remove_by_id followed by expect transaction must exist"
+  - "invalid transaction removed without continue"
+  - "expired blockhash branch deletes current item then dereferences it"
+  - "container deletion and same-loop infallible lookup"
+false_positive_cautions:
+  - "A panic fix is not automatically exploitable unless untrusted input can reach it."
+  - "Do not classify as cryptographic failure merely because it occurs near transaction verification."
+notes:
+  - "Enriched eval target from the Agave validated-findings kept corpus import."
+  - "After invalid untrusted work is removed from an indexed container, the same iteration must not continue into code that assumes the removed item still exists."

@@ -1,0 +1,61 @@
+id: "agave-2026-05-07-agave-transaction-processing-775558cbef"
+source_finding: "2026-05-07-agave-transaction-processing-775558cbef.md"
+project: "agave"
+date: "2026-05-07"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "hardening-or-correctness-fix"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "validator-based"
+  - "transaction-parser"
+  - "bounds-checking"
+  - "versioned-transactions"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-hardening"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "format-specific-index-bounds"
+violated_invariant: "Transaction parsers and helper caches must enforce the maximum count and index domain for the specific transaction format before using attacker-controlled indexes."
+trust_boundary: "serialized-transaction->transaction-view-parser"
+entrypoint_type: "transaction-parser"
+sensitive_sink: "static account key frame and fixed-size program-id helper cache"
+
+attacker_capabilities:
+  - "Submit txv1 or versioned transaction bytes with edge-case account counts or program id indexes."
+  - "Target fixed arrays or helper filters indexed by u8-derived values."
+exploit_preconditions:
+  - "The parser accepts counts above the format-specific maximum."
+  - "Helper caches do not cover the full index domain that parsing accepts."
+blast_radius: "validator-local-transaction-ingress"
+
+impact_types:
+  - "malformed-transaction-rejection"
+  - "denial-of-service"
+  - "validation-hardening"
+severity_guess: "medium"
+severity_rationale: "The commit explicitly references an OOB condition in untrusted transaction parsing, but the evidence did not show whether the old behavior caused panic, memory unsafety, or execution impact."
+
+code_shape_summary: "A transaction parser validates static account counts against an ambiguous max and uses fixed helper arrays whose size may not match the full u8 program-id index domain."
+search_motifs:
+  - "txv1 OOB static account count"
+  - "MAX_STATIC_ACCOUNTS differs from format-specific packet max"
+  - "u8 program_id_index indexes fixed flags array"
+  - "FILTER_SIZE should cover 256 possible indexes"
+negative_signals:
+  - "The language/runtime bounds-checks every index and converts failures to clean parse errors."
+  - "The parser rejects out-of-range counts before helper arrays are accessed."
+  - "The changed constants only rename equivalent bounds."
+patch_pattern: "Use transaction-format-specific account-count limits and size fixed helper caches for the complete accepted index domain."
+
+source_refs:
+  - "/testing/agave/validated-findings/kept/2026-05-07-agave-transaction-processing-775558cbef.md"
+notes:
+  - "Enriched from validated phase 4 finding in the prepared Agave corpus import."
+  - "Treat as confirmed only when the validation verdict and source evidence prove exploitability; most entries here are hardening exemplars."
