@@ -1,0 +1,713 @@
+#!/usr/bin/env python3
+"""Scaffold a full max-depth blockchain/DLT audit run with an autonomous driver prompt."""
+
+from __future__ import annotations
+
+import argparse
+import datetime as dt
+import os
+import re
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+
+def slugify(value: str) -> str:
+    value = value.strip().lower()
+    value = re.sub(r"[^a-z0-9]+", "-", value)
+    value = re.sub(r"-+", "-", value).strip("-")
+    return value or "target"
+
+
+def run_git(args: list[str], cwd: Path) -> str | None:
+    try:
+        completed = subprocess.run(
+            ["git", *args],
+            cwd=cwd,
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            text=True,
+        )
+    except (OSError, subprocess.CalledProcessError):
+        return None
+    return completed.stdout.strip() or None
+
+
+def detect_target(target_arg: str | None, system_root: Path) -> Path:
+    if target_arg:
+        return Path(target_arg).expanduser().resolve()
+
+    cwd = Path.cwd().resolve()
+    if cwd == system_root or system_root in cwd.parents:
+        return system_root.parent.resolve()
+    return cwd
+
+
+def copy_template(src: Path, dst: Path, force: bool) -> None:
+    if dst.exists() and not force:
+        return
+    shutil.copyfile(src, dst)
+
+
+def build_prompt_header(title: str, target: Path, run_dir: Path) -> str:
+    return f"""# {title}
+
+Target repo: `{target}`
+Run directory: `{run_dir}`
+
+Work deeply. Prefer concrete file/function evidence over broad claims. Keep outputs structured, factual, and explicit about uncertainty.
+
+"""
+
+
+def build_diff_instructions(previous_ref: str | None, current_ref: str | None) -> str:
+    previous = previous_ref or "not provided"
+    current = current_ref or "not provided"
+    if previous_ref and current_ref:
+        baseline = (
+            f"Previous ref: `{previous_ref}`\n"
+            f"Current ref: `{current_ref}`\n\n"
+            "Run and inspect `git diff --stat {previous_ref}..{current_ref}`, "
+            "`git diff --name-only {previous_ref}..{current_ref}`, and targeted "
+            "file diffs for changed protocol, ledger, transaction, amendment, RPC, "
+            "p2p, storage, and test files."
+        ).format(previous_ref=previous_ref, current_ref=current_ref)
+    else:
+        baseline = (
+            f"Previous ref: `{previous}`\n"
+            f"Current ref: `{current}`\n\n"
+            "A complete previous/current ref pair was not provided. Search local "
+            "contest docs, README files, release notes, git tags, and branch names "
+            "for the intended comparison. If you cannot establish it, record "
+            "`Diff status: unavailable` with the reason and continue with a "
+            "full-repository review."
+        )
+
+    return f"""## Diff Awareness
+
+{baseline}
+
+Requirements:
+- Record the diff status in `repo-context.md` and `feature-coverage.md`.
+- Prioritize changed and newly reachable files, but do not ignore unchanged consensus-critical code.
+- For every surviving candidate, explain the upgrade or change linkage. If no linkage exists, write `Upgrade linkage: none identified`.
+- Compare old and new equivalent paths when a feature, amendment, migration, or compatibility path exists.
+"""
+
+
+def default_shared_corpus_root(system_root: Path) -> Path:
+    if system_root.parent.name == "designs":
+        return system_root.parents[1] / "corpus" / "imports"
+    return system_root / "corpus" / "imports"
+
+
+def write_file(path: Path, content: str, force: bool) -> None:
+    if path.exists() and not force:
+        return
+    path.write_text(content, encoding="utf-8")
+
+
+def build_autonomous_prompt(
+    system_root: Path,
+    target: Path,
+    run_dir: Path,
+    prompt_files: list[Path],
+    previous_ref: str | None,
+    current_ref: str | None,
+    corpus_root: Path,
+    corpus_top_k: int,
+) -> str:
+    scan_prompts = "\n".join(
+        f"- `{run_dir / 'agent-prompts' / f'scan-{prompt_file.stem}.md'}`"
+        for prompt_file in prompt_files
+    )
+    family_outputs = "\n".join(
+        f"- `{run_dir / f'family-scan-{prompt_file.stem}.md'}`"
+        for prompt_file in prompt_files
+    )
+    diff_instructions = build_diff_instructions(previous_ref, current_ref)
+    return build_prompt_header("Autonomous Max Audit", target, run_dir) + f"""You are the AI auditor for this run.
+
+Do the entire audit pipeline end to end without waiting for separate prompts unless you hit a real blocker that cannot be resolved from local context.
+
+This is a max-depth audit. Do not treat speed as success. Treat the run as incomplete until the quality gates below are satisfied or each unsatisfied gate has a concrete blocker recorded.
+
+## Inputs
+
+- Protocol mapper prompt: `{system_root / "00_protocol_mapper.md"}`
+- Base hunter prompt: `{system_root / "01_base_hunter.md"}`
+- Validation prompt: `{system_root / "02_validation_and_impact.md"}`
+- Corpus pattern prompt: `{system_root / "05_corpus_pattern_search.md"}`
+- Corpus search tool: `{system_root / "bin" / "search-corpus"}`
+- Shared corpus root: `{corpus_root}`
+- Repo context output: `{run_dir / "repo-context.md"}`
+- Feature coverage output: `{run_dir / "feature-coverage.md"}`
+- Verification log output: `{run_dir / "verification-log.md"}`
+- Corpus match index output: `{run_dir / "corpus-match-index.md"}`
+- Corpus pattern candidates output: `{run_dir / "corpus-pattern-candidates.md"}`
+- Corpus retrieval output directory: `{run_dir / "corpus-retrieval"}`
+- Candidate template: `{system_root / "templates" / "candidate-template.md"}`
+- Family scan prompts:
+{scan_prompts}
+
+{diff_instructions}
+
+## Required Outputs
+
+- Filled repo context: `{run_dir / "repo-context.md"}`
+- Filled feature coverage table: `{run_dir / "feature-coverage.md"}`
+- Filled verification log: `{run_dir / "verification-log.md"}`
+- Filled corpus match index: `{run_dir / "corpus-match-index.md"}`
+- Filled corpus pattern candidates: `{run_dir / "corpus-pattern-candidates.md"}`
+- Corpus retrieval notes in: `{run_dir / "corpus-retrieval"}`
+- Filled family scans:
+{family_outputs}
+- Candidate index: `{run_dir / "candidate-index.md"}`
+- Rejected/weak candidate log: `{run_dir / "rejected-candidates.md"}`
+- Validated candidate dossiers: `candidate-<id>.md` files in `{run_dir}`
+- Final coverage report: `{run_dir / "final-coverage-report.md"}`
+- Final audit report: `{run_dir / "FINAL_AUDIT_REPORT.md"}`
+- Updated checklist: `{run_dir / "MAX_AUDIT_CHECKLIST.md"}`
+
+## Execution Phases
+
+1. Phase 0 - Scope and metadata: identify target commit, branch, available contest docs, build system, and likely feature scope.
+2. Phase 1 - Repository map: fill `repo-context.md` with concrete files, functions, trust boundaries, state machines, and high-risk surfaces.
+3. Phase 2 - Diff map: complete the diff-awareness work above and mark diff status as complete, partial, or unavailable.
+4. Phase 3 - Corpus pattern search: run `{system_root / "05_corpus_pattern_search.md"}` and use `{system_root / "bin" / "search-corpus"}` to retrieve the top `{corpus_top_k}` compact corpus matches into `{run_dir / "corpus-retrieval"}`.
+5. Phase 4 - Feature deep dives: fill `feature-coverage.md`, including changed/new features, amendment-gated behavior, corpus-inspired target searches, and high-value unchanged dependencies.
+6. Phase 5 - Family scans: run every family prompt using `01_base_hunter.md`, `repo-context.md`, `feature-coverage.md`, and `corpus-match-index.md`.
+7. Phase 6 - Candidate validation: validate every plausible Medium-or-higher candidate using `02_validation_and_impact.md` and the candidate template.
+8. Phase 7 - Final coverage pass: produce `final-coverage-report.md` and identify uncovered high-risk surfaces.
+9. Phase 8 - Final report: produce `FINAL_AUDIT_REPORT.md` containing only surviving findings plus residual risk and test gaps.
+
+## Feature Coverage Expectations
+
+Start with these XRP Ledger April 2026 surfaces unless the repository evidence proves they are irrelevant:
+- Batch transactions and nested execution semantics.
+- Permission delegation, signer scope, and authorization boundary changes.
+- MPT DEX paths, order crossing, transfer-fee handling, and book/accounting interactions.
+- Confidential MPT, proof-bearing artifacts, encrypted balances, and public/private state binding.
+- Sponsored fees, sponsored reserves, fee accounting, reserve accounting, and deletion/refund paths.
+- Amendment gates, migration paths, compatibility paths, RPC exposure, replay/recovery, simulation, and invariants that touch any of the above.
+
+For each feature, record files/functions reviewed, tests searched, changed files, equivalent paths compared, candidate IDs, rejected ideas, and residual risk.
+
+## Quality Gates
+
+Do not write `FINAL_AUDIT_REPORT.md` until these gates are met:
+- `repo-context.md` names concrete files, functions, state machines, trust boundaries, build/test entry points, and high-risk surfaces.
+- Diff review is complete or explicitly marked unavailable with the exact reason.
+- `corpus-match-index.md` records corpus searches run, matches used, target surfaces inspected, killed hypotheses, and pattern-derived candidates.
+- `feature-coverage.md` has a non-placeholder row for every in-scope feature and high-risk cross-cutting surface.
+- Every `family-scan-*.md` records modules reviewed, key code paths, searches run, suspicious asymmetries, candidate findings, and rejected ideas.
+- Every surviving candidate dossier includes line-level evidence, attacker preconditions, reachability, existing checks, compensating controls, impact, confidence, and upgrade/change linkage.
+- `verification-log.md` records build/test commands attempted or the concrete blocker that prevented them. No PoC is required for this run.
+- `candidate-index.md` and `rejected-candidates.md` are deduplicated and reference the relevant family scan or dossier.
+- `final-coverage-report.md` lists residual blind spots, unreviewed high-risk files, and why they remain.
+- No required output still contains template-only placeholders.
+
+## Audit Discipline
+
+- Prefer concrete file/function evidence over broad claims.
+- Treat corpus matches and previous runs as hypothesis generators only, not as proof of a live issue.
+- When a corpus match inspires a candidate, record the target-code search and the target-specific evidence that survived false-positive cautions.
+- Compare equivalent paths: admission vs execution, simulation vs live, replay/recovery vs normal, feature disabled vs enabled, admin vs user, peer vs local, old API vs new API.
+- When in doubt, downgrade or reject. A high-quality killed-candidate log is better than inflated findings.
+- Keep intermediate files structured and readable. Do not paste raw command dumps.
+- Use stable candidate IDs such as `F10-001`, `F11-001`, and so on, matching the prompt family number.
+- Update `MAX_AUDIT_CHECKLIST.md` as each phase completes.
+- Do not require a PoC. Prefer source-level proof, invariant reasoning, reachable execution paths, and existing test references.
+    """
+
+
+def build_parallel_codex_prompt(system_root: Path, target: Path, run_dir: Path, jobs: int) -> str:
+    return build_prompt_header("Parallel Codex Runner", target, run_dir) + f"""This run can be executed with multiple Codex CLI workers.
+
+The safe split is:
+
+1. Run the protocol mapper serially.
+2. Run corpus pattern search serially.
+3. Run family scans in parallel. Each worker edits only its assigned `family-scan-*.md` file.
+4. Run candidate validations in parallel only when `candidate-*.md` dossiers exist.
+5. Run the final coverage pass serially.
+
+Recommended command:
+
+```bash
+{system_root / "bin" / "run-parallel-codex"} {run_dir} --jobs {jobs}
+```
+
+Useful partial commands:
+
+```bash
+{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase mapper
+{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase corpus
+{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase scans --jobs {jobs}
+{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase validations --jobs {jobs}
+{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase final
+```
+
+Operational rules:
+- Keep `--jobs` modest. Start with `{jobs}`; use `1` to disable parallelism.
+- Do not run parallel family scans until `repo-context.md` has real content.
+- Corpus matches are hypotheses only, not evidence.
+- Workers should not edit shared files except the specific outputs named in their prompt.
+- If quota or rate-limit exhaustion occurs, the runner stops so you can resume the same phase later.
+"""
+
+
+def build_candidate_index(now: dt.datetime, target: Path, branch: str, commit: str) -> str:
+    return f"""# Candidate Index
+
+## Metadata
+
+- Target repo: `{target}`
+- Target branch: `{branch}`
+- Target commit: `{commit}`
+- Created UTC: {now:%Y-%m-%d %H:%M:%S}
+
+## Surviving Candidates
+
+| ID | Family | Feature/Surface | Title | Severity | Confidence | Upgrade Linkage | Dossier | Status |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+
+## Deduplication Notes
+
+- Record candidates that appear in multiple family scans and choose one canonical ID.
+- Reference rejected duplicates in `rejected-candidates.md`.
+"""
+
+
+def build_rejected_candidates(now: dt.datetime, target: Path) -> str:
+    return f"""# Rejected And Weak Candidates
+
+## Metadata
+
+- Target repo: `{target}`
+- Created UTC: {now:%Y-%m-%d %H:%M:%S}
+
+## Rejected Candidates
+
+| ID | Family | Feature/Surface | Suspicion | Why Rejected Or Downgraded | Evidence |
+| --- | --- | --- | --- | --- | --- |
+
+## Notes
+
+- Include plausible ideas that were killed by compensating controls, unreachable paths, feature gates, admin-only assumptions, or lack of attacker control.
+- Keep enough detail that a later auditor can avoid redoing the same dead end.
+"""
+
+
+def build_feature_coverage(now: dt.datetime, target: Path, previous_ref: str | None, current_ref: str | None) -> str:
+    return f"""# Feature Coverage
+
+## Metadata
+
+- Target repo: `{target}`
+- Created UTC: {now:%Y-%m-%d %H:%M:%S}
+- Previous ref: `{previous_ref or "not provided"}`
+- Current ref: `{current_ref or "not provided"}`
+- Diff status:
+
+## Coverage Table
+
+| Feature / Surface | Status | Changed Files | Files And Functions Reviewed | Equivalent Paths Compared | Tests Searched | Candidate IDs | Rejected Ideas | Remaining Risk |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Batch transactions | Not started |  |  |  |  |  |  |  |
+| Permission delegation | Not started |  |  |  |  |  |  |  |
+| MPT DEX | Not started |  |  |  |  |  |  |  |
+| Confidential MPT | Not started |  |  |  |  |  |  |  |
+| Sponsored fees and reserves | Not started |  |  |  |  |  |  |  |
+| Amendment gates and migrations | Not started |  |  |  |  |  |  |  |
+| RPC, simulation, replay, recovery, and debug paths | Not started |  |  |  |  |  |  |  |
+| Invariants, accounting, deletion, and refund paths | Not started |  |  |  |  |  |  |  |
+| Other high-risk surfaces discovered during mapping | Not started |  |  |  |  |  |  |  |
+
+## Notes
+
+- Replace `Not started` with `Covered`, `Partially covered`, `Out of scope`, or `Blocked`.
+- Every non-out-of-scope row should name concrete files/functions and at least one comparison or search performed.
+"""
+
+
+def build_verification_log(now: dt.datetime, target: Path) -> str:
+    return f"""# Verification Log
+
+## Metadata
+
+- Target repo: `{target}`
+- Created UTC: {now:%Y-%m-%d %H:%M:%S}
+
+## Build And Test Entry Points
+
+| Entry Point | How Found | Relevance | Status |
+| --- | --- | --- | --- |
+
+## Commands Attempted
+
+| Command | Purpose | Result | Notes |
+| --- | --- | --- | --- |
+
+## Test References Reviewed
+
+| File | Feature / Candidate | What It Covers | Gap |
+| --- | --- | --- | --- |
+
+## Blockers
+
+- Record missing dependencies, unsupported environment, excessive runtime, unavailable fixtures, or other concrete blockers.
+
+## Notes
+
+- No PoC is required for this run. Record validation and test references when available.
+"""
+
+
+def build_final_report(now: dt.datetime, target: Path, branch: str, commit: str) -> str:
+    return f"""# Final Audit Report
+
+## Metadata
+
+- Target repo: `{target}`
+- Target branch: `{branch}`
+- Target commit: `{commit}`
+- Created UTC: {now:%Y-%m-%d %H:%M:%S}
+
+## Executive Summary
+
+- Fill after all scans and validations complete.
+
+## Scope And Diff Status
+
+- Scope:
+- Previous/current refs:
+- Diff status:
+- Major changed or newly reachable surfaces:
+
+## Findings
+
+| ID | Severity | Feature/Surface | Title | Confidence | Upgrade Linkage | Dossier |
+| --- | --- | --- | --- | --- | --- | --- |
+
+## Feature Coverage Summary
+
+- Summarize `feature-coverage.md`, including partially covered or blocked rows.
+
+## Verification Summary
+
+- Summarize `verification-log.md`, including commands attempted and blockers.
+
+## Residual Risk And Test Gaps
+
+- Summarize meaningful blind spots, untested high-risk surfaces, and candidates that need more proof.
+
+## Coverage
+
+- Link to `repo-context.md`, `feature-coverage.md`, `verification-log.md`, every `family-scan-*.md`, `candidate-index.md`, `rejected-candidates.md`, and `final-coverage-report.md`.
+"""
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        description=(
+            "Create a max-depth dlt-ai-audit-system run with an autonomous "
+            "AI-auditor driver prompt for a blockchain/DLT repository."
+        ),
+    )
+    parser.add_argument(
+        "target",
+        nargs="?",
+        help="Target blockchain/DLT repository. Defaults to the current directory, or the parent of dlt-ai-audit-system when run from inside this tool.",
+    )
+    parser.add_argument(
+        "--run-name",
+        help="Run folder name to create under runs/. Defaults to a UTC timestamp plus target name.",
+    )
+    parser.add_argument(
+        "--operator",
+        default=os.environ.get("USER", "operator"),
+        help="Operator name to include in generated notes.",
+    )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Overwrite generated files if the run folder already exists.",
+    )
+    parser.add_argument(
+        "--previous-ref",
+        default=os.environ.get("DLT_AUDIT_PREVIOUS_REF"),
+        help="Optional previous git ref for diff-aware audits. Can also be set with DLT_AUDIT_PREVIOUS_REF.",
+    )
+    parser.add_argument(
+        "--current-ref",
+        default=os.environ.get("DLT_AUDIT_CURRENT_REF", "HEAD"),
+        help="Optional current git ref for diff-aware audits. Defaults to HEAD or DLT_AUDIT_CURRENT_REF.",
+    )
+    parser.add_argument(
+        "--corpus-root",
+        default=os.environ.get("DLT_AUDIT_CORPUS_ROOT"),
+        help="Shared corpus import root for pattern search. Defaults to the repository-level corpus/imports.",
+    )
+    parser.add_argument(
+        "--corpus-top-k",
+        type=int,
+        default=int(os.environ.get("DLT_AUDIT_CORPUS_TOP_K", "30")),
+        help="Default number of corpus matches to retrieve during the corpus-search phase.",
+    )
+    parser.add_argument(
+        "--parallel-jobs",
+        type=int,
+        default=int(os.environ.get("DLT_AUDIT_PARALLEL_JOBS", "4")),
+        help="Suggested Codex worker count recorded in generated parallel-run instructions.",
+    )
+    args = parser.parse_args()
+
+    system_root = Path(__file__).resolve().parents[1]
+    corpus_root = (
+        Path(args.corpus_root).expanduser().resolve()
+        if args.corpus_root
+        else default_shared_corpus_root(system_root)
+    )
+    target = detect_target(args.target, system_root)
+    if not target.exists():
+        print(f"Target repo does not exist: {target}", file=sys.stderr)
+        return 2
+
+    prompts_dir = system_root / "prompts"
+    templates_dir = system_root / "templates"
+    runs_dir = system_root / "runs"
+    prompt_files = sorted(prompts_dir.glob("*.md"))
+    if not prompt_files:
+        print(f"No prompt families found under {prompts_dir}", file=sys.stderr)
+        return 2
+
+    now = dt.datetime.now(dt.UTC)
+    target_slug = slugify(target.name)
+    run_name = args.run_name or f"{now:%Y%m%d-%H%M%SZ}-{target_slug}-max-audit"
+    run_dir = runs_dir / run_name
+    prompt_out_dir = run_dir / "agent-prompts"
+    corpus_retrieval_dir = run_dir / "corpus-retrieval"
+
+    run_dir.mkdir(parents=True, exist_ok=True)
+    prompt_out_dir.mkdir(parents=True, exist_ok=True)
+    corpus_retrieval_dir.mkdir(parents=True, exist_ok=True)
+
+    branch = run_git(["branch", "--show-current"], target) or "unknown"
+    commit = run_git(["rev-parse", "--short", "HEAD"], target) or "unknown"
+
+    copy_template(templates_dir / "repo-context-template.md", run_dir / "repo-context.md", args.force)
+    copy_template(
+        templates_dir / "corpus-match-index-template.md",
+        run_dir / "corpus-match-index.md",
+        args.force,
+    )
+    copy_template(
+        templates_dir / "corpus-pattern-candidates-template.md",
+        run_dir / "corpus-pattern-candidates.md",
+        args.force,
+    )
+
+    family_rows: list[str] = []
+    for prompt_file in prompt_files:
+        stem = prompt_file.stem
+        scan_path = run_dir / f"family-scan-{stem}.md"
+        copy_template(templates_dir / "family-scan-template.md", scan_path, args.force)
+        family_rows.append(f"- [ ] `{prompt_file.name}` -> `{scan_path.name}`")
+
+        family_prompt = build_prompt_header(f"Family Scan: {prompt_file.name}", target, run_dir)
+        family_prompt += f"""Use these inputs:
+- `{system_root / "01_base_hunter.md"}`
+- `{prompt_file}`
+- `{run_dir / "repo-context.md"}`
+- `{run_dir / "feature-coverage.md"}`
+- `{run_dir / "corpus-match-index.md"}`
+
+Fill this output file:
+- `{scan_path}`
+
+Instructions:
+1. Enumerate the relevant target files and functions before proposing candidates.
+2. Compare equivalent paths: admission/execution, simulation/live, replay/recovery, upgrade/migration, enabled/disabled feature states, and normal/special-case modes.
+3. Look for missing checks, stale authoritative state, skipped validation, weak binding, resource/accounting gaps, and compensating controls.
+4. Cross-check diff evidence and feature coverage rows before ranking candidates.
+5. Check relevant corpus matches and translate their search motifs into target-code searches where the target architecture has an analogue.
+6. Record searches run, corpus matches used or killed, files actually read, rejected ideas, and residual blind spots in the family scan output.
+7. Return at most the strongest 5 candidates for this family, ranked by likelihood.
+8. Do not stop at the first plausible bug. Continue until the high-risk surfaces in the repo context and feature coverage table have been covered for this family.
+9. In parallel runs, only edit `{scan_path}`. Do not edit shared run files or other family scan outputs.
+"""
+        write_file(prompt_out_dir / f"scan-{stem}.md", family_prompt, args.force)
+
+    write_file(
+        prompt_out_dir / "00-RUN-AUTONOMOUS-MAX-AUDIT.md",
+        build_autonomous_prompt(
+            system_root,
+            target,
+            run_dir,
+            prompt_files,
+            args.previous_ref,
+            args.current_ref,
+            corpus_root,
+            args.corpus_top_k,
+        ),
+        args.force,
+    )
+    write_file(
+        prompt_out_dir / "00-RUN-PARALLEL-CODEX.md",
+        build_parallel_codex_prompt(system_root, target, run_dir, args.parallel_jobs),
+        args.force,
+    )
+
+    mapper_prompt = build_prompt_header("Protocol Mapper", target, run_dir)
+    mapper_prompt += f"""Use this input:
+- `{system_root / "00_protocol_mapper.md"}`
+
+Fill these output files:
+- `{run_dir / "repo-context.md"}`
+- `{run_dir / "feature-coverage.md"}`
+- `{run_dir / "verification-log.md"}`
+
+{build_diff_instructions(args.previous_ref, args.current_ref)}
+
+Instructions:
+1. Map the repository before proposing findings.
+2. Be exhaustive across consensus, transaction execution, ledger/state, fork/amendment gates, authorization, signatures, RPC, p2p, storage, validator/trust-list material, invariants, resource accounting, and recovery/simulation/debug paths.
+3. Name concrete files, functions, types, state machines, and trust boundaries.
+4. Mark surfaces that must be checked by later family scans.
+5. Identify build and test entry points and record them in `verification-log.md`.
+6. Seed `feature-coverage.md` with discovered feature files, changed files, tests, and initial residual risk.
+"""
+    write_file(prompt_out_dir / "00-protocol-mapper.md", mapper_prompt, args.force)
+
+    corpus_prompt = build_prompt_header("Corpus Pattern Search", target, run_dir)
+    corpus_prompt += f"""Use these inputs:
+- `{system_root / "05_corpus_pattern_search.md"}`
+- `{system_root / "bin" / "search-corpus"}`
+- `{run_dir / "repo-context.md"}`
+- `{run_dir / "feature-coverage.md"}`
+- shared corpus root `{corpus_root}`
+
+Fill these output files:
+- `{run_dir / "corpus-match-index.md"}`
+- `{run_dir / "corpus-pattern-candidates.md"}`
+- retrieval result files under `{corpus_retrieval_dir}`
+
+Suggested first command:
+
+```bash
+{system_root / "bin" / "search-corpus"} \\
+  --corpus-root {corpus_root} \\
+  --query-file {run_dir / "repo-context.md"} \\
+  --top-k {args.corpus_top_k} \\
+  --output {corpus_retrieval_dir / "all-families.md"}
+```
+
+Instructions:
+1. Retrieve compact corpus matches after the repo map exists.
+2. Prefer records and cards over raw findings.
+3. Translate search motifs into target-code searches and file/function inspections.
+4. Record every used or killed match in `corpus-match-index.md`.
+5. Add only concrete pattern-derived hypotheses to `corpus-pattern-candidates.md`.
+6. Do not claim a vulnerability from corpus similarity alone.
+"""
+    write_file(prompt_out_dir / "05-corpus-pattern-search.md", corpus_prompt, args.force)
+
+    validation_prompt = build_prompt_header("Candidate Validation", target, run_dir)
+    validation_prompt += f"""Use this input for every promising candidate:
+- `{system_root / "02_validation_and_impact.md"}`
+- `{run_dir / "feature-coverage.md"}`
+- `{run_dir / "verification-log.md"}`
+
+For each candidate:
+1. Copy `{templates_dir / "candidate-template.md"}` to `candidate-<id>.md` in the run directory.
+2. Try to kill the finding first.
+3. Check reachability, attacker control, feature/fork gates, existing equivalent checks, invariant finalizers, tests, preconditions, and concrete impact.
+4. Downgrade or reject candidates when compensating controls are real.
+5. Record line-level evidence, upgrade/change linkage, and any existing tests or verification commands reviewed.
+6. Do not require a PoC for acceptance.
+"""
+    write_file(prompt_out_dir / "90-validate-candidates.md", validation_prompt, args.force)
+
+    coverage_prompt = build_prompt_header("Final Coverage Pass", target, run_dir)
+    coverage_prompt += f"""Review every file in:
+- `{run_dir}`
+
+Produce:
+- `{run_dir / "final-coverage-report.md"}`
+
+Check for:
+1. Protocol surfaces from `repo-context.md` not covered by any family scan.
+2. Feature rows in `feature-coverage.md` that are empty, template-only, or unsupported by concrete file/function evidence.
+3. High-risk files/functions with no review notes.
+4. Duplicated candidates across families.
+5. Candidates that need validation or should be killed.
+6. Corpus matches that produced candidates but were not validated or killed.
+7. Missing build/test attempts or missing blockers in `verification-log.md`.
+8. Simulation, replay, recovery, debug, compatibility, migration, and feature-gated paths that were not compared to normal execution.
+9. Remaining blind spots and the next highest-value scan.
+"""
+    write_file(prompt_out_dir / "99-final-coverage-pass.md", coverage_prompt, args.force)
+
+    write_file(run_dir / "candidate-index.md", build_candidate_index(now, target, branch, commit), args.force)
+    write_file(run_dir / "rejected-candidates.md", build_rejected_candidates(now, target), args.force)
+    write_file(
+        run_dir / "feature-coverage.md",
+        build_feature_coverage(now, target, args.previous_ref, args.current_ref),
+        args.force,
+    )
+    write_file(run_dir / "verification-log.md", build_verification_log(now, target), args.force)
+    write_file(run_dir / "FINAL_AUDIT_REPORT.md", build_final_report(now, target, branch, commit), args.force)
+
+    checklist = f"""# Max Audit Checklist
+
+## Metadata
+
+- Target repo: `{target}`
+- Target branch: `{branch}`
+- Target commit: `{commit}`
+- Run directory: `{run_dir}`
+- Operator: {args.operator}
+- Created UTC: {now:%Y-%m-%d %H:%M:%S}
+
+## Workflow
+
+- [ ] Run `agent-prompts/00-RUN-AUTONOMOUS-MAX-AUDIT.md` to execute the whole audit in one agent pass.
+- [ ] Optional: run `agent-prompts/00-RUN-PARALLEL-CODEX.md` if using multiple Codex workers.
+- [ ] Establish scope and diff baseline.
+- [ ] Run `agent-prompts/00-protocol-mapper.md` and fill `repo-context.md`, `feature-coverage.md`, and `verification-log.md`.
+- [ ] Run `agent-prompts/05-corpus-pattern-search.md` and fill `corpus-match-index.md` plus `corpus-pattern-candidates.md`.
+- [ ] Run every family scan prompt below.
+- [ ] Validate every serious candidate with `agent-prompts/90-validate-candidates.md`.
+- [ ] Confirm each surviving candidate has line-level evidence, reachability, impact, confidence, and upgrade/change linkage.
+- [ ] Attempt build/tests or record concrete blocker in `verification-log.md`.
+- [ ] Run `agent-prompts/99-final-coverage-pass.md`.
+- [ ] Fill `candidate-index.md`, `rejected-candidates.md`, `final-coverage-report.md`, and `FINAL_AUDIT_REPORT.md`.
+- [ ] Confirm no required output contains template-only placeholders.
+
+## Family Scans
+
+{chr(10).join(family_rows)}
+
+## Notes
+
+- Keep old/example reports in `previous-runs/`; do not mix them into this run unless intentionally using them for calibration.
+- Treat historical corpus material as search patterns, not proof that the same bug exists here.
+- Prefer killing weak candidates over inflating them.
+"""
+    write_file(run_dir / "MAX_AUDIT_CHECKLIST.md", checklist, args.force)
+
+    print(f"Created max audit run: {run_dir}")
+    print(f"Target: {target} ({branch} {commit})")
+    print(f"Shared corpus root: {corpus_root}")
+    print("Start with:")
+    print(f"  {prompt_out_dir / '00-RUN-AUTONOMOUS-MAX-AUDIT.md'}")
+    print("Or run the pipeline manually with prompts under:")
+    print(f"  {prompt_out_dir}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
