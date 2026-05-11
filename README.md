@@ -47,6 +47,7 @@ To execute the generated corpus-search run with multiple Codex workers:
 ```
 
 The parallel runner keeps the mapper and corpus-search phases serial, then runs independent family scans concurrently. Use `--jobs 1` to disable parallelism.
+By default it uses `gpt-5.5` with reasoning `high` for discovery phases and `xhigh` for canonicalization, validation, aggregation, and final review. Override with `--model`, `--reasoning-effort`, `--deep-reasoning-effort`, or `--deep-phases` when needed.
 
 ## Search The Corpus Directly
 
@@ -103,6 +104,18 @@ The lab creates scoring and refinement prompts for each round. Promote a reviewe
 ```
 
 Experimental prompt packs and exact found/partial/missed result records stay under `design-lab/runs/<loop>/`. Only the best scored candidate/source should be copied into `designs/`.
+
+Blind audit runs are not allowed to read benchmark ground truth or previous learning-loop results. Generated audit prompts now explicitly forbid using `design-lab/benchmarks/**`, benchmark `ground-truth/**`, and prior `design-lab/runs/**` scoring/refinement artifacts while producing blind findings.
+
+If Codex limits are exhausted during a learning-loop audit, do not recreate the round. Resume it after limits refill:
+
+```bash
+/testing/dlt-ai-audit-system/bin/design-lab resume-audit \
+  --round-dir /testing/dlt-ai-audit-system/design-lab/runs/<run>/round-XX \
+  --parallel-jobs 4
+```
+
+Learning-loop audit execution uses the same default reasoning split: `high` for mapper/corpus/scans and `xhigh` for canonicalize/validations/aggregate/final. Add `--reasoning-effort`, `--deep-reasoning-effort`, or `--deep-phases` to `start-round --execute-audit` or `resume-audit` to change it.
 
 To get a ready-to-paste prompt for the whole learning loop:
 

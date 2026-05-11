@@ -42,6 +42,8 @@ The source prompt is `design-lab/prompts/run-learning-loop.md`.
 
 3. Run the generated blind audit prompt or parallel runner.
 
+When `--execute-audit` is used, the default Codex split is reasoning `high` for mapper/corpus/scans and `xhigh` for canonicalize/validations/aggregate/final. Override with `--reasoning-effort`, `--deep-reasoning-effort`, or `--deep-phases` on `start-round` or `resume-audit`.
+
 4. Use the generated scoring prompt to compare audit outputs against ground truth. Fill both prose scoring files and the structured result file:
 
 - `scorecard.md`
@@ -114,6 +116,25 @@ If you want to test multiple candidates in the same numbered round, give each on
   --trial-name candidate-b
 ```
 
+## Resuming After Limits
+
+If Codex quota/rate limits are exhausted during `start-round --execute-audit`, the lab marks the round manifest as `limit_exhausted` and writes:
+
+```text
+design-lab/runs/<run>/round-XX/RESUME.md
+```
+
+Do not recreate the round with `start-round --force`. When limits refill, resume the same round:
+
+```bash
+/testing/dlt-ai-audit-system/bin/design-lab resume-audit \
+  --round-dir /testing/dlt-ai-audit-system/design-lab/runs/<run>/round-XX \
+  --parallel-jobs 4
+```
+
+Completed worker prompts are checkpointed under the audit run's `agent-logs/runner-state/` directory, so resume skips completed mapper, corpus, scan, canonicalization, validation, aggregation, and final prompts when those phases exist in the selected design.
+Resume reuses the round's recorded model and reasoning settings unless you pass new overrides.
+
 9. Review the leaderboard:
 
 ```bash
@@ -132,6 +153,8 @@ If you want to test multiple candidates in the same numbered round, give each on
 ## Guardrails
 
 - The blind audit run must not read benchmark ground-truth findings.
+- The blind audit run must not read previous learning-loop artifacts under `design-lab/runs/**`, including scorecards, misses, result records, refinement plans, leaderboards, audit-output snapshots, candidate results, or prior round folders.
+- If a candidate design lives under `design-lab/runs/<loop>/candidates/<candidate>/design/`, that candidate's own design files and generated audit run directory are allowed during blind execution; other loop/scoring/refinement artifacts are not.
 - Refinements should add portable hunt logic, not exact filenames, function names, constants, or competition-specific answer paths.
 - Store every experimental prompt pack and its exact result in the lab archive.
 - Keep `designs/` for stable runnable designs only; use `promote-best` to copy the winner there.

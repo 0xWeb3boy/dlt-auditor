@@ -14,6 +14,12 @@ run learning loop from dlt-ai-audit-system on this codebase
 
 The session still needs the known findings path. If the target repo is not obvious, provide that too.
 
+Blind audit guardrail: the audit workers must not read `design-lab/benchmarks/**`, benchmark `ground-truth/**`, or prior learning-loop artifacts under `design-lab/runs/**`. Ground truth and prior results are only for scoring/refinement after the blind audit completes.
+
+Limit-resume guardrail: if Codex limits are exhausted during a round, do not rerun `start-round --force`. Resume the same round with `bin/design-lab resume-audit --round-dir design-lab/runs/<loop>/round-XX`.
+
+Reasoning default: learning-loop audits run discovery phases at `high` and deep judgment phases at `xhigh`. The prompt renderer exposes `--reasoning-effort`, `--deep-reasoning-effort`, and `--deep-phases` if you want a different split.
+
 To render a filled prompt:
 
 ```bash

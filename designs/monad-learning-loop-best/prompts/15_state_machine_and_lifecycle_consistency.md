@@ -1,0 +1,99 @@
+# Prompt Family: State Machine And Lifecycle Consistency
+
+## Use This For
+
+- Stale timeout, session, or policy state.
+- Cleanup performed on one transition path but not another.
+- Confusion between similar protocol coordinates.
+- Cache or merge logic that breaks authenticated state assumptions.
+- Role-scoped accounting applied to the wrong actors.
+
+## Prompt
+
+```text
+Hunt for lifecycle and state-machine bugs in a blockchain or DLT codebase.
+
+Look for code where the same logical object can transition through multiple paths, but cleanup, scoping, or accounting happens in only some of them.
+
+Focus on:
+- consensus round or view lifecycle
+- session, channel, stream, bridge, or proof-submission state
+- epoch, handoff, checkpoint, or validator-set rotation state
+- committee aggregation and liveness accounting
+- storage cache, proof cache, merge, and eviction logic
+
+Search patterns:
+- timeout or session fields that are cleared in finalize paths but not abort, reset, empty-block, retry, or redeploy paths
+- terminal success, verified, finalized, or already-committed states that block only some later updates instead of all downgrades, retries, duplicate submissions, or aggregate-state mutations
+- comments that refer to one coordinate while the code keys data by another
+- role-dependent thresholds routed through generic queues
+- state replacement that does not invalidate derived or cached state
+- transitions from non-leader to leader, pre-finalize to finalize, success to failure, or live to replay mode where continuity state such as ticks, roots, nonce state, reservation counters, or snapshot handles is updated on one path but not the others
+- request IDs, session IDs, or operation IDs stored globally instead of per in-flight object
+- merge or eviction logic that can evict the object currently being traversed
+- cached checkpoint, request, config, or game state reused on retry without revalidation against current authoritative state
+- one-time scan watermarks or "already seen" markers on objects whose classification can legitimately change later
+- policies enforced at wake-up or signaling boundaries but not at the underlying provider or write sink
+- startup and sync-completion paths should not initialize stronger safety labels from weaker local state. Check whether unsafe, optimistic, pending, syncing, safe, finalized, or cross-domain-safe labels are copied, zeroed, or defaulted during recovery
+- if a component once observed a synced, finalized, or ready state, later responses that regress to syncing, unknown, or invalid should be classified explicitly rather than treated as ordinary progress
+- shared controller state that drives forkchoice, reorg, reset, or retry decisions should be read under one coherent lock/snapshot; mixed old/new fields can create impossible lifecycle transitions
+- append-only histories stored as mutable read-modify-write objects under concurrent writers instead of immutable write-once records
+- fallback paths that do not preserve enough state to transition cleanly into the alternate recovery mode
+- event, listener, subscription, or gossip paths where a policy bit is checked at admission but dropped before delivery
+- fork, reorg, retry, failed-prewarm, abort, or recovery paths that reuse caches from a prior parent hash, verifier state, peer state, or execution context
+- rollback paths in authenticated or persisted state that restore a nearby object but not the exact mutated coordinate
+- invalid, syncing, timeout, empty-response, and already-known states that update state in one path but not the analogous path
+- paths that validate authority, reserve state, or prepared state early but persist the authoritative result only on success, leaving failure, replay, or abort paths with stale lifecycle, nonce, or replay state
+- replay-protection coordinates such as nonces, sequences, tickets, reservations, or pending vote markers that are advanced, reserved, or consumed before a transaction or message is fully successful. Compare fee-only, failed, aborted, rollback, retry, and replay paths; preserving fees or other side effects while restoring the old replay coordinate is high signal.
+- early construction of execution-state objects from mutable accounts, registry entries, epoch authority maps, or lifecycle-controlled state. If the object can change before execution or dequeue, reload and revalidate it at the sink rather than trusting the admission-time object.
+- parent operations that queue or spawn protocol-generated child work, where failure or filtering of the child should rewind the parent group but the code only drops the child result
+- round, epoch, or session scoped privileged work queues where enqueue, wake-up, dequeue, and replay use different freshness or authorization sources
+- startup, constructor, and background-maintenance paths that initialize security-sensitive loops from persisted state. Oversized, stale, impossible, or fork-incompatible persisted values should be sanitized or rejected before they drive reorg, milestone, sync, verifier, or peer-churn decisions
+- finalization, replay, and recovery paths where internally generated protocol work must remain grouped with the parent block or operation; dropping, filtering, or failing the generated work should rewind or reject the whole group when that is the consensus rule
+- equivalent transition paths for the same range-based protocol object, such as direct message handling, side-vote handling, post-consensus handling, replay, recovery, bridge submission, and buffer flushing, where one path enforces exact successor continuity or fail-closed storage errors and another path only enforces freshness or overlap prevention
+- locally executed, speculatively executed, or peer-fetched work that is later excluded from the finalized checkpoint, block, batch, or epoch boundary. Finalization must rollback, quarantine, or prove isolation of those effects before durable state can be served or reused
+- in-memory consensus, batching, congestion, or timing state that is reconstructed by replay after restart. If replay reconstructs only a fixed window, check that the committed digest or snapshot covers exactly the state retained across live execution and recovery
+- epoch, checkpoint, or committee transitions where old-epoch messages can arrive while new-epoch state is being initialized. Verify that readiness, signer set, traffic counters, and pending work are fenced by one coherent transition state
+- migration, upgrade, bridge, or settlement transition flags cached at startup but consumed by background workers. Re-read or revalidate transition state at the event-routing, batching, commit, prove, execute, or settlement sink, and block operations that are unsafe in an active transition phase.
+- event ingestion, bridge watcher, withdrawal finalizer, inbox, outbox, receipt, or log-processing watermarks keyed by only block, height, batch, timestamp, or max-seen aggregate when the source can contain multiple distinct relevant events at that coordinate. Duplicate guards should use the full event identity and ordering key required by the source chain
+- state machines that wait for progress on an object that can never fit, complete, or become valid under the current local capacity or configuration. Fail closed or tear down the object instead of suppressing forever
+- asynchronous validation, approval, signing, vote, or proposal results that are queued and later applied after the node's fork view, reward cycle, signer set, accepted block, or local validation state may have changed. Revalidate freshness at the sink, not only when the work was queued.
+- restart, snapshot, replay, and repair paths that reconstruct only part of live execution state. Compare the reconstructed window against every live field that affects voting, duplicate detection, rewards, account locks, roots, peer penalties, and progress, and require a committed digest or replay rule for any state that survives restart.
+- evidence-driven state transitions where a vote, repair response, duplicate proof, dead-slot marker, safe/finalized marker, or peer report was verified under one fork view but mutates state after roots, fork choice, duplicate status, peer assignment, or progress state has changed
+- caches keyed by a digest, block hash, message hash, or object ID when the real identity also includes epoch, reward cycle, round, view, fork, signer set, or lifecycle phase. Cache hits must be scoped by every coordinate that can change the meaning of the object.
+- Reconciliation or recovery logic backed by external durable stores, caches, or replicated service state. Read failure, timeout, unknown state, and empty state must remain distinct before leader election, block production, failover, or repair decisions.
+- Quorum, vote, or reconciliation maps keyed by metadata that can vary across replicas. Group by canonical protocol identity, and use epoch, timestamp, retry count, or promotion metadata only as scoped tie-breaker data when the protocol permits it.
+- Async worker, retry, or fanout clones that inherit ownership-sensitive guards, leases, cancellation handles, or drop-time cleanup state. Worker lifetime must not extend logical ownership or suppress cleanup or failover.
+- timer, alarm, debounce, retry, vote, proposal, timeout-certificate, or callback handlers whose payload carries a round, view, epoch, height, request id, peer id, or vote target. On wake-up, compare the callback coordinate to the current authoritative state before mutating queues, emitting votes, routing messages, or updating liveness accounting.
+- callback code that uses the timer's stored coordinate when the event it wakes up for has moved to another coordinate. Prefer deriving the target from the current vote/proposal/request state at the sink, or dropping stale callbacks explicitly.
+- vote timer callbacks that dequeue a stored `VoteReady(v)` or pending vote but call a send/reset helper with the timer's round/view instead of `v.round` or the vote's own coordinate. Trace leader selection, next-leader routing, and rescheduled timer coordinates.
+- timer scheduling that intentionally schedules `round + 1` while the stored vote belongs to `round`; verify the wake-up handler does not later confuse the scheduled timer round with the vote round after rapid QC/proposal progress.
+- delayed validation or signing results that are keyed by local task id while the protocol identity also includes round/view/epoch/fork/signer-set. Applying a stale but individually valid result to the current state is a high-signal lifecycle bug.
+- "current", "pending", "next", "last", "latest", or "scheduled" fields read at enqueue time and reused at dequeue time without checking whether the object is still current.
+
+Questions to answer:
+1. What are the legal states and transitions?
+2. Which fields are derived from those states and must be reset on transition?
+3. Are all transition paths symmetric?
+4. Are roles, indices, heights, epochs, rounds, views, checkpoints, and handoffs scoped consistently?
+5. Can stale state cause later enforcement, verification, or feedback to apply to the wrong object?
+6. Is object reuse revalidated against the current authoritative state before it influences a new decision?
+7. Is the policy enforced where the object is actually read, written, or executed?
+8. If a parent operation generates child work, what is the atomicity boundary: parent only, child only, or the whole group?
+9. Are queue wake-up, dequeue, and replay paths revalidating the same round, epoch, finalized boundary, or authorization state that admission checked?
+10. Does every "already processed" or progress watermark use the same identity granularity as the source event stream: block plus transaction, log, or event index where multiple events can share a block?
+11. For every timer or async callback, which protocol coordinate was captured, which coordinate is authoritative at execution time, and what exact code drops stale callbacks?
+12. Can a stale callback route a valid vote, proposal, retry, timeout, or peer update to the wrong round/view/request while still passing local type checks?
+13. For vote/proposal timers, does the handler pass the callback coordinate or the queued object's own coordinate into downstream send, leader-selection, and timer-reset code?
+
+Required stale-timer witness shape:
+- Identify the timer event type and where it is scheduled.
+- Identify the stored object that may be replaced before the timer fires.
+- Show the callback extracting the current stored object and then passing the stale callback coordinate to a sink.
+- Show what the sink derives from that coordinate, such as current leader, next leader, timeout target, or next scheduled timer.
+- Explain the rapid-progress or catch-up sequence that makes callback coordinate and object coordinate diverge.
+
+Severity guidance:
+- Medium for stale-state liveness or integrity issues.
+- High only if stale state can authorize privileged actions, misapply bridge or validator actions, or cause broad consensus corruption.
+```

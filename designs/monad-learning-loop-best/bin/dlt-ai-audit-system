@@ -51,27 +51,6 @@ def copy_template(src: Path, dst: Path, force: bool) -> None:
     shutil.copyfile(src, dst)
 
 
-def build_blind_audit_isolation(target: Path, run_dir: Path) -> str:
-    return f"""## Blind Audit Isolation
-
-This is a blind audit prompt. Use only:
-- The target repository: `{target}`
-- This generated audit run directory: `{run_dir}`
-- Prompt, template, design, and corpus files explicitly named in this prompt.
-
-Do not read, search, summarize, or use any answer-key material while producing blind audit outputs:
-- No `design-lab/benchmarks/**` files.
-- No benchmark `ground-truth/**` files or known-findings files.
-- No prior learning-loop artifacts from `design-lab/runs/**`, including `scorecard.md`, `misses.md`, `result-record.json`, `design-refinement-plan.md`, `leaderboard.md`, `audit-output-snapshot/**`, candidate `results/**`, or prior round folders.
-- No previous loop outputs as evidence for a finding.
-
-If this run is executing from a candidate design snapshot under `design-lab/runs/<loop>/candidates/<candidate>/design/`, that candidate's design files and this generated run directory are allowed. Other learning-loop folders and scoring/refinement artifacts are still forbidden.
-
-If you accidentally see ground truth or prior scoring material, do not use it. Record the contamination risk in `verification-log.md` and continue only with target-code evidence.
-
-"""
-
-
 def build_prompt_header(title: str, target: Path, run_dir: Path) -> str:
     return f"""# {title}
 
@@ -80,7 +59,6 @@ Run directory: `{run_dir}`
 
 Work deeply. Prefer concrete file/function evidence over broad claims. Keep outputs structured, factual, and explicit about uncertainty.
 
-{build_blind_audit_isolation(target, run_dir)}
 """
 
 
@@ -201,9 +179,11 @@ This is a max-depth audit. Do not treat speed as success. Treat the run as incom
 4. Phase 3 - Corpus pattern search: run `{system_root / "05_corpus_pattern_search.md"}` and use `{system_root / "bin" / "search-corpus"}` to retrieve the top `{corpus_top_k}` compact corpus matches into `{run_dir / "corpus-retrieval"}`.
 5. Phase 4 - Feature deep dives: fill `feature-coverage.md`, including changed/new features, amendment-gated behavior, corpus-inspired target searches, and high-value unchanged dependencies.
 6. Phase 5 - Family scans: run every family prompt using `01_base_hunter.md`, `repo-context.md`, `feature-coverage.md`, and `corpus-match-index.md`.
-7. Phase 6 - Candidate validation: validate every plausible Medium-or-higher candidate using `02_validation_and_impact.md` and the candidate template.
-8. Phase 7 - Final coverage pass: produce `final-coverage-report.md` and identify uncovered high-risk surfaces.
-9. Phase 8 - Final report: produce `FINAL_AUDIT_REPORT.md` containing only surviving findings plus residual risk and test gaps.
+7. Phase 6 - Candidate canonicalization: merge family-scan hypotheses into deduplicated `candidate-*.md` dossiers, `candidate-index.md`, and `rejected-candidates.md`.
+8. Phase 7 - Candidate validation: validate every plausible Medium-or-higher candidate using `02_validation_and_impact.md` and the candidate template.
+9. Phase 8 - Validated findings aggregation: refresh candidate indexes, verification notes, coverage tables, checklist, and `FINAL_AUDIT_REPORT.md` from validated dossiers.
+10. Phase 9 - Final coverage pass: produce `final-coverage-report.md` and identify uncovered high-risk surfaces.
+11. Phase 10 - Final report sanity: ensure `FINAL_AUDIT_REPORT.md` contains only surviving findings plus residual risk and test gaps.
 
 ## Feature Coverage Expectations
 
@@ -225,6 +205,7 @@ Do not write `FINAL_AUDIT_REPORT.md` until these gates are met:
 - `corpus-match-index.md` records corpus searches run, matches used, target surfaces inspected, killed hypotheses, and pattern-derived candidates.
 - `feature-coverage.md` has a non-placeholder row for every in-scope feature and high-risk cross-cutting surface.
 - Every `family-scan-*.md` records modules reviewed, key code paths, searches run, suspicious asymmetries, candidate findings, and rejected ideas.
+- Candidate canonicalization has created `candidate-*.md` dossiers for every serious surviving hypothesis, or has explicitly rejected the hypothesis in `rejected-candidates.md`.
 - Every surviving candidate dossier includes line-level evidence, attacker preconditions, reachability, existing checks, compensating controls, impact, confidence, and upgrade/change linkage.
 - `verification-log.md` records build/test commands attempted or the concrete blocker that prevented them. No PoC is required for this run.
 - `candidate-index.md` and `rejected-candidates.md` are deduplicated and reference the relevant family scan or dossier.
@@ -253,31 +234,35 @@ The safe split is:
 1. Run the protocol mapper serially.
 2. Run corpus pattern search serially.
 3. Run family scans in parallel. Each worker edits only its assigned `family-scan-*.md` file.
-4. Run candidate validations in parallel only when `candidate-*.md` dossiers exist.
-5. Run the final coverage pass serially.
+4. Run candidate canonicalization serially to create deduplicated `candidate-*.md` dossiers.
+5. Run candidate validations in parallel only when `candidate-*.md` dossiers exist.
+6. Run validated-findings aggregation serially.
+7. Run the final coverage pass serially.
 
 Recommended command:
 
 ```bash
-{system_root / "bin" / "run-parallel-codex"} {run_dir} --jobs {jobs} --reasoning-effort high --deep-reasoning-effort xhigh
+{system_root / "bin" / "run-parallel-codex"} {run_dir} --jobs {jobs}
 ```
 
 Useful partial commands:
 
 ```bash
-{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase mapper --reasoning-effort high
-{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase corpus --reasoning-effort high
-{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase scans --jobs {jobs} --reasoning-effort high
-{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase validations --deep-reasoning-effort xhigh
-{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase final --deep-reasoning-effort xhigh
+{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase mapper
+{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase corpus
+{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase scans --jobs {jobs}
+{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase canonicalize
+{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase validations --jobs {jobs}
+{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase aggregate
+{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase final
 ```
 
 Operational rules:
 - Keep `--jobs` modest. Start with `{jobs}`; use `1` to disable parallelism.
-- Default reasoning is `high` for mapper/corpus/scans and `xhigh` for canonicalize/validations/aggregate/final.
 - Do not run parallel family scans until `repo-context.md` has real content.
 - Corpus matches are hypotheses only, not evidence.
 - Workers should not edit shared files except the specific outputs named in their prompt.
+- Validation workers only see `candidate-*.md` dossiers; run canonicalization first so serious scan hypotheses are not stranded in family outputs.
 - If quota or rate-limit exhaustion occurs, the runner stops so you can resume the same phase later.
 """
 
@@ -653,6 +638,75 @@ For each candidate:
 6. Do not require a PoC for acceptance.
 """
     write_file(prompt_out_dir / "90-validate-candidates.md", validation_prompt, args.force)
+
+    canonicalize_prompt = build_prompt_header("Candidate Canonicalization", target, run_dir)
+    canonicalize_prompt += f"""Use these inputs:
+- `{system_root / "02_validation_and_impact.md"}`
+- `{templates_dir / "candidate-template.md"}`
+- `{run_dir / "repo-context.md"}`
+- `{run_dir / "feature-coverage.md"}`
+- `{run_dir / "corpus-pattern-candidates.md"}`
+- every `{run_dir / "family-scan-*.md"}`
+
+Fill these output files:
+- `{run_dir / "candidate-index.md"}`
+- `{run_dir / "rejected-candidates.md"}`
+- `candidate-<id>.md` files in `{run_dir}`
+
+Instructions:
+1. Read all family scans and corpus pattern candidates after scan workers finish.
+2. Extract only concrete Medium-or-higher hypotheses with file/function evidence, attacker or faulty-peer control, a missing property, and plausible impact.
+3. Deduplicate by root cause, affected trust boundary, and missing invariant. If several scans describe the same mechanism, pick one canonical candidate id and cite the other scan ids as related.
+4. Create dossiers by copying the candidate template structure into `candidate-<id>.md` files. Fill title, severity hypothesis, confidence, affected files/functions, missing property, attack preconditions, reachability, impact, compensating controls, evidence to confirm, evidence that would kill, and upgrade/change linkage.
+5. Prefer stable ids derived from family ids, such as `F14-001`, `F19-001`, or `F26-001`. Do not create duplicate dossiers for the same mechanism.
+6. Fill `candidate-index.md` with every surviving dossier and status `needs validation`.
+7. Fill `rejected-candidates.md` with weak, duplicate, killed, low-impact, admin-only, unreachable, or no-attacker-control hypotheses and the evidence that killed or downgraded them.
+8. Promote exact, concrete mechanisms even when production reachability or severity is uncertain; the validation phase should qualify severity instead of losing the mechanism in a rejected table.
+9. Do not drop high-signal auth/signer binding, ordered-batch side effect, storage-offset, stale-timer, typed-wire-encoding, async-backpressure, legacy-vs-EIP-1559 fee accounting, base-fee-only affordability, system-sender/wrong-chain EIP-7702 predicate order, or order-dependent delegated-status candidates solely because another family produced more candidates.
+10. Do not read benchmark ground truth, previous scored loop artifacts, or answer keys. Corpus matches are hypothesis sources only, not evidence.
+11. Keep the candidate set focused but broad enough to preserve distinct mechanisms. If many weak ideas exist, promote the strongest concrete 14 to 24 dossiers and reject the rest with reasons.
+12. Do not run final validation in this phase; create clean dossiers for the validation workers.
+
+Current high-value preservation rules:
+- A fee/accounting hypothesis is distinct when it compares legacy gas price, EIP-1559 effective bid, base fee, priority fee, reserve/emptying rules, or proposal-time affordability. Do not merge these into generic "fee mismatch" unless the exact predicate and failure disposition are the same.
+- An EIP-7702 hypothesis is distinct when it involves (a) wrong-chain child plus system sender fatality/order, (b) txpool ordered delegation versus block-policy global pre-marking, or (c) Rust/C++ execution child-skip predicates. Preserve separate dossiers for each if evidence exists.
+- A timer/callback hypothesis is distinct when a callback coordinate can differ from the queued vote/proposal/request coordinate. Do not reject solely because the callback names the same type of round/view; check whether it uses the timer's round rather than the object's round at the send/reset sink.
+"""
+    write_file(prompt_out_dir / "80-canonicalize-candidates.md", canonicalize_prompt, args.force)
+
+    aggregate_prompt = build_prompt_header("Aggregate Validated Findings", target, run_dir)
+    aggregate_prompt += f"""Use these inputs:
+- every `candidate-*.md` dossier in `{run_dir}`
+- `{run_dir / "candidate-index.md"}`
+- `{run_dir / "rejected-candidates.md"}`
+- `{run_dir / "feature-coverage.md"}`
+- `{run_dir / "verification-log.md"}`
+- `{run_dir / "corpus-pattern-candidates.md"}`
+- `{run_dir / "MAX_AUDIT_CHECKLIST.md"}`
+- `{run_dir / "FINAL_AUDIT_REPORT.md"}`
+
+Refresh these outputs:
+- `{run_dir / "candidate-index.md"}`
+- `{run_dir / "rejected-candidates.md"}`
+- `{run_dir / "feature-coverage.md"}`
+- `{run_dir / "verification-log.md"}`
+- `{run_dir / "corpus-pattern-candidates.md"}`
+- `{run_dir / "MAX_AUDIT_CHECKLIST.md"}`
+- `{run_dir / "FINAL_AUDIT_REPORT.md"}`
+
+Instructions:
+1. Read every validated dossier and classify it as `confirmed`, `likely`, `needs more proof`, `invalid`, `duplicate`, `out of scope`, or `hardening only`.
+2. Update `candidate-index.md` so statuses reflect validation, not canonicalization.
+3. Move killed or duplicate candidates into `rejected-candidates.md` with the killer evidence.
+4. Update `feature-coverage.md` rows with candidate ids, validation status, tests reviewed, and residual risk.
+5. Update `verification-log.md` with any build/test commands or blockers recorded in candidate dossiers.
+6. Update `corpus-pattern-candidates.md` so corpus-derived hypotheses point to final candidate dispositions.
+7. Fill `FINAL_AUDIT_REPORT.md` with only confirmed/likely Medium-or-higher findings, plus residual risk and verification gaps. Do not leave template placeholders.
+8. Mark completed checklist items in `MAX_AUDIT_CHECKLIST.md`.
+9. Do not read benchmark ground truth, previous scored loop artifacts, or answer keys.
+10. Preserve uncertainty: if a finding is real but reachability is uncertain, include that uncertainty in severity/confidence instead of deleting the mechanism.
+"""
+    write_file(prompt_out_dir / "95-aggregate-validated-findings.md", aggregate_prompt, args.force)
 
     coverage_prompt = build_prompt_header("Final Coverage Pass", target, run_dir)
     coverage_prompt += f"""Review every file in:

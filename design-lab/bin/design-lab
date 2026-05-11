@@ -18,6 +18,11 @@ LAB_ROOT = ROOT / "design-lab"
 BENCHMARKS_DIR = LAB_ROOT / "benchmarks"
 RUNS_DIR = LAB_ROOT / "runs"
 DESIGNS_DIR = ROOT / "designs"
+LIMIT_EXHAUSTED_EXIT_CODE = 3
+REASONING_EFFORT_CHOICES = ("low", "medium", "high", "xhigh")
+DEFAULT_REASONING_EFFORT = "high"
+DEFAULT_DEEP_REASONING_EFFORT = "xhigh"
+DEFAULT_DEEP_PHASES = "canonicalize,validations,aggregate,final"
 
 
 @dataclass(frozen=True)
@@ -65,6 +70,15 @@ def write_json(path: Path, payload: dict) -> None:
     path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
+def update_manifest(round_dir: Path, **updates: object) -> dict:
+    manifest_path = round_dir / "round-manifest.json"
+    manifest = read_json(manifest_path) if manifest_path.is_file() else {}
+    manifest.update(updates)
+    manifest["updated_at_utc"] = utc_now()
+    write_json(manifest_path, manifest)
+    return manifest
+
+
 def design_ignore(_dir: str, names: list[str]) -> set[str]:
     return {name for name in names if name in {"runs", "__pycache__"} or name.endswith(".pyc")}
 
@@ -86,6 +100,20 @@ def command_supports_flag(command: Path, flag: str) -> bool:
         return flag in command.read_text(encoding="utf-8", errors="ignore")
     except OSError:
         return False
+
+
+def resumable_runner_for_source(source_root: Path) -> Path:
+    local_runner = source_root / "bin" / "run-parallel-codex"
+    if (
+        local_runner.is_file()
+        and command_supports_flag(local_runner, "--resume")
+        and command_supports_flag(local_runner, "--reasoning-effort")
+    ):
+        return local_runner
+    shared_runner = DESIGNS_DIR / "corpus-search" / "bin" / "run-parallel-codex"
+    if shared_runner.is_file():
+        return shared_runner
+    return local_runner
 
 
 def candidate_dir(loop_name: str, candidate: str) -> Path:
@@ -240,6 +268,9 @@ def command_learning_loop_prompt(args: argparse.Namespace) -> int:
         "{{STARTING_DESIGN}}": args.starting_design,
         "{{MAX_ROUNDS}}": str(args.max_rounds),
         "{{PARALLEL_JOBS}}": str(args.parallel_jobs),
+        "{{REASONING_EFFORT}}": args.reasoning_effort,
+        "{{DEEP_REASONING_EFFORT}}": args.deep_reasoning_effort,
+        "{{DEEP_PHASES}}": args.deep_phases,
         "{{PROMOTED_DESIGN}}": promoted_design,
     }
     template = (LAB_ROOT / "prompts" / "run-learning-loop.md").read_text(encoding="utf-8")
@@ -341,6 +372,177 @@ def scaffold_audit_run(
     return design_run
 
 
+def audit_option_string(
+    *,
+    model: str | None = None,
+    timeout_seconds: int | None = None,
+    skip_login_check: bool = False,
+    reasoning_effort: str | None = None,
+    deep_reasoning_effort: str | None = None,
+    deep_phases: str | None = None,
+) -> str:
+    parts: list[str] = []
+    if model:
+        parts.extend(["--model", model])
+    if reasoning_effort:
+        parts.extend(["--reasoning-effort", reasoning_effort])
+    if deep_reasoning_effort:
+        parts.extend(["--deep-reasoning-effort", deep_reasoning_effort])
+    if deep_phases:
+        parts.extend(["--deep-phases", deep_phases])
+    if timeout_seconds is not None:
+        parts.extend(["--timeout-seconds", str(timeout_seconds)])
+    if skip_login_check:
+        parts.append("--skip-login-check")
+    return "".join(f" {part}" for part in parts)
+
+
+def write_resume_instructions(
+    round_dir: Path,
+    audit_run: Path,
+    runner: Path,
+    parallel_jobs: int,
+    *,
+    model: str | None = None,
+    timeout_seconds: int | None = None,
+    skip_login_check: bool = False,
+    reasoning_effort: str | None = None,
+    deep_reasoning_effort: str | None = None,
+    deep_phases: str | None = None,
+) -> None:
+    option_text = audit_option_string(
+        model=model,
+        timeout_seconds=timeout_seconds,
+        skip_login_check=skip_login_check,
+        reasoning_effort=reasoning_effort,
+        deep_reasoning_effort=deep_reasoning_effort,
+        deep_phases=deep_phases,
+    )
+    (round_dir / "RESUME.md").write_text(
+        f"""# Resume Interrupted Audit
+
+The audit run was interrupted before completion, most likely because Codex quota/rate limits were exhausted.
+
+Already completed worker prompts are checkpointed under:
+
+```text
+{audit_run / "agent-logs" / "runner-state"}
+```
+
+When limits refill, resume this same round. Do not rerun `start-round --force`, because that may replace the round directory.
+
+Preferred command:
+
+```bash
+bin/design-lab resume-audit --round-dir {round_dir} --parallel-jobs {parallel_jobs}{option_text}
+```
+
+Lower-level runner command:
+
+```bash
+{runner} {audit_run} --jobs {parallel_jobs} --resume{option_text}
+```
+
+After the audit completes, score the round normally with `score-blind-run.md`, then run `record-result`.
+""",
+        encoding="utf-8",
+    )
+
+
+def execute_audit_for_round(
+    round_dir: Path,
+    source_root: Path,
+    audit_run: Path,
+    *,
+    parallel_jobs: int,
+    resume: bool,
+    phase: str = "all",
+    model: str | None = None,
+    reasoning_effort: str | None = None,
+    deep_reasoning_effort: str | None = None,
+    deep_phases: str | None = None,
+    timeout_seconds: int | None = None,
+    skip_login_check: bool = False,
+) -> int:
+    runner = resumable_runner_for_source(source_root)
+    if not runner.is_file():
+        print(f"Automatic execution needs a resumable runner: {runner}", file=sys.stderr)
+        return 2
+
+    command = [str(runner), str(audit_run), "--jobs", str(parallel_jobs), "--phase", phase]
+    if resume:
+        command.append("--resume")
+    if model:
+        command.extend(["--model", model])
+    if reasoning_effort:
+        command.extend(["--reasoning-effort", reasoning_effort])
+    if deep_reasoning_effort:
+        command.extend(["--deep-reasoning-effort", deep_reasoning_effort])
+    if deep_phases:
+        command.extend(["--deep-phases", deep_phases])
+    if timeout_seconds is not None:
+        command.extend(["--timeout-seconds", str(timeout_seconds)])
+    if skip_login_check:
+        command.append("--skip-login-check")
+
+    update_manifest(
+        round_dir,
+        status="audit_running",
+        audit_status="running",
+        audit_resume_supported=True,
+        audit_runner=str(runner),
+        audit_command=command,
+        audit_model=model or "",
+        audit_reasoning_effort=reasoning_effort or "",
+        audit_deep_reasoning_effort=deep_reasoning_effort or "",
+        audit_deep_phases=deep_phases or "",
+        audit_skip_login_check=skip_login_check,
+        audit_started_at_utc=utc_now(),
+    )
+    completed = subprocess.run(command, text=True, check=False)
+    if completed.returncode == 0:
+        update_manifest(
+            round_dir,
+            status="audit_completed",
+            audit_status="completed",
+            audit_completed_at_utc=utc_now(),
+            audit_last_returncode=0,
+        )
+        print(round_dir)
+        return 0
+    if completed.returncode == LIMIT_EXHAUSTED_EXIT_CODE:
+        update_manifest(
+            round_dir,
+            status="limit_exhausted",
+            audit_status="limit_exhausted",
+            audit_last_returncode=completed.returncode,
+            audit_interrupted_at_utc=utc_now(),
+        )
+        write_resume_instructions(
+            round_dir,
+            audit_run,
+            runner,
+            parallel_jobs,
+            model=model,
+            timeout_seconds=timeout_seconds,
+            skip_login_check=skip_login_check,
+            reasoning_effort=reasoning_effort,
+            deep_reasoning_effort=deep_reasoning_effort,
+            deep_phases=deep_phases,
+        )
+        print(f"Audit paused because Codex limits appear exhausted. Resume instructions: {round_dir / 'RESUME.md'}")
+        return 0
+
+    update_manifest(
+        round_dir,
+        status="audit_failed",
+        audit_status="failed",
+        audit_last_returncode=completed.returncode,
+        audit_failed_at_utc=utc_now(),
+    )
+    return completed.returncode
+
+
 def write_round_files(
     round_dir: Path,
     benchmark: dict,
@@ -437,6 +639,13 @@ Goal:
 6. Create/test the next candidate under this loop archive.
 
 Do not expose ground truth files to the blind audit worker.
+During Step 1, do not read benchmark `ground-truth/**`, `design-lab/benchmarks/**`, prior `design-lab/runs/**` scorecards, misses, result records, refinement plans, leaderboards, audit-output snapshots, candidate results, or prior round folders. Those files are only for scoring/refinement after the blind audit completes.
+
+If Codex limits are exhausted during Step 1, do not recreate this round. Resume it after limits refill with:
+
+```bash
+bin/design-lab resume-audit --round-dir {round_dir}
+```
 """,
         encoding="utf-8",
     )
@@ -483,25 +692,80 @@ def command_start_round(args: argparse.Namespace) -> int:
         "max_rounds": args.max_rounds,
         "audit_run": str(audit_run),
         "ground_truth_dir": benchmark["ground_truth_dir"],
+        "audit_status": "not_started",
+        "audit_resume_supported": True,
+        "audit_runner": str(resumable_runner_for_source(source.root)),
+        "audit_model": args.model or "",
+        "audit_reasoning_effort": args.reasoning_effort,
+        "audit_deep_reasoning_effort": args.deep_reasoning_effort,
+        "audit_deep_phases": args.deep_phases,
+        "audit_timeout_seconds": args.timeout_seconds,
+        "audit_skip_login_check": args.skip_login_check,
+        "audit_last_returncode": None,
         "created_at_utc": utc_now(),
         "status": "scaffolded",
     }
     write_json(round_dir / "round-manifest.json", manifest)
     write_round_files(round_dir, benchmark, source, args.round, audit_run, args.max_rounds)
     if args.execute_audit:
-        runner = source.runner
-        if not runner.is_file():
-            print(f"Automatic execution needs a design-local runner: {runner}", file=sys.stderr)
-            return 2
-        completed = subprocess.run(
-            [str(runner), str(audit_run), "--jobs", str(args.parallel_jobs)],
-            text=True,
-            check=False,
+        return execute_audit_for_round(
+            round_dir,
+            source.root,
+            audit_run,
+            parallel_jobs=args.parallel_jobs,
+            resume=False,
+            model=args.model,
+            reasoning_effort=args.reasoning_effort,
+            deep_reasoning_effort=args.deep_reasoning_effort,
+            deep_phases=args.deep_phases,
+            timeout_seconds=args.timeout_seconds,
+            skip_login_check=args.skip_login_check,
         )
-        if completed.returncode != 0:
-            return completed.returncode
     print(round_dir)
     return 0
+
+
+def command_resume_audit(args: argparse.Namespace) -> int:
+    round_dir = Path(args.round_dir).expanduser().resolve()
+    manifest_path = round_dir / "round-manifest.json"
+    if not manifest_path.is_file():
+        print(f"Round manifest not found: {manifest_path}", file=sys.stderr)
+        return 2
+    manifest = read_json(manifest_path)
+    audit_run = Path(manifest.get("audit_run", "")).expanduser().resolve()
+    source_root = Path(manifest.get("source_design_dir", "")).expanduser().resolve()
+    if not audit_run.is_dir():
+        print(f"Audit run directory not found: {audit_run}", file=sys.stderr)
+        return 2
+    if not source_root.is_dir():
+        print(f"Source design directory not found: {source_root}", file=sys.stderr)
+        return 2
+
+    model = args.model if args.model is not None else (manifest.get("audit_model") or None)
+    reasoning_effort = args.reasoning_effort if args.reasoning_effort is not None else (
+        manifest.get("audit_reasoning_effort") or None
+    )
+    deep_reasoning_effort = args.deep_reasoning_effort if args.deep_reasoning_effort is not None else (
+        manifest.get("audit_deep_reasoning_effort") or None
+    )
+    deep_phases = args.deep_phases if args.deep_phases is not None else (manifest.get("audit_deep_phases") or None)
+    timeout_seconds = args.timeout_seconds if args.timeout_seconds is not None else manifest.get("audit_timeout_seconds")
+    skip_login_check = args.skip_login_check or bool(manifest.get("audit_skip_login_check"))
+
+    return execute_audit_for_round(
+        round_dir,
+        source_root,
+        audit_run,
+        parallel_jobs=args.parallel_jobs,
+        resume=True,
+        phase=args.phase,
+        model=model,
+        reasoning_effort=reasoning_effort,
+        deep_reasoning_effort=deep_reasoning_effort,
+        deep_phases=deep_phases,
+        timeout_seconds=timeout_seconds,
+        skip_login_check=skip_login_check,
+    )
 
 
 def command_create_candidate(args: argparse.Namespace) -> int:
@@ -839,6 +1103,13 @@ def build_parser() -> argparse.ArgumentParser:
     loop_prompt.add_argument("--starting-design", default="corpus-search")
     loop_prompt.add_argument("--max-rounds", type=int, default=5)
     loop_prompt.add_argument("--parallel-jobs", type=int, default=4)
+    loop_prompt.add_argument("--reasoning-effort", choices=REASONING_EFFORT_CHOICES, default=DEFAULT_REASONING_EFFORT)
+    loop_prompt.add_argument(
+        "--deep-reasoning-effort",
+        choices=REASONING_EFFORT_CHOICES,
+        default=DEFAULT_DEEP_REASONING_EFFORT,
+    )
+    loop_prompt.add_argument("--deep-phases", default=DEFAULT_DEEP_PHASES)
     loop_prompt.add_argument("--promoted-design")
     loop_prompt.set_defaults(func=command_learning_loop_prompt)
 
@@ -864,9 +1135,35 @@ def build_parser() -> argparse.ArgumentParser:
     start.add_argument("--previous-ref")
     start.add_argument("--current-ref")
     start.add_argument("--parallel-jobs", type=int, default=4)
+    start.add_argument("--model")
+    start.add_argument("--timeout-seconds", type=int)
+    start.add_argument("--skip-login-check", action="store_true")
+    start.add_argument("--reasoning-effort", choices=REASONING_EFFORT_CHOICES, default=DEFAULT_REASONING_EFFORT)
+    start.add_argument(
+        "--deep-reasoning-effort",
+        choices=REASONING_EFFORT_CHOICES,
+        default=DEFAULT_DEEP_REASONING_EFFORT,
+    )
+    start.add_argument("--deep-phases", default=DEFAULT_DEEP_PHASES)
     start.add_argument("--execute-audit", action="store_true")
     start.add_argument("--force", action="store_true")
     start.set_defaults(func=command_start_round)
+
+    resume = subparsers.add_parser("resume-audit", help="Resume an interrupted round audit without recreating it.")
+    resume.add_argument("--round-dir", required=True)
+    resume.add_argument("--parallel-jobs", type=int, default=4)
+    resume.add_argument(
+        "--phase",
+        choices=("all", "mapper", "corpus", "scans", "canonicalize", "validations", "aggregate", "final"),
+        default="all",
+    )
+    resume.add_argument("--model")
+    resume.add_argument("--timeout-seconds", type=int)
+    resume.add_argument("--skip-login-check", action="store_true")
+    resume.add_argument("--reasoning-effort", choices=REASONING_EFFORT_CHOICES)
+    resume.add_argument("--deep-reasoning-effort", choices=REASONING_EFFORT_CHOICES)
+    resume.add_argument("--deep-phases")
+    resume.set_defaults(func=command_resume_audit)
 
     record = subparsers.add_parser("record-result", help="Record exact found/missed findings for a completed round.")
     record.add_argument("--round-dir", required=True)

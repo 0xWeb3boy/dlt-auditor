@@ -51,6 +51,27 @@ def copy_template(src: Path, dst: Path, force: bool) -> None:
     shutil.copyfile(src, dst)
 
 
+def build_blind_audit_isolation(target: Path, run_dir: Path) -> str:
+    return f"""## Blind Audit Isolation
+
+This is a blind audit prompt. Use only:
+- The target repository: `{target}`
+- This generated audit run directory: `{run_dir}`
+- Prompt, template, design, and corpus files explicitly named in this prompt.
+
+Do not read, search, summarize, or use any answer-key material while producing blind audit outputs:
+- No `design-lab/benchmarks/**` files.
+- No benchmark `ground-truth/**` files or known-findings files.
+- No prior learning-loop artifacts from `design-lab/runs/**`, including `scorecard.md`, `misses.md`, `result-record.json`, `design-refinement-plan.md`, `leaderboard.md`, `audit-output-snapshot/**`, candidate `results/**`, or prior round folders.
+- No previous loop outputs as evidence for a finding.
+
+If this run is executing from a candidate design snapshot under `design-lab/runs/<loop>/candidates/<candidate>/design/`, that candidate's design files and this generated run directory are allowed. Other learning-loop folders and scoring/refinement artifacts are still forbidden.
+
+If you accidentally see ground truth or prior scoring material, do not use it. Record the contamination risk in `verification-log.md` and continue only with target-code evidence.
+
+"""
+
+
 def build_prompt_header(title: str, target: Path, run_dir: Path) -> str:
     return f"""# {title}
 
@@ -59,6 +80,7 @@ Run directory: `{run_dir}`
 
 Work deeply. Prefer concrete file/function evidence over broad claims. Keep outputs structured, factual, and explicit about uncertainty.
 
+{build_blind_audit_isolation(target, run_dir)}
 """
 
 
