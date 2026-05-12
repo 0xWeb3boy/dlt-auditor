@@ -42,7 +42,7 @@ The source prompt is `design-lab/prompts/run-learning-loop.md`.
 
 3. Run the generated blind audit prompt or parallel runner.
 
-When `--execute-audit` is used, the default Codex split is reasoning `high` for mapper/corpus/scans and `xhigh` for canonicalize/validations/aggregate/final. Override with `--reasoning-effort`, `--deep-reasoning-effort`, or `--deep-phases` on `start-round` or `resume-audit`.
+When `--execute-audit` is used, the default Codex split is service tier `standard`, reasoning `high` for mapper/corpus/scans, and reasoning `xhigh` for canonicalize/validations/aggregate/final. Override with `--service-tier`, `--reasoning-effort`, `--deep-reasoning-effort`, or `--deep-phases` on `start-round` or `resume-audit`.
 
 4. Use the generated scoring prompt to compare audit outputs against ground truth. Fill both prose scoring files and the structured result file:
 
@@ -129,11 +129,11 @@ Do not recreate the round with `start-round --force`. When limits refill, resume
 ```bash
 /testing/dlt-ai-audit-system/bin/design-lab resume-audit \
   --round-dir /testing/dlt-ai-audit-system/design-lab/runs/<run>/round-XX \
-  --parallel-jobs 4
+  --parallel-jobs 8
 ```
 
 Completed worker prompts are checkpointed under the audit run's `agent-logs/runner-state/` directory, so resume skips completed mapper, corpus, scan, canonicalization, validation, aggregation, and final prompts when those phases exist in the selected design.
-Resume reuses the round's recorded model and reasoning settings unless you pass new overrides.
+Resume reuses the round's recorded model, service tier, and reasoning settings unless you pass new overrides.
 
 9. Review the leaderboard:
 

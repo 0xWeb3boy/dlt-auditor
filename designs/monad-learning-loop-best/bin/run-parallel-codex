@@ -20,6 +20,8 @@ from pathlib import Path
 
 
 DEFAULT_MODEL = "gpt-5.5"
+SERVICE_TIER_CHOICES = ("standard", "fast", "flex")
+DEFAULT_SERVICE_TIER = "standard"
 LIMIT_EXHAUSTION_PATTERNS = (
     "rate limit",
     "rate-limit",
@@ -70,6 +72,12 @@ def parse_args() -> argparse.Namespace:
         "--model",
         default=DEFAULT_MODEL,
         help="Codex model to pass to `codex exec`.",
+    )
+    parser.add_argument(
+        "--service-tier",
+        choices=SERVICE_TIER_CHOICES,
+        default=DEFAULT_SERVICE_TIER,
+        help="Codex service tier. `standard` omits the override; `fast` enables the faster tier.",
     )
     parser.add_argument(
         "--codex-path",
@@ -138,7 +146,13 @@ def read_prompt(path: Path) -> str:
     return path.read_text(encoding="utf-8")
 
 
-def build_command(codex_path: str, model: str | None, run_dir: Path, final_message_path: Path) -> list[str]:
+def build_command(
+    codex_path: str,
+    model: str | None,
+    service_tier: str,
+    run_dir: Path,
+    final_message_path: Path,
+) -> list[str]:
     command = [
         codex_path,
         "exec",
@@ -154,6 +168,8 @@ def build_command(codex_path: str, model: str | None, run_dir: Path, final_messa
     ]
     if model:
         command[2:2] = ["-m", model]
+    if service_tier != "standard":
+        command[2:2] = ["-c", f'service_tier="{service_tier}"']
     return command
 
 
@@ -164,6 +180,7 @@ def run_prompt(
     log_dir: Path,
     codex_path: str,
     model: str | None,
+    service_tier: str,
     timeout_seconds: int,
     name: str | None = None,
 ) -> WorkerResult:
@@ -173,7 +190,7 @@ def run_prompt(
     stderr_path = log_dir / f"{worker_name}.stderr.log"
     final_message_path = log_dir / f"{worker_name}.final.md"
     prompt_text = read_prompt(prompt_path)
-    command = build_command(codex_path, model, run_dir, final_message_path)
+    command = build_command(codex_path, model, service_tier, run_dir, final_message_path)
 
     completed = subprocess.run(
         command,
@@ -237,13 +254,14 @@ def run_serial_phase(
     log_dir: Path,
     codex_path: str,
     model: str | None,
+    service_tier: str,
     timeout_seconds: int,
     dry_run: bool,
 ) -> int:
     if not prompt_path.exists():
         print(f"[skip] missing prompt: {prompt_path}")
         return 0
-    print(f"[{timestamp()}] running {prompt_path.name}")
+    print(f"[{timestamp()}] running {prompt_path.name} tier={service_tier}")
     if dry_run:
         return 0
     result = run_prompt(
@@ -252,6 +270,7 @@ def run_serial_phase(
         log_dir=log_dir,
         codex_path=codex_path,
         model=model,
+        service_tier=service_tier,
         timeout_seconds=timeout_seconds,
     )
     print(
@@ -268,6 +287,7 @@ def run_parallel_prompts(
     log_dir: Path,
     codex_path: str,
     model: str | None,
+    service_tier: str,
     timeout_seconds: int,
     jobs: int,
     dry_run: bool,
@@ -276,10 +296,10 @@ def run_parallel_prompts(
         print("[skip] no prompts for this phase")
         return 0
     worker_count = min(max(jobs, 1), len(prompt_paths))
-    print(f"[{timestamp()}] launching {len(prompt_paths)} prompts with {worker_count} workers")
+    print(f"[{timestamp()}] launching {len(prompt_paths)} prompts with {worker_count} workers tier={service_tier}")
     if dry_run:
         for prompt_path in prompt_paths:
-            print(f"[dry-run] {prompt_path}")
+            print(f"[dry-run] {prompt_path} tier={service_tier}")
         return 0
 
     exit_code = 0
@@ -300,6 +320,7 @@ def run_parallel_prompts(
                     log_dir=log_dir,
                     codex_path=codex_path,
                     model=model,
+                    service_tier=service_tier,
                     timeout_seconds=timeout_seconds,
                 )
             ] = prompt_path
@@ -336,6 +357,7 @@ def run_parallel_prompts(
                         log_dir=log_dir,
                         codex_path=codex_path,
                         model=model,
+                        service_tier=service_tier,
                         timeout_seconds=timeout_seconds,
                     )
                 ] = next_prompt
@@ -388,6 +410,7 @@ def main() -> int:
                 log_dir=log_dir,
                 codex_path=codex_path,
                 model=args.model,
+                service_tier=args.service_tier,
                 timeout_seconds=args.timeout_seconds,
                 dry_run=args.dry_run,
             )
@@ -401,6 +424,7 @@ def main() -> int:
                 log_dir=log_dir,
                 codex_path=codex_path,
                 model=args.model,
+                service_tier=args.service_tier,
                 timeout_seconds=args.timeout_seconds,
                 dry_run=args.dry_run,
             )
@@ -414,6 +438,7 @@ def main() -> int:
                 log_dir=log_dir,
                 codex_path=codex_path,
                 model=args.model,
+                service_tier=args.service_tier,
                 timeout_seconds=args.timeout_seconds,
                 jobs=args.jobs,
                 dry_run=args.dry_run,
@@ -428,6 +453,7 @@ def main() -> int:
                 log_dir=log_dir,
                 codex_path=codex_path,
                 model=args.model,
+                service_tier=args.service_tier,
                 timeout_seconds=args.timeout_seconds,
                 dry_run=args.dry_run,
             )
@@ -441,6 +467,7 @@ def main() -> int:
                 log_dir=log_dir,
                 codex_path=codex_path,
                 model=args.model,
+                service_tier=args.service_tier,
                 timeout_seconds=args.timeout_seconds,
                 jobs=args.jobs,
                 dry_run=args.dry_run,
@@ -455,6 +482,7 @@ def main() -> int:
                 log_dir=log_dir,
                 codex_path=codex_path,
                 model=args.model,
+                service_tier=args.service_tier,
                 timeout_seconds=args.timeout_seconds,
                 dry_run=args.dry_run,
             )
@@ -468,6 +496,7 @@ def main() -> int:
                 log_dir=log_dir,
                 codex_path=codex_path,
                 model=args.model,
+                service_tier=args.service_tier,
                 timeout_seconds=args.timeout_seconds,
                 dry_run=args.dry_run,
             )

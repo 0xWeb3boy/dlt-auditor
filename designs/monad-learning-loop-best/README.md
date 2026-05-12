@@ -48,8 +48,11 @@ To run a generated audit with multiple Codex workers:
 ```bash
 /testing/dlt-ai-audit-system/bin/run-corpus-search-parallel \
   /testing/dlt-ai-audit-system/designs/corpus-search/runs/<run-name> \
-  --jobs 4
+  --jobs 4 \
+  --service-tier standard
 ```
+
+The runner defaults to Codex service tier `standard`; pass `--service-tier fast` to use the fast-tier override.
 
 The runner uses this order:
 

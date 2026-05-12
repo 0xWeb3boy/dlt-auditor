@@ -14,6 +14,7 @@
   "audit_resume_supported": true,
   "audit_runner": "",
   "audit_model": "",
+  "audit_service_tier": "standard",
   "audit_reasoning_effort": "high",
   "audit_deep_reasoning_effort": "xhigh",
   "audit_deep_phases": "canonicalize,validations,aggregate,final",

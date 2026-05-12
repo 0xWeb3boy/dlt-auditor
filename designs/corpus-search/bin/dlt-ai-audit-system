@@ -259,21 +259,22 @@ The safe split is:
 Recommended command:
 
 ```bash
-{system_root / "bin" / "run-parallel-codex"} {run_dir} --jobs {jobs} --reasoning-effort high --deep-reasoning-effort xhigh
+{system_root / "bin" / "run-parallel-codex"} {run_dir} --jobs {jobs} --service-tier standard --reasoning-effort high --deep-reasoning-effort xhigh
 ```
 
 Useful partial commands:
 
 ```bash
-{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase mapper --reasoning-effort high
-{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase corpus --reasoning-effort high
-{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase scans --jobs {jobs} --reasoning-effort high
-{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase validations --deep-reasoning-effort xhigh
-{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase final --deep-reasoning-effort xhigh
+{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase mapper --service-tier standard --reasoning-effort high
+{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase corpus --service-tier standard --reasoning-effort high
+{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase scans --jobs {jobs} --service-tier standard --reasoning-effort high
+{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase validations --service-tier standard --deep-reasoning-effort xhigh
+{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase final --service-tier standard --deep-reasoning-effort xhigh
 ```
 
 Operational rules:
 - Keep `--jobs` modest. Start with `{jobs}`; use `1` to disable parallelism.
+- Default Codex service tier is `standard`; pass `--service-tier fast` to use the fast-tier override.
 - Default reasoning is `high` for mapper/corpus/scans and `xhigh` for canonicalize/validations/aggregate/final.
 - Do not run parallel family scans until `repo-context.md` has real content.
 - Corpus matches are hypotheses only, not evidence.
@@ -483,7 +484,7 @@ def main() -> int:
     parser.add_argument(
         "--parallel-jobs",
         type=int,
-        default=int(os.environ.get("DLT_AUDIT_PARALLEL_JOBS", "4")),
+        default=int(os.environ.get("DLT_AUDIT_PARALLEL_JOBS", "8")),
         help="Suggested Codex worker count recorded in generated parallel-run instructions.",
     )
     args = parser.parse_args()

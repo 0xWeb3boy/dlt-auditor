@@ -1,0 +1,68 @@
+{
+  "audit_output_snapshot": "/testing/dlt-ai-audit-system/design-lab/runs/fuels-ts-learning-3-learning-loop/round-04/audit-output-snapshot",
+  "audit_run": "/testing/dlt-ai-audit-system/design-lab/runs/fuels-ts-learning-3-learning-loop/candidates/round-04-a/design/runs/lab-fuels-ts-learning-3-round-04-a-round-04",
+  "benchmark": "fuels-ts-learning-3",
+  "candidate_loop": "fuels-ts-learning-3-learning-loop",
+  "candidate_name": "round-04-a",
+  "created_at_utc": "2026-05-12T18:11:19Z",
+  "design_name": "",
+  "design_source_type": "candidate",
+  "duplicate_groups": [
+    {
+      "audit_candidate_ids": [
+        "CAN-01",
+        "CAN-03"
+      ],
+      "ground_truth_ids": [
+        "33360"
+      ],
+      "group_id": "pending-resource-default-reuse",
+      "notes": "CAN-01 is the canonical final match. CAN-03 is an opt-in-cache/pre-submit timing variant merged into CAN-01 rather than reported separately."
+    }
+  ],
+  "false_positive_count": 1,
+  "false_positives": [
+    {
+      "audit_id": "F-02",
+      "candidate": "CAN-21",
+      "reason": "ABI serialization issue, unrelated to pending UTXO reservation.",
+      "severity": "Medium",
+      "title": "ABI string coders use JavaScript character count where byte length is required"
+    }
+  ],
+  "found_count": 1,
+  "found_findings": [
+    {
+      "audit_evidence_files": [
+        "design-lab/runs/fuels-ts-learning-3-learning-loop/candidates/round-04-a/design/runs/lab-fuels-ts-learning-3-round-04-a-round-04/FINAL_AUDIT_REPORT.md",
+        "design-lab/runs/fuels-ts-learning-3-learning-loop/candidates/round-04-a/design/runs/lab-fuels-ts-learning-3-round-04-a-round-04/candidate-CAN-01.md",
+        "design-lab/runs/fuels-ts-learning-3-learning-loop/candidates/round-04-a/design/runs/lab-fuels-ts-learning-3-round-04-a-round-04/family-scan-26_default_pending_resource_reuse.md"
+      ],
+      "ground_truth_id": "33360",
+      "matched_audit_candidate_ids": [
+        "F-01",
+        "CAN-01"
+      ],
+      "notes": "F-01 / CAN-01 matches the known issue: default Account funding excludes only current-request resources, default providers have no pending UTXO reservation, and ordinary repeated transactions before processing can reuse the same UTXO and fail or lose progress. The final report cites the target repo's own cacheUtxo docs confirming the same-UTXO failure mode.",
+      "severity": "Medium",
+      "status": "found",
+      "title": "The typescript SDK has no awareness of to-be-spent transactions causing some transactions to fail or silently get pruned as they are funded with already used UTXOs"
+    }
+  ],
+  "ground_truth_dir": "/testing/dlt-ai-audit-system/design-lab/benchmarks/fuels-ts-learning-3/ground-truth",
+  "known_findings_total": 1,
+  "max_rounds": 5,
+  "missed_count": 0,
+  "missed_findings": [],
+  "notes": "Round 4 preserved full recall while applying a stricter final-report precision gate. One validation timed out on the first pass and succeeded on resume; the final audit status is completed.",
+  "partial_count": 0,
+  "partial_findings": [],
+  "recorded_at_utc": "2026-05-12T20:47:09Z",
+  "round": 4,
+  "round_label": "round-04",
+  "schema_version": 1,
+  "score": 0.95,
+  "score_basis": "manual root-cause/mechanism equivalence; full credit for finding the known default pending-UTXO reuse issue, with a small precision penalty for one unrelated final finding",
+  "source_design_dir": "/testing/dlt-ai-audit-system/design-lab/runs/fuels-ts-learning-3-learning-loop/candidates/round-04-a/design",
+  "trial_name": ""
+}

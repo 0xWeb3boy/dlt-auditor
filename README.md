@@ -43,11 +43,11 @@ To execute the generated corpus-search run with multiple Codex workers:
 ```bash
 /testing/dlt-ai-audit-system/bin/run-corpus-search-parallel \
   /testing/dlt-ai-audit-system/designs/corpus-search/runs/<run-name> \
-  --jobs 4
+  --jobs 8
 ```
 
 The parallel runner keeps the mapper and corpus-search phases serial, then runs independent family scans concurrently. Use `--jobs 1` to disable parallelism.
-By default it uses `gpt-5.5` with reasoning `high` for discovery phases and `xhigh` for canonicalization, validation, aggregation, and final review. Override with `--model`, `--reasoning-effort`, `--deep-reasoning-effort`, or `--deep-phases` when needed.
+By default it uses `gpt-5.5` on Codex service tier `standard`, with reasoning `high` for discovery phases and `xhigh` for canonicalization, validation, aggregation, and final review. Override with `--model`, `--service-tier fast`, `--reasoning-effort`, `--deep-reasoning-effort`, or `--deep-phases` when needed.
 
 ## Search The Corpus Directly
 
@@ -112,10 +112,10 @@ If Codex limits are exhausted during a learning-loop audit, do not recreate the 
 ```bash
 /testing/dlt-ai-audit-system/bin/design-lab resume-audit \
   --round-dir /testing/dlt-ai-audit-system/design-lab/runs/<run>/round-XX \
-  --parallel-jobs 4
+  --parallel-jobs 8
 ```
 
-Learning-loop audit execution uses the same default reasoning split: `high` for mapper/corpus/scans and `xhigh` for canonicalize/validations/aggregate/final. Add `--reasoning-effort`, `--deep-reasoning-effort`, or `--deep-phases` to `start-round --execute-audit` or `resume-audit` to change it.
+Learning-loop audit execution uses the same default speed/reasoning split: service tier `standard`, `high` for mapper/corpus/scans, and `xhigh` for canonicalize/validations/aggregate/final. Add `--service-tier`, `--reasoning-effort`, `--deep-reasoning-effort`, or `--deep-phases` to `start-round --execute-audit` or `resume-audit` to change it.
 
 To get a ready-to-paste prompt for the whole learning loop:
 

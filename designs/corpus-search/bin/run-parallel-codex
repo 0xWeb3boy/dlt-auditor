@@ -22,6 +22,8 @@ from threading import Lock
 
 
 DEFAULT_MODEL = "gpt-5.5"
+SERVICE_TIER_CHOICES = ("standard", "fast", "flex")
+DEFAULT_SERVICE_TIER = "standard"
 REASONING_EFFORT_CHOICES = ("low", "medium", "high", "xhigh")
 DEFAULT_REASONING_EFFORT = "high"
 DEFAULT_DEEP_REASONING_EFFORT = "xhigh"
@@ -51,6 +53,7 @@ class WorkerResult:
     prompt_path: Path
     returncode: int
     elapsed_seconds: float
+    service_tier: str
     reasoning_effort: str
     stdout_path: Path
     stderr_path: Path
@@ -73,13 +76,19 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--jobs",
         type=int,
-        default=4,
+        default=8,
         help="Maximum concurrent Codex workers for independent phases.",
     )
     parser.add_argument(
         "--model",
         default=DEFAULT_MODEL,
         help="Codex model to pass to `codex exec`.",
+    )
+    parser.add_argument(
+        "--service-tier",
+        choices=SERVICE_TIER_CHOICES,
+        default=DEFAULT_SERVICE_TIER,
+        help="Codex service tier. `standard` omits the override; `fast` enables the faster tier.",
     )
     parser.add_argument(
         "--reasoning-effort",
@@ -310,6 +319,7 @@ def read_prompt(path: Path) -> str:
 def build_command(
     codex_path: str,
     model: str | None,
+    service_tier: str,
     run_dir: Path,
     final_message_path: Path,
     reasoning_effort: str,
@@ -317,6 +327,7 @@ def build_command(
     command = [
         codex_path,
         "exec",
+        "--dangerously-bypass-approvals-and-sandbox",
         "--skip-git-repo-check",
         "--cd",
         str(run_dir),
@@ -328,6 +339,8 @@ def build_command(
     ]
     if model:
         command[2:2] = ["-m", model]
+    if service_tier != "standard":
+        command[2:2] = ["-c", f'service_tier="{service_tier}"']
     return command
 
 
@@ -338,6 +351,7 @@ def run_prompt(
     log_dir: Path,
     codex_path: str,
     model: str | None,
+    service_tier: str,
     reasoning_effort: str,
     timeout_seconds: int,
     name: str | None = None,
@@ -348,7 +362,7 @@ def run_prompt(
     stderr_path = log_dir / f"{worker_name}.stderr.log"
     final_message_path = log_dir / f"{worker_name}.final.md"
     prompt_text = read_prompt(prompt_path)
-    command = build_command(codex_path, model, run_dir, final_message_path, reasoning_effort)
+    command = build_command(codex_path, model, service_tier, run_dir, final_message_path, reasoning_effort)
 
     completed = subprocess.run(
         command,
@@ -374,6 +388,7 @@ def run_prompt(
         prompt_path=prompt_path,
         returncode=completed.returncode,
         elapsed_seconds=elapsed,
+        service_tier=service_tier,
         reasoning_effort=reasoning_effort,
         stdout_path=stdout_path,
         stderr_path=stderr_path,
@@ -414,6 +429,7 @@ def run_serial_phase(
     log_dir: Path,
     codex_path: str,
     model: str | None,
+    service_tier: str,
     reasoning_effort: str,
     timeout_seconds: int,
     dry_run: bool,
@@ -426,7 +442,7 @@ def run_serial_phase(
     if resume and not rerun_completed and state_is_completed(log_dir, phase, prompt_path):
         print(f"[{timestamp()}] resume skip completed {prompt_path.name}")
         return 0
-    print(f"[{timestamp()}] running {prompt_path.name} reasoning={reasoning_effort}")
+    print(f"[{timestamp()}] running {prompt_path.name} tier={service_tier} reasoning={reasoning_effort}")
     if dry_run:
         return 0
     write_state(
@@ -435,6 +451,7 @@ def run_serial_phase(
         prompt_path,
         "running",
         started_at_utc=timestamp(),
+        service_tier=service_tier,
         reasoning_effort=reasoning_effort,
     )
     try:
@@ -444,17 +461,42 @@ def run_serial_phase(
             log_dir=log_dir,
             codex_path=codex_path,
             model=model,
+            service_tier=service_tier,
             reasoning_effort=reasoning_effort,
             timeout_seconds=timeout_seconds,
         )
     except LimitExhaustedError as exc:
-        write_state(log_dir, phase, prompt_path, "limit_exhausted", error=str(exc), reasoning_effort=reasoning_effort)
+        write_state(
+            log_dir,
+            phase,
+            prompt_path,
+            "limit_exhausted",
+            error=str(exc),
+            service_tier=service_tier,
+            reasoning_effort=reasoning_effort,
+        )
         raise
     except subprocess.TimeoutExpired as exc:
-        write_state(log_dir, phase, prompt_path, "timed_out", error=str(exc), reasoning_effort=reasoning_effort)
+        write_state(
+            log_dir,
+            phase,
+            prompt_path,
+            "timed_out",
+            error=str(exc),
+            service_tier=service_tier,
+            reasoning_effort=reasoning_effort,
+        )
         raise
     except Exception as exc:
-        write_state(log_dir, phase, prompt_path, "failed", error=str(exc), reasoning_effort=reasoning_effort)
+        write_state(
+            log_dir,
+            phase,
+            prompt_path,
+            "failed",
+            error=str(exc),
+            service_tier=service_tier,
+            reasoning_effort=reasoning_effort,
+        )
         raise
     print(
         f"[{timestamp()}] finished {result.name} rc={result.returncode} "
@@ -467,6 +509,7 @@ def run_serial_phase(
         "completed" if result.returncode == 0 else "failed",
         returncode=result.returncode,
         elapsed_seconds=result.elapsed_seconds,
+        service_tier=result.service_tier,
         reasoning_effort=result.reasoning_effort,
         stdout_path=str(result.stdout_path),
         stderr_path=str(result.stderr_path),
@@ -483,6 +526,7 @@ def run_prompt_with_state(
     log_dir: Path,
     codex_path: str,
     model: str | None,
+    service_tier: str,
     reasoning_effort: str,
     timeout_seconds: int,
     name: str | None = None,
@@ -494,6 +538,7 @@ def run_prompt_with_state(
         "running",
         name=name,
         started_at_utc=timestamp(),
+        service_tier=service_tier,
         reasoning_effort=reasoning_effort,
     )
     try:
@@ -503,6 +548,7 @@ def run_prompt_with_state(
             log_dir=log_dir,
             codex_path=codex_path,
             model=model,
+            service_tier=service_tier,
             reasoning_effort=reasoning_effort,
             timeout_seconds=timeout_seconds,
             name=name,
@@ -515,14 +561,33 @@ def run_prompt_with_state(
             "limit_exhausted",
             name=name,
             error=str(exc),
+            service_tier=service_tier,
             reasoning_effort=reasoning_effort,
         )
         raise
     except subprocess.TimeoutExpired as exc:
-        write_state(log_dir, phase, prompt_path, "timed_out", name=name, error=str(exc), reasoning_effort=reasoning_effort)
+        write_state(
+            log_dir,
+            phase,
+            prompt_path,
+            "timed_out",
+            name=name,
+            error=str(exc),
+            service_tier=service_tier,
+            reasoning_effort=reasoning_effort,
+        )
         raise
     except Exception as exc:
-        write_state(log_dir, phase, prompt_path, "failed", name=name, error=str(exc), reasoning_effort=reasoning_effort)
+        write_state(
+            log_dir,
+            phase,
+            prompt_path,
+            "failed",
+            name=name,
+            error=str(exc),
+            service_tier=service_tier,
+            reasoning_effort=reasoning_effort,
+        )
         raise
 
     write_state(
@@ -533,6 +598,7 @@ def run_prompt_with_state(
         name=name,
         returncode=result.returncode,
         elapsed_seconds=result.elapsed_seconds,
+        service_tier=result.service_tier,
         reasoning_effort=result.reasoning_effort,
         stdout_path=str(result.stdout_path),
         stderr_path=str(result.stderr_path),
@@ -549,6 +615,7 @@ def run_parallel_prompts(
     log_dir: Path,
     codex_path: str,
     model: str | None,
+    service_tier: str,
     reasoning_effort: str,
     timeout_seconds: int,
     jobs: int,
@@ -572,11 +639,11 @@ def run_parallel_prompts(
     worker_count = min(max(jobs, 1), len(prompt_paths))
     print(
         f"[{timestamp()}] launching {len(prompt_paths)} prompts with {worker_count} workers "
-        f"reasoning={reasoning_effort}"
+        f"tier={service_tier} reasoning={reasoning_effort}"
     )
     if dry_run:
         for prompt_path in prompt_paths:
-            print(f"[dry-run] {prompt_path} reasoning={reasoning_effort}")
+            print(f"[dry-run] {prompt_path} tier={service_tier} reasoning={reasoning_effort}")
         return 0
 
     exit_code = 0
@@ -598,6 +665,7 @@ def run_parallel_prompts(
                     log_dir=log_dir,
                     codex_path=codex_path,
                     model=model,
+                    service_tier=service_tier,
                     reasoning_effort=reasoning_effort,
                     timeout_seconds=timeout_seconds,
                 )
@@ -636,6 +704,7 @@ def run_parallel_prompts(
                         log_dir=log_dir,
                         codex_path=codex_path,
                         model=model,
+                        service_tier=service_tier,
                         reasoning_effort=reasoning_effort,
                         timeout_seconds=timeout_seconds,
                     )
@@ -681,6 +750,7 @@ def run_serial_named_phase(
     log_dir: Path,
     codex_path: str,
     model: str | None,
+    service_tier: str,
     reasoning_effort: str,
     timeout_seconds: int,
     dry_run: bool,
@@ -694,6 +764,7 @@ def run_serial_named_phase(
         log_dir=log_dir,
         codex_path=codex_path,
         model=model,
+        service_tier=service_tier,
         reasoning_effort=reasoning_effort,
         timeout_seconds=timeout_seconds,
         dry_run=dry_run,
@@ -731,6 +802,7 @@ def main() -> int:
     deep_phase_text = format_phase_set(deep_phases)
     runner_settings = {
         "model": args.model,
+        "service_tier": args.service_tier,
         "reasoning_effort": args.reasoning_effort,
         "deep_reasoning_effort": args.deep_reasoning_effort,
         "deep_phases": deep_phase_text,
@@ -742,7 +814,7 @@ def main() -> int:
     exit_code = 0
     resume_hint = (
         f"{Path(__file__).resolve()} {run_dir} --jobs {args.jobs} "
-        f"--model {args.model} --reasoning-effort {args.reasoning_effort} "
+        f"--model {args.model} --service-tier {args.service_tier} --reasoning-effort {args.reasoning_effort} "
         f"--deep-reasoning-effort {args.deep_reasoning_effort} --deep-phases {deep_phase_text} "
         f"--timeout-seconds {args.timeout_seconds} --phase {phase} --resume"
     )
@@ -755,6 +827,7 @@ def main() -> int:
                 log_dir=log_dir,
                 codex_path=codex_path,
                 model=args.model,
+                service_tier=args.service_tier,
                 reasoning_effort=phase_effort("mapper"),
                 timeout_seconds=args.timeout_seconds,
                 dry_run=args.dry_run,
@@ -773,6 +846,7 @@ def main() -> int:
                 log_dir=log_dir,
                 codex_path=codex_path,
                 model=args.model,
+                service_tier=args.service_tier,
                 reasoning_effort=phase_effort("corpus"),
                 timeout_seconds=args.timeout_seconds,
                 dry_run=args.dry_run,
@@ -791,6 +865,7 @@ def main() -> int:
                 log_dir=log_dir,
                 codex_path=codex_path,
                 model=args.model,
+                service_tier=args.service_tier,
                 reasoning_effort=phase_effort("scans"),
                 timeout_seconds=args.timeout_seconds,
                 jobs=args.jobs,
@@ -810,6 +885,7 @@ def main() -> int:
                 log_dir=log_dir,
                 codex_path=codex_path,
                 model=args.model,
+                service_tier=args.service_tier,
                 reasoning_effort=phase_effort("canonicalize"),
                 timeout_seconds=args.timeout_seconds,
                 dry_run=args.dry_run,
@@ -828,6 +904,7 @@ def main() -> int:
                 log_dir=log_dir,
                 codex_path=codex_path,
                 model=args.model,
+                service_tier=args.service_tier,
                 reasoning_effort=phase_effort("validations"),
                 timeout_seconds=args.timeout_seconds,
                 jobs=args.jobs,
@@ -847,6 +924,7 @@ def main() -> int:
                 log_dir=log_dir,
                 codex_path=codex_path,
                 model=args.model,
+                service_tier=args.service_tier,
                 reasoning_effort=phase_effort("aggregate"),
                 timeout_seconds=args.timeout_seconds,
                 dry_run=args.dry_run,
@@ -865,6 +943,7 @@ def main() -> int:
                 log_dir=log_dir,
                 codex_path=codex_path,
                 model=args.model,
+                service_tier=args.service_tier,
                 reasoning_effort=phase_effort("final"),
                 timeout_seconds=args.timeout_seconds,
                 dry_run=args.dry_run,

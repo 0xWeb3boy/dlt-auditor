@@ -12,6 +12,7 @@ Use this prompt when the operator asks to run the eval-driven learning loop for 
 - Starting design: `{{STARTING_DESIGN}}`
 - Max rounds: `{{MAX_ROUNDS}}`
 - Parallel jobs: `{{PARALLEL_JOBS}}`
+- Codex service tier: `{{SERVICE_TIER}}`
 - Reasoning effort: `{{REASONING_EFFORT}}`
 - Deep reasoning effort: `{{DEEP_REASONING_EFFORT}}`
 - Deep reasoning phases: `{{DEEP_PHASES}}`
@@ -37,7 +38,7 @@ If the competition repo or findings path is missing, ask for the missing path be
 
 Run the complete learning loop. Stay with it until either all known findings are found with acceptable false positives, the max round is reached, or progress clearly stalls.
 
-Use reasoning `{{REASONING_EFFORT}}` for discovery phases and `{{DEEP_REASONING_EFFORT}}` for `{{DEEP_PHASES}}` unless the operator explicitly overrides that split.
+Use Codex service tier `{{SERVICE_TIER}}`. Use reasoning `{{REASONING_EFFORT}}` for discovery phases and `{{DEEP_REASONING_EFFORT}}` for `{{DEEP_PHASES}}` unless the operator explicitly overrides that split.
 
 ## Step 1: Prepare
 
@@ -77,6 +78,7 @@ bin/design-lab start-round \
   --max-rounds {{MAX_ROUNDS}} \
   --execute-audit \
   --parallel-jobs {{PARALLEL_JOBS}} \
+  --service-tier {{SERVICE_TIER}} \
   --reasoning-effort {{REASONING_EFFORT}} \
   --deep-reasoning-effort {{DEEP_REASONING_EFFORT}} \
   --deep-phases {{DEEP_PHASES}} \
@@ -144,6 +146,7 @@ If `start-round --execute-audit` or a runner stops because Codex quota/rate limi
 bin/design-lab resume-audit \
   --round-dir design-lab/runs/{{LOOP_NAME}}/round-XX \
   --parallel-jobs {{PARALLEL_JOBS}} \
+  --service-tier {{SERVICE_TIER}} \
   --reasoning-effort {{REASONING_EFFORT}} \
   --deep-reasoning-effort {{DEEP_REASONING_EFFORT}} \
   --deep-phases {{DEEP_PHASES}}
@@ -204,6 +207,7 @@ bin/design-lab start-round \
   --max-rounds {{MAX_ROUNDS}} \
   --execute-audit \
   --parallel-jobs {{PARALLEL_JOBS}} \
+  --service-tier {{SERVICE_TIER}} \
   --reasoning-effort {{REASONING_EFFORT}} \
   --deep-reasoning-effort {{DEEP_REASONING_EFFORT}} \
   --deep-phases {{DEEP_PHASES}} \
@@ -241,6 +245,7 @@ bin/design-lab start-round \
   --max-rounds {{MAX_ROUNDS}} \
   --execute-audit \
   --parallel-jobs {{PARALLEL_JOBS}} \
+  --service-tier {{SERVICE_TIER}} \
   --reasoning-effort {{REASONING_EFFORT}} \
   --deep-reasoning-effort {{DEEP_REASONING_EFFORT}} \
   --deep-phases {{DEEP_PHASES}} \

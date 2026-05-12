@@ -18,7 +18,7 @@ Blind audit guardrail: the audit workers must not read `design-lab/benchmarks/**
 
 Limit-resume guardrail: if Codex limits are exhausted during a round, do not rerun `start-round --force`. Resume the same round with `bin/design-lab resume-audit --round-dir design-lab/runs/<loop>/round-XX`.
 
-Reasoning default: learning-loop audits run discovery phases at `high` and deep judgment phases at `xhigh`. The prompt renderer exposes `--reasoning-effort`, `--deep-reasoning-effort`, and `--deep-phases` if you want a different split.
+Speed/reasoning default: learning-loop audits run Codex service tier `standard`, discovery phases at `high`, and deep judgment phases at `xhigh`. The prompt renderer exposes `--service-tier`, `--reasoning-effort`, `--deep-reasoning-effort`, and `--deep-phases` if you want a different split.
 
 To render a filled prompt:
 

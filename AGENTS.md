@@ -14,6 +14,6 @@ If the active candidate design lives under `design-lab/runs/<loop>/candidates/<c
 
 Store experimental candidates and exact results under `design-lab/runs/<loop>/`, and promote only the best scored candidate/source into `designs/`.
 
-When executing learning-loop audits, use reasoning `high` for discovery phases and `xhigh` for canonicalize, validations, aggregate, and final phases unless the user asks for a different split.
+When executing learning-loop audits, use Codex service tier `standard`, reasoning `high` for discovery phases, and reasoning `xhigh` for canonicalize, validations, aggregate, and final phases unless the user asks for a different split.
 
 If Codex limits are exhausted during a learning-loop audit, preserve the round and resume it later with `bin/design-lab resume-audit --round-dir design-lab/runs/<loop>/round-XX`. Do not recreate the same round with `start-round --force` unless the user explicitly wants to discard the interrupted run.

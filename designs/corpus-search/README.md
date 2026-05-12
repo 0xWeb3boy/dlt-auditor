@@ -48,15 +48,16 @@ To run a generated audit with multiple Codex workers:
 ```bash
 /testing/dlt-ai-audit-system/bin/run-corpus-search-parallel \
   /testing/dlt-ai-audit-system/designs/corpus-search/runs/<run-name> \
-  --jobs 4
+  --jobs 8
 ```
 
-The runner defaults to `gpt-5.5`, reasoning `high` for mapper/corpus/scans, and reasoning `xhigh` for canonicalize/validations/aggregate/final. You can override the split:
+The runner defaults to `gpt-5.5`, Codex service tier `standard`, reasoning `high` for mapper/corpus/scans, and reasoning `xhigh` for canonicalize/validations/aggregate/final. You can override the split:
 
 ```bash
 /testing/dlt-ai-audit-system/bin/run-corpus-search-parallel \
   /testing/dlt-ai-audit-system/designs/corpus-search/runs/<run-name> \
-  --jobs 4 \
+  --jobs 8 \
+  --service-tier standard \
   --reasoning-effort high \
   --deep-reasoning-effort xhigh \
   --deep-phases canonicalize,validations,aggregate,final

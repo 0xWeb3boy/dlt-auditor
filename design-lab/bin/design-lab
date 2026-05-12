@@ -19,6 +19,8 @@ BENCHMARKS_DIR = LAB_ROOT / "benchmarks"
 RUNS_DIR = LAB_ROOT / "runs"
 DESIGNS_DIR = ROOT / "designs"
 LIMIT_EXHAUSTED_EXIT_CODE = 3
+SERVICE_TIER_CHOICES = ("standard", "fast", "flex")
+DEFAULT_SERVICE_TIER = "standard"
 REASONING_EFFORT_CHOICES = ("low", "medium", "high", "xhigh")
 DEFAULT_REASONING_EFFORT = "high"
 DEFAULT_DEEP_REASONING_EFFORT = "xhigh"
@@ -108,6 +110,7 @@ def resumable_runner_for_source(source_root: Path) -> Path:
         local_runner.is_file()
         and command_supports_flag(local_runner, "--resume")
         and command_supports_flag(local_runner, "--reasoning-effort")
+        and command_supports_flag(local_runner, "--service-tier")
     ):
         return local_runner
     shared_runner = DESIGNS_DIR / "corpus-search" / "bin" / "run-parallel-codex"
@@ -272,6 +275,7 @@ def command_learning_loop_prompt(args: argparse.Namespace) -> int:
         "{{DEEP_REASONING_EFFORT}}": args.deep_reasoning_effort,
         "{{DEEP_PHASES}}": args.deep_phases,
         "{{PROMOTED_DESIGN}}": promoted_design,
+        "{{SERVICE_TIER}}": args.service_tier,
     }
     template = (LAB_ROOT / "prompts" / "run-learning-loop.md").read_text(encoding="utf-8")
     for key, value in replacements.items():
@@ -377,6 +381,7 @@ def audit_option_string(
     model: str | None = None,
     timeout_seconds: int | None = None,
     skip_login_check: bool = False,
+    service_tier: str | None = None,
     reasoning_effort: str | None = None,
     deep_reasoning_effort: str | None = None,
     deep_phases: str | None = None,
@@ -384,6 +389,8 @@ def audit_option_string(
     parts: list[str] = []
     if model:
         parts.extend(["--model", model])
+    if service_tier:
+        parts.extend(["--service-tier", service_tier])
     if reasoning_effort:
         parts.extend(["--reasoning-effort", reasoning_effort])
     if deep_reasoning_effort:
@@ -406,6 +413,7 @@ def write_resume_instructions(
     model: str | None = None,
     timeout_seconds: int | None = None,
     skip_login_check: bool = False,
+    service_tier: str | None = None,
     reasoning_effort: str | None = None,
     deep_reasoning_effort: str | None = None,
     deep_phases: str | None = None,
@@ -414,6 +422,7 @@ def write_resume_instructions(
         model=model,
         timeout_seconds=timeout_seconds,
         skip_login_check=skip_login_check,
+        service_tier=service_tier,
         reasoning_effort=reasoning_effort,
         deep_reasoning_effort=deep_reasoning_effort,
         deep_phases=deep_phases,
@@ -458,6 +467,7 @@ def execute_audit_for_round(
     resume: bool,
     phase: str = "all",
     model: str | None = None,
+    service_tier: str | None = None,
     reasoning_effort: str | None = None,
     deep_reasoning_effort: str | None = None,
     deep_phases: str | None = None,
@@ -474,6 +484,8 @@ def execute_audit_for_round(
         command.append("--resume")
     if model:
         command.extend(["--model", model])
+    if service_tier:
+        command.extend(["--service-tier", service_tier])
     if reasoning_effort:
         command.extend(["--reasoning-effort", reasoning_effort])
     if deep_reasoning_effort:
@@ -493,6 +505,7 @@ def execute_audit_for_round(
         audit_runner=str(runner),
         audit_command=command,
         audit_model=model or "",
+        audit_service_tier=service_tier or "",
         audit_reasoning_effort=reasoning_effort or "",
         audit_deep_reasoning_effort=deep_reasoning_effort or "",
         audit_deep_phases=deep_phases or "",
@@ -524,6 +537,7 @@ def execute_audit_for_round(
             runner,
             parallel_jobs,
             model=model,
+            service_tier=service_tier,
             timeout_seconds=timeout_seconds,
             skip_login_check=skip_login_check,
             reasoning_effort=reasoning_effort,
@@ -696,6 +710,7 @@ def command_start_round(args: argparse.Namespace) -> int:
         "audit_resume_supported": True,
         "audit_runner": str(resumable_runner_for_source(source.root)),
         "audit_model": args.model or "",
+        "audit_service_tier": args.service_tier,
         "audit_reasoning_effort": args.reasoning_effort,
         "audit_deep_reasoning_effort": args.deep_reasoning_effort,
         "audit_deep_phases": args.deep_phases,
@@ -715,6 +730,7 @@ def command_start_round(args: argparse.Namespace) -> int:
             parallel_jobs=args.parallel_jobs,
             resume=False,
             model=args.model,
+            service_tier=args.service_tier,
             reasoning_effort=args.reasoning_effort,
             deep_reasoning_effort=args.deep_reasoning_effort,
             deep_phases=args.deep_phases,
@@ -742,6 +758,7 @@ def command_resume_audit(args: argparse.Namespace) -> int:
         return 2
 
     model = args.model if args.model is not None else (manifest.get("audit_model") or None)
+    service_tier = args.service_tier if args.service_tier is not None else (manifest.get("audit_service_tier") or None)
     reasoning_effort = args.reasoning_effort if args.reasoning_effort is not None else (
         manifest.get("audit_reasoning_effort") or None
     )
@@ -760,6 +777,7 @@ def command_resume_audit(args: argparse.Namespace) -> int:
         resume=True,
         phase=args.phase,
         model=model,
+        service_tier=service_tier,
         reasoning_effort=reasoning_effort,
         deep_reasoning_effort=deep_reasoning_effort,
         deep_phases=deep_phases,
@@ -1102,7 +1120,8 @@ def build_parser() -> argparse.ArgumentParser:
     loop_prompt.add_argument("--loop-name")
     loop_prompt.add_argument("--starting-design", default="corpus-search")
     loop_prompt.add_argument("--max-rounds", type=int, default=5)
-    loop_prompt.add_argument("--parallel-jobs", type=int, default=4)
+    loop_prompt.add_argument("--parallel-jobs", type=int, default=8)
+    loop_prompt.add_argument("--service-tier", choices=SERVICE_TIER_CHOICES, default=DEFAULT_SERVICE_TIER)
     loop_prompt.add_argument("--reasoning-effort", choices=REASONING_EFFORT_CHOICES, default=DEFAULT_REASONING_EFFORT)
     loop_prompt.add_argument(
         "--deep-reasoning-effort",
@@ -1134,8 +1153,9 @@ def build_parser() -> argparse.ArgumentParser:
     start.add_argument("--loop-name", help="Stable lab run folder name under design-lab/runs/.")
     start.add_argument("--previous-ref")
     start.add_argument("--current-ref")
-    start.add_argument("--parallel-jobs", type=int, default=4)
+    start.add_argument("--parallel-jobs", type=int, default=8)
     start.add_argument("--model")
+    start.add_argument("--service-tier", choices=SERVICE_TIER_CHOICES, default=DEFAULT_SERVICE_TIER)
     start.add_argument("--timeout-seconds", type=int)
     start.add_argument("--skip-login-check", action="store_true")
     start.add_argument("--reasoning-effort", choices=REASONING_EFFORT_CHOICES, default=DEFAULT_REASONING_EFFORT)
@@ -1151,13 +1171,14 @@ def build_parser() -> argparse.ArgumentParser:
 
     resume = subparsers.add_parser("resume-audit", help="Resume an interrupted round audit without recreating it.")
     resume.add_argument("--round-dir", required=True)
-    resume.add_argument("--parallel-jobs", type=int, default=4)
+    resume.add_argument("--parallel-jobs", type=int, default=8)
     resume.add_argument(
         "--phase",
         choices=("all", "mapper", "corpus", "scans", "canonicalize", "validations", "aggregate", "final"),
         default="all",
     )
     resume.add_argument("--model")
+    resume.add_argument("--service-tier", choices=SERVICE_TIER_CHOICES)
     resume.add_argument("--timeout-seconds", type=int)
     resume.add_argument("--skip-login-check", action="store_true")
     resume.add_argument("--reasoning-effort", choices=REASONING_EFFORT_CHOICES)

@@ -242,23 +242,24 @@ The safe split is:
 Recommended command:
 
 ```bash
-{system_root / "bin" / "run-parallel-codex"} {run_dir} --jobs {jobs}
+{system_root / "bin" / "run-parallel-codex"} {run_dir} --jobs {jobs} --service-tier standard
 ```
 
 Useful partial commands:
 
 ```bash
-{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase mapper
-{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase corpus
-{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase scans --jobs {jobs}
-{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase canonicalize
-{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase validations --jobs {jobs}
-{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase aggregate
-{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase final
+{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase mapper --service-tier standard
+{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase corpus --service-tier standard
+{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase scans --jobs {jobs} --service-tier standard
+{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase canonicalize --service-tier standard
+{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase validations --jobs {jobs} --service-tier standard
+{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase aggregate --service-tier standard
+{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase final --service-tier standard
 ```
 
 Operational rules:
 - Keep `--jobs` modest. Start with `{jobs}`; use `1` to disable parallelism.
+- Default Codex service tier is `standard`; pass `--service-tier fast` to use the fast-tier override.
 - Do not run parallel family scans until `repo-context.md` has real content.
 - Corpus matches are hypotheses only, not evidence.
 - Workers should not edit shared files except the specific outputs named in their prompt.
