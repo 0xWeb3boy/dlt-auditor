@@ -1,0 +1,973 @@
+#!/usr/bin/env python3
+"""Run a corpus-search audit with multiple Codex CLI workers.
+
+The runner keeps shared phases sequential, then parallelizes independent
+family scans and optional candidate validations.
+"""
+
+from __future__ import annotations
+
+import argparse
+import datetime as dt
+import json
+import shutil
+import subprocess
+import sys
+import tempfile
+import time
+from concurrent.futures import FIRST_COMPLETED, Future, ThreadPoolExecutor, wait
+from dataclasses import dataclass
+from pathlib import Path
+from threading import Lock
+
+
+DEFAULT_MODEL = "gpt-5.5"
+SERVICE_TIER_CHOICES = ("standard", "fast", "flex")
+DEFAULT_SERVICE_TIER = "standard"
+REASONING_EFFORT_CHOICES = ("low", "medium", "high", "xhigh")
+DEFAULT_REASONING_EFFORT = "high"
+DEFAULT_DEEP_REASONING_EFFORT = "xhigh"
+RUNNER_PHASES = ("mapper", "corpus", "scans", "canonicalize", "validations", "aggregate", "final")
+PHASE_CHOICES = ("all", *RUNNER_PHASES)
+DEFAULT_DEEP_PHASES = ("canonicalize", "validations", "aggregate", "final")
+LIMIT_EXHAUSTION_PATTERNS = (
+    "rate limit",
+    "rate-limit",
+    "429",
+    "too many requests",
+    "quota",
+    "usage limit",
+    "limit reached",
+    "out of credits",
+    "credit balance is too low",
+    "credits balance is too low",
+    "retry after",
+    "try again later",
+)
+PROGRESS_LOCK = Lock()
+
+
+@dataclass
+class WorkerResult:
+    name: str
+    prompt_path: Path
+    returncode: int
+    elapsed_seconds: float
+    service_tier: str
+    reasoning_effort: str
+    stdout_path: Path
+    stderr_path: Path
+    final_message_path: Path
+
+
+class LimitExhaustedError(RuntimeError):
+    """Raised when Codex reports quota or rate-limit exhaustion."""
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description=(
+            "Run generated corpus-search audit prompts with Codex CLI. "
+            "Mapper/corpus phases run sequentially; family scans and candidate "
+            "validations run concurrently."
+        )
+    )
+    parser.add_argument("run_dir", help="Run directory created by the corpus-search design.")
+    parser.add_argument(
+        "--jobs",
+        type=int,
+        default=4,
+        help="Maximum concurrent Codex workers for independent phases.",
+    )
+    parser.add_argument(
+        "--model",
+        default=DEFAULT_MODEL,
+        help="Codex model to pass to `codex exec`.",
+    )
+    parser.add_argument(
+        "--service-tier",
+        choices=SERVICE_TIER_CHOICES,
+        default=DEFAULT_SERVICE_TIER,
+        help="Codex service tier. `standard` omits the override; `fast` enables the faster tier.",
+    )
+    parser.add_argument(
+        "--reasoning-effort",
+        choices=REASONING_EFFORT_CHOICES,
+        default=DEFAULT_REASONING_EFFORT,
+        help="Reasoning effort for discovery phases.",
+    )
+    parser.add_argument(
+        "--deep-reasoning-effort",
+        choices=REASONING_EFFORT_CHOICES,
+        default=DEFAULT_DEEP_REASONING_EFFORT,
+        help="Reasoning effort for deeper judgment phases.",
+    )
+    parser.add_argument(
+        "--deep-phases",
+        default=",".join(DEFAULT_DEEP_PHASES),
+        help="Comma-separated phases that should use --deep-reasoning-effort.",
+    )
+    parser.add_argument(
+        "--codex-path",
+        default=None,
+        help="Path to the codex executable. Defaults to PATH lookup.",
+    )
+    parser.add_argument(
+        "--timeout-seconds",
+        type=int,
+        default=1800,
+        help="Timeout for each Codex worker.",
+    )
+    parser.add_argument(
+        "--phase",
+        choices=PHASE_CHOICES,
+        default="all",
+        help="Run only one phase, or the default full sequence.",
+    )
+    parser.add_argument(
+        "--skip-login-check",
+        action="store_true",
+        help="Skip `codex login status` check before launching workers.",
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Print the prompts that would be launched without running Codex.",
+    )
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="Skip prompts already marked completed in agent-logs/runner-state.",
+    )
+    parser.add_argument(
+        "--rerun-completed",
+        action="store_true",
+        help="With --resume, rerun prompts even if their completed marker exists.",
+    )
+    return parser.parse_args()
+
+
+def timestamp() -> str:
+    return dt.datetime.now(dt.UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def parse_phase_set(value: str) -> set[str]:
+    phases: set[str] = set()
+    for raw_phase in value.split(","):
+        phase = raw_phase.strip()
+        if not phase:
+            continue
+        if phase == "all":
+            phases.update(RUNNER_PHASES)
+            continue
+        if phase not in RUNNER_PHASES:
+            valid = ", ".join(RUNNER_PHASES)
+            raise ValueError(f"Unknown deep phase `{phase}`. Expected comma-separated values from: {valid}")
+        phases.add(phase)
+    if not phases:
+        raise ValueError("--deep-phases must name at least one phase")
+    return phases
+
+
+def format_phase_set(phases: set[str]) -> str:
+    return ",".join(phase for phase in RUNNER_PHASES if phase in phases)
+
+
+def reasoning_for_phase(phase: str, base_effort: str, deep_effort: str, deep_phases: set[str]) -> str:
+    return deep_effort if phase in deep_phases else base_effort
+
+
+def is_limit_exhaustion(text: str) -> bool:
+    lowered = text.lower()
+    return any(pattern in lowered for pattern in LIMIT_EXHAUSTION_PATTERNS)
+
+
+def sanitize_name(value: str) -> str:
+    return "".join(ch if ch.isalnum() or ch in "._-" else "-" for ch in value).strip("-") or "worker"
+
+
+def state_path(log_dir: Path, phase: str, prompt_path: Path, name: str | None = None) -> Path:
+    key = sanitize_name(name or prompt_path.stem)
+    return log_dir / "runner-state" / phase / f"{key}.json"
+
+
+def read_state(log_dir: Path, phase: str, prompt_path: Path, name: str | None = None) -> dict | None:
+    path = state_path(log_dir, phase, prompt_path, name)
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+
+
+def write_state(
+    log_dir: Path,
+    phase: str,
+    prompt_path: Path,
+    status: str,
+    *,
+    name: str | None = None,
+    **extra: object,
+) -> None:
+    path = state_path(log_dir, phase, prompt_path, name)
+    payload = {
+        "phase": phase,
+        "name": sanitize_name(name or prompt_path.stem),
+        "prompt": str(prompt_path),
+        "prompt_name": prompt_path.name,
+        "status": status,
+        "updated_at_utc": timestamp(),
+    }
+    payload.update(extra)
+    with PROGRESS_LOCK:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        tmp_path = path.with_suffix(".tmp")
+        tmp_path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        tmp_path.replace(path)
+
+
+def state_is_completed(log_dir: Path, phase: str, prompt_path: Path, name: str | None = None) -> bool:
+    state = read_state(log_dir, phase, prompt_path, name)
+    return bool(state and state.get("status") == "completed")
+
+
+def state_counts(log_dir: Path) -> dict[str, int]:
+    counts: dict[str, int] = {}
+    for path in (log_dir / "runner-state").glob("*/*.json"):
+        try:
+            status = json.loads(path.read_text(encoding="utf-8")).get("status", "unknown")
+        except (OSError, json.JSONDecodeError):
+            status = "unreadable"
+        counts[str(status)] = counts.get(str(status), 0) + 1
+    return counts
+
+
+def write_runner_status(
+    run_dir: Path,
+    status: str,
+    message: str,
+    command_hint: str,
+    settings: dict[str, object] | None = None,
+) -> None:
+    log_dir = run_dir / "agent-logs"
+    counts = state_counts(log_dir)
+    payload = {
+        "status": status,
+        "message": message,
+        "updated_at_utc": timestamp(),
+        "state_counts": counts,
+        "resume_command": command_hint,
+        "settings": settings or {},
+    }
+    (log_dir / "RUNNER_STATUS.json").write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    count_lines = "\n".join(f"- {key}: {value}" for key, value in sorted(counts.items())) or "- none"
+    settings_lines = (
+        "\n".join(f"- {key}: `{value}`" for key, value in sorted((settings or {}).items()))
+        or "- none"
+    )
+    (log_dir / "RUNNER_STATUS.md").write_text(
+        f"""# Runner Status
+
+- Status: `{status}`
+- Updated UTC: {payload["updated_at_utc"]}
+- Message: {message}
+
+## Settings
+
+{settings_lines}
+
+## Prompt State Counts
+
+{count_lines}
+
+## Resume
+
+```bash
+{command_hint}
+```
+""",
+        encoding="utf-8",
+    )
+
+
+def ensure_codex(codex_path: str | None, skip_login_check: bool) -> str:
+    resolved = codex_path or shutil.which("codex")
+    if not resolved:
+        raise RuntimeError("codex CLI not found on PATH")
+    if skip_login_check:
+        return resolved
+    completed = subprocess.run(
+        [resolved, "login", "status"],
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        check=False,
+    )
+    status_text = "\n".join(part for part in (completed.stdout, completed.stderr) if part)
+    lowered = status_text.lower()
+    if completed.returncode != 0 or "not logged in" in lowered or "logged in" not in lowered:
+        raise RuntimeError("codex CLI is not logged in. Run `codex login` first.")
+    return resolved
+
+
+def read_prompt(path: Path) -> str:
+    return path.read_text(encoding="utf-8")
+
+
+def build_command(
+    codex_path: str,
+    model: str | None,
+    service_tier: str,
+    run_dir: Path,
+    final_message_path: Path,
+    reasoning_effort: str,
+) -> list[str]:
+    command = [
+        codex_path,
+        "exec",
+        "--dangerously-bypass-approvals-and-sandbox",
+        "--skip-git-repo-check",
+        "--cd",
+        str(run_dir),
+        "-c",
+        f'model_reasoning_effort="{reasoning_effort}"',
+        "--output-last-message",
+        str(final_message_path),
+        "-",
+    ]
+    if model:
+        command[2:2] = ["-m", model]
+    if service_tier != "standard":
+        command[2:2] = ["-c", f'service_tier="{service_tier}"']
+    return command
+
+
+def run_prompt(
+    prompt_path: Path,
+    *,
+    run_dir: Path,
+    log_dir: Path,
+    codex_path: str,
+    model: str | None,
+    service_tier: str,
+    reasoning_effort: str,
+    timeout_seconds: int,
+    name: str | None = None,
+) -> WorkerResult:
+    worker_name = sanitize_name(name or prompt_path.stem)
+    started = time.monotonic()
+    stdout_path = log_dir / f"{worker_name}.stdout.log"
+    stderr_path = log_dir / f"{worker_name}.stderr.log"
+    final_message_path = log_dir / f"{worker_name}.final.md"
+    prompt_text = read_prompt(prompt_path)
+    command = build_command(codex_path, model, service_tier, run_dir, final_message_path, reasoning_effort)
+
+    completed = subprocess.run(
+        command,
+        input=prompt_text,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        timeout=timeout_seconds,
+        check=False,
+    )
+    stdout_path.write_text(completed.stdout or "", encoding="utf-8")
+    stderr_path.write_text(completed.stderr or "", encoding="utf-8")
+    response_text = ""
+    if final_message_path.exists():
+        response_text = final_message_path.read_text(encoding="utf-8", errors="replace")
+    combined = "\n".join([completed.stdout or "", completed.stderr or "", response_text])
+    if completed.returncode != 0 and is_limit_exhaustion(combined):
+        raise LimitExhaustedError(f"Codex usage limit reached while running {prompt_path.name}")
+
+    elapsed = time.monotonic() - started
+    return WorkerResult(
+        name=worker_name,
+        prompt_path=prompt_path,
+        returncode=completed.returncode,
+        elapsed_seconds=elapsed,
+        service_tier=service_tier,
+        reasoning_effort=reasoning_effort,
+        stdout_path=stdout_path,
+        stderr_path=stderr_path,
+        final_message_path=final_message_path,
+    )
+
+
+def write_validation_prompt(run_dir: Path, candidate_path: Path) -> Path:
+    prompt_dir = run_dir / "agent-prompts" / "generated-validations"
+    prompt_dir.mkdir(parents=True, exist_ok=True)
+    prompt_path = prompt_dir / f"validate-{candidate_path.stem}.md"
+    base_prompt = run_dir / "agent-prompts" / "90-validate-candidates.md"
+    output_text = f"""# Validate Candidate: {candidate_path.name}
+
+Use these inputs:
+- `{base_prompt}`
+- `{candidate_path}`
+
+Only edit this candidate dossier:
+- `{candidate_path}`
+
+Instructions:
+1. Read the candidate dossier and the validation prompt.
+2. Try to kill the finding first.
+3. Fill or revise the candidate dossier with reachability, attacker control, existing checks, compensating controls, impact, severity, and confidence.
+4. Do not edit unrelated run files.
+5. If the candidate is invalid, mark it clearly and explain the killer evidence.
+"""
+    prompt_path.write_text(output_text, encoding="utf-8")
+    return prompt_path
+
+
+def run_serial_phase(
+    phase: str,
+    prompt_path: Path,
+    *,
+    run_dir: Path,
+    log_dir: Path,
+    codex_path: str,
+    model: str | None,
+    service_tier: str,
+    reasoning_effort: str,
+    timeout_seconds: int,
+    dry_run: bool,
+    resume: bool,
+    rerun_completed: bool,
+) -> int:
+    if not prompt_path.exists():
+        print(f"[skip] missing prompt: {prompt_path}")
+        return 0
+    if resume and not rerun_completed and state_is_completed(log_dir, phase, prompt_path):
+        print(f"[{timestamp()}] resume skip completed {prompt_path.name}")
+        return 0
+    print(f"[{timestamp()}] running {prompt_path.name} tier={service_tier} reasoning={reasoning_effort}")
+    if dry_run:
+        return 0
+    write_state(
+        log_dir,
+        phase,
+        prompt_path,
+        "running",
+        started_at_utc=timestamp(),
+        service_tier=service_tier,
+        reasoning_effort=reasoning_effort,
+    )
+    try:
+        result = run_prompt(
+            prompt_path,
+            run_dir=run_dir,
+            log_dir=log_dir,
+            codex_path=codex_path,
+            model=model,
+            service_tier=service_tier,
+            reasoning_effort=reasoning_effort,
+            timeout_seconds=timeout_seconds,
+        )
+    except LimitExhaustedError as exc:
+        write_state(
+            log_dir,
+            phase,
+            prompt_path,
+            "limit_exhausted",
+            error=str(exc),
+            service_tier=service_tier,
+            reasoning_effort=reasoning_effort,
+        )
+        raise
+    except subprocess.TimeoutExpired as exc:
+        write_state(
+            log_dir,
+            phase,
+            prompt_path,
+            "timed_out",
+            error=str(exc),
+            service_tier=service_tier,
+            reasoning_effort=reasoning_effort,
+        )
+        raise
+    except Exception as exc:
+        write_state(
+            log_dir,
+            phase,
+            prompt_path,
+            "failed",
+            error=str(exc),
+            service_tier=service_tier,
+            reasoning_effort=reasoning_effort,
+        )
+        raise
+    print(
+        f"[{timestamp()}] finished {result.name} rc={result.returncode} "
+        f"elapsed={result.elapsed_seconds:.1f}s"
+    )
+    write_state(
+        log_dir,
+        phase,
+        prompt_path,
+        "completed" if result.returncode == 0 else "failed",
+        returncode=result.returncode,
+        elapsed_seconds=result.elapsed_seconds,
+        service_tier=result.service_tier,
+        reasoning_effort=result.reasoning_effort,
+        stdout_path=str(result.stdout_path),
+        stderr_path=str(result.stderr_path),
+        final_message_path=str(result.final_message_path),
+    )
+    return result.returncode
+
+
+def run_prompt_with_state(
+    phase: str,
+    prompt_path: Path,
+    *,
+    run_dir: Path,
+    log_dir: Path,
+    codex_path: str,
+    model: str | None,
+    service_tier: str,
+    reasoning_effort: str,
+    timeout_seconds: int,
+    name: str | None = None,
+) -> WorkerResult:
+    write_state(
+        log_dir,
+        phase,
+        prompt_path,
+        "running",
+        name=name,
+        started_at_utc=timestamp(),
+        service_tier=service_tier,
+        reasoning_effort=reasoning_effort,
+    )
+    try:
+        result = run_prompt(
+            prompt_path,
+            run_dir=run_dir,
+            log_dir=log_dir,
+            codex_path=codex_path,
+            model=model,
+            service_tier=service_tier,
+            reasoning_effort=reasoning_effort,
+            timeout_seconds=timeout_seconds,
+            name=name,
+        )
+    except LimitExhaustedError as exc:
+        write_state(
+            log_dir,
+            phase,
+            prompt_path,
+            "limit_exhausted",
+            name=name,
+            error=str(exc),
+            service_tier=service_tier,
+            reasoning_effort=reasoning_effort,
+        )
+        raise
+    except subprocess.TimeoutExpired as exc:
+        write_state(
+            log_dir,
+            phase,
+            prompt_path,
+            "timed_out",
+            name=name,
+            error=str(exc),
+            service_tier=service_tier,
+            reasoning_effort=reasoning_effort,
+        )
+        raise
+    except Exception as exc:
+        write_state(
+            log_dir,
+            phase,
+            prompt_path,
+            "failed",
+            name=name,
+            error=str(exc),
+            service_tier=service_tier,
+            reasoning_effort=reasoning_effort,
+        )
+        raise
+
+    write_state(
+        log_dir,
+        phase,
+        prompt_path,
+        "completed" if result.returncode == 0 else "failed",
+        name=name,
+        returncode=result.returncode,
+        elapsed_seconds=result.elapsed_seconds,
+        service_tier=result.service_tier,
+        reasoning_effort=result.reasoning_effort,
+        stdout_path=str(result.stdout_path),
+        stderr_path=str(result.stderr_path),
+        final_message_path=str(result.final_message_path),
+    )
+    return result
+
+
+def run_parallel_prompts(
+    phase: str,
+    prompt_paths: list[Path],
+    *,
+    run_dir: Path,
+    log_dir: Path,
+    codex_path: str,
+    model: str | None,
+    service_tier: str,
+    reasoning_effort: str,
+    timeout_seconds: int,
+    jobs: int,
+    dry_run: bool,
+    resume: bool,
+    rerun_completed: bool,
+) -> int:
+    if resume and not rerun_completed:
+        original_count = len(prompt_paths)
+        prompt_paths = [
+            prompt_path
+            for prompt_path in prompt_paths
+            if not state_is_completed(log_dir, phase, prompt_path)
+        ]
+        skipped = original_count - len(prompt_paths)
+        if skipped:
+            print(f"[{timestamp()}] resume skip completed prompts: {skipped}")
+    if not prompt_paths:
+        print("[skip] no prompts for this phase")
+        return 0
+    worker_count = min(max(jobs, 1), len(prompt_paths))
+    print(
+        f"[{timestamp()}] launching {len(prompt_paths)} prompts with {worker_count} workers "
+        f"tier={service_tier} reasoning={reasoning_effort}"
+    )
+    if dry_run:
+        for prompt_path in prompt_paths:
+            print(f"[dry-run] {prompt_path} tier={service_tier} reasoning={reasoning_effort}")
+        return 0
+
+    exit_code = 0
+    prompt_iter = iter(prompt_paths)
+    futures: dict[Future[WorkerResult], Path] = {}
+    executor = ThreadPoolExecutor(max_workers=worker_count)
+    try:
+        while len(futures) < worker_count:
+            try:
+                prompt_path = next(prompt_iter)
+            except StopIteration:
+                break
+            futures[
+                executor.submit(
+                    run_prompt_with_state,
+                    phase,
+                    prompt_path,
+                    run_dir=run_dir,
+                    log_dir=log_dir,
+                    codex_path=codex_path,
+                    model=model,
+                    service_tier=service_tier,
+                    reasoning_effort=reasoning_effort,
+                    timeout_seconds=timeout_seconds,
+                )
+            ] = prompt_path
+
+        while futures:
+            done, _ = wait(tuple(futures), return_when=FIRST_COMPLETED)
+            for future in done:
+                prompt_path = futures.pop(future)
+                try:
+                    result = future.result()
+                except LimitExhaustedError:
+                    for pending in futures:
+                        pending.cancel()
+                    raise
+                except Exception as exc:
+                    exit_code = 1
+                    print(f"[{timestamp()}] failed {prompt_path.name}: {exc}", file=sys.stderr)
+                else:
+                    print(
+                        f"[{timestamp()}] finished {result.name} rc={result.returncode} "
+                        f"elapsed={result.elapsed_seconds:.1f}s"
+                    )
+                    if result.returncode != 0:
+                        exit_code = result.returncode or 1
+                try:
+                    next_prompt = next(prompt_iter)
+                except StopIteration:
+                    continue
+                futures[
+                    executor.submit(
+                        run_prompt_with_state,
+                        phase,
+                        next_prompt,
+                        run_dir=run_dir,
+                        log_dir=log_dir,
+                        codex_path=codex_path,
+                        model=model,
+                        service_tier=service_tier,
+                        reasoning_effort=reasoning_effort,
+                        timeout_seconds=timeout_seconds,
+                    )
+                ] = next_prompt
+    finally:
+        executor.shutdown(wait=False, cancel_futures=True)
+    return exit_code
+
+
+def phase_prompts(run_dir: Path, phase: str) -> list[Path]:
+    prompt_dir = run_dir / "agent-prompts"
+    if phase == "scans":
+        return sorted(prompt_dir.glob("scan-*.md"))
+    if phase == "validations":
+        candidates = sorted(
+            path
+            for path in run_dir.glob("candidate-*.md")
+            if path.name not in {"candidate-index.md"}
+        )
+        return [write_validation_prompt(run_dir, candidate) for candidate in candidates]
+    raise ValueError(f"parallel phase not supported: {phase}")
+
+
+def serial_prompt_for_phase(prompt_dir: Path, phase: str) -> Path:
+    if phase == "mapper":
+        return prompt_dir / "00-protocol-mapper.md"
+    if phase == "corpus":
+        return prompt_dir / "05-corpus-pattern-search.md"
+    if phase == "canonicalize":
+        return prompt_dir / "80-canonicalize-candidates.md"
+    if phase == "aggregate":
+        return prompt_dir / "95-aggregate-validated-findings.md"
+    if phase == "final":
+        return prompt_dir / "99-final-coverage-pass.md"
+    raise ValueError(f"serial phase not supported: {phase}")
+
+
+def run_serial_named_phase(
+    phase: str,
+    prompt_dir: Path,
+    *,
+    run_dir: Path,
+    log_dir: Path,
+    codex_path: str,
+    model: str | None,
+    service_tier: str,
+    reasoning_effort: str,
+    timeout_seconds: int,
+    dry_run: bool,
+    resume: bool,
+    rerun_completed: bool,
+) -> int:
+    return run_serial_phase(
+        phase,
+        serial_prompt_for_phase(prompt_dir, phase),
+        run_dir=run_dir,
+        log_dir=log_dir,
+        codex_path=codex_path,
+        model=model,
+        service_tier=service_tier,
+        reasoning_effort=reasoning_effort,
+        timeout_seconds=timeout_seconds,
+        dry_run=dry_run,
+        resume=resume,
+        rerun_completed=rerun_completed,
+    )
+
+
+def main() -> int:
+    args = parse_args()
+    run_dir = Path(args.run_dir).expanduser().resolve()
+    if not run_dir.is_dir():
+        print(f"Run directory does not exist: {run_dir}", file=sys.stderr)
+        return 2
+    prompt_dir = run_dir / "agent-prompts"
+    if not prompt_dir.is_dir():
+        print(f"Expected generated prompts under: {prompt_dir}", file=sys.stderr)
+        return 2
+
+    try:
+        codex_path = ensure_codex(args.codex_path, args.skip_login_check or args.dry_run)
+    except RuntimeError as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
+
+    log_dir = run_dir / "agent-logs"
+    log_dir.mkdir(parents=True, exist_ok=True)
+
+    phase = args.phase
+    try:
+        deep_phases = parse_phase_set(args.deep_phases)
+    except ValueError as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
+    deep_phase_text = format_phase_set(deep_phases)
+    runner_settings = {
+        "model": args.model,
+        "service_tier": args.service_tier,
+        "reasoning_effort": args.reasoning_effort,
+        "deep_reasoning_effort": args.deep_reasoning_effort,
+        "deep_phases": deep_phase_text,
+    }
+
+    def phase_effort(phase_name: str) -> str:
+        return reasoning_for_phase(phase_name, args.reasoning_effort, args.deep_reasoning_effort, deep_phases)
+
+    exit_code = 0
+    resume_hint = (
+        f"{Path(__file__).resolve()} {run_dir} --jobs {args.jobs} "
+        f"--model {args.model} --service-tier {args.service_tier} --reasoning-effort {args.reasoning_effort} "
+        f"--deep-reasoning-effort {args.deep_reasoning_effort} --deep-phases {deep_phase_text} "
+        f"--timeout-seconds {args.timeout_seconds} --phase {phase} --resume"
+    )
+    try:
+        if phase in {"all", "mapper"}:
+            exit_code = run_serial_named_phase(
+                "mapper",
+                prompt_dir,
+                run_dir=run_dir,
+                log_dir=log_dir,
+                codex_path=codex_path,
+                model=args.model,
+                service_tier=args.service_tier,
+                reasoning_effort=phase_effort("mapper"),
+                timeout_seconds=args.timeout_seconds,
+                dry_run=args.dry_run,
+                resume=args.resume,
+                rerun_completed=args.rerun_completed,
+            )
+            if exit_code and phase == "all":
+                write_runner_status(run_dir, "failed", f"Runner exited with code {exit_code}.", resume_hint, runner_settings)
+                return exit_code
+
+        if phase in {"all", "corpus"}:
+            exit_code = run_serial_named_phase(
+                "corpus",
+                prompt_dir,
+                run_dir=run_dir,
+                log_dir=log_dir,
+                codex_path=codex_path,
+                model=args.model,
+                service_tier=args.service_tier,
+                reasoning_effort=phase_effort("corpus"),
+                timeout_seconds=args.timeout_seconds,
+                dry_run=args.dry_run,
+                resume=args.resume,
+                rerun_completed=args.rerun_completed,
+            )
+            if exit_code and phase == "all":
+                write_runner_status(run_dir, "failed", f"Runner exited with code {exit_code}.", resume_hint, runner_settings)
+                return exit_code
+
+        if phase in {"all", "scans"}:
+            exit_code = run_parallel_prompts(
+                "scans",
+                phase_prompts(run_dir, "scans"),
+                run_dir=run_dir,
+                log_dir=log_dir,
+                codex_path=codex_path,
+                model=args.model,
+                service_tier=args.service_tier,
+                reasoning_effort=phase_effort("scans"),
+                timeout_seconds=args.timeout_seconds,
+                jobs=args.jobs,
+                dry_run=args.dry_run,
+                resume=args.resume,
+                rerun_completed=args.rerun_completed,
+            )
+            if exit_code and phase == "all":
+                write_runner_status(run_dir, "failed", f"Runner exited with code {exit_code}.", resume_hint, runner_settings)
+                return exit_code
+
+        if phase in {"all", "canonicalize"}:
+            exit_code = run_serial_named_phase(
+                "canonicalize",
+                prompt_dir,
+                run_dir=run_dir,
+                log_dir=log_dir,
+                codex_path=codex_path,
+                model=args.model,
+                service_tier=args.service_tier,
+                reasoning_effort=phase_effort("canonicalize"),
+                timeout_seconds=args.timeout_seconds,
+                dry_run=args.dry_run,
+                resume=args.resume,
+                rerun_completed=args.rerun_completed,
+            )
+            if exit_code and phase == "all":
+                write_runner_status(run_dir, "failed", f"Runner exited with code {exit_code}.", resume_hint, runner_settings)
+                return exit_code
+
+        if phase in {"all", "validations"}:
+            exit_code = run_parallel_prompts(
+                "validations",
+                phase_prompts(run_dir, "validations"),
+                run_dir=run_dir,
+                log_dir=log_dir,
+                codex_path=codex_path,
+                model=args.model,
+                service_tier=args.service_tier,
+                reasoning_effort=phase_effort("validations"),
+                timeout_seconds=args.timeout_seconds,
+                jobs=args.jobs,
+                dry_run=args.dry_run,
+                resume=args.resume,
+                rerun_completed=args.rerun_completed,
+            )
+            if exit_code and phase == "all":
+                write_runner_status(run_dir, "failed", f"Runner exited with code {exit_code}.", resume_hint, runner_settings)
+                return exit_code
+
+        if phase in {"all", "aggregate"}:
+            exit_code = run_serial_named_phase(
+                "aggregate",
+                prompt_dir,
+                run_dir=run_dir,
+                log_dir=log_dir,
+                codex_path=codex_path,
+                model=args.model,
+                service_tier=args.service_tier,
+                reasoning_effort=phase_effort("aggregate"),
+                timeout_seconds=args.timeout_seconds,
+                dry_run=args.dry_run,
+                resume=args.resume,
+                rerun_completed=args.rerun_completed,
+            )
+            if exit_code and phase == "all":
+                write_runner_status(run_dir, "failed", f"Runner exited with code {exit_code}.", resume_hint, runner_settings)
+                return exit_code
+
+        if phase in {"all", "final"}:
+            exit_code = run_serial_named_phase(
+                "final",
+                prompt_dir,
+                run_dir=run_dir,
+                log_dir=log_dir,
+                codex_path=codex_path,
+                model=args.model,
+                service_tier=args.service_tier,
+                reasoning_effort=phase_effort("final"),
+                timeout_seconds=args.timeout_seconds,
+                dry_run=args.dry_run,
+                resume=args.resume,
+                rerun_completed=args.rerun_completed,
+            )
+    except LimitExhaustedError as exc:
+        print(str(exc), file=sys.stderr)
+        print("Stopped so the run can be resumed after limits reset.", file=sys.stderr)
+        write_runner_status(run_dir, "limit_exhausted", str(exc), resume_hint, runner_settings)
+        return 3
+    except subprocess.TimeoutExpired as exc:
+        print(f"Codex worker timed out: {exc}", file=sys.stderr)
+        write_runner_status(run_dir, "timed_out", str(exc), resume_hint, runner_settings)
+        return 4
+    write_runner_status(
+        run_dir,
+        "completed" if exit_code == 0 else "failed",
+        f"Runner exited with code {exit_code}.",
+        resume_hint,
+        runner_settings,
+    )
+    return exit_code
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

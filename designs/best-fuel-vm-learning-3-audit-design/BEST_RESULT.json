@@ -1,0 +1,177 @@
+{
+  "audit_output_snapshot": "/testing/dlt-ai-audit-system/design-lab/runs/fuel-vm-learning-3-learning-loop/round-05/audit-output-snapshot",
+  "audit_run": "/testing/dlt-ai-audit-system/design-lab/runs/fuel-vm-learning-3-learning-loop/candidates/round-05-a/design/runs/lab-fuel-vm-learning-3-round-05-a-round-05",
+  "benchmark": "fuel-vm-learning-3",
+  "candidate_loop": "fuel-vm-learning-3-learning-loop",
+  "candidate_name": "round-05-a",
+  "created_at_utc": "2026-05-13T02:19:01Z",
+  "design_name": "",
+  "design_source_type": "candidate",
+  "duplicate_groups": [
+    {
+      "canonical": "ccp_resource_accounting",
+      "members": [
+        "F14-003",
+        "F26-002"
+      ],
+      "notes": "F14-003 matches current CCP full-fetch-before-charge; F26-002 matches fixed CCP charge-basis and zero-fill dimension."
+    },
+    {
+      "canonical": "patch_derived_fixed_regression_risks",
+      "members": [
+        "F26-001",
+        "F26-002",
+        "F26-003",
+        "F26-004",
+        "F26-005",
+        "F26-006"
+      ],
+      "notes": "Patch-derived fixed mechanisms; F26-001 partially matches LDC host-width divergence, F26-002 fully matches CCP charge-basis, and F26-004 fully matches profiler timing."
+    },
+    {
+      "canonical": "vm_status_register_semantics",
+      "members": [
+        "F25-001"
+      ],
+      "notes": "Promoted current finding matching WDCM/WQCM stale status behavior."
+    }
+  ],
+  "false_positive_count": 8,
+  "false_positives": [
+    {
+      "audit_candidate_id": "F10-001",
+      "reason": "Unmatched promoted current finding.",
+      "title": "Basic-only Checked transactions can be converted to Ready and executed without signature or predicate bits"
+    },
+    {
+      "audit_candidate_id": "F12-001",
+      "reason": "Unmatched promoted current finding.",
+      "title": "Cached transaction IDs can override the supplied chain ID in lower-level in-memory validation APIs"
+    },
+    {
+      "audit_candidate_id": "F14-001",
+      "reason": "Unmatched promoted current finding.",
+      "title": "Upload execution rewrites cumulative bytecode while fees charge only the new subsection"
+    },
+    {
+      "audit_candidate_id": "F14-002",
+      "reason": "Unmatched promoted current finding.",
+      "title": "Async predicate estimation gives each predicate an independent full budget before aggregate rejection"
+    },
+    {
+      "audit_candidate_id": "F18-001",
+      "reason": "Unmatched promoted current finding.",
+      "title": "Checked/Ready transactions are not rebound to current execution context"
+    },
+    {
+      "audit_candidate_id": "F20-001",
+      "reason": "Unmatched promoted current finding.",
+      "title": "Versioned upgrade writes replace entries before rejecting collision and use saturating version increments"
+    },
+    {
+      "audit_candidate_id": "F22-001",
+      "reason": "Unmatched promoted current finding.",
+      "title": "Zero-value contract-asset debits can create persistent zero balance entries without new-storage gas"
+    },
+    {
+      "audit_candidate_id": "F24-003",
+      "reason": "Unmatched promoted current finding.",
+      "title": "GTF CreateStorageSlotAtIndex returns transaction start for out-of-bounds slot indices"
+    }
+  ],
+  "found_count": 4,
+  "found_findings": [
+    {
+      "candidate_ids": [
+        "F14-003"
+      ],
+      "evidence_files": [
+        "FINAL_AUDIT_REPORT.md",
+        "candidate-index.md",
+        "candidate-F14-003.md"
+      ],
+      "id": "32860",
+      "match_reason": "Same CCP full contract-code fetch before dependent gas charge mechanism.",
+      "severity": "Insight",
+      "title": "Resource Abuse CCP instruction is loading the contract into memory before charging GAS"
+    },
+    {
+      "candidate_ids": [
+        "F26-002"
+      ],
+      "evidence_files": [
+        "FINAL_AUDIT_REPORT.md",
+        "candidate-index.md",
+        "candidate-F26-002.md",
+        "family-scan-26_changelog_patch_archaeology_and_regression_analysis.md"
+      ],
+      "id": "32465",
+      "match_reason": "Same fixed CCP charge-basis/zero-fill missing property, including the current max(contract_len, length) fix shape.",
+      "severity": "High",
+      "title": "Abuse of CCP instruction to do cheap memory clears"
+    },
+    {
+      "candidate_ids": [
+        "F25-001"
+      ],
+      "evidence_files": [
+        "FINAL_AUDIT_REPORT.md",
+        "candidate-index.md",
+        "candidate-F25-001.md",
+        "family-scan-25_vm_instruction_semantics_and_observer_consistency.md"
+      ],
+      "id": "32768",
+      "match_reason": "Same WDCM/WQCM stale $err/$of status-register mechanism.",
+      "severity": "Medium",
+      "title": "WDCM and WQCM do not respect the Fuel specs"
+    },
+    {
+      "candidate_ids": [
+        "F26-004"
+      ],
+      "evidence_files": [
+        "FINAL_AUDIT_REPORT.md",
+        "candidate-index.md",
+        "candidate-F26-004.md",
+        "family-scan-26_changelog_patch_archaeology_and_regression_analysis.md"
+      ],
+      "id": "32291",
+      "match_reason": "Same dependent gas profiler observer-ordering mechanism: profile attempted cost before mutating gas, including OOG paths.",
+      "severity": "Insight",
+      "title": "Profiling is incorrect for dependent gas costs"
+    }
+  ],
+  "ground_truth_dir": "/testing/dlt-ai-audit-system/design-lab/benchmarks/fuel-vm-learning-3/ground-truth",
+  "known_findings_total": 5,
+  "max_rounds": 5,
+  "missed_count": 0,
+  "missed_findings": [],
+  "notes": "Round 5 closed the profiler aggregation gap and improved LDC to a dedicated host-width/load-opcode dossier. LDC remains partial because the final report still does not prove the exact historical 32-bit MemoryOverflow versus 64-bit ContractMaxSize rows from an old diff.",
+  "partial_count": 1,
+  "partial_findings": [
+    {
+      "candidate_ids": [
+        "F26-001"
+      ],
+      "evidence_files": [
+        "FINAL_AUDIT_REPORT.md",
+        "candidate-index.md",
+        "candidate-F26-001.md",
+        "family-scan-26_changelog_patch_archaeology_and_regression_analysis.md"
+      ],
+      "id": "32825",
+      "partial_credit": 0.85,
+      "partial_reason": "Dedicated LDC host-width/length-padding regression dossier captured the right surface, current fix shape, and consensus-visible panic/gas/state risk, but did not prove the exact old usize conversion order and 32-bit/64-bit panic classes.",
+      "severity": "High",
+      "title": "Consensus between 32-bit and 64-bit system can fail for LDC opcode"
+    }
+  ],
+  "recorded_at_utc": "2026-05-13T03:47:54Z",
+  "round": 5,
+  "round_label": "round-05",
+  "schema_version": 1,
+  "score": 0.97,
+  "score_basis": "manual root-cause/mechanism equivalence; score = (4 found + 0.85 partial) / 5 known findings",
+  "source_design_dir": "/testing/dlt-ai-audit-system/design-lab/runs/fuel-vm-learning-3-learning-loop/candidates/round-05-a/design",
+  "trial_name": ""
+}

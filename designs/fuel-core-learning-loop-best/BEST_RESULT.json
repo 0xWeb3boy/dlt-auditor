@@ -1,0 +1,208 @@
+{
+  "audit_output_snapshot": "/testing/dlt-ai-audit-system/design-lab/runs/fuel-core-learning-loop/round-04/audit-output-snapshot",
+  "audit_run": "/testing/dlt-ai-audit-system/design-lab/runs/fuel-core-learning-loop/candidates/round-04-a/design/runs/lab-fuel-core-round-04-a-round-04",
+  "benchmark": "fuel-core",
+  "candidate_loop": "fuel-core-learning-loop",
+  "candidate_name": "round-04-a",
+  "created_at_utc": "2026-05-12T17:43:05Z",
+  "design_name": "round-04-a",
+  "design_source_type": "candidate",
+  "duplicate_groups": [],
+  "false_positive_count": 9,
+  "false_positives": [
+    {
+      "audit_candidate_id": "CAN-007",
+      "notes": "Validated P2P transaction-range resource issue; no equivalent known finding in this benchmark.",
+      "reason": "not_ground_truth_match",
+      "title": "Inbound P2P Transactions(range) lacks the header range cap before DB work"
+    },
+    {
+      "audit_candidate_id": "CAN-008",
+      "notes": "Validated P2P sync peer-accounting issue; no equivalent known finding in this benchmark.",
+      "reason": "not_ground_truth_match",
+      "title": "Short transaction response vector avoids missing-transaction peer penalty"
+    },
+    {
+      "audit_candidate_id": "CAN-009",
+      "notes": "Validated P2P sync peer-accounting issue; no equivalent known finding in this benchmark.",
+      "reason": "not_ground_truth_match",
+      "title": "Wrong-type or failed header responses lose peer identity before penalty"
+    },
+    {
+      "audit_candidate_id": "CAN-010",
+      "notes": "Validated P2P request codec issue; no equivalent known finding in this benchmark.",
+      "reason": "not_ground_truth_match",
+      "title": "Request decoder reads response-sized request bodies for tiny request enum"
+    },
+    {
+      "audit_candidate_id": "CAN-012",
+      "notes": "Validated GraphQL dry-run resource issue; distinct from known cursor-only crashes and HTTP transport findings.",
+      "reason": "not_ground_truth_match",
+      "title": "Public dry-run transaction source ignores remaining block gas"
+    },
+    {
+      "audit_candidate_id": "CAN-013",
+      "notes": "Validated txpool admission resource-ordering issue; no equivalent known finding in this benchmark.",
+      "reason": "not_ground_truth_match",
+      "title": "Txpool validates signatures/predicates before full-pool capacity rejection"
+    },
+    {
+      "audit_candidate_id": "CAN-014",
+      "notes": "Validated txpool lifecycle issue; no equivalent known finding in this benchmark.",
+      "reason": "not_ground_truth_match",
+      "title": "Txpool recursively removes dependent children when parent is selected or committed"
+    },
+    {
+      "audit_candidate_id": "CAN-034",
+      "notes": "Validated GraphQL resolver backend-work DoS; distinct from known cursor-only crashes and HTTP transport findings.",
+      "reason": "not_ground_truth_match",
+      "title": "Balance/coin resolvers can scan all owner coins under fixed or page-size complexity"
+    },
+    {
+      "audit_candidate_id": "CAN-040",
+      "notes": "Validated P2P heartbeat scoring config issue; no equivalent known finding in this benchmark.",
+      "reason": "not_ground_truth_match",
+      "title": "P2P config init overwrites average heartbeat threshold with stale-heartbeat threshold"
+    }
+  ],
+  "found_count": 5,
+  "found_findings": [
+    {
+      "audit_evidence_files": [
+        "/testing/dlt-ai-audit-system/design-lab/runs/fuel-core-learning-loop/candidates/round-04-a/design/runs/lab-fuel-core-round-04-a-round-04/FINAL_AUDIT_REPORT.md",
+        "/testing/dlt-ai-audit-system/design-lab/runs/fuel-core-learning-loop/candidates/round-04-a/design/runs/lab-fuel-core-round-04-a-round-04/candidate-index.md",
+        "/testing/dlt-ai-audit-system/design-lab/runs/fuel-core-learning-loop/candidates/round-04-a/design/runs/lab-fuel-core-round-04-a-round-04/candidate-CAN-028.md"
+      ],
+      "ground_truth_id": "32965",
+      "matched_audit_candidate_ids": [
+        "CAN-028"
+      ],
+      "notes": "Same executor root cause: failed/reverted transaction MessageOut receipt IDs can enter the committed message outbox root before transaction success filtering. The audit retained verifier/reachability caveats but identified the known mechanism and sink.",
+      "severity": "Critical",
+      "status": "found",
+      "title": "Messages to L1 included even on reverts allows theft from bridge"
+    },
+    {
+      "audit_evidence_files": [
+        "/testing/dlt-ai-audit-system/design-lab/runs/fuel-core-learning-loop/candidates/round-04-a/design/runs/lab-fuel-core-round-04-a-round-04/FINAL_AUDIT_REPORT.md",
+        "/testing/dlt-ai-audit-system/design-lab/runs/fuel-core-learning-loop/candidates/round-04-a/design/runs/lab-fuel-core-round-04-a-round-04/candidate-index.md",
+        "/testing/dlt-ai-audit-system/design-lab/runs/fuel-core-learning-loop/candidates/round-04-a/design/runs/lab-fuel-core-round-04-a-round-04/candidate-CAN-031.md"
+      ],
+      "ground_truth_id": "32271",
+      "matched_audit_candidate_ids": [
+        "CAN-031"
+      ],
+      "notes": "Same terminal contract-state range helper bug: valid singleton or ending ranges at U256::MAX are rejected by the VM storage helper boundary logic.",
+      "severity": "Medium",
+      "status": "found",
+      "title": "Incorrect state range access helper"
+    },
+    {
+      "audit_evidence_files": [
+        "/testing/dlt-ai-audit-system/design-lab/runs/fuel-core-learning-loop/candidates/round-04-a/design/runs/lab-fuel-core-round-04-a-round-04/FINAL_AUDIT_REPORT.md",
+        "/testing/dlt-ai-audit-system/design-lab/runs/fuel-core-learning-loop/candidates/round-04-a/design/runs/lab-fuel-core-round-04-a-round-04/candidate-index.md",
+        "/testing/dlt-ai-audit-system/design-lab/runs/fuel-core-learning-loop/candidates/round-04-a/design/runs/lab-fuel-core-round-04-a-round-04/candidate-CAN-036.md"
+      ],
+      "ground_truth_id": "33346",
+      "matched_audit_candidate_ids": [
+        "CAN-036"
+      ],
+      "notes": "Same PoA interval timer non-rearm after production/import errors before the success path schedules the next deadline.",
+      "severity": "Low",
+      "status": "found",
+      "title": "Incorrect error handling when executing block can hang PoA block production"
+    },
+    {
+      "audit_evidence_files": [
+        "/testing/dlt-ai-audit-system/design-lab/runs/fuel-core-learning-loop/candidates/round-04-a/design/runs/lab-fuel-core-round-04-a-round-04/FINAL_AUDIT_REPORT.md",
+        "/testing/dlt-ai-audit-system/design-lab/runs/fuel-core-learning-loop/candidates/round-04-a/design/runs/lab-fuel-core-round-04-a-round-04/candidate-index.md",
+        "/testing/dlt-ai-audit-system/design-lab/runs/fuel-core-learning-loop/candidates/round-04-a/design/runs/lab-fuel-core-round-04-a-round-04/candidate-CAN-027.md"
+      ],
+      "ground_truth_id": "32987",
+      "matched_audit_candidate_ids": [
+        "CAN-027"
+      ],
+      "notes": "Same value-bearing non-empty MessageData accounting bug: executor accepts MessageData inputs, but balance and coin-selection APIs filter/project only empty-data MessageCoin entries.",
+      "severity": "Insight",
+      "status": "found",
+      "title": "Sending ETH plus data to FuelMessagePortal does not increase L2 balance and funds cannot move"
+    },
+    {
+      "audit_evidence_files": [
+        "/testing/dlt-ai-audit-system/design-lab/runs/fuel-core-learning-loop/candidates/round-04-a/design/runs/lab-fuel-core-round-04-a-round-04/FINAL_AUDIT_REPORT.md",
+        "/testing/dlt-ai-audit-system/design-lab/runs/fuel-core-learning-loop/candidates/round-04-a/design/runs/lab-fuel-core-round-04-a-round-04/candidate-index.md",
+        "/testing/dlt-ai-audit-system/design-lab/runs/fuel-core-learning-loop/candidates/round-04-a/design/runs/lab-fuel-core-round-04-a-round-04/candidate-CAN-020.md"
+      ],
+      "ground_truth_id": "33450",
+      "matched_audit_candidate_ids": [
+        "CAN-020"
+      ],
+      "notes": "Same AlgorithmV1 signed-minimum absolute-value bug, retained with the same dormant/public-library reachability caveat noted by the ground truth.",
+      "severity": "Insight",
+      "status": "found",
+      "title": "fuel_gas_price_algorithm AlgorithmV1 may panic"
+    }
+  ],
+  "ground_truth_dir": "/testing/dlt-ai-audit-system/design-lab/benchmarks/fuel-core/ground-truth",
+  "known_findings_total": 9,
+  "max_rounds": 5,
+  "missed_count": 2,
+  "missed_findings": [
+    {
+      "ground_truth_id": "32486",
+      "notes": "No candidate identified the cursor-only transactions pagination unreachable panic; the run explicitly rejected cursor-only GraphQL panic candidates.",
+      "severity": "Medium",
+      "status": "missed",
+      "title": "Public RPC node crashes via GraphQL API"
+    },
+    {
+      "ground_truth_id": "32628",
+      "notes": "No candidate identified the cursor-only blocks pagination unreachable panic; the run explicitly rejected cursor-only GraphQL panic candidates.",
+      "severity": "Medium",
+      "status": "missed",
+      "title": "A GraphQL query crashes core process"
+    }
+  ],
+  "notes": "Round 4 recovered the value-bearing ETH+data message accounting finding while preserving round 3 coverage for bridge outbox accounting, terminal storage ranges, PoA timer liveness, HTTP transport resource controls, and dormant AlgorithmV1 signed arithmetic. It still missed both cursor-only GraphQL process crashes.",
+  "partial_count": 2,
+  "partial_findings": [
+    {
+      "audit_evidence_files": [
+        "/testing/dlt-ai-audit-system/design-lab/runs/fuel-core-learning-loop/candidates/round-04-a/design/runs/lab-fuel-core-round-04-a-round-04/FINAL_AUDIT_REPORT.md",
+        "/testing/dlt-ai-audit-system/design-lab/runs/fuel-core-learning-loop/candidates/round-04-a/design/runs/lab-fuel-core-round-04-a-round-04/candidate-index.md",
+        "/testing/dlt-ai-audit-system/design-lab/runs/fuel-core-learning-loop/candidates/round-04-a/design/runs/lab-fuel-core-round-04-a-round-04/candidate-CAN-035.md"
+      ],
+      "ground_truth_id": "32695",
+      "matched_audit_candidate_ids": [
+        "CAN-035"
+      ],
+      "notes": "Right public HTTP transport resource-control family, but the audit focused on accept/header-read controls and did not validate the exact large Content-Length/body-drip CPU mechanism.",
+      "severity": "Insight",
+      "status": "partial",
+      "title": "Increasing processing for public nodes with RPC"
+    },
+    {
+      "audit_evidence_files": [
+        "/testing/dlt-ai-audit-system/design-lab/runs/fuel-core-learning-loop/candidates/round-04-a/design/runs/lab-fuel-core-round-04-a-round-04/FINAL_AUDIT_REPORT.md",
+        "/testing/dlt-ai-audit-system/design-lab/runs/fuel-core-learning-loop/candidates/round-04-a/design/runs/lab-fuel-core-round-04-a-round-04/candidate-index.md",
+        "/testing/dlt-ai-audit-system/design-lab/runs/fuel-core-learning-loop/candidates/round-04-a/design/runs/lab-fuel-core-round-04-a-round-04/candidate-CAN-035.md"
+      ],
+      "ground_truth_id": "32978",
+      "matched_audit_candidate_ids": [
+        "CAN-035"
+      ],
+      "notes": "Same missing HTTP connection/header-read/admission-control family, but no live open-socket or small-junk-payload FD/OOM reproduction.",
+      "severity": "Insight",
+      "status": "partial",
+      "title": "Isolating the node from the network causing OOM by resource exhaust"
+    }
+  ],
+  "recorded_at_utc": "2026-05-12T20:58:36Z",
+  "round": 4,
+  "round_label": "round-04",
+  "schema_version": 1,
+  "score": 0.6667,
+  "score_basis": "manual root-cause/mechanism equivalence; score = (found + 0.5 * partial) / total = (5 + 0.5 * 2) / 9",
+  "source_design_dir": "/testing/dlt-ai-audit-system/design-lab/runs/fuel-core-learning-loop/candidates/round-04-a/design",
+  "trial_name": ""
+}
