@@ -49,6 +49,53 @@ To execute the generated corpus-search run with multiple Codex workers:
 The parallel runner keeps the mapper and corpus-search phases serial, then runs independent family scans concurrently. Use `--jobs 1` to disable parallelism.
 By default it uses `gpt-5.5` on Codex service tier `standard`, with reasoning `high` for discovery phases and `xhigh` for canonicalization, validation, aggregation, and final review. Override with `--model`, `--service-tier fast`, `--reasoning-effort`, `--deep-reasoning-effort`, or `--deep-phases` when needed.
 
+### Run Corpus-Search With Learning-Loop Blind Settings
+
+Use this when you want to run the `corpus-search` design on a codebase with the same execution settings as a learning-loop blind audit, but without the learning loop, scoring, refinement, candidates, or promotion:
+
+Copy this prompt when you want Codex to do it for you:
+
+```text
+Run the `corpus-search` design on this codebase using the same execution settings as the learning-loop blind audit, but do not run the learning loop, scoring, refinement, candidates, or promotion.
+
+Scaffold the audit run, then execute it with the design's parallel runner:
+- jobs: 8
+- service tier: standard
+- discovery reasoning: high
+- deep reasoning: xhigh
+- deep phases: canonicalize,validations,aggregate,final
+```
+
+Or run it directly:
+
+```bash
+cd /testing/dlt-ai-audit-system
+
+designs/corpus-search/bin/dlt-ai-audit-system /path/to/target-codebase \
+  --run-name my-audit-run \
+  --parallel-jobs 8 \
+  --force
+
+designs/corpus-search/bin/run-parallel-codex \
+  designs/corpus-search/runs/my-audit-run \
+  --jobs 8 \
+  --service-tier standard \
+  --reasoning-effort high \
+  --deep-reasoning-effort xhigh \
+  --deep-phases canonicalize,validations,aggregate,final
+```
+
+For a diff-aware audit, add refs to the scaffold command:
+
+```bash
+designs/corpus-search/bin/dlt-ai-audit-system /path/to/target-codebase \
+  --run-name my-audit-run \
+  --previous-ref <old-ref> \
+  --current-ref HEAD \
+  --parallel-jobs 8 \
+  --force
+```
+
 ## Search The Corpus Directly
 
 ```bash
