@@ -1,0 +1,65 @@
+id: "monad-c4-2025-09-m-06"
+source_finding: "2025-09-monad-m-06-stale-vote-timer-round-misrouting.md"
+project: "monad-c4"
+date: "2025-09-16"
+
+language_tags:
+  - "rust"
+
+bug_family: "state_machine_and_lifecycle_consistency"
+bug_class: "stale-timer-coordinate-misrouting"
+subsystem: "consensus"
+architecture_tags:
+  - "bft-consensus"
+  - "timer"
+  - "vote-routing"
+  - "state-machine"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "external-audit-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "callback-coordinate-freshness"
+violated_invariant: "A delayed timer callback must not route or reschedule a newer stored vote using the stale coordinate attached to the old timer."
+trust_boundary: "consensus timer event -> vote routing state machine"
+entrypoint_type: "vote timer callback handler"
+sensitive_sink: "leader vote delivery and next timer scheduling"
+
+attacker_capabilities:
+  - "influence network timing through fast QC/proposal delivery or partitions"
+  - "cause timer callbacks to arrive after consensus state has advanced"
+exploit_preconditions:
+  - "scheduled_vote can be replaced with a vote for a newer round before an older timer fires"
+  - "handle_vote_timer receives the old timer round and passes it into send_vote_and_reset_timer with the newer vote"
+blast_radius: "network-wide liveness degradation under timing conditions"
+
+impact_types:
+  - "consensus-liveness"
+  - "vote-misrouting"
+  - "timeout-amplification"
+severity_guess: "medium"
+severity_rationale: "Medium because stale timers can misroute votes and delay or block QC formation during realistic fast-progress or catch-up conditions."
+code_shape_summary: "The callback stored one coordinate in the timer event and another inside the pending vote. When the timer fired late, it dequeued the newer vote but routed it using the older timer round."
+search_motifs:
+  - "handle_vote_timer(round) reads VoteReady(v) but calls send helper with round instead of v.round"
+  - "leader selection derives from callback parameter rather than object coordinate"
+  - "timer for R+1 can fire after scheduled vote changed to R+2 or later"
+  - "rescheduled timer coordinate follows stale callback round"
+negative_signals:
+  - "No issue if the send helper only accepts the vote object and derives all routing from v.round"
+  - "No issue if stale timer callbacks are ignored or checked against the stored vote coordinate before side effects"
+  - "Impact is lower if duplicate vote routing to both current and next leaders is robust to coordinate drift"
+patch_pattern: "Derive vote recipients and rescheduled timer coordinates from the stored vote round, and treat mismatched timer rounds as stale telemetry or no-op conditions."
+source_refs:
+  - "https://code4rena.com/reports/2025-09-monad#m-06-vote-timer-callback-uses-potentially-stale-timer-round-instead-of-actual-vote-round-causing-vote-misrouting"
+  - "/testing/learning/2025-09-monad-report.md#M-06"
+  - "/testing/learning/2025-09-monad/bft/monad-consensus-state/src/lib.rs:1061"
+  - "github:category-labs/monad-bft@57784b90f5bb4ee5bb7b83078ba4db338bd93262:monad-consensus-state/src/lib.rs:1140"
+notes:
+  - "Enriched from the Code4rena 2025-09 Monad High/Medium report only; Low/Informational issues were intentionally excluded."
+  - "Competition/audit window was September-October 2025; local source report publication date is 2026-02-26."
+  - "Current upstream references are best-effort post-competition code-shape checks, not a complete patch audit."

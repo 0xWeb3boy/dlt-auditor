@@ -1,0 +1,21 @@
+id: "monad-c4-2025-09-m-01"
+source_record: "monad-c4-2025-09-m-01.yaml"
+project: "monad-c4"
+
+expected_bug_family: "signature_binding_and_signer_scope"
+expected_bug_class: "signed-message-identity-misbinding"
+expected_missing_property: "identity-claim-signer-binding"
+
+expected_impact_band: "unauthorized-message-processing"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+- "No issue if the router passes the recovered author into every final state mutation and the handler compares it to each claimed identity"
+- "No issue if only authenticated validators can reach the handler and membership is checked before side effects"
+- "Impact is lower if group state is advisory, isolated per connection, or rate-limited without affecting block propagation"
+notes:
+- "Generated from the monad-c4 enriched corpus import."
+- "Detector rationale should identify identity-claim-signer-binding at the peer message -> RaptorCast Secondary group state boundary."

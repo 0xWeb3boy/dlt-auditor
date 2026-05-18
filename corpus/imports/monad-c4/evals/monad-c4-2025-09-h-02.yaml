@@ -1,0 +1,21 @@
+id: "monad-c4-2025-09-h-02"
+source_record: "monad-c4-2025-09-h-02.yaml"
+project: "monad-c4"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "cross-layer-predicate-order-mismatch"
+expected_missing_property: "validity-disposition-equivalence"
+
+expected_impact_band: "consensus-liveness"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+- "No issue if all layers return the same parent-transaction validity result for every failing predicate"
+- "No issue if txpool rejects the transaction before proposal or block validation only rejects the authorization side effect"
+- "Impact is lower if invalid proposals are not retried and the offending transaction is evicted from hot pools"
+notes:
+- "Generated from the monad-c4 enriched corpus import."
+- "Detector rationale should identify validity-disposition-equivalence at the user transaction -> txpool admission -> block validation boundary."

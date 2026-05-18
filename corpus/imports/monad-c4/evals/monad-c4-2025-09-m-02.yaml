@@ -1,0 +1,21 @@
+id: "monad-c4-2025-09-m-02"
+source_record: "monad-c4-2025-09-m-02.yaml"
+project: "monad-c4"
+
+expected_bug_family: "resource_accounting_and_limits"
+expected_bug_class: "panic-on-bounded-channel-backpressure"
+expected_missing_property: "backpressure-error-handling"
+
+expected_impact_band: "node-crash"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+- "No issue if queue-full is handled by returning an error, dropping low-priority work, or applying backpressure without panic"
+- "No issue if the sender is only local/operator-controlled and cannot be influenced by peer traffic"
+- "Impact is lower if supervisor restarts are safe and peer/rate limits make capacity exhaustion impractical"
+notes:
+- "Generated from the monad-c4 enriched corpus import."
+- "Detector rationale should identify backpressure-error-handling at the peer forwarded transaction messages -> updater command executor boundary."

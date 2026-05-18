@@ -1,0 +1,21 @@
+id: "monad-c4-2025-09-h-03"
+source_record: "monad-c4-2025-09-h-03.yaml"
+project: "monad-c4"
+
+expected_bug_family: "resource_accounting_and_limits"
+expected_bug_class: "txpool-affordability-undercheck"
+expected_missing_property: "full-bid-affordability-gating"
+
+expected_impact_band: "txpool-denial-of-service"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+- "No issue if txpool insertion and forwarding use the same full-bid max-cost helper as proposal validation"
+- "No issue if a later affordability failure evicts or demotes the transaction so it cannot starve proposals"
+- "Impact is lower when pool capacity, per-sender limits, or rate limits prevent broad stuffing"
+notes:
+- "Generated from the monad-c4 enriched corpus import."
+- "Detector rationale should identify full-bid-affordability-gating at the external transaction -> txpool admission/forwarding -> proposal builder boundary."

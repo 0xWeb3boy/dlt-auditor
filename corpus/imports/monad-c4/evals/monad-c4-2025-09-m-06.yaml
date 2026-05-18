@@ -1,0 +1,21 @@
+id: "monad-c4-2025-09-m-06"
+source_record: "monad-c4-2025-09-m-06.yaml"
+project: "monad-c4"
+
+expected_bug_family: "state_machine_and_lifecycle_consistency"
+expected_bug_class: "stale-timer-coordinate-misrouting"
+expected_missing_property: "callback-coordinate-freshness"
+
+expected_impact_band: "consensus-liveness"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+- "No issue if the send helper only accepts the vote object and derives all routing from v.round"
+- "No issue if stale timer callbacks are ignored or checked against the stored vote coordinate before side effects"
+- "Impact is lower if duplicate vote routing to both current and next leaders is robust to coordinate drift"
+notes:
+- "Generated from the monad-c4 enriched corpus import."
+- "Detector rationale should identify callback-coordinate-freshness at the consensus timer event -> vote routing state machine boundary."

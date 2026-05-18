@@ -1,0 +1,21 @@
+id: "monad-c4-2025-09-m-05"
+source_record: "monad-c4-2025-09-m-05.yaml"
+project: "monad-c4"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "typed-receipt-envelope-omission"
+expected_missing_property: "external-encoding-standard-conformance"
+
+expected_impact_band: "standard-nonconformance"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+- "No issue if the API explicitly returns inner receipt payloads and clients are documented to expect that nonstandard format"
+- "No issue if ReceiptEnvelope::encode already includes the typed envelope in the library version used"
+- "Impact is lower if the API is disabled, admin-only, or not used by external tooling"
+notes:
+- "Generated from the monad-c4 enriched corpus import."
+- "Detector rationale should identify external-encoding-standard-conformance at the RPC client -> debug raw receipt API boundary."

@@ -1,0 +1,21 @@
+id: "monad-c4-2025-09-m-03"
+source_record: "monad-c4-2025-09-m-03.yaml"
+project: "monad-c4"
+
+expected_bug_family: "resource_accounting_and_limits"
+expected_bug_class: "post-serialization-response-size-check"
+expected_missing_property: "pre-allocation-response-budgeting"
+
+expected_impact_band: "memory-exhaustion"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+- "No issue if response encoding streams with a byte budget and aborts before large buffers are allocated"
+- "No issue if batch count, per-method result size, and aggregate result size are all capped before expensive work"
+- "Impact is lower behind authentication, strict reverse-proxy limits, or low default batch sizes"
+notes:
+- "Generated from the monad-c4 enriched corpus import."
+- "Detector rationale should identify pre-allocation-response-budgeting at the unauthenticated RPC client -> JSON-RPC handler boundary."

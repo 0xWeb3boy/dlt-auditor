@@ -1,0 +1,70 @@
+id: "monad-c4-2025-09-m-07"
+source_finding: "2025-09-monad-m-07-consensus-execution-basefee-mismatch.md"
+project: "monad-c4"
+date: "2025-09-16"
+
+language_tags:
+  - "rust"
+  - "cpp"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "consensus-execution-base-fee-mismatch"
+subsystem: "block-validator"
+architecture_tags:
+  - "l1"
+  - "evm-compatible"
+  - "consensus"
+  - "execution"
+  - "block-header"
+  - "fee-market"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "external-audit-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "cross-layer-header-field-equality"
+violated_invariant: "Consensus-side block validation must reject a block whose consensus base_fee field disagrees with the execution header base_fee_per_gas that execution will later enforce."
+trust_boundary: "proposer block header -> consensus validation -> execution validation"
+entrypoint_type: "block header validation"
+sensitive_sink: "consensus block acceptance and execution static validation"
+
+attacker_capabilities:
+  - "propose a block with divergent consensus and execution base fee fields"
+  - "choose transactions that pass the lower consensus fee check but fail execution fee semantics"
+exploit_preconditions:
+  - "header validation checks ancillary ProposedEthHeader fields but omits base_fee equality"
+  - "consensus/static transaction checks rely on consensus header.base_fee"
+  - "execution later enforces execution_inputs.base_fee_per_gas and can reject after consensus acceptance"
+blast_radius: "chain-wide liveness and consensus/execution consistency"
+
+impact_types:
+  - "consensus-execution-split"
+  - "invalid-block-finalization"
+  - "chain-liveness"
+severity_guess: "medium"
+severity_rationale: "Medium because a malicious proposer can drive a consensus/execution mismatch and halt execution after consensus has accepted the block; severity depends on finality and recovery mechanics."
+code_shape_summary: "The block carried two representations of base fee. Rust-side validation trusted the consensus header value for transaction checks and did not require equality with the execution header field, while C++ execution later rejected mismatches."
+search_motifs:
+  - "consensus header has base_fee while execution payload/header has base_fee_per_gas"
+  - "validator checks transaction roots and ancillary fields but not duplicate fee field equality"
+  - "txpool constructs one field while consensus/updater supplies another"
+  - "execution has BaseFeeMismatch after consensus acceptance"
+negative_signals:
+  - "No issue if header validation requires equality before any vote or coherency acceptance"
+  - "No issue if the execution header field is derived from the consensus header and cannot be proposer-controlled independently"
+  - "Impact is lower if mismatches are rejected before finality and the proposer is slashed or isolated"
+patch_pattern: "Add an explicit Rust-side header validation check requiring consensus base_fee to equal execution base_fee_per_gas, including the pre-TFM default case, before block body fee checks or votes."
+source_refs:
+  - "https://code4rena.com/reports/2025-09-monad#m-07-consensus-validator-accepts-blocks-with-mismatched-basefee-and-execution-basefeepergas"
+  - "/testing/learning/2025-09-monad-report.md#M-07"
+  - "/testing/learning/2025-09-monad/bft/monad-eth-block-validator/src/lib.rs:182"
+  - "/testing/learning/2025-09-monad/monad/category/execution/monad/validate_monad_block.cpp:40"
+  - "github:category-labs/monad-bft@57784b90f5bb4ee5bb7b83078ba4db338bd93262:monad-eth-block-validator/src/lib.rs:290"
+notes:
+  - "Enriched from the Code4rena 2025-09 Monad High/Medium report only; Low/Informational issues were intentionally excluded."
+  - "Competition/audit window was September-October 2025; local source report publication date is 2026-02-26."
+  - "Current upstream references are best-effort post-competition code-shape checks, not a complete patch audit."

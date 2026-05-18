@@ -1,0 +1,66 @@
+id: "monad-c4-2025-09-m-04"
+source_finding: "2025-09-monad-m-04-block-device-trim-write-position.md"
+project: "monad-c4"
+date: "2025-09-16"
+
+language_tags:
+  - "cpp"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "block-device-trim-offset-miswrite"
+subsystem: "storage"
+architecture_tags:
+  - "storage"
+  - "block-device"
+  - "io"
+  - "persistence"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "external-audit-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "storage-offset-coordinate-consistency"
+violated_invariant: "A trim/discard helper that preserves a partial page must write the preserved page back to the original page offset, not to an offset advanced for the later discard range."
+trust_boundary: "storage maintenance operation -> block-device write path"
+entrypoint_type: "block device trim/discard helper"
+sensitive_sink: "persistent storage page contents"
+
+attacker_capabilities:
+  - "trigger or rely on normal storage trimming at a non-page-aligned boundary"
+  - "cause data to exist in the page immediately after the trim boundary"
+exploit_preconditions:
+  - "trim boundary has a partial-page remainder"
+  - "the helper advances the trim range before writing preserved bytes"
+  - "the write-back uses the mutated range offset"
+blast_radius: "node-local data integrity and persistence correctness"
+
+impact_types:
+  - "storage-corruption"
+  - "state-integrity"
+  - "node-local-denial-of-service"
+severity_guess: "medium"
+severity_rationale: "Medium because incorrect write position can corrupt block-device data, but exploitability depends on reaching trim conditions and storage layout."
+code_shape_summary: "The trim helper read a partial page at the original boundary, advanced the range to skip that page for discard, then wrote the preserved buffer using the advanced range offset. The preserved data could overwrite the next page."
+search_motifs:
+  - "partial-page trim preservation reads from one offset and writes after mutating the offset variable"
+  - "range[0] or cursor is advanced before pwrite of preserved bytes"
+  - "discard/trim/punch-hole helper reuses a mutable range array for both preservation and discard"
+  - "block-device trim tests do not cover unaligned truncation boundaries"
+negative_signals:
+  - "No issue if the preserved page is written before the discard range offset is advanced"
+  - "No issue if the original offset is stored separately and used for pwrite"
+  - "Impact is lower if only regular files use the code path and block devices are not supported in production"
+patch_pattern: "Write the partial page back before advancing the discard range, or save the original page offset in a separate variable and use it for pwrite; add unaligned trim regression tests."
+source_refs:
+  - "https://code4rena.com/reports/2025-09-monad#m-04-incorrect-write-position-in-block-device-trim-operation"
+  - "/testing/learning/2025-09-monad-report.md#M-04"
+  - "/testing/learning/2025-09-monad/monad/category/async/storage_pool.cpp:258"
+  - "github:category-labs/monad@0f871ac67258290247dd699e7a28b4ee0de33654:category/async/storage_pool.cpp:294"
+notes:
+  - "Enriched from the Code4rena 2025-09 Monad High/Medium report only; Low/Informational issues were intentionally excluded."
+  - "Competition/audit window was September-October 2025; local source report publication date is 2026-02-26."
+  - "Current upstream references are best-effort post-competition code-shape checks, not a complete patch audit."

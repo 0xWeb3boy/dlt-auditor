@@ -1,0 +1,159 @@
+{
+  "after_refs": {
+    "category-labs/monad": "0f871ac67258290247dd699e7a28b4ee0de33654",
+    "category-labs/monad-bft": "57784b90f5bb4ee5bb7b83078ba4db338bd93262"
+  },
+  "audit_report_date": "2026-02-26",
+  "audit_start_date": "2025-09-16",
+  "before_repo": "/testing/learning/2025-09-monad",
+  "created_at_utc": "2026-05-17",
+  "enriched": true,
+  "enrichment_source": "Code4rena report plus local contest code and current upstream spot checks",
+  "excluded_severities": [
+    "low",
+    "informational"
+  ],
+  "finding_count": 11,
+  "findings": [
+    {
+      "bug_class": "legacy-gas-cost-underaccounting",
+      "bug_family": "resource_accounting_and_limits",
+      "confidence_tier": "tier_a_confirmed",
+      "id": "monad-c4-2025-09-h-01",
+      "missing_property": "type-specific-fee-accounting",
+      "severity": "high",
+      "source": "/testing/dlt-ai-audit-system/corpus/imports/monad-c4/raw-findings/2025-09-monad-h-01-block-policy-legacy-gas-discount.md",
+      "source_report_section": "H-01",
+      "subsystem": "block-policy",
+      "title": "Block policy discounts gas price by incorrectly applying EIP-1559 to legacy transactions"
+    },
+    {
+      "bug_class": "cross-layer-predicate-order-mismatch",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "confidence_tier": "tier_a_confirmed",
+      "id": "monad-c4-2025-09-h-02",
+      "missing_property": "validity-disposition-equivalence",
+      "severity": "high",
+      "source": "/testing/dlt-ai-audit-system/corpus/imports/monad-c4/raw-findings/2025-09-monad-h-02-eip7702-system-sender-predicate-order-dos.md",
+      "source_report_section": "H-02",
+      "subsystem": "transaction-processing",
+      "title": "Malicious EIP-7702 transactions cause rounds to time out by predicate-order mismatch"
+    },
+    {
+      "bug_class": "txpool-affordability-undercheck",
+      "bug_family": "resource_accounting_and_limits",
+      "confidence_tier": "tier_a_confirmed",
+      "id": "monad-c4-2025-09-h-03",
+      "missing_property": "full-bid-affordability-gating",
+      "severity": "high",
+      "source": "/testing/dlt-ai-audit-system/corpus/imports/monad-c4/raw-findings/2025-09-monad-h-03-txpool-affordability-full-bid-dos.md",
+      "source_report_section": "H-03",
+      "subsystem": "txpool",
+      "title": "Incorrect affordability checks admit invalid transactions allowing txpool and block building DoS"
+    },
+    {
+      "bug_class": "order-dependent-delegation-state-mismatch",
+      "bug_family": "state_machine_and_lifecycle_consistency",
+      "confidence_tier": "tier_a_confirmed",
+      "id": "monad-c4-2025-09-h-04",
+      "missing_property": "order-sensitive-state-consistency",
+      "severity": "high",
+      "source": "/testing/dlt-ai-audit-system/corpus/imports/monad-c4/raw-findings/2025-09-monad-h-04-eip7702-delegated-status-order-mismatch.md",
+      "source_report_section": "H-04",
+      "subsystem": "block-policy",
+      "title": "EIP-7702 delegated-status timing mismatch enables persistent free chain DoS"
+    },
+    {
+      "bug_class": "signed-message-identity-misbinding",
+      "bug_family": "signature_binding_and_signer_scope",
+      "confidence_tier": "tier_a_confirmed",
+      "id": "monad-c4-2025-09-m-01",
+      "missing_property": "identity-claim-signer-binding",
+      "severity": "medium",
+      "source": "/testing/dlt-ai-audit-system/corpus/imports/monad-c4/raw-findings/2025-09-monad-m-01-raptorcast-secondary-identity-binding.md",
+      "source_report_section": "M-01",
+      "subsystem": "p2p-networking",
+      "title": "RaptorCast Secondary messages lack authorization binding between signer and claimed identity"
+    },
+    {
+      "bug_class": "panic-on-bounded-channel-backpressure",
+      "bug_family": "resource_accounting_and_limits",
+      "confidence_tier": "tier_a_confirmed",
+      "id": "monad-c4-2025-09-m-02",
+      "missing_property": "backpressure-error-handling",
+      "severity": "medium",
+      "source": "/testing/dlt-ai-audit-system/corpus/imports/monad-c4/raw-findings/2025-09-monad-m-02-bounded-channel-panic-tokio-task-updater.md",
+      "source_report_section": "M-02",
+      "subsystem": "task-executor",
+      "title": "Bounded channel panic in TokioTaskUpdater can crash nodes under forwarded transaction bursts"
+    },
+    {
+      "bug_class": "post-serialization-response-size-check",
+      "bug_family": "resource_accounting_and_limits",
+      "confidence_tier": "tier_a_confirmed",
+      "id": "monad-c4-2025-09-m-03",
+      "missing_property": "pre-allocation-response-budgeting",
+      "severity": "medium",
+      "source": "/testing/dlt-ai-audit-system/corpus/imports/monad-c4/raw-findings/2025-09-monad-m-03-json-rpc-batch-post-serialization-oom.md",
+      "source_report_section": "M-03",
+      "subsystem": "rpc-client-api",
+      "title": "JSON-RPC batch aggregation and post-serialization size checks can exhaust memory"
+    },
+    {
+      "bug_class": "block-device-trim-offset-miswrite",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "confidence_tier": "tier_a_confirmed",
+      "id": "monad-c4-2025-09-m-04",
+      "missing_property": "storage-offset-coordinate-consistency",
+      "severity": "medium",
+      "source": "/testing/dlt-ai-audit-system/corpus/imports/monad-c4/raw-findings/2025-09-monad-m-04-block-device-trim-write-position.md",
+      "source_report_section": "M-04",
+      "subsystem": "storage",
+      "title": "Block device trim writes preserved partial page to the wrong offset"
+    },
+    {
+      "bug_class": "typed-receipt-envelope-omission",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "confidence_tier": "tier_a_confirmed",
+      "id": "monad-c4-2025-09-m-05",
+      "missing_property": "external-encoding-standard-conformance",
+      "severity": "medium",
+      "source": "/testing/dlt-ai-audit-system/corpus/imports/monad-c4/raw-findings/2025-09-monad-m-05-typed-receipt-encoding-missing-envelope.md",
+      "source_report_section": "M-05",
+      "subsystem": "rpc-client-api",
+      "title": "Typed receipt encoding omits the EIP-2718 type envelope in debug raw receipts"
+    },
+    {
+      "bug_class": "stale-timer-coordinate-misrouting",
+      "bug_family": "state_machine_and_lifecycle_consistency",
+      "confidence_tier": "tier_a_confirmed",
+      "id": "monad-c4-2025-09-m-06",
+      "missing_property": "callback-coordinate-freshness",
+      "severity": "medium",
+      "source": "/testing/dlt-ai-audit-system/corpus/imports/monad-c4/raw-findings/2025-09-monad-m-06-stale-vote-timer-round-misrouting.md",
+      "source_report_section": "M-06",
+      "subsystem": "consensus",
+      "title": "Vote timer callback can use stale timer round instead of the vote round"
+    },
+    {
+      "bug_class": "consensus-execution-base-fee-mismatch",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "confidence_tier": "tier_a_confirmed",
+      "id": "monad-c4-2025-09-m-07",
+      "missing_property": "cross-layer-header-field-equality",
+      "severity": "medium",
+      "source": "/testing/dlt-ai-audit-system/corpus/imports/monad-c4/raw-findings/2025-09-monad-m-07-consensus-execution-basefee-mismatch.md",
+      "source_report_section": "M-07",
+      "subsystem": "block-validator",
+      "title": "Consensus validator accepts blocks with mismatched consensus base_fee and execution base_fee_per_gas"
+    }
+  ],
+  "included_severities": [
+    "high",
+    "medium"
+  ],
+  "repo": "/testing/learning/2025-09-monad",
+  "repo_slug": "monad-c4",
+  "source_report": "/testing/learning/2025-09-monad-report.md",
+  "source_url": "https://code4rena.com/reports/2025-09-monad"
+}

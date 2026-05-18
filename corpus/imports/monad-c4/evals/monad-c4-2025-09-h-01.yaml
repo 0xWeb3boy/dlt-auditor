@@ -1,0 +1,21 @@
+id: "monad-c4-2025-09-h-01"
+source_record: "monad-c4-2025-09-h-01.yaml"
+project: "monad-c4"
+
+expected_bug_family: "resource_accounting_and_limits"
+expected_bug_class: "legacy-gas-cost-underaccounting"
+expected_missing_property: "type-specific-fee-accounting"
+
+expected_impact_band: "consensus-liveness"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+- "No issue if legacy and EIP-2930 transactions use a separate full-gas-price branch before EIP-1559 math"
+- "No issue if execution and block policy call the same type-aware helper or share conformance tests"
+- "Impact is lower if invalid transactions are rejected or evicted before block proposal and cannot be repeatedly selected"
+notes:
+- "Generated from the monad-c4 enriched corpus import."
+- "Detector rationale should identify type-specific-fee-accounting at the user transaction -> txpool/block policy -> execution engine boundary."

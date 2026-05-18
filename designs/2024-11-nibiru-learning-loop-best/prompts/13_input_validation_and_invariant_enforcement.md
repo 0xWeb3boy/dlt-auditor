@@ -1,0 +1,104 @@
+# Prompt Family: Input Validation And Invariant Enforcement
+
+## Use This For
+
+- Descriptor validation gaps.
+- Malformed-input panics.
+- Missing role-specific required fields.
+- Policy-field acceptance before a protocol version enables it.
+- Secret or rotation state accepted with weak validation.
+- Unsafe debug configuration acceptance.
+
+## Prompt
+
+```text
+Hunt for places where a blockchain or DLT system accepts malformed, incomplete, or semantically invalid input into privileged state.
+
+Focus on:
+- node, validator, committee, checkpoint, bridge, runtime, or descriptor objects
+- policy, signer-set, bridge-set, capability, or governance-controlled objects
+- genesis and sanity-check paths
+- public key parsing and identity conversions
+- secret publication, rotation, or replication state if the repo has such concepts
+- version-gated fields, feature-gated flags, and fork-activated semantics
+
+Search patterns:
+- Structured authorization, execution, or proof containers reconstructed from multiple parallel lists. Validate exact cardinality and relational matching at construction or deserialization, not only after later execution begins.
+- Account-ledger transaction pipelines with several representations of the same account list or privilege set: raw message metas, sanitized transaction, loaded accounts, compiled instructions, inner-instruction frames, execution frames, and post-execution account deltas. Build a matrix and verify every transition preserves exact account identity, signer/writable privilege, owner/program binding, and duplicate-account semantics.
+- Reserved system entrypoints, native methods, upgrade hooks, or privileged locators that are allowed only through direct protocol paths. Deployment or bytecode admission should reject program-mediated calls to those reserved sinks.
+- Lookup APIs returning `Result<bool>`, optional status, or mixed transport/semantic status where callers may treat errors as absence, permission, or success. Security-sensitive classifiers should fail closed on lookup errors.
+- Versioned syntax, opcode, or feature checks that are present in comments, tests, or a narrow branch but not enforced at every deployment/admission path before activation.
+- unmarshal functions that allow nil, empty, or wrong-length values
+- role-specific fields that are optional in code but mandatory by protocol
+- loops that validate only the first matching object instead of all relevant objects
+- debug flags accepted without an explicit unsafe-mode acknowledgement
+- helper functions that sanitize after state construction instead of rejecting bad input early
+- policy fields accepted before the feature version or fork that defines them
+- semantically duplicate selectors or identities, such as chain, fork, version, mode, batch, or task identifiers, that are parsed independently instead of canonicalized and compared
+- metadata or derived-hash proxies used instead of the actual artifact bytes, bytecode, recovered sender, stored sequence, or canonical parsed object
+- structured artifacts whose claimed identifier, hash, or version is accepted without recomputing it from the parsed canonical form before use
+- content-addressed or key-addressed objects whose advertised key, hash, or chunk ID is trusted without recomputing it from the received payload bytes
+- provider-returned objects that are internally valid but selected by request metadata, such as blobs, sidecars, preimages, logs, or proofs, must be checked against the requested index, hash, chain, block, mode, and commitment type before use
+- configuration-selected protocol modes should be carried end to end. Search for code that validates a mode at startup but later accepts data encoded for a different mode, commitment scheme, fork variant, or challenge contract expectation
+- archive, artifact, or bundle extraction paths should reject absolute paths, traversal components, unsafe links, and output paths that escape the selected destination before creating files
+- duplicate parsers or encoders that reconstruct the same semantics in multiple places instead of one canonical path
+- variable-length lists, blob streams, or nested objects that are consumed without asserting exact count, exact byte use, or no leftovers
+- fixed-width cryptographic encodings parsed before checking exact length, and compressed or decoded blob representations accepted before enforcing output-size limits
+- packet, datagram, frame, or receive-buffer paths that classify, forward, slice, or schedule work before exact payload length, backing-buffer capacity, trailing bytes, and destination length are checked against the original attacker-controlled bytes
+- boundary code that aborts on malformed lengths, variants, or encodings instead of returning an ordinary validation failure
+- peer-controlled parser, handshake, or stream failures that reach `unwrap`, `expect`, `panic`, assertion failure, or task-killing control flow instead of a structured validation, not-found, or disconnect error
+- message-specific deserializers that use a weaker size, trailing-byte, collection-length, or fixed-width encoding policy than the transport codec or canonical parser for the same peer-controlled bytes
+- Security-sensitive preverification paths that duplicate canonical parsing with manual offset, count, version, or length logic. Compare packet-level preverify, mempool admission, execution, replay, and simulation parsers; the earliest sink should either call the canonical sanitizer or reject every unsupported version, trailing byte, count, duplicate identity, and malformed length equivalently.
+- Versioned transaction, message, block, or proof parsers whose accepted count or index domain differs from downstream fixed arrays, bitsets, caches, or helper filters. A parser that accepts a small integer index domain should prove every accepted value is either rejected before indexing or covered by the helper storage.
+- Invalid-input branches that delete, evict, remove, or mark the current object as bad and then continue through the same loop iteration. After destructive removal, later code must not `unwrap`, `expect`, index, or mutate state under the assumption that the object still exists.
+- state updates that derive the next value from request fields without first reading and comparing the current authoritative stored value
+- account nonce, sequence, ticket, or replay counters checked only against committed state while local pending, in-flight, reserved, or recently-used state can be ahead of the chain. Validate duplicate and stale rejection separately from future-window acceptance.
+- code that computes, derives, parses, or canonicalizes a protocol value but does not compare it against the declared value before acceptance
+- p2p envelopes that duplicate identifiers, hashes, object IDs, commitments, or route metadata also derivable from the payload. Recompute the canonical value from the parsed payload and compare it to the envelope before updating routing, cache, or propagation state
+- protocol objects whose validity depends on sidecar data, proof data, parent data, or fork context that may be missing in revalidation, reorg, reinjection, or recovery paths
+- transaction or header types represented with a generic enum that can express forms forbidden for that type
+- parser guards that check locally generated bytes, decoded bytes, or wrapper bytes instead of the original attacker-controlled transport bytes
+- auth or protocol header parsing that accepts substring matches instead of anchored grammar
+- peer-announced metadata, tx type hints, or object descriptors that are used to schedule expensive fetch or decode work before support, bounds, compatibility, or lineage checks run
+- consensus or protocol finalization helpers that signal invalid state indirectly through nil, empty collections, partial outputs, logs, or panics instead of returning an explicit validation error that every caller must handle
+- equivalent execution paths, such as serial, parallel, stateless, replay, simulation, or recovery processors, where one path validates receipt counts, generated system work, unsupported fields, or post-execution invariants and another path only trusts helper output
+- Equivalent transaction-validation surfaces such as mempool admission, final apply, wrapper transaction validation, txset validation, simulation, and replay. Every surface should enforce the same semantic validity properties, or the later authoritative sink should re-run the missing checks.
+- Canonical collection invariants that can be broken by internal filtering, surge pricing, pruning, or deduplication. Revalidate and restore canonical order, uniqueness, and comparator consistency after every mutation, not only at initial construction.
+- range, checkpoint, epoch, batch, span, or proof-window objects where the code rejects old or overlapping starts but does not require the next start to be the exact successor of the stored end when the protocol expects contiguous progression
+- create, join, register, or bind operations that infer uniqueness from getter failures instead of using an explicit canonical key-existence check before writing identity, signer, operator, validator, or committee state
+- transaction type or state-entry helpers represented with generic arrays, enums, optional fields, or builder APIs where present, absent, empty, or multi-entry fields have different protocol meaning. Require exact cardinality and type-specific field compatibility before state transition
+- protocol object IDs that can be burned, deleted, recreated, or recomputed from account, sequence, issuer, asset, domain, or fork-scoped fields. Check uniqueness against canonical identity and lifecycle state, not just current object existence
+- invariant scanners that visit many affected state entries but store only the last result, reset earlier detections, or treat absence or empty lists as success when the protocol requires explicit evidence
+- feature, amendment, or fork gates where a field is syntactically valid both before and after activation but has different semantic constraints after activation
+- protobuf, JSON, RLP, or domain-conversion code that turns empty lists, nil roots, absent required fields, or malformed nested structures into valid domain objects. Required consensus and proof fields should fail closed at the conversion boundary, not later through panics, nil sentinels, logs, or partial outputs
+- consensus, genesis, verifier, committee, or fork configuration decoded through permissive protobuf, JSON, ABI, or schema conversion. Unknown fields, trailing data, ambiguous overloads, or unsupported versions should be rejected before deriving canonical hashes, verifier identities, or protocol state.
+- production safety guards for test, mock, simulation, or fixture-only state mutation helpers. A read path should not lazily mint, top off, or mutate state, and production-network guards should sit on every mutation sink rather than only on constructors
+- public RPC or REST read handlers that use caller-selected ids, heights, hashes, block numbers, account ids, or operation ids to load canonical state and then unwrap, expect, assert, or panic when the object is absent. Missing canonical state should become a structured not-found or validation error unless the protocol proves it cannot be missing
+- production-mode configuration that accepts sample secrets, placeholder keys, fixture tokens, localhost credentials, or default passwords for privileged admin, prover, relayer, sequencer, validator, or bridge endpoints. Prefer fail-closed startup; warnings alone are hardening, not full mitigation
+- VM, interpreter, or transaction execution helpers where a semantic error is wrapped, converted, unwrapped, or pattern-matched before deciding transaction validity. Ensure failed contract, runtime, or VM results cannot be transformed into success-like control flow by helper return-shape changes.
+- ERC20-style or token-standard adapters where success/failure is inferred from optional return bytes. Empty return data, short return data, false boolean returns, revert data, metadata failure, and non-standard ABI behavior should be mapped to the exact protocol rule before accounting state changes.
+- VM contract deployment or account-creation paths where a deterministic address can already hold a native, vesting, module, escrow, or otherwise non-VM account. Validate account-type compatibility before accepting code, code hash, bytecode, nonce, or balance writes.
+- sponsored, delegated, or multi-principal transactions where authorization, balance, postcondition, fee, or asset checks use an origin, sponsor, caller, or submitter principal. Compare each check against the exact principal whose asset, balance, authority, or state object is consumed at the sink.
+- financial state transitions where validation runs before all generated effects are known. For margin, collateral, vault, lending, staking, or bridge flows, recompute the final post-state after fees, funding, transfer callbacks, withdrawals, and generated module effects, then enforce solvency, conservation, and liquidation invariants at that final boundary.
+- protocol types with public struct fields, generic enums, raw byte variants, or ad hoc builders that can bypass constructor-enforced size, type, domain, or semantic invariants.
+
+Questions to answer:
+1. What structural invariants does the protocol require?
+2. Which invariants are enforced only partially or only in some entrypoints?
+3. Can malformed data panic a later helper instead of being rejected at decode time?
+4. Does the path validate all advertised versions and members, or only one?
+5. Are proposals, capabilities, secrets, or checkpoints scoped to the correct chain, domain, generation, epoch, or handoff context?
+6. Is the code validating the real artifact, or only a proxy for it?
+7. Does every consumer assert exact consumption and exact structural bounds, or can extra or mismatched data survive validation?
+8. If the same protocol fact appears in more than one field or layer, does the code canonicalize them and enforce equality before continuing?
+9. If an invariant checker visits multiple entries, does any violation latch until finalization, or can later clean entries overwrite earlier failures?
+10. Does the protocol object's canonical identity include lifecycle, issuer, owner, sequence, feature, or domain fields that are not checked at creation or recreation?
+11. When the same peer-controlled object is represented as transport metadata plus payload bytes, which representation is authoritative and where is equality enforced before the first stateful sink?
+12. If an external token call returns no bytes, short bytes, or false, does the adapter follow the protocol's compatibility rule and avoid committing partial accounting effects?
+13. If deterministic account creation targets an existing account, which account types are valid, which are rejected, and where is that enforced before metadata is written?
+
+Severity guidance:
+- High if bad validation can corrupt privileged committee, validator, bridge, prover, or secret-management behavior.
+- Medium for malformed-input DoS and descriptor admission weaknesses.
+- Low for local unsafe-configuration guards.
+```

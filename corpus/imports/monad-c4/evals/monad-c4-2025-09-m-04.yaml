@@ -1,0 +1,21 @@
+id: "monad-c4-2025-09-m-04"
+source_record: "monad-c4-2025-09-m-04.yaml"
+project: "monad-c4"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "block-device-trim-offset-miswrite"
+expected_missing_property: "storage-offset-coordinate-consistency"
+
+expected_impact_band: "storage-corruption"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+- "No issue if the preserved page is written before the discard range offset is advanced"
+- "No issue if the original offset is stored separately and used for pwrite"
+- "Impact is lower if only regular files use the code path and block devices are not supported in production"
+notes:
+- "Generated from the monad-c4 enriched corpus import."
+- "Detector rationale should identify storage-offset-coordinate-consistency at the storage maintenance operation -> block-device write path boundary."

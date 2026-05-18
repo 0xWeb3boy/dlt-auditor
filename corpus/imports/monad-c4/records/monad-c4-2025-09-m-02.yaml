@@ -1,0 +1,66 @@
+id: "monad-c4-2025-09-m-02"
+source_finding: "2025-09-monad-m-02-bounded-channel-panic-tokio-task-updater.md"
+project: "monad-c4"
+date: "2025-09-16"
+
+language_tags:
+  - "rust"
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "panic-on-bounded-channel-backpressure"
+subsystem: "task-executor"
+architecture_tags:
+  - "async"
+  - "tokio"
+  - "p2p"
+  - "tx-forwarding"
+  - "validator-node"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "external-audit-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "backpressure-error-handling"
+violated_invariant: "Attacker-influenced bursts must not turn bounded queue backpressure into process panic; queue-full conditions should be handled as errors, drops, retries, or explicit flow control."
+trust_boundary: "peer forwarded transaction messages -> updater command executor"
+entrypoint_type: "TokioTaskUpdater executor command submission"
+sensitive_sink: "validator process liveness"
+
+attacker_capabilities:
+  - "send or trigger bursts of ForwardedTx batches over multiple connections"
+  - "exceed the bounded command channel capacity"
+exploit_preconditions:
+  - "network-reachable traffic is converted into command batches faster than the updater consumes them"
+  - "exec uses try_send(...).expect(...) or equivalent panic on full channel"
+blast_radius: "node-local to chain-wide if repeated across validators"
+
+impact_types:
+  - "node-crash"
+  - "denial-of-service"
+  - "chain-liveness"
+severity_guess: "medium"
+severity_rationale: "Medium because a remote unauthenticated burst can crash reachable nodes; chain-wide impact depends on reaching enough validators and deployment protections."
+code_shape_summary: "A bounded queue was present, but the queue-full path panicked. The resource limit became a crash primitive because attacker-influenced bursts could force try_send to return an error that was unwrapped with expect."
+search_motifs:
+  - "try_send(commands).expect in an executor reachable from network messages"
+  - "bounded mpsc channel capacity is treated as impossible to fill"
+  - "ForwardedTx or p2p batches multiply by connections before backpressure is applied"
+  - "queue-full, lagging, or closed-channel errors panic instead of dropping or slowing producers"
+negative_signals:
+  - "No issue if queue-full is handled by returning an error, dropping low-priority work, or applying backpressure without panic"
+  - "No issue if the sender is only local/operator-controlled and cannot be influenced by peer traffic"
+  - "Impact is lower if supervisor restarts are safe and peer/rate limits make capacity exhaustion impractical"
+patch_pattern: "Replace panic-on-full queue submission with explicit backpressure handling, bounded dropping, or recoverable error propagation; add tests that fill the command channel from attacker-like bursts."
+source_refs:
+  - "https://code4rena.com/reports/2025-09-monad#m-02-bounded-channel-panic-in-tokiotaskupdater-causes-node-crash-leading-to-realistic-chain-halt"
+  - "/testing/learning/2025-09-monad-report.md#M-02"
+  - "/testing/learning/2025-09-monad/bft/monad-updaters/src/lib.rs:141"
+  - "github:category-labs/monad-bft@57784b90f5bb4ee5bb7b83078ba4db338bd93262:monad-updaters/src/lib.rs:42"
+notes:
+  - "Enriched from the Code4rena 2025-09 Monad High/Medium report only; Low/Informational issues were intentionally excluded."
+  - "Competition/audit window was September-October 2025; local source report publication date is 2026-02-26."
+  - "Current upstream references are best-effort post-competition code-shape checks, not a complete patch audit."

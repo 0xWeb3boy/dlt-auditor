@@ -1,0 +1,21 @@
+id: "monad-c4-2025-09-m-07"
+source_record: "monad-c4-2025-09-m-07.yaml"
+project: "monad-c4"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "consensus-execution-base-fee-mismatch"
+expected_missing_property: "cross-layer-header-field-equality"
+
+expected_impact_band: "consensus-execution-split"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+- "No issue if header validation requires equality before any vote or coherency acceptance"
+- "No issue if the execution header field is derived from the consensus header and cannot be proposer-controlled independently"
+- "Impact is lower if mismatches are rejected before finality and the proposer is slashed or isolated"
+notes:
+- "Generated from the monad-c4 enriched corpus import."
+- "Detector rationale should identify cross-layer-header-field-equality at the proposer block header -> consensus validation -> execution validation boundary."

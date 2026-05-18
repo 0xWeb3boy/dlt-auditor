@@ -1,0 +1,67 @@
+id: "monad-c4-2025-09-m-05"
+source_finding: "2025-09-monad-m-05-typed-receipt-encoding-missing-envelope.md"
+project: "monad-c4"
+date: "2025-09-16"
+
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "typed-receipt-envelope-omission"
+subsystem: "rpc-client-api"
+architecture_tags:
+  - "evm-compatible"
+  - "rpc"
+  - "debug-api"
+  - "receipt-encoding"
+  - "eip-2718"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "external-audit-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "external-encoding-standard-conformance"
+violated_invariant: "Raw receipt APIs that claim EIP-2718 bytes must encode typed receipts as TransactionType || ReceiptPayload, matching the transaction type and external client expectations."
+trust_boundary: "RPC client -> debug raw receipt API"
+entrypoint_type: "debug_getRawReceipts RPC handler"
+sensitive_sink: "external raw receipt bytes consumed by clients, tools, or proof systems"
+
+attacker_capabilities:
+  - "query raw receipts for blocks containing typed transactions"
+  - "feed returned bytes into standard Ethereum tooling or verification flows"
+exploit_preconditions:
+  - "receipt envelope type is available internally"
+  - "the debug receipt path calls plain RLP encode rather than encode_2718"
+  - "clients expect standard typed receipt bytes"
+blast_radius: "client/tooling interoperability and downstream verification correctness"
+
+impact_types:
+  - "standard-nonconformance"
+  - "proof-or-client-failure"
+  - "receipt-integrity"
+severity_guess: "medium"
+severity_rationale: "Medium because malformed external receipt bytes can break clients and verification tooling even if internal receipt roots remain correct."
+code_shape_summary: "The debug raw receipt path serialized the inner receipt payload with plain RLP. Typed receipts need the EIP-2718 envelope byte, and a nearby raw transaction path already used encode_2718."
+search_motifs:
+  - "debug/raw receipt API calls encode instead of encode_2718 on ReceiptEnvelope"
+  - "typed transaction path emits EIP-2718 bytes but typed receipt path emits inner payload only"
+  - "API documentation says raw or EIP-2718 encoded but first byte is RLP payload for typed receipts"
+  - "tests include only legacy receipts"
+negative_signals:
+  - "No issue if the API explicitly returns inner receipt payloads and clients are documented to expect that nonstandard format"
+  - "No issue if ReceiptEnvelope::encode already includes the typed envelope in the library version used"
+  - "Impact is lower if the API is disabled, admin-only, or not used by external tooling"
+patch_pattern: "Use encode_2718 for ReceiptEnvelope in raw/debug receipt APIs and test at least one legacy receipt plus each supported typed receipt against a standard decoder."
+source_refs:
+  - "https://code4rena.com/reports/2025-09-monad#m-05-typed-receipt-encoding-does-not-conform-to-standard-ethereum-rpc-format"
+  - "/testing/learning/2025-09-monad-report.md#M-05"
+  - "/testing/learning/2025-09-monad/bft/monad-rpc/src/handlers/debug.rs:126"
+  - "github:category-labs/monad-bft@57784b90f5bb4ee5bb7b83078ba4db338bd93262:monad-rpc/src/handlers/debug.rs:151"
+notes:
+  - "Enriched from the Code4rena 2025-09 Monad High/Medium report only; Low/Informational issues were intentionally excluded."
+  - "Competition/audit window was September-October 2025; local source report publication date is 2026-02-26."
+  - "Current upstream references are best-effort post-competition code-shape checks, not a complete patch audit."

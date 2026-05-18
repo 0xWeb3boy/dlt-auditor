@@ -1,0 +1,21 @@
+id: "monad-c4-2025-09-h-04"
+source_record: "monad-c4-2025-09-h-04.yaml"
+project: "monad-c4"
+
+expected_bug_family: "state_machine_and_lifecycle_consistency"
+expected_bug_class: "order-dependent-delegation-state-mismatch"
+expected_missing_property: "order-sensitive-state-consistency"
+
+expected_impact_band: "consensus-liveness"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+- "No issue if block policy records whether delegation existed before the first transaction and applies ordered semantics"
+- "No issue if txpool and block policy share the same whole-block prepass and reserve rules"
+- "Impact is lower if rejected proposals evict the pair or if the account balance cannot be tuned across the emptying/non-emptying boundary"
+notes:
+- "Generated from the monad-c4 enriched corpus import."
+- "Detector rationale should identify order-sensitive-state-consistency at the ordered transaction proposal -> block policy reserve accounting boundary."

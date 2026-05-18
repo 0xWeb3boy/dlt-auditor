@@ -1,0 +1,66 @@
+id: "monad-c4-2025-09-m-01"
+source_finding: "2025-09-monad-m-01-raptorcast-secondary-identity-binding.md"
+project: "monad-c4"
+date: "2025-09-16"
+
+language_tags:
+  - "rust"
+
+bug_family: "signature_binding_and_signer_scope"
+bug_class: "signed-message-identity-misbinding"
+subsystem: "p2p-networking"
+architecture_tags:
+  - "p2p"
+  - "validator-based"
+  - "full-node"
+  - "group-management"
+  - "signature-verification"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "external-audit-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "identity-claim-signer-binding"
+violated_invariant: "When a signed p2p group-management message claims a validator_id or node_id, the recovered signing key must match the claimed identity before group state or peer-discovery state changes."
+trust_boundary: "peer message -> RaptorCast Secondary group state"
+entrypoint_type: "p2p group-management message handler"
+sensitive_sink: "group membership, pending confirms, and peer discovery updates"
+
+attacker_capabilities:
+  - "connect to node p2p ports and send signed group-management messages"
+  - "sign messages with an attacker key while claiming another validator or node identity"
+exploit_preconditions:
+  - "outer signature verification recovers a public key but final handlers trust inner validator_id or node_id fields"
+  - "group slots, pending confirmations, or peer records are mutated from the unbound inner identity"
+blast_radius: "network-wide availability degradation for RaptorCast Secondary"
+
+impact_types:
+  - "unauthorized-message-processing"
+  - "p2p-denial-of-service"
+  - "peer-identity-confusion"
+severity_guess: "medium"
+severity_rationale: "Medium because forged identity claims can disrupt block propagation groups and force fallback paths, but the report frames the main impact as availability degradation rather than consensus safety violation."
+code_shape_summary: "RaptorCast verified that a message was signed, but did not bind the recovered signer to identity fields embedded in the message. Application-level group state was updated from claimed validator/node ids that could be attacker-chosen."
+search_motifs:
+  - "signed envelope recovers author but inner validator_id or node_id drives state"
+  - "PrepareGroup, PrepareGroupResponse, or ConfirmGroup handler does not compare recovered key to payload identity"
+  - "group state keyed by claimed id instead of verified sender"
+  - "peer discovery records accepted from a message whose signer does not match listed peer"
+negative_signals:
+  - "No issue if the router passes the recovered author into every final state mutation and the handler compares it to each claimed identity"
+  - "No issue if only authenticated validators can reach the handler and membership is checked before side effects"
+  - "Impact is lower if group state is advisory, isolated per connection, or rate-limited without affecting block propagation"
+patch_pattern: "Propagate the recovered signer to the secondary group handlers and fail closed unless validator_id/node_id and peer name records are bound to that signer and expected role."
+source_refs:
+  - "https://code4rena.com/reports/2025-09-monad#m-01-lack-of-authorization-in-raptorcast-secondary-protocol-group-messages-allows-arbitrary-node-impersonation-leading-to-dos"
+  - "/testing/learning/2025-09-monad-report.md#M-01"
+  - "/testing/learning/2025-09-monad/bft/monad-raptorcast/src/raptorcast_secondary/client.rs:256"
+  - "/testing/learning/2025-09-monad/bft/monad-raptorcast/src/raptorcast_secondary/publisher.rs:305"
+notes:
+  - "Enriched from the Code4rena 2025-09 Monad High/Medium report only; Low/Informational issues were intentionally excluded."
+  - "Competition/audit window was September-October 2025; local source report publication date is 2026-02-26."
+  - "Current upstream references are best-effort post-competition code-shape checks, not a complete patch audit."

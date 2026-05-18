@@ -1,0 +1,69 @@
+id: "monad-c4-2025-09-h-02"
+source_finding: "2025-09-monad-h-02-eip7702-system-sender-predicate-order-dos.md"
+project: "monad-c4"
+date: "2025-09-16"
+
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "cross-layer-predicate-order-mismatch"
+subsystem: "transaction-processing"
+architecture_tags:
+  - "l1"
+  - "evm-compatible"
+  - "eip-7702"
+  - "txpool"
+  - "block-validator"
+  - "consensus"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "external-audit-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "validity-disposition-equivalence"
+violated_invariant: "Every layer that validates an EIP-7702 authorization must agree whether a wrong-chain system-sender authorization is ignored as an invalid child or rejects the parent transaction/block."
+trust_boundary: "user transaction -> txpool admission -> block validation"
+entrypoint_type: "EIP-7702 transaction admission and block coherency validation"
+sensitive_sink: "consensus vote decision for proposed blocks"
+
+attacker_capabilities:
+  - "send EIP-7702 transactions containing crafted authorizations"
+  - "set the recovered authority to the system sender address with a wrong chain id"
+exploit_preconditions:
+  - "txpool checks chain id first and skips the authorization before checking the system sender authority"
+  - "block validation checks system sender before chain id and treats it as fatal"
+  - "leaders can include txpool-accepted transactions in proposals"
+blast_radius: "chain-wide"
+
+impact_types:
+  - "consensus-liveness"
+  - "invalid-block-proposal"
+  - "denial-of-service"
+severity_guess: "high"
+severity_rationale: "High because accepted txpool transactions can make proposals invalid before execution, causing repeated missed rounds at no gas cost."
+code_shape_summary: "The same EIP-7702 authorization predicates existed in txpool and block validation, but their order changed the validity outcome. Txpool treated a wrong-chain authorization as skipped before seeing the forbidden system authority, while block validation saw the system authority first and rejected the whole block."
+search_motifs:
+  - "EIP-7702 authorization chain-id skip runs before special system-sender check in one layer"
+  - "another layer checks system or privileged authority before chain-id skip"
+  - "invalid child authorization is ignored in txpool but fatal in block validation"
+  - "failed predicate order changes whether child, transaction, or block is rejected"
+negative_signals:
+  - "No issue if all layers return the same parent-transaction validity result for every failing predicate"
+  - "No issue if txpool rejects the transaction before proposal or block validation only rejects the authorization side effect"
+  - "Impact is lower if invalid proposals are not retried and the offending transaction is evicted from hot pools"
+patch_pattern: "Make EIP-7702 authorization validation order and failure disposition identical across txpool, block validation, block policy, and execution. In particular, reject or drop system-sender authorizations before chain-id skip logic if that is the block-validation rule."
+source_refs:
+  - "https://code4rena.com/reports/2025-09-monad#h-02-attacker-can-send-malicious-eip-7702-transactions-that-cause-rounds-to-time-out-and-halt-the-chain"
+  - "/testing/learning/2025-09-monad-report.md#H-02"
+  - "/testing/learning/2025-09-monad/bft/monad-eth-txpool/src/pool/transaction.rs:112"
+  - "/testing/learning/2025-09-monad/bft/monad-eth-block-validator/src/lib.rs:467"
+  - "github:category-labs/monad-bft@57784b90f5bb4ee5bb7b83078ba4db338bd93262:monad-eth-txpool/src/pool/transaction.rs:141"
+notes:
+  - "Enriched from the Code4rena 2025-09 Monad High/Medium report only; Low/Informational issues were intentionally excluded."
+  - "Competition/audit window was September-October 2025; local source report publication date is 2026-02-26."
+  - "Current upstream references are best-effort post-competition code-shape checks, not a complete patch audit."

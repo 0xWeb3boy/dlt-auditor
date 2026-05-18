@@ -1,0 +1,71 @@
+id: "monad-c4-2025-09-h-01"
+source_finding: "2025-09-monad-h-01-block-policy-legacy-gas-discount.md"
+project: "monad-c4"
+date: "2025-09-16"
+
+language_tags:
+  - "rust"
+  - "cpp"
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "legacy-gas-cost-underaccounting"
+subsystem: "block-policy"
+architecture_tags:
+  - "l1"
+  - "evm-compatible"
+  - "fee-market"
+  - "txpool"
+  - "consensus"
+  - "execution"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "external-audit-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "type-specific-fee-accounting"
+violated_invariant: "Consensus block policy must reserve enough balance for the maximum gas cost that execution can charge for each transaction type; legacy and EIP-2930 transactions must not be capped by EIP-1559 effective-bid logic."
+trust_boundary: "user transaction -> txpool/block policy -> execution engine"
+entrypoint_type: "block-policy transaction affordability check"
+sensitive_sink: "block proposal acceptance and execution gas charging"
+
+attacker_capabilities:
+  - "send legacy or EIP-2930 transactions with a high gas price"
+  - "fund the sender below the execution-layer maximum gas cost but above the policy-layer undercount"
+exploit_preconditions:
+  - "block policy computes max gas cost with an EIP-1559 effective-bid formula for pre-EIP-1559 transaction types"
+  - "execution charges the full legacy gas price"
+  - "the transaction can be selected into a proposal before execution rejects it"
+blast_radius: "chain-wide"
+
+impact_types:
+  - "consensus-liveness"
+  - "fee-bypass"
+  - "invalid-block-proposal"
+  - "denial-of-service"
+severity_guess: "high"
+severity_rationale: "High because an attacker can cause consensus to accept transactions that execution will reject, poisoning proposals or consuming block-production capacity without paying execution fees."
+code_shape_summary: "A shared max-gas-cost helper used one EIP-1559 formula for all transaction types. For legacy and EIP-2930 transactions, that helper capped the gas bid at base_fee + priority_fee, while execution charges the full gas_price. The result was a consensus-side affordability undercount."
+search_motifs:
+  - "compute_txn_max_gas_cost applies max_fee.min(base_fee + priority_fee) without branching on legacy/EIP-2930"
+  - "Rust block policy fee helper disagrees with C++ execution gas-price logic"
+  - "legacy transaction max cost is lower in proposal validation than in execution"
+  - "tests do not cover legacy gas_price above base_fee plus priority fee"
+negative_signals:
+  - "No issue if legacy and EIP-2930 transactions use a separate full-gas-price branch before EIP-1559 math"
+  - "No issue if execution and block policy call the same type-aware helper or share conformance tests"
+  - "Impact is lower if invalid transactions are rejected or evicted before block proposal and cannot be repeatedly selected"
+patch_pattern: "Branch by transaction type in the block-policy gas-cost helper: charge legacy and EIP-2930 transactions as gas_limit * gas_price, and use the EIP-1559 effective-bid formula only for dynamic-fee typed transactions. Add cross-layer tests against execution gas semantics."
+source_refs:
+  - "https://code4rena.com/reports/2025-09-monad#h-01-block-policy-discounts-gas-price-by-incorrectly-applying-eip-1559-to-legacy-transactions"
+  - "/testing/learning/2025-09-monad-report.md#H-01"
+  - "/testing/learning/2025-09-monad/bft/monad-eth-block-policy/src/lib.rs:77"
+  - "/testing/learning/2025-09-monad/bft/monad-cxx/monad-execution/category/execution/ethereum/transaction_gas.cpp:144"
+  - "github:category-labs/monad-bft@57784b90f5bb4ee5bb7b83078ba4db338bd93262:monad-eth-block-policy/src/lib.rs:69"
+notes:
+  - "Enriched from the Code4rena 2025-09 Monad High/Medium report only; Low/Informational issues were intentionally excluded."
+  - "Competition/audit window was September-October 2025; local source report publication date is 2026-02-26."
+  - "Current upstream references are best-effort post-competition code-shape checks, not a complete patch audit."
