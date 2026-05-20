@@ -1,0 +1,25 @@
+id: "fuel-attackathon-2024-06-17-signed-subtract-underflow-branch-32706"
+source_record: "fuel-attackathon-2024-06-17-signed-subtract-underflow-branch-32706.yaml"
+project: "fuel-attackathon"
+
+expected_bug_family: "checked_arithmetic_and_parameter_bounds"
+expected_bug_class: "biased-signed-subtraction-underflow"
+expected_missing_property: "biased-arithmetic-branch-coverage"
+
+expected_impact_band: "high"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+expected_trust_boundary: "contract-input->integer-library"
+expected_entrypoint_type: "library-function"
+expected_sensitive_sink: "signed subtraction result used by contract accounting"
+expected_patch_pattern: "Rework signed subtraction around the formula a_underlying - b_underlying + indent using checked ordering for all sign combinations."
+
+false_positive_cautions:
+  - "No issue if all construction paths canonicalize values so the vulnerable branch is unreachable."
+  - "A panic is lower severity if no user funds or queues depend on the call."
+notes:
+  - "Signed arithmetic implemented over biased unsigned storage needs exhaustive branch tests over every sign quadrant."
+  - "Valid signed subtraction can panic or miscompute, potentially blocking contract flows or corrupting balances."

@@ -1,0 +1,65 @@
+id: "fuel-attackathon-2024-06-17-abi-supertrait-external-dispatch-33351"
+source_finding: "2024-06-17-fuel-attackathon-33351-abi-supertrait-external-dispatch.md"
+project: "fuel-attackathon"
+date: "2024-06-17"
+language_tags:
+  - "rust"
+  - "sway"
+
+bug_family: "authz_and_role_gates"
+bug_class: "supertrait-method-dispatch-exposure"
+subsystem: "compiler-abi-dispatch"
+architecture_tags:
+  - "compiler"
+  - "contract-dispatch"
+  - "abi"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "public-attackathon-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "external-interface-visibility-enforcement"
+violated_invariant: "Only functions explicitly exposed by a contract ABI may be reachable through external contract dispatch."
+trust_boundary: "external-call->contract-dispatch-table"
+entrypoint_type: "contract-call-dispatch"
+sensitive_sink: "execution of ABI supertrait helper methods that developers expected to be internal"
+
+attacker_capabilities:
+  - "Call a contract selector corresponding to a supertrait method."
+  - "Choose calldata for methods omitted from the generated ABI."
+exploit_preconditions:
+  - "Compiler omits supertrait methods from ABI JSON but still leaves them reachable in dispatch IR."
+  - "The supertrait method performs privileged work without its own access control."
+blast_radius: "ecosystem-wide"
+
+impact_types:
+  - "unauthorized-action"
+  - "access-control-bypass"
+  - "asset-integrity"
+severity_guess: "critical"
+severity_rationale: "Methods assumed to be internal can become public entrypoints, bypassing contract-level access-control assumptions."
+
+code_shape_summary: "ABI generation and dispatch generation disagreed: metadata hid supertrait methods, but runtime selector dispatch still routed to them."
+search_motifs:
+  - "ABI supertrait excluded from contract-abi.json"
+  - "selector dispatch includes inherited trait method"
+  - "methods not available externally comment"
+  - "IR function dispatch supertrait"
+negative_signals:
+  - "No issue if the method is intentionally listed in the public ABI."
+  - "No issue if the exposed helper has complete independent authorization checks."
+patch_pattern: "Exclude ABI supertrait methods from external dispatch selector tables and add compiler tests that external calls to supertrait-only methods fail."
+
+source_refs:
+  - "raw-findings/2024-06-17-fuel-attackathon-33351-abi-supertrait-external-dispatch.md"
+  - "https://github.com/FuelLabs/sway/tree/v0.61.2"
+  - "https://reports.immunefi.com/fuel-network-or-attackathon/attackathon-_-fuel-network-33351-smart-contract-critical-abi-supertraits-methods-are-available-exter"
+notes:
+  - "Original Immunefi report id: 33351."
+  - "Original report severity: Critical."
+  - "Submitted: Thu Jul 18 2024 13:00:58 GMT-0400 (Atlantic Standard Time)."
+  - "Attackathon date provided by user: 2024-06-17."

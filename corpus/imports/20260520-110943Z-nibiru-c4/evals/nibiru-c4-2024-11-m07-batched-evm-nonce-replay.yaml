@@ -1,0 +1,22 @@
+id: "nibiru-c4-2024-11-m07-batched-evm-nonce-replay"
+source_record: "nibiru-c4-2024-11-m07-batched-evm-nonce-replay.yaml"
+project: "nibiru-c4"
+
+expected_bug_family: "state_machine_and_lifecycle_consistency"
+expected_bug_class: "batched-evm-nonce-regression"
+expected_missing_property: "nonce monotonicity across batched messages"
+
+expected_impact_band: "nonce replay window"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "No issue if batching MsgEthereumTx is impossible."
+  - "No issue if normal calls set nonce to msg.Nonce()+1 after execution."
+  - "No issue if ante and execution both enforce final monotonic sequence."
+notes:
+  - "Original C4 finding code: M-07."
+  - "Expected answer should identify: Every EVM message in a batch must leave the sender account sequence at least msg.Nonce()+1, regardless of contract creation vs call execution path."
+  - "Set the sender nonce to msg.Nonce()+1 for both contract creation and non-creation EVM message paths, with batched-message regression tests."

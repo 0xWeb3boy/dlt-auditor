@@ -1,0 +1,65 @@
+id: "fuel-attackathon-2024-06-17-call-frame-code-size-address-33451"
+source_finding: "2024-06-17-fuel-attackathon-33451-call-frame-code-size-address.md"
+project: "fuel-attackathon"
+date: "2024-06-17"
+language_tags:
+  - "rust"
+  - "sway"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "call-frame-field-dereference-error"
+subsystem: "standard-library-call-frames"
+architecture_tags:
+  - "standard-library"
+  - "call-frame"
+  - "contract-introspection"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "public-attackathon-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "semantic-field-binding"
+violated_invariant: "A call-frame accessor documented to return a field value must load that value, not return the field's memory address."
+trust_boundary: "contract-introspection->authorization-or-policy-check"
+entrypoint_type: "library-function"
+sensitive_sink: "code-size based security policy"
+
+attacker_capabilities:
+  - "Call or deploy a contract whose real code size should fail a policy check."
+  - "Rely on code_size returning a safe-looking address instead of size."
+exploit_preconditions:
+  - "code_size returns the memory offset of the call-frame field."
+  - "A contract uses code_size to gate access, swaps, or interactions."
+blast_radius: "ecosystem-wide"
+
+impact_types:
+  - "policy-bypass"
+  - "unauthorized-action"
+  - "asset-integrity"
+severity_guess: "medium"
+severity_rationale: "Contracts using code-size introspection for security can admit callers they meant to reject."
+
+code_shape_summary: "The accessor differed from neighboring call-frame helpers by returning the field pointer rather than reading the u64 value at that pointer."
+search_motifs:
+  - "call_frames::code_size returns address"
+  - "code size security check"
+  - "call frame offset not dereferenced"
+  - "first_param reads value but code_size does not"
+negative_signals:
+  - "No issue if code_size is used only for logging."
+  - "No issue if the function is documented and named as returning an address."
+patch_pattern: "Dereference the call-frame code-size slot consistently with adjacent accessors and add tests that compare returned size to actual bytecode length."
+
+source_refs:
+  - "raw-findings/2024-06-17-fuel-attackathon-33451-call-frame-code-size-address.md"
+  - "https://github.com/FuelLabs/sway/tree/v0.61.2"
+  - "https://reports.immunefi.com/fuel-network-or-attackathon/attackathon-_-fuel-network-33451-smart-contract-medium-incorrect-code-size-estimation-can-bypass-pro"
+notes:
+  - "Original Immunefi report id: 33451."
+  - "Original report severity: Medium."
+  - "Submitted: Sat Jul 20 2024 18:01:41 GMT-0400 (Atlantic Standard Time)."
+  - "Attackathon date provided by user: 2024-06-17."

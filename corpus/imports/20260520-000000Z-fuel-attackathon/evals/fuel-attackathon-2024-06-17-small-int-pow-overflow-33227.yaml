@@ -1,0 +1,25 @@
+id: "fuel-attackathon-2024-06-17-small-int-pow-overflow-33227"
+source_record: "fuel-attackathon-2024-06-17-small-int-pow-overflow-33227.yaml"
+project: "fuel-attackathon"
+
+expected_bug_family: "checked_arithmetic_and_parameter_bounds"
+expected_bug_class: "small-width-pow-overflow"
+expected_missing_property: "type-width-overflow-checks"
+
+expected_impact_band: "high"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+expected_trust_boundary: "contract-input->standard-library-math"
+expected_entrypoint_type: "library-function"
+expected_sensitive_sink: "pow result used as token amount or SDK-returned value"
+expected_patch_pattern: "Add explicit checked multiplication or max-bound checks in narrow-type pow implementations and tests for overflow boundaries."
+
+false_positive_cautions:
+  - "No issue if the operation returns a Result or panics before exceeding the declared type max."
+  - "u64 and u256 behavior may be covered by separate VM checks."
+notes:
+  - "Language runtimes that widen narrow types still need source-type overflow checks in standard-library arithmetic."
+  - "Overflowed narrow-type powers can produce wrong transfer amounts or wrap when crossing SDK boundaries."

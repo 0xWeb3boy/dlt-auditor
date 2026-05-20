@@ -1,0 +1,64 @@
+id: "fuel-attackathon-2024-06-17-ldc-architecture-dependent-panic-32825"
+source_finding: "2024-06-17-fuel-attackathon-32825-ldc-architecture-dependent-panic.md"
+project: "fuel-attackathon"
+date: "2024-06-17"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "architecture-dependent-consensus-result"
+subsystem: "vm-consensus"
+architecture_tags:
+  - "vm"
+  - "consensus"
+  - "receipt"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "public-attackathon-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "architecture-independent-error-semantics"
+violated_invariant: "The same transaction bytecode must produce the same VM result and receipts on every validator architecture."
+trust_boundary: "transaction-bytecode->consensus-receipt"
+entrypoint_type: "vm-opcode"
+sensitive_sink: "panic reason committed into receipts and block hash"
+
+attacker_capabilities:
+  - "Execute LDC with an extreme length value."
+  - "Target mixed 32-bit and 64-bit validator or WASM execution environments."
+exploit_preconditions:
+  - "Opcode code converts u64 length through usize."
+  - "Different architectures map the same input to different panic reasons."
+blast_radius: "chain-wide"
+
+impact_types:
+  - "consensus-integrity"
+  - "chain-split"
+  - "state-integrity"
+severity_guess: "high"
+severity_rationale: "Architecture-dependent receipts can cause validators to compute different block hashes for the same transaction."
+
+code_shape_summary: "Consensus execution used usize in a value path that affects panic classification and receipt contents."
+search_motifs:
+  - "u64 to usize in VM opcode"
+  - "padded_len_usize consensus"
+  - "different PanicReason on 32-bit"
+  - "receipt contains panic reason"
+negative_signals:
+  - "No issue if the architecture-dependent conversion happens outside consensus outputs."
+  - "No issue if all supported execution targets use one fixed word size."
+patch_pattern: "Use architecture-independent integer widths in consensus logic and normalize length validation order so all platforms emit the same error."
+
+source_refs:
+  - "raw-findings/2024-06-17-fuel-attackathon-32825-ldc-architecture-dependent-panic.md"
+  - "https://github.com/FuelLabs/fuel-vm/tree/0e46d324da460f2db8bcef51920fb9246ac2143b"
+  - "https://reports.immunefi.com/fuel-network-or-attackathon/attackathon-_-fuel-network-32825-blockchain_dlt-high-consensus-between-bit-and-bit-system-can-fail-f"
+notes:
+  - "Original Immunefi report id: 32825."
+  - "Original report severity: High."
+  - "Submitted: Thu Jul 04 2024 07:53:29 GMT-0400 (Atlantic Standard Time)."
+  - "Attackathon date provided by user: 2024-06-17."

@@ -1,0 +1,25 @@
+id: "fuel-attackathon-2024-06-17-abi-decoder-usize-architecture-33193"
+source_record: "fuel-attackathon-2024-06-17-abi-decoder-usize-architecture-33193.yaml"
+project: "fuel-attackathon"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "architecture-dependent-abi-decoding"
+expected_missing_property: "architecture-independent-length-validation"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+expected_trust_boundary: "abi-bytes->sdk-decoder"
+expected_entrypoint_type: "abi-decoder"
+expected_sensitive_sink: "dynamic data length conversion used by string and bytes decoding"
+expected_patch_pattern: "Validate dynamic lengths in u64 against protocol limits before converting to usize, and add 32-bit/wasm decoder tests."
+
+false_positive_cautions:
+  - "No issue if the length is bounded below u32::MAX before conversion."
+  - "Client-only divergence is lower severity when it cannot affect consensus or submitted transactions."
+notes:
+  - "SDK codecs should validate protocol-sized lengths before platform-sized allocation or indexing conversions."
+  - "SDK behavior can diverge across platforms, causing inconsistent decoding and application behavior."

@@ -1,0 +1,62 @@
+id: "fuel-attackathon-2024-06-17-ifp-zero-sign-change-33303"
+source_finding: "2024-06-17-fuel-attackathon-33303-ifp-zero-sign-change.md"
+project: "fuel-attackathon"
+date: "2024-06-17"
+language_tags:
+  - "sway"
+
+bug_family: "checked_arithmetic_and_parameter_bounds"
+bug_class: "noncanonical-zero-sign"
+subsystem: "fixed-point-library"
+architecture_tags:
+  - "smart-contract-library"
+  - "fixed-point-math"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "public-attackathon-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "canonical-zero-normalization"
+violated_invariant: "Adding equal magnitudes with opposite signs must produce canonical positive zero."
+trust_boundary: "contract-input->financial-math-library"
+entrypoint_type: "library-function"
+sensitive_sink: "signed fixed-point zero used by comparisons or later arithmetic"
+
+attacker_capabilities:
+  - "Add equal positive and negative values."
+  - "Use the zero result in sign-sensitive logic."
+exploit_preconditions:
+  - "The branch uses strict greater-than instead of greater-than-or-equal around equal magnitudes."
+  - "Negative zero is observable in comparisons or downstream operations."
+blast_radius: "ecosystem-wide"
+
+impact_types:
+  - "arithmetic-integrity"
+  - "contract-behavior-integrity"
+severity_guess: "medium"
+severity_rationale: "Noncanonical zero can break equality, comparison, or branch logic, with financial impact depending on use."
+
+code_shape_summary: "The add implementation changed sign in the equality case instead of normalizing zero to a canonical sign."
+search_motifs:
+  - "3 plus -3 negative zero"
+  - "self.underlying > other.underlying"
+  - "should use >="
+  - "IFP add sign change"
+negative_signals:
+  - "No issue if zero sign is never observable and all comparisons canonicalize."
+  - "No issue if the library intentionally supports signed zero with documented semantics."
+patch_pattern: "Use an equality-aware branch and canonicalize all zero results to non_negative true, with tests for x + -x."
+
+source_refs:
+  - "raw-findings/2024-06-17-fuel-attackathon-33303-ifp-zero-sign-change.md"
+  - "https://github.com/FuelLabs/sway-libs/tree/0f47d33d6e5da25f782fc117d4be15b7b12d291b"
+  - "https://reports.immunefi.com/fuel-network-or-attackathon/attackathon-_-fuel-network-33303-smart-contract-medium-incorrect-sign-change"
+notes:
+  - "Original Immunefi report id: 33303."
+  - "Original report severity: Medium."
+  - "Submitted: Wed Jul 17 2024 10:37:38 GMT-0400 (Atlantic Standard Time)."
+  - "Attackathon date provided by user: 2024-06-17."

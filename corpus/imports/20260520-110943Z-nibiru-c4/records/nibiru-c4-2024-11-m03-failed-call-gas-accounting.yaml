@@ -1,0 +1,67 @@
+id: "nibiru-c4-2024-11-m03-failed-call-gas-accounting"
+source_finding: "2024-11-m03-failed-call-gas-accounting.md"
+project: "nibiru-c4"
+date: "2024-11-26"
+language_tags:
+  - "go"
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "failed-evm-call-gas-accounting-asymmetry"
+subsystem: "evm-callcontract-gas"
+architecture_tags:
+  - "evm-integration"
+  - "gas-metering"
+  - "batched-transactions"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "success-failure gas accounting symmetry"
+violated_invariant: "Every EVM call outcome inside a transaction must charge the Cosmos gas meter for the actual EVM gas consumed without resetting away earlier message gas."
+trust_boundary: "user transaction->EVM CallContract helper->Cosmos gas meter"
+entrypoint_type: "EVM CallContractWithInput helper"
+sensitive_sink: "ResetGasMeterAndConsumeGas and transient/cumulative EVM gas tracking"
+
+attacker_capabilities:
+  - "Submit transactions that cause EVM helper calls to fail after consuming gas."
+  - "Bundle multiple EVM messages where earlier gas can be reset away by a later failure."
+exploit_preconditions:
+  - "Failed call path consumes only the failed call gas or gas limit."
+  - "Earlier EVM gas in the same transaction is not preserved in final Cosmos gas accounting."
+blast_radius: "chain-wide"
+
+impact_types:
+  - "fee-bypass"
+  - "gas-accounting-corruption"
+  - "resource-exhaustion"
+severity_guess: "medium"
+severity_rationale: "Asymmetric failed-call accounting can undercharge batched EVM work and make block gas accounting lower than actual computation."
+
+code_shape_summary: "The failure branch reset the gas meter with only the failed evmResp.GasUsed, while success and caller paths used different cumulative accounting rules."
+search_motifs:
+  - "evmResp.Failed ResetGasMeterAndConsumeGas"
+  - "AddToBlockGasUsed only on success"
+  - "CallContractWithInput gasUsed not bubbled to caller"
+  - "multiple MsgEthereumTx in one SDK tx"
+negative_signals:
+  - "No issue if callers uniformly consume returned EVM gas for success and failure."
+  - "No issue if transaction format forbids batching and prior gas cannot be reset away."
+  - "No issue if failure always burns the full applicable gas limit."
+patch_pattern: "Bubble EVM gas used to callers and consume it consistently for all outcomes, removing or simplifying the transient gas reset model."
+
+source_refs:
+  - "raw-findings/2024-11-m03-failed-call-gas-accounting.md"
+  - "/testing/learning-nibiru/report.md"
+  - "https://github.com/code-423n4/2024-11-nibiru-findings/issues/46"
+  - "https://github.com/NibiruChain/nibiru/pull/2132"
+  - "https://github.com/NibiruChain/nibiru/pull/2167"
+notes:
+  - "Original C4 finding code: M-03."
+  - "Original C4 severity: Medium."
+  - "PR-2132: fix(evm): proper tx gas refund outside of CallContract; created 2024-12-26T18:00:34Z; merged 2025-01-14T15:47:33Z."
+  - "PR-2167: refactor(evm): removed blockGasUsed transient variable; created 2025-01-15T12:30:21Z; merged 2025-01-17T08:40:13Z."

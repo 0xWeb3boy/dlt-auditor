@@ -1,0 +1,63 @@
+id: "nibiru-c4-2024-11-m04-cumulative-gas-refund"
+source_finding: "2024-11-m04-cumulative-gas-refund.md"
+project: "nibiru-c4"
+date: "2024-11-26"
+language_tags:
+  - "go"
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "cumulative-gas-refund-miscalculation"
+subsystem: "evm-fee-refunds"
+architecture_tags:
+  - "evm-integration"
+  - "gas-metering"
+  - "fee-accounting"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "security-fix"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "per-message refund accounting"
+violated_invariant: "Gas refunded for one EVM message should be based on that message budget and usage, not unrelated cumulative gas unless the fee was charged for the full batch unit."
+trust_boundary: "EVM transaction submitter->fee deduction and refund logic"
+entrypoint_type: "EthereumTx message execution"
+sensitive_sink: "refundGas calculation and fee refund transfer"
+
+attacker_capabilities:
+  - "Submit or receive batched EVM messages where refund depends on cumulative gas."
+exploit_preconditions:
+  - "Fees are deducted per message gas limit."
+  - "Refund logic subtracts cumulative gas used across messages from each message gas limit."
+blast_radius: "user-local"
+
+impact_types:
+  - "incorrect-refund"
+  - "funds-loss"
+  - "fee-accounting-corruption"
+severity_guess: "medium"
+severity_rationale: "Users can receive lower refunds than intended for batched EVM messages, causing direct fee loss without broader chain compromise."
+
+code_shape_summary: "Refund logic compared evmMsg.Gas to a cumulative blockGasUsed value, causing later messages to inherit earlier gas usage in their refund calculation."
+search_motifs:
+  - "refundGas uses blockGasUsed"
+  - "evmMsg.Gas greater than cumulative gas"
+  - "gas charged by txData.Fee"
+  - "proper tx gas refund outside CallContract"
+negative_signals:
+  - "No issue if fee deduction is explicitly based on the same aggregate batch gas unit."
+  - "No issue if only one EVM message can exist per transaction."
+  - "No issue if cumulative gas is never used in per-message refund math."
+patch_pattern: "Calculate refunds from each EVM message gas limit minus that message actual gas used, with cumulative gas used only for transaction-level metering."
+
+source_refs:
+  - "raw-findings/2024-11-m04-cumulative-gas-refund.md"
+  - "/testing/learning-nibiru/report.md"
+  - "https://github.com/code-423n4/2024-11-nibiru-findings/issues/45"
+  - "https://github.com/NibiruChain/nibiru/pull/2132"
+notes:
+  - "Original C4 finding code: M-04."
+  - "Original C4 severity: Medium."
+  - "PR-2132: fix(evm): proper tx gas refund outside of CallContract; created 2024-12-26T18:00:34Z; merged 2025-01-14T15:47:33Z."

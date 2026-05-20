@@ -1,0 +1,22 @@
+id: "nibiru-c4-2024-11-h01-vesting-account-preemption"
+source_record: "nibiru-c4-2024-11-h01-vesting-account-preemption.yaml"
+project: "nibiru-c4"
+
+expected_bug_family: "state_machine_and_lifecycle_consistency"
+expected_bug_class: "account-type-preemption"
+expected_missing_property: "address-space account-type isolation"
+
+expected_impact_band: "deterministic contract address preemption"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "No issue if vesting creation is governance-only or disabled."
+  - "No issue if EVM contract accounts live in a disjoint address namespace."
+  - "No issue if deployment converts or rejects pre-existing non-EVM accounts before storing code."
+notes:
+  - "Original C4 finding code: H-01."
+  - "Expected answer should identify: A user-controllable Cosmos account type must not be able to reserve or poison a deterministic EVM contract address before code deployment."
+  - "Disable built-in auth/vesting transaction messages or otherwise reject vesting account creation for addresses that can be valid EVM contract accounts."

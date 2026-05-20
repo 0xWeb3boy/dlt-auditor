@@ -1,0 +1,25 @@
+id: "fuel-attackathon-2024-06-17-storage-map-variable-slot-collision-32884"
+source_record: "fuel-attackathon-2024-06-17-storage-map-variable-slot-collision-32884.yaml"
+project: "fuel-attackathon"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "storage-slot-domain-collision"
+expected_missing_property: "storage-domain-separation"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+expected_trust_boundary: "contract-developer-or-user-input->contract-storage"
+expected_entrypoint_type: "storage-layout-derivation"
+expected_sensitive_sink: "contract storage slots shared by variables and StorageMap entries"
+expected_patch_pattern: "Domain-separate and length-frame storage slot derivation for variables, maps, and nested fields, with compiler tests for crafted preimage aliases."
+
+false_positive_cautions:
+  - "No issue if storage derivation uses domain tags and length-delimited encodings."
+  - "A theoretical hash collision is not required; this pattern is about equal preimages from ambiguous framing."
+notes:
+  - "Storage layout hashes need domain tags and unambiguous framing whenever different declaration kinds share one key space."
+  - "Storage aliasing can hide backdoors or overwrite balances, but exploitability depends on crafted contract layout and key control."

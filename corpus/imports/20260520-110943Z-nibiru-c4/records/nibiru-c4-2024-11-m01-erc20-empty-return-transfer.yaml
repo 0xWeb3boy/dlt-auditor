@@ -1,0 +1,63 @@
+id: "nibiru-c4-2024-11-m01-erc20-empty-return-transfer"
+source_finding: "2024-11-m01-erc20-empty-return-transfer.md"
+project: "nibiru-c4"
+date: "2024-11-26"
+language_tags:
+  - "go"
+  - "solidity"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "strict-erc20-return-decoding"
+subsystem: "evm-erc20-funtoken"
+architecture_tags:
+  - "evm-integration"
+  - "token-bridge"
+  - "erc20-compatibility"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "public-report-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "token-return-value compatibility handling"
+violated_invariant: "Token integration code should distinguish call success from optional ERC20 return-data conventions when the supported token set includes missing-return tokens."
+trust_boundary: "external ERC20 contract->FunToken conversion logic"
+entrypoint_type: "ERC20 transfer helper"
+sensitive_sink: "FunToken conversion transfer result decoding"
+
+attacker_capabilities:
+  - "Use or deploy an ERC20-like token whose transfer succeeds but returns no data."
+exploit_preconditions:
+  - "Missing-return tokens are treated as in scope or supported."
+  - "Transfer helper ABI-decodes a bool unconditionally."
+blast_radius: "asset-local"
+
+impact_types:
+  - "denial-of-service"
+  - "asset-compatibility-failure"
+  - "funds-stuck-risk"
+severity_guess: "medium"
+severity_rationale: "The report kept this as Medium because missing-return tokens were in scope and strict bool decoding can brick conversion for otherwise successful token transfers."
+
+code_shape_summary: "ERC20 Transfer called UnpackIntoInterface for a bool even when resp.Ret was empty, converting successful missing-return transfers into errors."
+search_motifs:
+  - "UnpackIntoInterface ERC20Bool transfer resp.Ret"
+  - "empty return data while arguments are expected"
+  - "weird ERC20 missing return value"
+  - "transfer did not revert but decode failed"
+negative_signals:
+  - "No issue if the protocol explicitly excludes missing-return tokens."
+  - "No issue if token deployment is constrained to compliant contracts."
+  - "No issue if empty return data is already accepted after a non-reverting call."
+patch_pattern: "Treat a non-reverting transfer with empty return data as success, while still rejecting non-empty data that decodes to false or invalid values."
+
+source_refs:
+  - "raw-findings/2024-11-m01-erc20-empty-return-transfer.md"
+  - "/testing/learning-nibiru/report.md"
+  - "https://github.com/code-423n4/2024-11-nibiru-findings/issues/54"
+notes:
+  - "Original C4 finding code: M-01."
+  - "Original C4 severity: Medium."
+  - "No confirmed post-contest mitigation PR was listed in the report for this finding."

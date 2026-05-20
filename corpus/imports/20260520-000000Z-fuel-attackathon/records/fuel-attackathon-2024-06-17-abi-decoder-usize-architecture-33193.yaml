@@ -1,0 +1,63 @@
+id: "fuel-attackathon-2024-06-17-abi-decoder-usize-architecture-33193"
+source_finding: "2024-06-17-fuel-attackathon-33193-abi-decoder-usize-architecture.md"
+project: "fuel-attackathon"
+date: "2024-06-17"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "architecture-dependent-abi-decoding"
+subsystem: "sdk-abi-codec"
+architecture_tags:
+  - "sdk"
+  - "abi-decoder"
+  - "cross-platform"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "public-attackathon-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "architecture-independent-length-validation"
+violated_invariant: "ABI decoding of the same bytes must either succeed or fail identically on all supported architectures."
+trust_boundary: "abi-bytes->sdk-decoder"
+entrypoint_type: "abi-decoder"
+sensitive_sink: "dynamic data length conversion used by string and bytes decoding"
+
+attacker_capabilities:
+  - "Provide ABI bytes with a dynamic length greater than u32::MAX."
+  - "Run the same decoder on 32-bit and 64-bit platforms."
+exploit_preconditions:
+  - "The decoder converts a u64 length directly to usize."
+  - "The conversion result controls decoder success or failure."
+blast_radius: "client-local"
+
+impact_types:
+  - "client-consistency"
+  - "contract-behavior-integrity"
+severity_guess: "medium"
+severity_rationale: "SDK behavior can diverge across platforms, causing inconsistent decoding and application behavior."
+
+code_shape_summary: "Length-prefixed ABI data used a platform-sized usize conversion before validating an architecture-independent bound."
+search_motifs:
+  - "peek_length u64 to usize"
+  - "fuels-rs ABI decoder 32-bit"
+  - "could not convert u64 to usize"
+  - "dynamic string decode architecture"
+negative_signals:
+  - "No issue if the length is bounded below u32::MAX before conversion."
+  - "Client-only divergence is lower severity when it cannot affect consensus or submitted transactions."
+patch_pattern: "Validate dynamic lengths in u64 against protocol limits before converting to usize, and add 32-bit/wasm decoder tests."
+
+source_refs:
+  - "raw-findings/2024-06-17-fuel-attackathon-33193-abi-decoder-usize-architecture.md"
+  - "https://github.com/fuellabs/fuels-rs/tree/d3ac1d3f8910cc12c662ccbe5ff51d9e9354ed1a"
+  - "https://reports.immunefi.com/fuel-network-or-attackathon/attackathon-_-fuel-network-33193-blockchain_dlt-medium-fuel-sdks-abi-decoder-behaves-differently-bas"
+notes:
+  - "Original Immunefi report id: 33193."
+  - "Original report severity: Medium."
+  - "Submitted: Sat Jul 13 2024 21:25:36 GMT-0400 (Atlantic Standard Time)."
+  - "Attackathon date provided by user: 2024-06-17."

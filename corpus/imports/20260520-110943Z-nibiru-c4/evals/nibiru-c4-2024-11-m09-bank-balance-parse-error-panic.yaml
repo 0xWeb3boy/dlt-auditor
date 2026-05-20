@@ -1,0 +1,22 @@
+id: "nibiru-c4-2024-11-m09-bank-balance-parse-error-panic"
+source_record: "nibiru-c4-2024-11-m09-bank-balance-parse-error-panic.yaml"
+project: "nibiru-c4"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "missing-parse-error-return-before-bank-read"
+expected_missing_property: "error propagation before sensitive lookup"
+
+expected_impact_band: "panic from malformed precompile args"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "No issue if the parse helper cannot return malformed zero values."
+  - "No issue if all panics are safely recovered and converted to EVM errors."
+  - "No issue if err is checked before any bank keeper call."
+notes:
+  - "Original C4 finding code: M-09."
+  - "Expected answer should identify: A precompile must stop on argument parse errors before passing decoded address or denom values into bank keeper state lookups."
+  - "Check the parse error immediately, wrap it as ErrInvalidArgs, and return before any bank keeper lookup."

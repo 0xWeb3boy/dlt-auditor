@@ -1,0 +1,63 @@
+id: "nibiru-c4-2025-01-mr-m02-transient-gas-meter-removal"
+source_finding: "2025-01-mr-m02-transient-gas-meter-removal.md"
+project: "nibiru-c4"
+date: "2025-01-28"
+language_tags:
+  - "go"
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "evm-cosmos-gas-meter-semantic-drift"
+subsystem: "evm-gas-metering"
+architecture_tags:
+  - "evm-integration"
+  - "gas-metering"
+  - "cosmos-sdk"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "acknowledged-risk"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "EVM-equivalent gas isolation"
+violated_invariant: "EVM gas accounting should remain isolated enough from Cosmos SDK gas accounting to preserve expected EVM gas semantics, or deviations must be explicit and documented."
+trust_boundary: "EVM execution gas model->Cosmos SDK gas meter"
+entrypoint_type: "EthereumTx execution after transient gas meter refactor"
+sensitive_sink: "combined Cosmos/EVM gas consumption after removing blockGasUsed transient variable"
+
+attacker_capabilities:
+  - "Submit transactions whose behavior depends on exact EVM gas availability or gas refund semantics."
+exploit_preconditions:
+  - "The transient gas meter is removed and Cosmos and EVM gas are mixed."
+  - "Applications or users expect Ethereum-compatible gas behavior."
+blast_radius: "application-local"
+
+impact_types:
+  - "gas-semantics-drift"
+  - "compatibility-risk"
+  - "fee-accounting-risk"
+severity_guess: "medium"
+severity_rationale: "The mitigation review rated this Medium as an EVM compatibility and gas semantics discrepancy rather than a direct theft vector."
+
+code_shape_summary: "A mitigation refactor removed the block/transient gas meter and mixed Cosmos SDK gas with EVM gas, potentially changing gas availability compared with Ethereum."
+search_motifs:
+  - "removed blockGasUsed transient variable"
+  - "block transient gas meter removed"
+  - "Cosmos SDK gas and EVM gas mixed"
+  - "EVM gas compatibility issue"
+negative_signals:
+  - "No issue if the chain intentionally documents and tests non-Ethereum gas semantics."
+  - "No issue if a replacement isolation model preserves EVM gas equivalence."
+  - "No issue if the removed meter was dead code and all observable gas remains unchanged."
+patch_pattern: "Restore an EVM-specific transient gas meter or document and regression-test the intentional gas semantic difference from Ethereum."
+
+source_refs:
+  - "raw-findings/2025-01-mr-m02-transient-gas-meter-removal.md"
+  - "/testing/learning-nibiru/report.md"
+  - "https://github.com/NibiruChain/nibiru/pull/2167"
+notes:
+  - "Original C4 finding code: MR-M-02."
+  - "Original C4 severity: Medium."
+  - "Source change PR-2167: refactor(evm): removed blockGasUsed transient variable; created 2025-01-15T12:30:21Z; merged 2025-01-17T08:40:13Z."
+  - "The mitigation review records this as acknowledged; no confirmed fix PR is listed for this issue."

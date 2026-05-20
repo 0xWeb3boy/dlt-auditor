@@ -1,0 +1,25 @@
+id: "fuel-attackathon-2024-06-17-impl-dependency-name-collision-32973"
+source_record: "fuel-attackathon-2024-06-17-impl-dependency-name-collision-32973.yaml"
+project: "fuel-attackathon"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "compiler-symbol-identity-collision"
+expected_missing_property: "unique-symbol-identity"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+expected_trust_boundary: "source-declaration->compiler-dependency-map"
+expected_entrypoint_type: "compiler-semantic-analysis"
+expected_sensitive_sink: "dependency chain and type resolution used for code generation"
+expected_patch_pattern: "Use compiler-generated unique IDs for impl dependency keys and add tests for colliding declaration-name sequences."
+
+false_positive_cautions:
+  - "No issue if impl blocks receive unique node ids independent of declaration names."
+  - "A collision that always hard-fails compilation has liveness impact but less security risk."
+notes:
+  - "Compiler symbol maps should key by stable unique identities, never by lossy display names or concatenated child names."
+  - "Most collisions may fail compilation, but surviving type confusion can alter ABI encoding or contract behavior."

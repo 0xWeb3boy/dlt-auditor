@@ -1,0 +1,325 @@
+{
+  "repo": "/testing/learning-nibiru/2024-11-nibiru",
+  "repo_slug": "nibiru-c4",
+  "source_findings": "/testing/learning-nibiru/report.md",
+  "source_index": "https://code4rena.com/reports/2024-11-nibiru",
+  "contest_start": "2024-11-12",
+  "contest_end": "2024-11-26",
+  "created_at_utc": "20260520-110943Z",
+  "finding_count": 21,
+  "excluded_severities": [
+    "Low",
+    "QA",
+    "Non-Critical"
+  ],
+  "scope_note": "Includes main High/Medium report findings plus High/Medium mitigation-review findings; excludes Low/QA findings.",
+  "findings": [
+    {
+      "id": "nibiru-c4-2024-11-h01-vesting-account-preemption",
+      "source_code": "H-01",
+      "title": "Vesting account preemption attack preventing future contract deployment",
+      "source": "/testing/dlt-ai-audit-system/corpus/imports/20260520-110943Z-nibiru-c4/raw-findings/2024-11-h01-vesting-account-preemption.md",
+      "bug_family": "state_machine_and_lifecycle_consistency",
+      "bug_class": "account-type-preemption",
+      "subsystem": "account-vesting-evm",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "address-space account-type isolation",
+      "original_severity": "High",
+      "post_contest_prs": [
+        "https://github.com/NibiruChain/nibiru/pull/2127"
+      ]
+    },
+    {
+      "id": "nibiru-c4-2024-11-h02-shared-statedb-consensus-gas",
+      "source_code": "H-02",
+      "title": "Non-deterministic gas consumption due to shared StateDB pointer in bank keeper affecting consensus",
+      "source": "/testing/dlt-ai-audit-system/corpus/imports/20260520-110943Z-nibiru-c4/raw-findings/2024-11-h02-shared-statedb-consensus-gas.md",
+      "bug_family": "state_machine_and_lifecycle_consistency",
+      "bug_class": "shared-statedb-query-state-leakage",
+      "subsystem": "evm-bank-state-sync",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "query-state isolation",
+      "original_severity": "High",
+      "post_contest_prs": [
+        "https://github.com/NibiruChain/nibiru/pull/2165",
+        "https://github.com/NibiruChain/nibiru/pull/2173"
+      ]
+    },
+    {
+      "id": "nibiru-c4-2024-11-h03-cross-runtime-staking-mint",
+      "source_code": "H-03",
+      "title": "Unlimited Nibi could be minted because EVM and bank balance are not synced when staking",
+      "source": "/testing/dlt-ai-audit-system/corpus/imports/20260520-110943Z-nibiru-c4/raw-findings/2024-11-h03-cross-runtime-staking-mint.md",
+      "bug_family": "state_machine_and_lifecycle_consistency",
+      "bug_class": "cross-runtime-balance-desynchronization",
+      "subsystem": "staking-bank-evm",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "cross-runtime balance synchronization",
+      "original_severity": "High",
+      "post_contest_prs": [
+        "https://github.com/NibiruChain/nibiru/pull/2142"
+      ]
+    },
+    {
+      "id": "nibiru-c4-2024-11-h04-failed-precompile-gas-bypass",
+      "source_code": "H-04",
+      "title": "Gas is not consumed when precompile method fails, allowing resource-consumption DoS",
+      "source": "/testing/dlt-ai-audit-system/corpus/imports/20260520-110943Z-nibiru-c4/raw-findings/2024-11-h04-failed-precompile-gas-bypass.md",
+      "bug_family": "resource_accounting_and_limits",
+      "bug_class": "failed-precompile-gas-undercharge",
+      "subsystem": "evm-precompile-gas",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "failure-path resource accounting",
+      "original_severity": "High",
+      "post_contest_prs": [
+        "https://github.com/NibiruChain/nibiru/pull/2152"
+      ]
+    },
+    {
+      "id": "nibiru-c4-2024-11-h05-precompile-statedb-commit-clobber",
+      "source_code": "H-05",
+      "title": "Inconsistent state management: ethereumTx StateDB overriding CallContract results",
+      "source": "/testing/dlt-ai-audit-system/corpus/imports/20260520-110943Z-nibiru-c4/raw-findings/2024-11-h05-precompile-statedb-commit-clobber.md",
+      "bug_family": "state_machine_and_lifecycle_consistency",
+      "bug_class": "precompile-statedb-commit-clobber",
+      "subsystem": "evm-precompile-funtoken",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "single authoritative EVM state view",
+      "original_severity": "High",
+      "post_contest_prs": [
+        "https://github.com/NibiruChain/nibiru/pull/2165"
+      ]
+    },
+    {
+      "id": "nibiru-c4-2024-11-h06-funtoken-recursive-gas-forwarding",
+      "source_code": "H-06",
+      "title": "Hardcoded gas used in ERC20 queries allows block production halt from infinite recursion",
+      "source": "/testing/dlt-ai-audit-system/corpus/imports/20260520-110943Z-nibiru-c4/raw-findings/2024-11-h06-funtoken-recursive-gas-forwarding.md",
+      "bug_family": "resource_accounting_and_limits",
+      "bug_class": "recursive-gas-forwarding",
+      "subsystem": "evm-funtoken-erc20-calls",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "caller-gas-bounded internal calls",
+      "original_severity": "High",
+      "post_contest_prs": [
+        "https://github.com/NibiruChain/nibiru/pull/2129"
+      ]
+    },
+    {
+      "id": "nibiru-c4-2024-11-m01-erc20-empty-return-transfer",
+      "source_code": "M-01",
+      "title": "ERC20 transfer fails with non-compliant tokens missing return values",
+      "source": "/testing/dlt-ai-audit-system/corpus/imports/20260520-110943Z-nibiru-c4/raw-findings/2024-11-m01-erc20-empty-return-transfer.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "strict-erc20-return-decoding",
+      "subsystem": "evm-erc20-funtoken",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "token-return-value compatibility handling",
+      "original_severity": "Medium",
+      "post_contest_prs": []
+    },
+    {
+      "id": "nibiru-c4-2024-11-m02-fee-on-transfer-supply-drift",
+      "source_code": "M-02",
+      "title": "Double fee application breaks supply invariant for fee-on-transfer ERC20s",
+      "source": "/testing/dlt-ai-audit-system/corpus/imports/20260520-110943Z-nibiru-c4/raw-findings/2024-11-m02-fee-on-transfer-supply-drift.md",
+      "bug_family": "state_machine_and_lifecycle_consistency",
+      "bug_class": "fee-on-transfer-supply-drift",
+      "subsystem": "evm-funtoken-conversion",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "supply-backing invariant enforcement",
+      "original_severity": "Medium",
+      "post_contest_prs": [
+        "https://github.com/NibiruChain/nibiru/pull/2139"
+      ]
+    },
+    {
+      "id": "nibiru-c4-2024-11-m03-failed-call-gas-accounting",
+      "source_code": "M-03",
+      "title": "Gas used mismatch in failed contract calls can lead to wrong gas deductions",
+      "source": "/testing/dlt-ai-audit-system/corpus/imports/20260520-110943Z-nibiru-c4/raw-findings/2024-11-m03-failed-call-gas-accounting.md",
+      "bug_family": "resource_accounting_and_limits",
+      "bug_class": "failed-evm-call-gas-accounting-asymmetry",
+      "subsystem": "evm-callcontract-gas",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "success-failure gas accounting symmetry",
+      "original_severity": "Medium",
+      "post_contest_prs": [
+        "https://github.com/NibiruChain/nibiru/pull/2132",
+        "https://github.com/NibiruChain/nibiru/pull/2167"
+      ]
+    },
+    {
+      "id": "nibiru-c4-2024-11-m04-cumulative-gas-refund",
+      "source_code": "M-04",
+      "title": "Gas refunds use block gas instead of transaction gas, leading to incorrect refund amounts",
+      "source": "/testing/dlt-ai-audit-system/corpus/imports/20260520-110943Z-nibiru-c4/raw-findings/2024-11-m04-cumulative-gas-refund.md",
+      "bug_family": "resource_accounting_and_limits",
+      "bug_class": "cumulative-gas-refund-miscalculation",
+      "subsystem": "evm-fee-refunds",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "per-message refund accounting",
+      "original_severity": "Medium",
+      "post_contest_prs": [
+        "https://github.com/NibiruChain/nibiru/pull/2132"
+      ]
+    },
+    {
+      "id": "nibiru-c4-2024-11-m05-wei-native-fee-units",
+      "source_code": "M-05",
+      "title": "Inconsistent fee denomination handling in transaction validation and building",
+      "source": "/testing/dlt-ai-audit-system/corpus/imports/20260520-110943Z-nibiru-c4/raw-findings/2024-11-m05-wei-native-fee-units.md",
+      "bug_family": "checked_arithmetic_and_parameter_bounds",
+      "bug_class": "fee-unit-conversion-mismatch",
+      "subsystem": "evm-ante-fees",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "denomination unit conversion",
+      "original_severity": "Medium",
+      "post_contest_prs": [
+        "https://github.com/NibiruChain/nibiru/pull/2157"
+      ]
+    },
+    {
+      "id": "nibiru-c4-2024-11-m06-tracetx-unbounded-predecessors",
+      "source_code": "M-06",
+      "title": "RPC DoS via TraceTx",
+      "source": "/testing/dlt-ai-audit-system/corpus/imports/20260520-110943Z-nibiru-c4/raw-findings/2024-11-m06-tracetx-unbounded-predecessors.md",
+      "bug_family": "resource_accounting_and_limits",
+      "bug_class": "unbounded-rpc-simulation-work",
+      "subsystem": "evm-rpc-tracing",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "rpc workload limits",
+      "original_severity": "Medium",
+      "post_contest_prs": []
+    },
+    {
+      "id": "nibiru-c4-2024-11-m07-batched-evm-nonce-replay",
+      "source_code": "M-07",
+      "title": "Nonce can be manipulated by inserting a contract creation EthereumTx first in an SDK TX with multiple EthereumTX messages",
+      "source": "/testing/dlt-ai-audit-system/corpus/imports/20260520-110943Z-nibiru-c4/raw-findings/2024-11-m07-batched-evm-nonce-replay.md",
+      "bug_family": "state_machine_and_lifecycle_consistency",
+      "bug_class": "batched-evm-nonce-regression",
+      "subsystem": "evm-transaction-processing",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "nonce monotonicity across batched messages",
+      "original_severity": "Medium",
+      "post_contest_prs": [
+        "https://github.com/NibiruChain/nibiru/pull/2130"
+      ]
+    },
+    {
+      "id": "nibiru-c4-2024-11-m08-rebasing-token-escrow-drift",
+      "source_code": "M-08",
+      "title": "Nibiru's bank coin to EVM balance tracking logic is broken for rebasing tokens",
+      "source": "/testing/dlt-ai-audit-system/corpus/imports/20260520-110943Z-nibiru-c4/raw-findings/2024-11-m08-rebasing-token-escrow-drift.md",
+      "bug_family": "state_machine_and_lifecycle_consistency",
+      "bug_class": "rebasing-token-escrow-supply-drift",
+      "subsystem": "evm-funtoken-conversion",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "rebasing-token backing reconciliation",
+      "original_severity": "Medium",
+      "post_contest_prs": []
+    },
+    {
+      "id": "nibiru-c4-2024-11-m09-bank-balance-parse-error-panic",
+      "source_code": "M-09",
+      "title": "The bankBalance function failed to handle errors correctly",
+      "source": "/testing/dlt-ai-audit-system/corpus/imports/20260520-110943Z-nibiru-c4/raw-findings/2024-11-m09-bank-balance-parse-error-panic.md",
+      "bug_family": "input_validation_and_invariant_enforcement",
+      "bug_class": "missing-parse-error-return-before-bank-read",
+      "subsystem": "evm-funtoken-precompile",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "error propagation before sensitive lookup",
+      "original_severity": "Medium",
+      "post_contest_prs": [
+        "https://github.com/NibiruChain/nibiru/pull/2116"
+      ]
+    },
+    {
+      "id": "nibiru-c4-2024-11-m10-oracle-stale-timestamp",
+      "source_code": "M-10",
+      "title": "IOracle.queryExchangeRate returns incorrect blockTimeMs",
+      "source": "/testing/dlt-ai-audit-system/corpus/imports/20260520-110943Z-nibiru-c4/raw-findings/2024-11-m10-oracle-stale-timestamp.md",
+      "bug_family": "attestation_trust_and_freshness",
+      "bug_class": "oracle-price-timestamp-freshness-misbinding",
+      "subsystem": "oracle-precompile",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "freshness metadata binding",
+      "original_severity": "Medium",
+      "post_contest_prs": [
+        "https://github.com/NibiruChain/nibiru/pull/2117"
+      ]
+    },
+    {
+      "id": "nibiru-c4-2025-01-mr-h01-statedb-pointer-not-cleared",
+      "source_code": "MR-H-01",
+      "title": "Bank's StateDB pointer is not set to nil",
+      "source": "/testing/dlt-ai-audit-system/corpus/imports/20260520-110943Z-nibiru-c4/raw-findings/2025-01-mr-h01-statedb-pointer-not-cleared.md",
+      "bug_family": "state_machine_and_lifecycle_consistency",
+      "bug_class": "statedb-pointer-lifecycle-cleanup-missing",
+      "subsystem": "evm-bank-state-sync",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "state pointer lifecycle cleanup",
+      "original_severity": "High",
+      "post_contest_prs": [
+        "https://github.com/NibiruChain/nibiru/pull/2173"
+      ]
+    },
+    {
+      "id": "nibiru-c4-2025-01-mr-h02-forcegas-infinite-meter",
+      "source_code": "MR-H-02",
+      "title": "Infinite gas meter in ForceGasInvariant",
+      "source": "/testing/dlt-ai-audit-system/corpus/imports/20260520-110943Z-nibiru-c4/raw-findings/2025-01-mr-h02-forcegas-infinite-meter.md",
+      "bug_family": "resource_accounting_and_limits",
+      "bug_class": "invariant-check-infinite-gas-meter",
+      "subsystem": "evm-bank-invariants",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "bounded invariant gas accounting",
+      "original_severity": "High",
+      "post_contest_prs": [
+        "https://github.com/NibiruChain/nibiru/pull/2183"
+      ]
+    },
+    {
+      "id": "nibiru-c4-2025-01-mr-h03-funtoken-conversion-unmetered-evm-calls",
+      "source_code": "MR-H-03",
+      "title": "MsgCreateFunToken and MsgConvertCoinToEvm do not always consume EVM gas",
+      "source": "/testing/dlt-ai-audit-system/corpus/imports/20260520-110943Z-nibiru-c4/raw-findings/2025-01-mr-h03-funtoken-conversion-unmetered-evm-calls.md",
+      "bug_family": "resource_accounting_and_limits",
+      "bug_class": "cosmos-message-evm-call-gas-not-consumed",
+      "subsystem": "evm-funtoken-message-server",
+      "confidence_tier": "tier_a_confirmed",
+      "missing_property": "cross-engine gas propagation",
+      "original_severity": "High",
+      "post_contest_prs": [
+        "https://github.com/NibiruChain/nibiru/pull/2180"
+      ]
+    },
+    {
+      "id": "nibiru-c4-2025-01-mr-m01-prevrandao-proposer-bias",
+      "source_code": "MR-M-01",
+      "title": "PREVRANDAO gives validators more bias than 1 bit per block",
+      "source": "/testing/dlt-ai-audit-system/corpus/imports/20260520-110943Z-nibiru-c4/raw-findings/2025-01-mr-m01-prevrandao-proposer-bias.md",
+      "bug_family": "attestation_trust_and_freshness",
+      "bug_class": "proposer-biased-randomness-source",
+      "subsystem": "evm-block-context",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "unbiased randomness source binding",
+      "original_severity": "Medium",
+      "post_contest_prs": []
+    },
+    {
+      "id": "nibiru-c4-2025-01-mr-m02-transient-gas-meter-removal",
+      "source_code": "MR-M-02",
+      "title": "Block transient gas meter got removed causing different gas usage compared to Ethereum",
+      "source": "/testing/dlt-ai-audit-system/corpus/imports/20260520-110943Z-nibiru-c4/raw-findings/2025-01-mr-m02-transient-gas-meter-removal.md",
+      "bug_family": "resource_accounting_and_limits",
+      "bug_class": "evm-cosmos-gas-meter-semantic-drift",
+      "subsystem": "evm-gas-metering",
+      "confidence_tier": "tier_b_likely",
+      "missing_property": "EVM-equivalent gas isolation",
+      "original_severity": "Medium",
+      "post_contest_prs": []
+    }
+  ]
+}

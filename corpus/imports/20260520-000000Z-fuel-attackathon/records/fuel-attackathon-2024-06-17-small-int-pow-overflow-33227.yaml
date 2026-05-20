@@ -1,0 +1,64 @@
+id: "fuel-attackathon-2024-06-17-small-int-pow-overflow-33227"
+source_finding: "2024-06-17-fuel-attackathon-33227-small-int-pow-overflow.md"
+project: "fuel-attackathon"
+date: "2024-06-17"
+language_tags:
+  - "rust"
+  - "sway"
+
+bug_family: "checked_arithmetic_and_parameter_bounds"
+bug_class: "small-width-pow-overflow"
+subsystem: "standard-library-math"
+architecture_tags:
+  - "compiler"
+  - "standard-library"
+  - "integer-math"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "public-attackathon-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "type-width-overflow-checks"
+violated_invariant: "Arithmetic helpers for narrow integer types must reject results outside the declared type width, even if the VM stores them in a wider word."
+trust_boundary: "contract-input->standard-library-math"
+entrypoint_type: "library-function"
+sensitive_sink: "pow result used as token amount or SDK-returned value"
+
+attacker_capabilities:
+  - "Choose base and exponent that exceed u8, u16, or u32 bounds."
+  - "Trigger pow in financial calculations."
+exploit_preconditions:
+  - "Narrow types are represented as u64 at runtime."
+  - "pow lacks manual overflow checks for the declared narrow type."
+blast_radius: "ecosystem-wide"
+
+impact_types:
+  - "arithmetic-integrity"
+  - "asset-integrity"
+severity_guess: "high"
+severity_rationale: "Overflowed narrow-type powers can produce wrong transfer amounts or wrap when crossing SDK boundaries."
+
+code_shape_summary: "pow for u8/u16/u32 multiplied in a wide runtime representation without clamping to the source type's max value."
+search_motifs:
+  - "u8 pow no overflow check"
+  - "u16 u32 compiled to u64"
+  - "math.sw pow narrow integer"
+  - "VM does not trap narrow overflow"
+negative_signals:
+  - "No issue if the operation returns a Result or panics before exceeding the declared type max."
+  - "u64 and u256 behavior may be covered by separate VM checks."
+patch_pattern: "Add explicit checked multiplication or max-bound checks in narrow-type pow implementations and tests for overflow boundaries."
+
+source_refs:
+  - "raw-findings/2024-06-17-fuel-attackathon-33227-small-int-pow-overflow.md"
+  - "https://github.com/FuelLabs/sway/tree/v0.61.2"
+  - "https://reports.immunefi.com/fuel-network-or-attackathon/attackathon-_-fuel-network-33227-smart-contract-high-lack-of-overflow-protection-in-the-pow-function"
+notes:
+  - "Original Immunefi report id: 33227."
+  - "Original report severity: High."
+  - "Submitted: Mon Jul 15 2024 12:05:53 GMT-0400 (Atlantic Standard Time)."
+  - "Attackathon date provided by user: 2024-06-17."

@@ -1,0 +1,63 @@
+id: "nibiru-c4-2024-11-m08-rebasing-token-escrow-drift"
+source_finding: "2024-11-m08-rebasing-token-escrow-drift.md"
+project: "nibiru-c4"
+date: "2024-11-26"
+language_tags:
+  - "go"
+  - "solidity"
+
+bug_family: "state_machine_and_lifecycle_consistency"
+bug_class: "rebasing-token-escrow-supply-drift"
+subsystem: "evm-funtoken-conversion"
+architecture_tags:
+  - "evm-integration"
+  - "token-bridge"
+  - "erc20-compatibility"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "public-report-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "rebasing-token backing reconciliation"
+violated_invariant: "A bank coin representation of escrowed ERC20 value must either exclude rebasing tokens or track changes in escrowed balance outside transfers."
+trust_boundary: "external ERC20 monetary policy->bank coin representation"
+entrypoint_type: "ERC20-to-bank and bank-to-ERC20 conversion"
+sensitive_sink: "escrowed ERC20 balance used to redeem fixed bank coin supply"
+
+attacker_capabilities:
+  - "Use a rebasing or balance-modifying ERC20 token supported by the conversion system."
+exploit_preconditions:
+  - "Token balances can change outside transfer calls while escrowed."
+  - "The bank representation assumes static 1:1 backing."
+blast_radius: "asset-local"
+
+impact_types:
+  - "funds-loss"
+  - "asset-compatibility-failure"
+  - "supply-invariant-break"
+severity_guess: "medium"
+severity_rationale: "The issue is limited to affected rebasing tokens, but conversions can fail or leak value when escrow balances drift from minted bank coin supply."
+
+code_shape_summary: "Conversion logic assumed escrowed ERC20 balance remains aligned with minted bank coin supply between conversion events, which rebasing tokens violate without transfer callbacks."
+search_motifs:
+  - "balance changes outside transfers"
+  - "rebasing ERC20 in FunToken mapping"
+  - "escrow balance may be lower than bank coin supply"
+  - "convertCoinToEvmBornERC20 assumes module ERC20 fund"
+negative_signals:
+  - "No issue if rebasing tokens are explicitly unsupported and blocked."
+  - "No issue if conversion uses shares or regularly reconciles escrow balance changes."
+  - "No issue if the token cannot change balances except through observed transfers."
+patch_pattern: "Reject rebasing/balance-mutating tokens from conversion or introduce an accounting model that reconciles escrow balance changes before redemption."
+
+source_refs:
+  - "raw-findings/2024-11-m08-rebasing-token-escrow-drift.md"
+  - "/testing/learning-nibiru/report.md"
+  - "https://github.com/code-423n4/2024-11-nibiru-findings/issues/14"
+notes:
+  - "Original C4 finding code: M-08."
+  - "Original C4 severity: Medium."
+  - "No confirmed post-contest mitigation PR was listed in the report for this finding."

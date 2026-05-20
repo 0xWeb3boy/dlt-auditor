@@ -1,0 +1,22 @@
+id: "nibiru-c4-2024-11-h05-precompile-statedb-commit-clobber"
+source_record: "nibiru-c4-2024-11-h05-precompile-statedb-commit-clobber.yaml"
+project: "nibiru-c4"
+
+expected_bug_family: "state_machine_and_lifecycle_consistency"
+expected_bug_class: "precompile-statedb-commit-clobber"
+expected_missing_property: "single authoritative EVM state view"
+
+expected_impact_band: "ERC20/bank double-spend through stale StateDB commit"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "No issue if nested calls share one StateDB and one commit context."
+  - "No issue if dirty state is refreshed from the latest cache context before commit."
+  - "No issue if precompile cannot invoke user-controlled ERC20 callbacks."
+notes:
+  - "Original C4 finding code: H-05."
+  - "Expected answer should identify: Nested EVM calls from precompiles must commit through the same authoritative StateDB view as the outer EthereumTx, including dirty storage and balance changes."
+  - "Ensure only one StateDB copy is active during an Ethereum transaction and that nested precompile calls preserve dirty state in the same commit path."

@@ -1,0 +1,22 @@
+id: "nibiru-c4-2024-11-m08-rebasing-token-escrow-drift"
+source_record: "nibiru-c4-2024-11-m08-rebasing-token-escrow-drift.yaml"
+project: "nibiru-c4"
+
+expected_bug_family: "state_machine_and_lifecycle_consistency"
+expected_bug_class: "rebasing-token-escrow-supply-drift"
+expected_missing_property: "rebasing-token backing reconciliation"
+
+expected_impact_band: "escrow/backing drift for rebasing tokens"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "No issue if rebasing tokens are explicitly unsupported and blocked."
+  - "No issue if conversion uses shares or regularly reconciles escrow balance changes."
+  - "No issue if the token cannot change balances except through observed transfers."
+notes:
+  - "Original C4 finding code: M-08."
+  - "Expected answer should identify: A bank coin representation of escrowed ERC20 value must either exclude rebasing tokens or track changes in escrowed balance outside transfers."
+  - "Reject rebasing/balance-mutating tokens from conversion or introduce an accounting model that reconciles escrow balance changes before redemption."

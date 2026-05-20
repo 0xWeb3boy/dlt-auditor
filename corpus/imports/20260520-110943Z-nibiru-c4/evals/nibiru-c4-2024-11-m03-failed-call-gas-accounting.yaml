@@ -1,0 +1,22 @@
+id: "nibiru-c4-2024-11-m03-failed-call-gas-accounting"
+source_record: "nibiru-c4-2024-11-m03-failed-call-gas-accounting.yaml"
+project: "nibiru-c4"
+
+expected_bug_family: "resource_accounting_and_limits"
+expected_bug_class: "failed-evm-call-gas-accounting-asymmetry"
+expected_missing_property: "success-failure gas accounting symmetry"
+
+expected_impact_band: "undercharged failed EVM helper calls"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "No issue if callers uniformly consume returned EVM gas for success and failure."
+  - "No issue if transaction format forbids batching and prior gas cannot be reset away."
+  - "No issue if failure always burns the full applicable gas limit."
+notes:
+  - "Original C4 finding code: M-03."
+  - "Expected answer should identify: Every EVM call outcome inside a transaction must charge the Cosmos gas meter for the actual EVM gas consumed without resetting away earlier message gas."
+  - "Bubble EVM gas used to callers and consume it consistently for all outcomes, removing or simplifying the transient gas reset model."

@@ -1,0 +1,63 @@
+id: "nibiru-c4-2025-01-mr-h02-forcegas-infinite-meter"
+source_finding: "2025-01-mr-h02-forcegas-infinite-meter.md"
+project: "nibiru-c4"
+date: "2025-01-28"
+language_tags:
+  - "go"
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "invariant-check-infinite-gas-meter"
+subsystem: "evm-bank-invariants"
+architecture_tags:
+  - "cosmos-sdk"
+  - "evm-integration"
+  - "gas-metering"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "mitigation-review-security-fix"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "bounded invariant gas accounting"
+violated_invariant: "Invariant enforcement code that may process attacker-influenced data must run under the caller available gas rather than an unbounded meter."
+trust_boundary: "transaction input/state size->bank invariant enforcement"
+entrypoint_type: "ForceGasInvariant during bank/EVM sync"
+sensitive_sink: "invariant loop under an infinite gas meter"
+
+attacker_capabilities:
+  - "Influence the amount or shape of state processed by ForceGasInvariant, such as many provided coins or balance entries."
+exploit_preconditions:
+  - "ForceGasInvariant swaps to an infinite gas meter before work is complete."
+  - "The work can scale with attacker-controlled input or state."
+blast_radius: "chain-wide"
+
+impact_types:
+  - "denial-of-service"
+  - "resource-exhaustion"
+  - "gas-bypass"
+severity_guess: "high"
+severity_rationale: "A mitigation reviewer flagged potentially unbounded execution before gas is charged, with high impact if large inputs make the invariant run indefinitely."
+
+code_shape_summary: "ForceGasInvariant used an infinite gas meter for safety checks, delaying enforcement of the caller gas budget until after potentially expensive work."
+search_motifs:
+  - "ForceGasInvariant"
+  - "NewInfiniteGasMeter"
+  - "invariant check uses current gas later"
+  - "bank keeper extension gas meter type"
+negative_signals:
+  - "No issue if the invariant work is statically bounded and tiny."
+  - "No issue if the replacement gas meter has the same remaining limit as the current context."
+  - "No issue if gas is charged incrementally before all attacker-scaled work."
+patch_pattern: "Use a gas meter bounded by the current remaining gas budget for invariant checks and consume or propagate its usage immediately."
+
+source_refs:
+  - "raw-findings/2025-01-mr-h02-forcegas-infinite-meter.md"
+  - "/testing/learning-nibiru/report.md"
+  - "https://github.com/NibiruChain/nibiru/pull/2183"
+notes:
+  - "Original C4 finding code: MR-H-02."
+  - "Original C4 severity: High."
+  - "PR-2183: fix(evm): bank keeper extension gas meter type; created 2025-01-28T18:27:36Z; merged 2025-01-28T19:23:50Z."

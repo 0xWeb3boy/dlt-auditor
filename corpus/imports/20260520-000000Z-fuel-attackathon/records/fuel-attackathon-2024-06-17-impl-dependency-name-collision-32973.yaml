@@ -1,0 +1,65 @@
+id: "fuel-attackathon-2024-06-17-impl-dependency-name-collision-32973"
+source_finding: "2024-06-17-fuel-attackathon-32973-impl-dependency-name-collision.md"
+project: "fuel-attackathon"
+date: "2024-06-17"
+language_tags:
+  - "rust"
+  - "sway"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "compiler-symbol-identity-collision"
+subsystem: "compiler-dependency-resolution"
+architecture_tags:
+  - "compiler"
+  - "symbol-table"
+  - "type-system"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "public-attackathon-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "unique-symbol-identity"
+violated_invariant: "Distinct impl blocks must have stable unique identities so their dependencies cannot overwrite each other."
+trust_boundary: "source-declaration->compiler-dependency-map"
+entrypoint_type: "compiler-semantic-analysis"
+sensitive_sink: "dependency chain and type resolution used for code generation"
+
+attacker_capabilities:
+  - "Declare multiple impl blocks with colliding synthesized names."
+  - "Use modules with same-named types so overwritten dependencies resolve to the wrong symbol."
+exploit_preconditions:
+  - "Impl block identity is derived from concatenated declaration names."
+  - "Dependencies are stored in one map keyed by that non-unique identity."
+blast_radius: "ecosystem-wide"
+
+impact_types:
+  - "incorrect-codegen"
+  - "type-confusion"
+  - "asset-integrity"
+severity_guess: "medium"
+severity_rationale: "Most collisions may fail compilation, but surviving type confusion can alter ABI encoding or contract behavior."
+
+code_shape_summary: "A compiler dependency map used a synthesized human-readable name as a uniqueness key for multiple impl blocks."
+search_motifs:
+  - "decl_name impl block dependency"
+  - "DependentSymbol overwritten"
+  - "multiple self impl same type"
+  - "concatenation of declaration names"
+negative_signals:
+  - "No issue if impl blocks receive unique node ids independent of declaration names."
+  - "A collision that always hard-fails compilation has liveness impact but less security risk."
+patch_pattern: "Use compiler-generated unique IDs for impl dependency keys and add tests for colliding declaration-name sequences."
+
+source_refs:
+  - "raw-findings/2024-06-17-fuel-attackathon-32973-impl-dependency-name-collision.md"
+  - "https://github.com/FuelLabs/sway/tree/v0.61.2"
+  - "https://reports.immunefi.com/fuel-network-or-attackathon/attackathon-_-fuel-network-32973-smart-contract-medium-impl-block-dependency-overwriting"
+notes:
+  - "Original Immunefi report id: 32973."
+  - "Original report severity: Medium."
+  - "Submitted: Mon Jul 08 2024 17:19:46 GMT-0400 (Atlantic Standard Time)."
+  - "Attackathon date provided by user: 2024-06-17."

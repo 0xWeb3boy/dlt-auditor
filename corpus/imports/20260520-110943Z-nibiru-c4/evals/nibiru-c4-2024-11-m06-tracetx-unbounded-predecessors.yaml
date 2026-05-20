@@ -1,0 +1,22 @@
+id: "nibiru-c4-2024-11-m06-tracetx-unbounded-predecessors"
+source_record: "nibiru-c4-2024-11-m06-tracetx-unbounded-predecessors.yaml"
+project: "nibiru-c4"
+
+expected_bug_family: "resource_accounting_and_limits"
+expected_bug_class: "unbounded-rpc-simulation-work"
+expected_missing_property: "rpc workload limits"
+
+expected_impact_band: "RPC resource exhaustion"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "No issue if the endpoint is authenticated or operator-local only."
+  - "No issue if request size, predecessor count, total gas, and timeout are already bounded."
+  - "No chain-wide issue unless validators expose the endpoint in a way that affects consensus."
+notes:
+  - "Original C4 finding code: M-06."
+  - "Expected answer should identify: Read-only trace endpoints must bound predecessor count, gas, and wall-clock time for caller-supplied simulation workloads."
+  - "Add predecessor count limits, total simulation gas caps, and timeout enforcement around the whole TraceTx predecessor simulation path."

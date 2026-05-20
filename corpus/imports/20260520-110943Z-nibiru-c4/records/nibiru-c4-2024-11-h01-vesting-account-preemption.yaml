@@ -1,0 +1,65 @@
+id: "nibiru-c4-2024-11-h01-vesting-account-preemption"
+source_finding: "2024-11-h01-vesting-account-preemption.md"
+project: "nibiru-c4"
+date: "2024-11-26"
+language_tags:
+  - "go"
+
+bug_family: "state_machine_and_lifecycle_consistency"
+bug_class: "account-type-preemption"
+subsystem: "account-vesting-evm"
+architecture_tags:
+  - "cosmos-sdk"
+  - "evm-integration"
+  - "account-lifecycle"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "address-space account-type isolation"
+violated_invariant: "A user-controllable Cosmos account type must not be able to reserve or poison a deterministic EVM contract address before code deployment."
+trust_boundary: "attacker-controlled vesting transaction->shared Cosmos/EVM address space"
+entrypoint_type: "vesting account creation transaction"
+sensitive_sink: "EVM contract account creation, code hash binding, and funds sent to a future contract address"
+
+attacker_capabilities:
+  - "Create a vesting account for a chosen Nibiru address derived from a target EVM contract address."
+  - "Predict deterministic CREATE addresses for a victim deployer or factory."
+exploit_preconditions:
+  - "Cosmos and EVM addresses share the same underlying address bytes."
+  - "The vesting module can create an account at an address that later should become an EVM contract account."
+blast_radius: "chain-wide"
+
+impact_types:
+  - "state-integrity"
+  - "fund-lock"
+  - "contract-deployment-denial-of-service"
+severity_guess: "high"
+severity_rationale: "A confirmed attacker can permanently poison deterministic contract addresses and strand code or funds tied to future deployments."
+
+code_shape_summary: "Vesting account creation accepted any target address in the shared account namespace, while EVM contract deployment only set code hashes for EthAccount-compatible accounts."
+search_motifs:
+  - "CreatePermanentLockedAccount target address"
+  - "vesting account at EVM contract address"
+  - "SetAccount only sets CodeHash for EthAccountI"
+  - "crypto.CreateAddress precomputed child address"
+negative_signals:
+  - "No issue if vesting creation is governance-only or disabled."
+  - "No issue if EVM contract accounts live in a disjoint address namespace."
+  - "No issue if deployment converts or rejects pre-existing non-EVM accounts before storing code."
+patch_pattern: "Disable built-in auth/vesting transaction messages or otherwise reject vesting account creation for addresses that can be valid EVM contract accounts."
+
+source_refs:
+  - "raw-findings/2024-11-h01-vesting-account-preemption.md"
+  - "/testing/learning-nibiru/report.md"
+  - "https://github.com/code-423n4/2024-11-nibiru-findings/issues/60"
+  - "https://github.com/NibiruChain/nibiru/pull/2127"
+notes:
+  - "Original C4 finding code: H-01."
+  - "Original C4 severity: High."
+  - "PR-2127: fix: disabled built in auth/vesting module functionality; created 2024-12-23T08:14:35Z; merged 2025-01-06T17:49:47Z."

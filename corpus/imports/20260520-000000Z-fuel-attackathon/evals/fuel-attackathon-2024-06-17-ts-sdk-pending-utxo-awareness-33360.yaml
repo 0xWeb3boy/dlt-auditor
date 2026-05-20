@@ -1,0 +1,25 @@
+id: "fuel-attackathon-2024-06-17-ts-sdk-pending-utxo-awareness-33360"
+source_record: "fuel-attackathon-2024-06-17-ts-sdk-pending-utxo-awareness-33360.yaml"
+project: "fuel-attackathon"
+
+expected_bug_family: "state_machine_and_lifecycle_consistency"
+expected_bug_class: "pending-utxo-reservation-missing"
+expected_missing_property: "pending-spend-accounting"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+expected_trust_boundary: "wallet-account-state->transaction-builder"
+expected_entrypoint_type: "sdk-funding-helper"
+expected_sensitive_sink: "transaction inputs selected for newly funded requests"
+expected_patch_pattern: "Track locally reserved pending UTXOs or query txpool-aware resources, and exclude them when funding subsequent transactions."
+
+false_positive_cautions:
+  - "No issue if the wallet serializes funding until prior transactions confirm."
+  - "No issue if node resource queries exclude txpool-pending inputs for that owner."
+notes:
+  - "UTXO wallets need a pending-spend model; confirmed state alone is stale between submission and block inclusion."
+  - "Transactions can fail or replace earlier pending transactions, causing user-facing loss of expected execution rather than direct theft."

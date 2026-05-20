@@ -1,0 +1,64 @@
+id: "fuel-attackathon-2024-06-17-wide-compare-register-cleanup-32768"
+source_finding: "2024-06-17-fuel-attackathon-32768-wide-compare-register-cleanup.md"
+project: "fuel-attackathon"
+date: "2024-06-17"
+language_tags:
+  - "rust"
+
+bug_family: "state_machine_and_lifecycle_consistency"
+bug_class: "reserved-register-stale-state"
+subsystem: "vm-instruction-semantics"
+architecture_tags:
+  - "vm"
+  - "instruction-set"
+  - "register-state"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "public-attackathon-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "reserved-register-cleanup"
+violated_invariant: "Each VM instruction must leave reserved status registers exactly as specified, independent of previous instructions."
+trust_boundary: "previous-instruction-state->current-instruction-state"
+entrypoint_type: "vm-opcode"
+sensitive_sink: "stale err/of registers consumed by later bytecode"
+
+attacker_capabilities:
+  - "Set err or of with an earlier instruction."
+  - "Execute WDCM or WQCM and branch on the stale register value."
+exploit_preconditions:
+  - "The spec requires WDCM and WQCM to clear err and of."
+  - "The implementation updates comparison output but leaves status registers unchanged."
+blast_radius: "chain-wide"
+
+impact_types:
+  - "state-integrity"
+  - "contract-behavior-integrity"
+  - "consensus-integrity"
+severity_guess: "medium"
+severity_rationale: "Stale VM status registers can cause valid bytecode to take wrong branches; impact depends on contract logic."
+
+code_shape_summary: "Wide comparison opcodes delegated to ALU helpers that advanced pc but did not reset status registers required by the spec."
+search_motifs:
+  - "WDCM WQCM clear err of"
+  - "wideint compare leaves $err"
+  - "reserved register cleanup"
+  - "stale overflow flag"
+negative_signals:
+  - "No issue if the spec intentionally allows the register to persist."
+  - "No issue if the register value is not observable or branchable after the opcode."
+patch_pattern: "Clear err and of during WDCM/WQCM execution and add reserved-register conformance tests for each opcode."
+
+source_refs:
+  - "raw-findings/2024-06-17-fuel-attackathon-32768-wide-compare-register-cleanup.md"
+  - "https://github.com/FuelLabs/fuel-vm/tree/0e46d324da460f2db8bcef51920fb9246ac2143b"
+  - "https://reports.immunefi.com/fuel-network-or-attackathon/attackathon-_-fuel-network-32768-blockchain_dlt-medium-wdcm-and-wqcm-doesnt-respect-the-fuel-specs"
+notes:
+  - "Original Immunefi report id: 32768."
+  - "Original report severity: Medium."
+  - "Submitted: Tue Jul 02 2024 01:29:30 GMT-0400 (Atlantic Standard Time)."
+  - "Attackathon date provided by user: 2024-06-17."

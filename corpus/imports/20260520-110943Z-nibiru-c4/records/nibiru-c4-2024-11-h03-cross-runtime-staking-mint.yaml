@@ -1,0 +1,68 @@
+id: "nibiru-c4-2024-11-h03-cross-runtime-staking-mint"
+source_finding: "2024-11-h03-cross-runtime-staking-mint.md"
+project: "nibiru-c4"
+date: "2024-11-26"
+language_tags:
+  - "go"
+  - "rust"
+  - "solidity"
+
+bug_family: "state_machine_and_lifecycle_consistency"
+bug_class: "cross-runtime-balance-desynchronization"
+subsystem: "staking-bank-evm"
+architecture_tags:
+  - "cosmos-sdk"
+  - "evm-integration"
+  - "wasm-integration"
+  - "staking"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "cross-runtime balance synchronization"
+violated_invariant: "Every native bank balance change for the EVM denom must refresh the mirrored EVM StateDB balance before EVM-visible state can be committed."
+trust_boundary: "EVM contract->Wasm staking capability->native bank keeper"
+entrypoint_type: "EVM precompile invoking Wasm staking operations"
+sensitive_sink: "bank setBalance for delegated coins and EVM StateDB SetAccBalance reconciliation"
+
+attacker_capabilities:
+  - "Deploy or call EVM and Wasm contracts that can trigger staking operations."
+  - "Get an account loaded into StateDB before native staking mutates its bank balance."
+exploit_preconditions:
+  - "A bank operation such as DelegateCoins changes an EVM-denom balance without SyncStateDBWithAccount."
+  - "A later EVM commit reconciles stale StateDB balance back into bank state."
+blast_radius: "chain-wide"
+
+impact_types:
+  - "state-integrity"
+  - "unauthorized-mint"
+  - "supply-inflation"
+severity_guess: "high"
+severity_rationale: "Confirmed cross-runtime stale balances can be committed back as real native balance, enabling unbacked NIBI minting through staking flows."
+
+code_shape_summary: "Only some bank keeper wrappers synchronized EVM StateDB; staking, multisend, delegate, and undelegate paths could mutate balances without refreshing mirrored EVM state."
+search_motifs:
+  - "SyncStateDBWithAccount missing wrapper"
+  - "DelegateCoinsFromAccountToModule"
+  - "Wasm staking capability called from EVM precompile"
+  - "SetAccBalance stale BalanceWei"
+negative_signals:
+  - "No issue for denoms not mirrored into EVM StateDB."
+  - "No issue if setBalance centrally synchronizes every balance-changing path."
+  - "Need an EVM-visible stale balance to be committed after the native mutation."
+patch_pattern: "Add missing bank keeper method overrides or a central balance-change hook that synchronizes StateDB for every EVM-denom balance mutation."
+
+source_refs:
+  - "raw-findings/2024-11-h03-cross-runtime-staking-mint.md"
+  - "/testing/learning-nibiru/report.md"
+  - "https://github.com/code-423n4/2024-11-nibiru-findings/issues/26"
+  - "https://github.com/NibiruChain/nibiru/pull/2142"
+notes:
+  - "Original C4 finding code: H-03."
+  - "Original C4 severity: High."
+  - "PR-2142: fix(bank): add additional missing bank keeper method overrides to sync with StateDB; created 2025-01-04T16:42:24Z; merged 2025-01-06T06:43:01Z."

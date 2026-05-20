@@ -1,0 +1,65 @@
+id: "fuel-attackathon-2024-06-17-optimizer-escaped-symbol-memcopy-32872"
+source_finding: "2024-06-17-fuel-attackathon-32872-optimizer-escaped-symbol-memcopy.md"
+project: "fuel-attackathon"
+date: "2024-06-17"
+language_tags:
+  - "rust"
+  - "sway"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "optimizer-alias-clobber-miss"
+subsystem: "compiler-optimizer"
+architecture_tags:
+  - "compiler"
+  - "optimizer"
+  - "alias-analysis"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "public-attackathon-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "interprocedural-clobber-awareness"
+violated_invariant: "Load/store-to-memcopy optimization may only run when the loaded source cannot be modified before the store."
+trust_boundary: "source-program->optimized-ir"
+entrypoint_type: "compiler-optimization-pass"
+sensitive_sink: "MemCopyVal replacing a load/store pair with different semantics"
+
+attacker_capabilities:
+  - "Compile code where a pointer escapes between a load and store."
+  - "Call a function that mutates the source pointer before the optimized store."
+exploit_preconditions:
+  - "The clobber check is local to one function."
+  - "Escaped symbols are still eligible for load_store_to_memcopy."
+blast_radius: "ecosystem-wide"
+
+impact_types:
+  - "incorrect-codegen"
+  - "state-integrity"
+  - "asset-integrity"
+severity_guess: "high"
+severity_rationale: "An optimizer can change program semantics and store a mutated value where the original loaded value was intended."
+
+code_shape_summary: "A peephole optimization replaced Load plus Store with MemCopyVal without rejecting pointers that were mutated through escaped aliases."
+search_motifs:
+  - "load_store_to_memcopy"
+  - "escaped_symbols"
+  - "is_clobbered only current function"
+  - "MemCopyVal after function call"
+negative_signals:
+  - "No issue if alias analysis proves the pointed-to data cannot be written."
+  - "No issue if the type is immutable or copied before any escaping call."
+patch_pattern: "Skip the optimization for escaped symbols or add interprocedural alias/clobber analysis, with regression tests around call-side mutation."
+
+source_refs:
+  - "raw-findings/2024-06-17-fuel-attackathon-32872-optimizer-escaped-symbol-memcopy.md"
+  - "https://github.com/FuelLabs/sway/tree/7b56ec734d4a4fda550313d448f7f20dba818b59"
+  - "https://reports.immunefi.com/fuel-network-or-attackathon/attackathon-_-fuel-network-32872-smart-contract-high-incorrect-load_store_to_memcopy-optimization"
+notes:
+  - "Original Immunefi report id: 32872."
+  - "Original report severity: High."
+  - "Submitted: Fri Jul 05 2024 18:27:38 GMT-0400 (Atlantic Standard Time)."
+  - "Attackathon date provided by user: 2024-06-17."

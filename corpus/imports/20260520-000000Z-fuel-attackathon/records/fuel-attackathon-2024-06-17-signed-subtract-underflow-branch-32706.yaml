@@ -1,0 +1,63 @@
+id: "fuel-attackathon-2024-06-17-signed-subtract-underflow-branch-32706"
+source_finding: "2024-06-17-fuel-attackathon-32706-signed-subtract-underflow-branch.md"
+project: "fuel-attackathon"
+date: "2024-06-17"
+language_tags:
+  - "sway"
+
+bug_family: "checked_arithmetic_and_parameter_bounds"
+bug_class: "biased-signed-subtraction-underflow"
+subsystem: "signed-integer-library"
+architecture_tags:
+  - "smart-contract-library"
+  - "integer-math"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "public-attackathon-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "biased-arithmetic-branch-coverage"
+violated_invariant: "Signed subtraction over a biased unsigned representation must handle every sign combination without underflow or sign inversion."
+trust_boundary: "contract-input->integer-library"
+entrypoint_type: "library-function"
+sensitive_sink: "signed subtraction result used by contract accounting"
+
+attacker_capabilities:
+  - "Provide operands on opposite sides of the signed indent value."
+  - "Reach subtraction in contract math with attacker-influenced values."
+exploit_preconditions:
+  - "The branch for self below indent and other above indent subtracts a larger value from a smaller one."
+  - "VM arithmetic panics or returns an invalid value instead of the signed result."
+blast_radius: "ecosystem-wide"
+
+impact_types:
+  - "arithmetic-integrity"
+  - "denial-of-service"
+  - "asset-integrity"
+severity_guess: "high"
+severity_rationale: "Valid signed subtraction can panic or miscompute, potentially blocking contract flows or corrupting balances."
+
+code_shape_summary: "Branch-specific arithmetic on biased underlying values did not normalize operands before subtraction."
+search_motifs:
+  - "self.value < indent"
+  - "other.value > indent"
+  - "subtract signed integer"
+  - "biased signed representation"
+negative_signals:
+  - "No issue if all construction paths canonicalize values so the vulnerable branch is unreachable."
+  - "A panic is lower severity if no user funds or queues depend on the call."
+patch_pattern: "Rework signed subtraction around the formula a_underlying - b_underlying + indent using checked ordering for all sign combinations."
+
+source_refs:
+  - "raw-findings/2024-06-17-fuel-attackathon-32706-signed-subtract-underflow-branch.md"
+  - "https://github.com/FuelLabs/sway-libs/tree/0f47d33d6e5da25f782fc117d4be15b7b12d291b"
+  - "https://reports.immunefi.com/fuel-network-or-attackathon/attackathon-_-fuel-network-32706-smart-contract-high-the-function-subtract-in-signed-libs-like-isw-d"
+notes:
+  - "Original Immunefi report id: 32706."
+  - "Original report severity: High."
+  - "Submitted: Sun Jun 30 2024 13:19:53 GMT-0400 (Atlantic Standard Time)."
+  - "Attackathon date provided by user: 2024-06-17."

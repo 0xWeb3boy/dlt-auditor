@@ -1,0 +1,22 @@
+id: "nibiru-c4-2024-11-m10-oracle-stale-timestamp"
+source_record: "nibiru-c4-2024-11-m10-oracle-stale-timestamp.yaml"
+project: "nibiru-c4"
+
+expected_bug_family: "attestation_trust_and_freshness"
+expected_bug_class: "oracle-price-timestamp-freshness-misbinding"
+expected_missing_property: "freshness metadata binding"
+
+expected_impact_band: "stale oracle price accepted as fresh"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "No issue if the timestamp is persisted with the price update."
+  - "No issue if consumers do not use the timestamp for freshness and docs say so clearly."
+  - "No issue if stale prices are impossible due to independent oracle expiry enforcement."
+notes:
+  - "Original C4 finding code: M-10."
+  - "Expected answer should identify: Oracle precompile responses must bind price data to the timestamp of the price update, not to the timestamp of the later query block."
+  - "Persist the block timestamp alongside each exchange rate update and return that stored timestamp from the precompile."

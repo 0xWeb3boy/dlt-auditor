@@ -1,0 +1,25 @@
+id: "fuel-attackathon-2024-06-17-ufp-exp-returns-one-33170"
+source_record: "fuel-attackathon-2024-06-17-ufp-exp-returns-one-33170.yaml"
+project: "fuel-attackathon"
+
+expected_bug_family: "checked_arithmetic_and_parameter_bounds"
+expected_bug_class: "fixed-point-exp-result-discarded"
+expected_missing_property: "computed-result-binding"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+expected_trust_boundary: "contract-input->financial-math-library"
+expected_entrypoint_type: "library-function"
+expected_sensitive_sink: "exp result used in interest, rewards, pricing, or decay"
+expected_patch_pattern: "Return one plus the computed series term and add tests for non-zero positive and negative exponent inputs."
+
+false_positive_cautions:
+  - "No issue if exp is unused or explicitly documented as a stub."
+  - "No issue if input is always zero and e^0 = 1 is expected."
+notes:
+  - "Math-library tests need non-trivial vectors that prove computed intermediates affect the returned value."
+  - "Returning one for every exponent can break reward, interest, or pricing logic, but impact depends on adoption."

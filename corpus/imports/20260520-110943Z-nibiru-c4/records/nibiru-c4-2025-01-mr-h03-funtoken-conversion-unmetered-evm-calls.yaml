@@ -1,0 +1,64 @@
+id: "nibiru-c4-2025-01-mr-h03-funtoken-conversion-unmetered-evm-calls"
+source_finding: "2025-01-mr-h03-funtoken-conversion-unmetered-evm-calls.md"
+project: "nibiru-c4"
+date: "2025-01-28"
+language_tags:
+  - "go"
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "cosmos-message-evm-call-gas-not-consumed"
+subsystem: "evm-funtoken-message-server"
+architecture_tags:
+  - "evm-integration"
+  - "cosmos-sdk"
+  - "gas-metering"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "mitigation-review-security-fix"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "cross-engine gas propagation"
+violated_invariant: "Cosmos messages that invoke EVM calls must consume the EVM gas used by those calls in the Cosmos SDK gas meter."
+trust_boundary: "Cosmos tx message->embedded EVM contract call"
+entrypoint_type: "MsgCreateFunToken or MsgConvertCoinToEvm"
+sensitive_sink: "ERC20 metadata, transfer, and conversion CallContract gas usage"
+
+attacker_capabilities:
+  - "Submit FunToken creation or conversion messages that execute EVM calls."
+  - "Use ERC20 contracts whose metadata or transfer calls consume substantial gas."
+exploit_preconditions:
+  - "CallContractWithInput returns EVM gas used but caller paths do not consume it."
+  - "Message server paths execute EVM calls outside a normal EthereumTx gas accounting envelope."
+blast_radius: "chain-wide"
+
+impact_types:
+  - "fee-bypass"
+  - "denial-of-service"
+  - "resource-exhaustion"
+severity_guess: "high"
+severity_rationale: "Mitigation review confirmed high-impact unmetered EVM work inside Cosmos message handlers."
+
+code_shape_summary: "MsgConvertCoinToEvm and MsgCreateFunToken performed ERC20 EVM calls for transfer or metadata retrieval without reliably charging the Cosmos gas meter for that EVM work."
+search_motifs:
+  - "convertCoinToEvmBornERC20 does not consume evm gas"
+  - "createFunTokenFromERC20 metadata CallContract"
+  - "CallContractWithInput gas used return ignored"
+  - "consume gas in CallContractWithInput"
+negative_signals:
+  - "No issue if the path runs inside EthereumTx and charges caller gas there."
+  - "No issue if every CallContract caller consumes returned gas in the SDK meter."
+  - "No issue if only constant-time trusted metadata reads are possible."
+patch_pattern: "Make CallContractWithInput or its callers consume EVM gas in the Cosmos SDK gas meter for both metadata and conversion call paths."
+
+source_refs:
+  - "raw-findings/2025-01-mr-h03-funtoken-conversion-unmetered-evm-calls.md"
+  - "/testing/learning-nibiru/report.md"
+  - "https://github.com/NibiruChain/nibiru/pull/2180"
+notes:
+  - "Original C4 finding code: MR-H-03."
+  - "Original C4 severity: High."
+  - "PR-2180: fix(evm): consume gas in CallContractWithInput; created 2025-01-27T16:50:53Z; merged 2025-01-28T19:10:56Z."

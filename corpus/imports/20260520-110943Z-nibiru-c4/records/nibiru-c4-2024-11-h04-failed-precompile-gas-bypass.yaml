@@ -1,0 +1,67 @@
+id: "nibiru-c4-2024-11-h04-failed-precompile-gas-bypass"
+source_finding: "2024-11-h04-failed-precompile-gas-bypass.md"
+project: "nibiru-c4"
+date: "2024-11-26"
+language_tags:
+  - "go"
+  - "rust"
+  - "typescript"
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "failed-precompile-gas-undercharge"
+subsystem: "evm-precompile-gas"
+architecture_tags:
+  - "evm-integration"
+  - "precompile"
+  - "gas-metering"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "failure-path resource accounting"
+violated_invariant: "Precompile gas charged to the EVM caller must include work consumed by the local/cache context even when the precompile returns an error."
+trust_boundary: "EVM caller->native precompile execution"
+entrypoint_type: "precompile method call"
+sensitive_sink: "contract gas meter and cached Cosmos gas consumed by FunToken, Wasm, and Oracle precompiles"
+
+attacker_capabilities:
+  - "Call precompile methods with inputs that do expensive native or Wasm work and then fail."
+  - "Repeat the call inside an EVM transaction with a high gas limit."
+exploit_preconditions:
+  - "The precompile returns before contract.UseGas consumes the cached gas meter."
+  - "The failed operation still consumes CPU or storage reads in the native path."
+blast_radius: "chain-wide"
+
+impact_types:
+  - "denial-of-service"
+  - "fee-bypass"
+  - "resource-exhaustion"
+severity_guess: "high"
+severity_rationale: "Confirmed failure paths let attackers consume more computation than the EVM gas they pay for, threatening block production liveness."
+
+code_shape_summary: "Precompile handlers returned immediately on err and only called contract.UseGas after the success path."
+search_motifs:
+  - "if err != nil return before contract.UseGas"
+  - "CacheCtx.GasMeter().GasConsumed()"
+  - "precompile method failure path"
+  - "Wasm execute fails after consuming gas"
+negative_signals:
+  - "No issue if gas is consumed in a defer for both success and failure."
+  - "No issue if the failed call performs no meaningful metered work."
+  - "No issue if outer logic always charges the full gas limit on precompile failure."
+patch_pattern: "Consume the cached/native gas before returning any precompile error, commonly via defer or by moving contract.UseGas ahead of error handling."
+
+source_refs:
+  - "raw-findings/2024-11-h04-failed-precompile-gas-bypass.md"
+  - "/testing/learning-nibiru/report.md"
+  - "https://github.com/code-423n4/2024-11-nibiru-findings/issues/25"
+  - "https://github.com/NibiruChain/nibiru/pull/2152"
+notes:
+  - "Original C4 finding code: H-04."
+  - "Original C4 severity: High."
+  - "PR-2152: fix(precompile): consume gas before returning error; created 2025-01-08T18:30:27Z; merged 2025-01-08T19:04:40Z."

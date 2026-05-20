@@ -1,0 +1,25 @@
+id: "fuel-attackathon-2024-06-17-ifp-zero-sign-change-33303"
+source_record: "fuel-attackathon-2024-06-17-ifp-zero-sign-change-33303.yaml"
+project: "fuel-attackathon"
+
+expected_bug_family: "checked_arithmetic_and_parameter_bounds"
+expected_bug_class: "noncanonical-zero-sign"
+expected_missing_property: "canonical-zero-normalization"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+expected_trust_boundary: "contract-input->financial-math-library"
+expected_entrypoint_type: "library-function"
+expected_sensitive_sink: "signed fixed-point zero used by comparisons or later arithmetic"
+expected_patch_pattern: "Use an equality-aware branch and canonicalize all zero results to non_negative true, with tests for x + -x."
+
+false_positive_cautions:
+  - "No issue if zero sign is never observable and all comparisons canonicalize."
+  - "No issue if the library intentionally supports signed zero with documented semantics."
+notes:
+  - "Numeric types with separate sign metadata need explicit zero normalization after operations that cancel out."
+  - "Noncanonical zero can break equality, comparison, or branch logic, with financial impact depending on use."

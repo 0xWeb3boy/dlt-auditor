@@ -1,0 +1,67 @@
+id: "nibiru-c4-2024-11-h05-precompile-statedb-commit-clobber"
+source_finding: "2024-11-h05-precompile-statedb-commit-clobber.md"
+project: "nibiru-c4"
+date: "2024-11-26"
+language_tags:
+  - "go"
+  - "solidity"
+  - "typescript"
+
+bug_family: "state_machine_and_lifecycle_consistency"
+bug_class: "precompile-statedb-commit-clobber"
+subsystem: "evm-precompile-funtoken"
+architecture_tags:
+  - "evm-integration"
+  - "precompile"
+  - "state-cache"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "single authoritative EVM state view"
+violated_invariant: "Nested EVM calls from precompiles must commit through the same authoritative StateDB view as the outer EthereumTx, including dirty storage and balance changes."
+trust_boundary: "EVM contract->FunToken precompile->nested EVM CallContract"
+entrypoint_type: "precompile nested contract call"
+sensitive_sink: "StateDB commit of ERC20 balances and contract storage after FunToken conversion"
+
+attacker_capabilities:
+  - "Call FunToken sendToBank or related conversion logic from a malicious EVM contract."
+  - "Dirty a StateDB object before or after the precompile call."
+exploit_preconditions:
+  - "Precompile execution creates or resets multiple StateDB instances."
+  - "getStateObject reads stale evmTxCtx instead of the cache context with latest changes."
+blast_radius: "chain-wide"
+
+impact_types:
+  - "state-integrity"
+  - "unauthorized-mint"
+  - "balance-double-spend"
+severity_guess: "high"
+severity_rationale: "A confirmed StateDB commit ordering flaw can restore spent ERC20 balance while minting bank coins, enabling double-spend style value creation."
+
+code_shape_summary: "FunToken precompile nested calls updated a cache context while outer EthereumTx committed stale or dirtied StateDB objects back over those changes."
+search_motifs:
+  - "multiple new StateDBs in ApplyEvmMsg"
+  - "reset StateDB back to original near precompile end"
+  - "getStateObject uses evmTxCtx instead of cacheCtx"
+  - "sendToBank then ERC20 transfer dirties storage"
+negative_signals:
+  - "No issue if nested calls share one StateDB and one commit context."
+  - "No issue if dirty state is refreshed from the latest cache context before commit."
+  - "No issue if precompile cannot invoke user-controlled ERC20 callbacks."
+patch_pattern: "Ensure only one StateDB copy is active during an Ethereum transaction and that nested precompile calls preserve dirty state in the same commit path."
+
+source_refs:
+  - "raw-findings/2024-11-h05-precompile-statedb-commit-clobber.md"
+  - "/testing/learning-nibiru/report.md"
+  - "https://github.com/code-423n4/2024-11-nibiru-findings/issues/24"
+  - "https://github.com/NibiruChain/nibiru/pull/2165"
+notes:
+  - "Original C4 finding code: H-05."
+  - "Original C4 severity: High."
+  - "PR-2165: fix(evm): ensure only one copy of StateDB when executing Ethereum txs; created 2025-01-14T15:04:22Z; merged 2025-01-18T07:58:58Z."

@@ -1,0 +1,25 @@
+id: "fuel-attackathon-2024-06-17-wide-compare-register-cleanup-32768"
+source_record: "fuel-attackathon-2024-06-17-wide-compare-register-cleanup-32768.yaml"
+project: "fuel-attackathon"
+
+expected_bug_family: "state_machine_and_lifecycle_consistency"
+expected_bug_class: "reserved-register-stale-state"
+expected_missing_property: "reserved-register-cleanup"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+expected_trust_boundary: "previous-instruction-state->current-instruction-state"
+expected_entrypoint_type: "vm-opcode"
+expected_sensitive_sink: "stale err/of registers consumed by later bytecode"
+expected_patch_pattern: "Clear err and of during WDCM/WQCM execution and add reserved-register conformance tests for each opcode."
+
+false_positive_cautions:
+  - "No issue if the spec intentionally allows the register to persist."
+  - "No issue if the register value is not observable or branchable after the opcode."
+notes:
+  - "Instruction conformance includes cleanup of implicit machine state, not only the explicit destination register."
+  - "Stale VM status registers can cause valid bytecode to take wrong branches; impact depends on contract logic."

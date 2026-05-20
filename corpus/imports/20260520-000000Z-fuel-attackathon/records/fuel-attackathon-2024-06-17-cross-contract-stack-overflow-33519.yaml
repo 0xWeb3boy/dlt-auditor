@@ -1,0 +1,65 @@
+id: "fuel-attackathon-2024-06-17-cross-contract-stack-overflow-33519"
+source_finding: "2024-06-17-fuel-attackathon-33519-cross-contract-stack-overflow.md"
+project: "fuel-attackathon"
+date: "2024-06-17"
+language_tags:
+  - "rust"
+  - "sway"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "stack-frame-overwrite-across-calls"
+subsystem: "compiler-call-frames"
+architecture_tags:
+  - "compiler"
+  - "vm-memory"
+  - "cross-contract-call"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "public-attackathon-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "stack-frame-bound-enforcement"
+violated_invariant: "Cross-contract call frames must not silently overwrite adjacent locals, arguments, or return data."
+trust_boundary: "callee-call-frame->caller-memory"
+entrypoint_type: "cross-contract-call"
+sensitive_sink: "stack memory holding local variables and call arguments"
+
+attacker_capabilities:
+  - "Deploy or invoke contracts with large variables around cross-contract calls."
+  - "Influence call paths that allocate wide values such as u256."
+exploit_preconditions:
+  - "Compiler or runtime frame sizing lets values exceed the allocated stack region."
+  - "No trap is raised before adjacent memory is overwritten."
+blast_radius: "contract-local"
+
+impact_types:
+  - "memory-integrity"
+  - "state-integrity"
+  - "asset-integrity"
+severity_guess: "critical"
+severity_rationale: "Silent frame corruption can misroute values in financial contract flows, though exploitability depends on contract layout."
+
+code_shape_summary: "Generated code for complex cross-contract calls could place large locals in stack regions without a reliable overflow guard."
+search_motifs:
+  - "u256 locals around contract call"
+  - "stack overflow silent"
+  - "call frame size calculation"
+  - "adjacent variable overwritten"
+negative_signals:
+  - "A trapped stack overflow with no state commitment is not this issue."
+  - "Purely local corruption in a test harness is lower risk without a reachable contract path."
+patch_pattern: "Enforce stack-frame bounds during code generation or VM execution, trap on overflow, and add regression tests around wide locals across contract calls."
+
+source_refs:
+  - "raw-findings/2024-06-17-fuel-attackathon-33519-cross-contract-stack-overflow.md"
+  - "https://github.com/FuelLabs/sway/tree/v0.61.2"
+  - "https://reports.immunefi.com/fuel-network-or-attackathon/attackathon-_-fuel-network-33519-smart-contract-critical-silent-stack-overflow-on-variables-between"
+notes:
+  - "Original Immunefi report id: 33519."
+  - "Original report severity: Critical."
+  - "Submitted: Mon Jul 22 2024 07:57:32 GMT-0400 (Atlantic Standard Time)."
+  - "Attackathon date provided by user: 2024-06-17."

@@ -1,0 +1,62 @@
+id: "fuel-attackathon-2024-06-17-signed-subtract-biased-offset-33195"
+source_finding: "2024-06-17-fuel-attackathon-33195-signed-subtract-biased-offset.md"
+project: "fuel-attackathon"
+date: "2024-06-17"
+language_tags:
+  - "sway"
+
+bug_family: "checked_arithmetic_and_parameter_bounds"
+bug_class: "biased-signed-subtraction-formula-violation"
+subsystem: "signed-integer-library"
+architecture_tags:
+  - "smart-contract-library"
+  - "integer-math"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "public-attackathon-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "representation-invariant-enforcement"
+violated_invariant: "For biased signed integers, subtraction must be equivalent to a_underlying - b_underlying + indent for every width."
+trust_boundary: "contract-input->integer-library"
+entrypoint_type: "library-function"
+sensitive_sink: "signed subtraction result across all signed integer widths"
+
+attacker_capabilities:
+  - "Provide operands that enter each signed subtraction branch."
+  - "Use the result in balances, rewards, debt, or control flow."
+exploit_preconditions:
+  - "Multiple branches deviate from the canonical biased subtraction formula."
+  - "The contract assumes library arithmetic is exact."
+blast_radius: "ecosystem-wide"
+
+impact_types:
+  - "arithmetic-integrity"
+  - "asset-integrity"
+severity_guess: "high"
+severity_rationale: "A systematic signed arithmetic error across widths can propagate into many financial contracts."
+
+code_shape_summary: "Hand-written branches for biased signed integers used different formulas instead of one representation-preserving rule."
+search_motifs:
+  - "a.underlying - b.underlying + indent"
+  - "signed integers subtract all widths"
+  - "incorrect calculations in subtraction"
+  - "biased offset branch"
+negative_signals:
+  - "No issue if exhaustive branch tests show equivalence to mathematical subtraction."
+  - "Pure documentation mismatch is not enough without executable wrong results."
+patch_pattern: "Implement subtraction around a single canonical biased-offset formula and test all sign combinations across widths."
+
+source_refs:
+  - "raw-findings/2024-06-17-fuel-attackathon-33195-signed-subtract-biased-offset.md"
+  - "https://github.com/FuelLabs/sway-libs/tree/0f47d33d6e5da25f782fc117d4be15b7b12d291b"
+  - "https://reports.immunefi.com/fuel-network-or-attackathon/attackathon-_-fuel-network-33195-smart-contract-high-incorrect-calculations-in-subtraction-functions"
+notes:
+  - "Original Immunefi report id: 33195."
+  - "Original report severity: High."
+  - "Submitted: Sat Jul 13 2024 22:57:56 GMT-0400 (Atlantic Standard Time)."
+  - "Attackathon date provided by user: 2024-06-17."

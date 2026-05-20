@@ -1,0 +1,65 @@
+id: "fuel-attackathon-2024-06-17-purity-check-storage-write-opcode-32886"
+source_finding: "2024-06-17-fuel-attackathon-32886-purity-check-storage-write-opcode.md"
+project: "fuel-attackathon"
+date: "2024-06-17"
+language_tags:
+  - "rust"
+  - "sway"
+
+bug_family: "authz_and_role_gates"
+bug_class: "read-only-effect-gate-bypass"
+subsystem: "compiler-effect-checker"
+architecture_tags:
+  - "compiler"
+  - "effect-system"
+  - "storage"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "public-attackathon-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "effect-permission-enforcement"
+violated_invariant: "A function declared storage(read) or pure must not compile a path that can mutate storage."
+trust_boundary: "read-only-contract-call->storage-write"
+entrypoint_type: "compiler-semantic-check"
+sensitive_sink: "storage mutation from a function advertised as read-only"
+
+attacker_capabilities:
+  - "Write inline assembly or reachable call paths containing a storage-write opcode."
+  - "Expose the function as read-only to users or callers."
+exploit_preconditions:
+  - "The purity checker classifies a write-capable opcode as a read."
+  - "No runtime guard blocks storage writes from read-only contexts."
+blast_radius: "ecosystem-wide"
+
+impact_types:
+  - "unauthorized-action"
+  - "state-integrity"
+  - "asset-integrity"
+severity_guess: "medium"
+severity_rationale: "Users may safely call a function labeled read-only while it mutates state; exploitability depends on contract behavior."
+
+code_shape_summary: "Static effect analysis recursively checked functions but mapped a storage-writing assembly instruction into the read category."
+search_motifs:
+  - "check_function_purity"
+  - "SCWQ classified as read"
+  - "storage(read) modifies state"
+  - "read abi function writes storage"
+negative_signals:
+  - "No issue if VM runtime enforces no-storage-write mode for read calls."
+  - "No issue if the function is not externally reachable or has explicit authorization."
+patch_pattern: "Classify write-capable opcodes as mutations, strengthen cross-contract effect handling, and consider a runtime storage-mutation guard for read contexts."
+
+source_refs:
+  - "raw-findings/2024-06-17-fuel-attackathon-32886-purity-check-storage-write-opcode.md"
+  - "https://github.com/FuelLabs/sway/tree/v0.61.2"
+  - "https://reports.immunefi.com/fuel-network-or-attackathon/attackathon-_-fuel-network-32886-smart-contract-medium-incorrect-function-purity-check"
+notes:
+  - "Original Immunefi report id: 32886."
+  - "Original report severity: Medium."
+  - "Submitted: Sat Jul 06 2024 06:20:34 GMT-0400 (Atlantic Standard Time)."
+  - "Attackathon date provided by user: 2024-06-17."

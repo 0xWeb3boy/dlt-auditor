@@ -1,0 +1,25 @@
+id: "fuel-attackathon-2024-06-17-small-type-alu-overflow-33331"
+source_record: "fuel-attackathon-2024-06-17-small-type-alu-overflow-33331.yaml"
+project: "fuel-attackathon"
+
+expected_bug_family: "checked_arithmetic_and_parameter_bounds"
+expected_bug_class: "narrow-integer-overflow-check-missing"
+expected_missing_property: "declared-width-overflow-enforcement"
+
+expected_impact_band: "high"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+expected_trust_boundary: "contract-input->standard-library-math"
+expected_entrypoint_type: "library-function"
+expected_sensitive_sink: "narrow integer value that may be displayed or ABI-encoded differently than stored"
+expected_patch_pattern: "Add declared-width overflow checks to pow and test u8, u16, and u32 results at max boundaries."
+
+false_positive_cautions:
+  - "No issue if the operation is performed on true u64/u256 where VM overflow semantics match the type."
+  - "No issue if the compiler inserts declared-width checks before return and storage."
+notes:
+  - "When a compiler widens small types internally, every library operation must preserve the source-level type contract."
+  - "Stored values can exceed their source type and later wrap or misencode, corrupting contract or SDK accounting."

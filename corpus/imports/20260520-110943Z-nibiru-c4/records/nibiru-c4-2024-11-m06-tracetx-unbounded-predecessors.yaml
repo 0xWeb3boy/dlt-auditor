@@ -1,0 +1,63 @@
+id: "nibiru-c4-2024-11-m06-tracetx-unbounded-predecessors"
+source_finding: "2024-11-m06-tracetx-unbounded-predecessors.md"
+project: "nibiru-c4"
+date: "2024-11-26"
+language_tags:
+  - "go"
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "unbounded-rpc-simulation-work"
+subsystem: "evm-rpc-tracing"
+architecture_tags:
+  - "rpc-api"
+  - "evm-integration"
+  - "tracing"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "acknowledged-risk"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "rpc workload limits"
+violated_invariant: "Read-only trace endpoints must bound predecessor count, gas, and wall-clock time for caller-supplied simulation workloads."
+trust_boundary: "rpc-client->node tracing service"
+entrypoint_type: "gRPC TraceTx query"
+sensitive_sink: "loop that simulates req.Predecessors with effectively caller-chosen workload"
+
+attacker_capabilities:
+  - "Send TraceTx queries with a large predecessors array."
+  - "Choose trace configuration that increases execution cost."
+exploit_preconditions:
+  - "The tracing endpoint is exposed to untrusted callers."
+  - "No predecessor count limit, total gas limit, or timeout bounds the whole simulation."
+blast_radius: "node-local"
+
+impact_types:
+  - "denial-of-service"
+  - "resource-exhaustion"
+  - "rpc-availability"
+severity_guess: "medium"
+severity_rationale: "The issue is a node/RPC DoS vector; it does not mutate chain state but can exhaust public endpoint resources."
+
+code_shape_summary: "TraceTx iterated over caller-supplied predecessor transactions and simulated each before tracing the target message without an explicit global bound."
+search_motifs:
+  - "for i, tx := range req.Predecessors"
+  - "TraceTx predecessor simulation"
+  - "NewInfiniteGasMeterWithLimit(msg.Gas()) in query"
+  - "trace endpoint no timeout"
+negative_signals:
+  - "No issue if the endpoint is authenticated or operator-local only."
+  - "No issue if request size, predecessor count, total gas, and timeout are already bounded."
+  - "No chain-wide issue unless validators expose the endpoint in a way that affects consensus."
+patch_pattern: "Add predecessor count limits, total simulation gas caps, and timeout enforcement around the whole TraceTx predecessor simulation path."
+
+source_refs:
+  - "raw-findings/2024-11-m06-tracetx-unbounded-predecessors.md"
+  - "/testing/learning-nibiru/report.md"
+  - "https://github.com/code-423n4/2024-11-nibiru-findings/issues/35"
+notes:
+  - "Original C4 finding code: M-06."
+  - "Original C4 severity: Medium."
+  - "No confirmed post-contest mitigation PR was listed in the report for this finding."

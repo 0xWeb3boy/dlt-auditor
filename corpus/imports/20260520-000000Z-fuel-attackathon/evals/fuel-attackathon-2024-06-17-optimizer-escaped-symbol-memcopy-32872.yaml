@@ -1,0 +1,25 @@
+id: "fuel-attackathon-2024-06-17-optimizer-escaped-symbol-memcopy-32872"
+source_record: "fuel-attackathon-2024-06-17-optimizer-escaped-symbol-memcopy-32872.yaml"
+project: "fuel-attackathon"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "optimizer-alias-clobber-miss"
+expected_missing_property: "interprocedural-clobber-awareness"
+
+expected_impact_band: "high"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+expected_trust_boundary: "source-program->optimized-ir"
+expected_entrypoint_type: "compiler-optimization-pass"
+expected_sensitive_sink: "MemCopyVal replacing a load/store pair with different semantics"
+expected_patch_pattern: "Skip the optimization for escaped symbols or add interprocedural alias/clobber analysis, with regression tests around call-side mutation."
+
+false_positive_cautions:
+  - "No issue if alias analysis proves the pointed-to data cannot be written."
+  - "No issue if the type is immutable or copied before any escaping call."
+notes:
+  - "Optimizations that reorder memory reads and writes must be conservative around escaped pointers and calls."
+  - "An optimizer can change program semantics and store a mutated value where the original loaded value was intended."

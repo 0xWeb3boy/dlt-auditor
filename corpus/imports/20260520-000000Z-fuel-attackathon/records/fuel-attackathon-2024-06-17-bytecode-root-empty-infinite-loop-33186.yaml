@@ -1,0 +1,64 @@
+id: "fuel-attackathon-2024-06-17-bytecode-root-empty-infinite-loop-33186"
+source_finding: "2024-06-17-fuel-attackathon-33186-bytecode-root-empty-infinite-loop.md"
+project: "fuel-attackathon"
+date: "2024-06-17"
+language_tags:
+  - "sway"
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "empty-input-nontermination"
+subsystem: "bytecode-library"
+architecture_tags:
+  - "smart-contract-library"
+  - "bytecode-verification"
+  - "loop"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "public-attackathon-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "empty-input-termination"
+violated_invariant: "Bytecode-root helpers must terminate or reject input for empty bytecode."
+trust_boundary: "user-controlled-bytecode->verification-helper"
+entrypoint_type: "library-function"
+sensitive_sink: "unbounded loop inside bytecode root computation"
+
+attacker_capabilities:
+  - "Provide or select an empty bytecode blob or contract id with empty bytecode."
+  - "Place the verifier in a queue or withdrawal path."
+exploit_preconditions:
+  - "The loop break condition is unreachable for zero-length bytecode."
+  - "The transaction path does not bound iterations before funds or queue progress is blocked."
+blast_radius: "contract-local"
+
+impact_types:
+  - "denial-of-service"
+  - "funds-freeze"
+  - "transaction-liveness"
+severity_guess: "medium"
+severity_rationale: "Empty bytecode can cause nontermination and block contract flows such as withdrawal queues."
+
+code_shape_summary: "The bytecode-root loop assumed at least one chunk, so zero-length input never reached the branch that exits."
+search_motifs:
+  - "_compute_bytecode_root empty bytecode"
+  - "verify_contract_bytecode infinite loop"
+  - "loop break not reached zero length"
+  - "compute_bytecode_root no chunks"
+negative_signals:
+  - "No issue if callers reject empty bytecode before invoking the helper."
+  - "No issue if VM gas reliably aborts without persistent liveness damage."
+patch_pattern: "Add an explicit empty-bytecode case that returns the canonical empty root or rejects the input, with tests for all public wrappers."
+
+source_refs:
+  - "raw-findings/2024-06-17-fuel-attackathon-33186-bytecode-root-empty-infinite-loop.md"
+  - "https://github.com/FuelLabs/sway-libs/tree/0f47d33d6e5da25f782fc117d4be15b7b12d291b"
+  - "https://reports.immunefi.com/fuel-network-or-attackathon/attackathon-_-fuel-network-33186-smart-contract-medium-_compute_bytecode_root-goes-to-an-infinite-lo"
+notes:
+  - "Original Immunefi report id: 33186."
+  - "Original report severity: Medium."
+  - "Submitted: Sat Jul 13 2024 17:57:02 GMT-0400 (Atlantic Standard Time)."
+  - "Attackathon date provided by user: 2024-06-17."

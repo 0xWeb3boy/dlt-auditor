@@ -1,0 +1,63 @@
+id: "fuel-attackathon-2024-06-17-ufp32-fract-underflow-33233"
+source_finding: "2024-06-17-fuel-attackathon-33233-ufp32-fract-underflow.md"
+project: "fuel-attackathon"
+date: "2024-06-17"
+language_tags:
+  - "sway"
+
+bug_family: "checked_arithmetic_and_parameter_bounds"
+bug_class: "fixed-point-fraction-underflow"
+subsystem: "fixed-point-library"
+architecture_tags:
+  - "smart-contract-library"
+  - "fixed-point-math"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "public-attackathon-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "fractional-mask-bounds"
+violated_invariant: "A fractional-part helper must not underflow for any valid fixed-point input."
+trust_boundary: "contract-input->financial-math-library"
+entrypoint_type: "library-function"
+sensitive_sink: "fract result used by ceil and signed fixed-point wrappers"
+
+attacker_capabilities:
+  - "Call UFP32.fract or functions that delegate to it."
+  - "Trigger ceil or IFP64.fract on valid values."
+exploit_preconditions:
+  - "The implementation subtracts u32::max and one after a left shift that cannot exceed u32::max."
+  - "The VM traps on underflow."
+blast_radius: "ecosystem-wide"
+
+impact_types:
+  - "denial-of-service"
+  - "arithmetic-integrity"
+  - "funds-freeze"
+severity_guess: "medium"
+severity_rationale: "Every call to the helper can revert, making dependent contract functions unusable."
+
+code_shape_summary: "The fractional calculation used subtractive masking that is always below the subtrahend after shifting."
+search_motifs:
+  - "UFP32 fract underflow"
+  - "left shift then subtract u32::max"
+  - "IFP64 fract reverts"
+  - "ceil uses fract"
+negative_signals:
+  - "No issue if the helper uses bit masks or modulo without underflow."
+  - "No issue if all callers catch the revert and preserve liveness."
+patch_pattern: "Replace subtractive masking with correct fractional extraction and add tests that fract and ceil work for representative valid inputs."
+
+source_refs:
+  - "raw-findings/2024-06-17-fuel-attackathon-33233-ufp32-fract-underflow.md"
+  - "https://github.com/FuelLabs/sway-libs/tree/0f47d33d6e5da25f782fc117d4be15b7b12d291b"
+  - "https://reports.immunefi.com/fuel-network-or-attackathon/attackathon-_-fuel-network-33233-smart-contract-medium-incorrect-implementation-of-unsigned-bit-fixe"
+notes:
+  - "Original Immunefi report id: 33233."
+  - "Original report severity: Medium."
+  - "Submitted: Mon Jul 15 2024 16:51:42 GMT-0400 (Atlantic Standard Time)."
+  - "Attackathon date provided by user: 2024-06-17."

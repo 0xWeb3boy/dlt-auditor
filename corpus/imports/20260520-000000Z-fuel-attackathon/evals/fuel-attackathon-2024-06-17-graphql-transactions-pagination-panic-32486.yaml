@@ -1,0 +1,25 @@
+id: "fuel-attackathon-2024-06-17-graphql-transactions-pagination-panic-32486"
+source_record: "fuel-attackathon-2024-06-17-graphql-transactions-pagination-panic-32486.yaml"
+project: "fuel-attackathon"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "graphql-pagination-unreachable-panic"
+expected_missing_property: "api-parameter-combination-validation"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+expected_trust_boundary: "public-rpc-user->node-process"
+expected_entrypoint_type: "rpc-handler"
+expected_sensitive_sink: "unreachable macro in transaction pagination"
+expected_patch_pattern: "Reject queries with neither first nor last before resolver execution and add shared pagination tests for public GraphQL endpoints."
+
+false_positive_cautions:
+  - "No issue if invalid combinations return typed GraphQL errors."
+  - "No issue if panic is contained and cannot terminate the service process."
+notes:
+  - "Public API code must treat every parameter combination as user-controlled, even when a branch looks unreachable internally."
+  - "A single public GraphQL query can crash an RPC process, affecting dependent applications."

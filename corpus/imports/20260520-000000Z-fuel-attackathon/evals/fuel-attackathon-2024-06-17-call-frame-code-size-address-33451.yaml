@@ -1,0 +1,25 @@
+id: "fuel-attackathon-2024-06-17-call-frame-code-size-address-33451"
+source_record: "fuel-attackathon-2024-06-17-call-frame-code-size-address-33451.yaml"
+project: "fuel-attackathon"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "call-frame-field-dereference-error"
+expected_missing_property: "semantic-field-binding"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+expected_trust_boundary: "contract-introspection->authorization-or-policy-check"
+expected_entrypoint_type: "library-function"
+expected_sensitive_sink: "code-size based security policy"
+expected_patch_pattern: "Dereference the call-frame code-size slot consistently with adjacent accessors and add tests that compare returned size to actual bytecode length."
+
+false_positive_cautions:
+  - "No issue if code_size is used only for logging."
+  - "No issue if the function is documented and named as returning an address."
+notes:
+  - "Introspection APIs used in policy checks must be tested against semantic values, not just non-zero outputs."
+  - "Contracts using code-size introspection for security can admit callers they meant to reject."

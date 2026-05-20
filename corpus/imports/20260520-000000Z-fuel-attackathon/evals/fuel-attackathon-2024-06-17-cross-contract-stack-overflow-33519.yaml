@@ -1,0 +1,25 @@
+id: "fuel-attackathon-2024-06-17-cross-contract-stack-overflow-33519"
+source_record: "fuel-attackathon-2024-06-17-cross-contract-stack-overflow-33519.yaml"
+project: "fuel-attackathon"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "stack-frame-overwrite-across-calls"
+expected_missing_property: "stack-frame-bound-enforcement"
+
+expected_impact_band: "critical"
+expected_severity_band: "critical"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+expected_trust_boundary: "callee-call-frame->caller-memory"
+expected_entrypoint_type: "cross-contract-call"
+expected_sensitive_sink: "stack memory holding local variables and call arguments"
+expected_patch_pattern: "Enforce stack-frame bounds during code generation or VM execution, trap on overflow, and add regression tests around wide locals across contract calls."
+
+false_positive_cautions:
+  - "A trapped stack overflow with no state commitment is not this issue."
+  - "Purely local corruption in a test harness is lower risk without a reachable contract path."
+notes:
+  - "Compiler-generated call-frame layouts need explicit memory bounds whenever user code can compose large values and nested calls."
+  - "Silent frame corruption can misroute values in financial contract flows, though exploitability depends on contract layout."

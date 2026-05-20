@@ -1,0 +1,67 @@
+id: "nibiru-c4-2024-11-h06-funtoken-recursive-gas-forwarding"
+source_finding: "2024-11-h06-funtoken-recursive-gas-forwarding.md"
+project: "nibiru-c4"
+date: "2024-11-26"
+language_tags:
+  - "go"
+  - "solidity"
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "recursive-gas-forwarding"
+subsystem: "evm-funtoken-erc20-calls"
+architecture_tags:
+  - "evm-integration"
+  - "precompile"
+  - "gas-metering"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "caller-gas-bounded internal calls"
+violated_invariant: "Internal ERC20 calls made by a precompile must be bounded by remaining caller gas and preserve EVM recursive-call gas limits."
+trust_boundary: "user-controlled ERC20 contract->FunToken precompile internal ERC20 query/transfer"
+entrypoint_type: "FunToken precompile query or conversion call"
+sensitive_sink: "CallContract using hardcoded ERC20 query or execute gas instead of caller-relative gas"
+
+attacker_capabilities:
+  - "Register or interact with a malicious ERC20 token."
+  - "Make ERC20 balanceOf or transfer recursively call the FunToken precompile."
+exploit_preconditions:
+  - "The precompile grants a fresh hardcoded gas budget for internal ERC20 calls."
+  - "The malicious token can re-enter the precompile path recursively."
+blast_radius: "chain-wide"
+
+impact_types:
+  - "denial-of-service"
+  - "resource-exhaustion"
+  - "consensus-liveness"
+severity_guess: "high"
+severity_rationale: "Confirmed malicious ERC20 recursion can consume memory and halt block production because internal calls bypass remaining caller gas constraints."
+
+code_shape_summary: "FunToken ERC20 BalanceOf and Transfer helpers used fixed gas limits for nested EVM calls, allowing recursive calls to receive fresh gas repeatedly."
+search_motifs:
+  - "Erc20GasLimitQuery hardcoded 100_000"
+  - "Erc20GasLimitExecute"
+  - "CallContract inside precompile with fixed gas"
+  - "ERC20 balanceOf recursively calls precompile"
+  - "63/64 gas invariant broken"
+negative_signals:
+  - "No issue if internal calls use at most 63/64 of remaining caller gas."
+  - "No issue if the callee ERC20 is trusted and non-reentrant by construction."
+  - "No issue if recursion depth and memory growth are bounded by charged caller gas."
+patch_pattern: "Forward a caller-relative gas budget to ERC20 helper calls and preserve EIP-150-style gas reduction for nested precompile/EVM recursion."
+
+source_refs:
+  - "raw-findings/2024-11-h06-funtoken-recursive-gas-forwarding.md"
+  - "/testing/learning-nibiru/report.md"
+  - "https://github.com/code-423n4/2024-11-nibiru-findings/issues/4"
+  - "https://github.com/NibiruChain/nibiru/pull/2129"
+notes:
+  - "Original C4 finding code: H-06."
+  - "Original C4 severity: High."
+  - "PR-2129: fix(evm): issue with infinite recursion in erc20 funtoken contracts; created 2024-12-24T19:37:38Z; merged 2024-12-28T10:17:58Z."

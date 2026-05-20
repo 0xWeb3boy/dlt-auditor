@@ -1,0 +1,65 @@
+id: "fuel-attackathon-2024-06-17-bridge-reverted-message-32965"
+source_finding: "2024-06-17-fuel-attackathon-32965-bridge-reverted-message.md"
+project: "fuel-attackathon"
+date: "2024-06-17"
+language_tags:
+  - "rust"
+
+bug_family: "state_machine_and_lifecycle_consistency"
+bug_class: "reverted-transaction-withdrawal-message-inclusion"
+subsystem: "bridge-executor"
+architecture_tags:
+  - "bridge"
+  - "executor"
+  - "message-commitment"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "public-attackathon-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "state-transition-result-gating"
+violated_invariant: "Only successfully executed transactions may contribute withdrawal or message identifiers to committed bridge execution data."
+trust_boundary: "vm-receipt->block-execution-data"
+entrypoint_type: "state-transition"
+sensitive_sink: "message id commitment used for L1 withdrawal proofs"
+
+attacker_capabilities:
+  - "Submit an L2 transaction that emits a withdrawal message and then intentionally reverts."
+  - "Relay or query the committed message proof after the failed transaction is included."
+exploit_preconditions:
+  - "Execution data aggregates MessageOut receipt ids before checking the final transaction status."
+  - "The bridge proof path trusts committed message ids without rechecking transaction success."
+blast_radius: "cross-domain"
+
+impact_types:
+  - "asset-integrity"
+  - "unauthorized-withdrawal"
+  - "state-integrity"
+severity_guess: "critical"
+severity_rationale: "A failed L2 withdrawal could still produce an L1-withdrawable message while the L2 burn was reverted, threatening bridged funds."
+
+code_shape_summary: "Receipt-derived message ids were appended to block execution data on both success and failure paths, while asset burns were rolled back on revert."
+search_motifs:
+  - "message_ids extend before reverted check"
+  - "MessageOut receipt from failed transaction"
+  - "withdrawal proof accepts failed status"
+  - "receipt committed independently of tx success"
+negative_signals:
+  - "Receipts from failed transactions are safe if they are only logs and cannot enter withdrawal commitments."
+  - "No issue if every proof verifier rejects messages from failed transaction status."
+patch_pattern: "Gate message-id aggregation and proof eligibility on non-reverted execution, and add tests that failed withdrawals cannot produce spendable messages."
+
+source_refs:
+  - "raw-findings/2024-06-17-fuel-attackathon-32965-bridge-reverted-message.md"
+  - "https://github.com/FuelLabs/fuel-core/tree/v0.31.0"
+  - "https://reports.immunefi.com/fuel-network-or-attackathon/attackathon-_-fuel-network-32965-blockchain_dlt-critical-messages-to-l-included-even-on-reverts-allo"
+notes:
+  - "Original Immunefi report id: 32965."
+  - "Original report severity: Critical."
+  - "Submitted: Mon Jul 08 2024 15:33:31 GMT-0400 (Atlantic Standard Time)."
+  - "Attackathon date provided by user: 2024-06-17."
+  - "Related to existing fuel-core corpus record for reverted transaction withdrawal message inclusion, kept here under attackathon provenance."

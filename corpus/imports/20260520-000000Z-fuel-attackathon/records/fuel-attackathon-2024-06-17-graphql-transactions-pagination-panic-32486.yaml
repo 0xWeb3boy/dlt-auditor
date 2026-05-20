@@ -1,0 +1,63 @@
+id: "fuel-attackathon-2024-06-17-graphql-transactions-pagination-panic-32486"
+source_finding: "2024-06-17-fuel-attackathon-32486-graphql-transactions-pagination-panic.md"
+project: "fuel-attackathon"
+date: "2024-06-17"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "graphql-pagination-unreachable-panic"
+subsystem: "rpc-client-api"
+architecture_tags:
+  - "rpc"
+  - "graphql"
+  - "pagination"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "public-attackathon-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "api-parameter-combination-validation"
+violated_invariant: "Public RPC pagination must reject unsupported cursor/count combinations with an error instead of panicking."
+trust_boundary: "public-rpc-user->node-process"
+entrypoint_type: "rpc-handler"
+sensitive_sink: "unreachable macro in transaction pagination"
+
+attacker_capabilities:
+  - "Send a GraphQL transactions query with cursor fields but no first or last count."
+  - "Repeat the unauthenticated query against public RPC nodes."
+exploit_preconditions:
+  - "Validation allows after/before without first/last."
+  - "Resolver assumes one count is present and reaches unreachable!()."
+blast_radius: "node-local"
+
+impact_types:
+  - "denial-of-service"
+  - "rpc-availability"
+severity_guess: "medium"
+severity_rationale: "A single public GraphQL query can crash an RPC process, affecting dependent applications."
+
+code_shape_summary: "The resolver used an unreachable branch for a user-controlled parameter combination that validation did not forbid."
+search_motifs:
+  - "transactions after before without first last"
+  - "unreachable! pagination"
+  - "GraphQL public RPC crash"
+  - "Either first or last should be provided"
+negative_signals:
+  - "No issue if invalid combinations return typed GraphQL errors."
+  - "No issue if panic is contained and cannot terminate the service process."
+patch_pattern: "Reject queries with neither first nor last before resolver execution and add shared pagination tests for public GraphQL endpoints."
+
+source_refs:
+  - "raw-findings/2024-06-17-fuel-attackathon-32486-graphql-transactions-pagination-panic.md"
+  - "https://github.com/FuelLabs/fuel-core/tree/8b1bf02103b8c90ce3ef2ba715214fb452b99885"
+  - "https://reports.immunefi.com/fuel-network-or-attackathon/attackathon-_-fuel-network-32486-blockchain_dlt-medium-public-rpc-node-craches-via-graphql-api"
+notes:
+  - "Original Immunefi report id: 32486."
+  - "Original report severity: Medium."
+  - "Submitted: Sun Jun 23 2024 19:31:25 GMT-0400 (Atlantic Standard Time)."
+  - "Attackathon date provided by user: 2024-06-17."

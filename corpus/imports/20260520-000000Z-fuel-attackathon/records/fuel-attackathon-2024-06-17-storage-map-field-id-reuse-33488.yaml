@@ -1,0 +1,65 @@
+id: "fuel-attackathon-2024-06-17-storage-map-field-id-reuse-33488"
+source_finding: "2024-06-17-fuel-attackathon-33488-storage-map-field-id-reuse.md"
+project: "fuel-attackathon"
+date: "2024-06-17"
+language_tags:
+  - "rust"
+  - "sway"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "storage-map-namespace-reuse"
+subsystem: "standard-library-storage"
+architecture_tags:
+  - "standard-library"
+  - "storage"
+  - "smart-contract-language"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "public-attackathon-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "storage-map-namespace-uniqueness"
+violated_invariant: "Two StorageMap instances must not be able to alias storage solely because a developer or library reused a field id."
+trust_boundary: "library-composition->contract-storage"
+entrypoint_type: "storage-map-api"
+sensitive_sink: "StorageMap slots holding user balances or state"
+
+attacker_capabilities:
+  - "Compose libraries or maps that reuse the same field id."
+  - "Write one map and have another map read the aliased entry."
+exploit_preconditions:
+  - "StorageMap uniqueness depends on manually supplied field ids."
+  - "Different maps share a contract storage key space without compiler-enforced uniqueness."
+blast_radius: "ecosystem-wide"
+
+impact_types:
+  - "storage-integrity"
+  - "asset-integrity"
+  - "unauthorized-action"
+severity_guess: "medium"
+severity_rationale: "Storage aliasing can corrupt balances or fake deposits when maps are composed incorrectly."
+
+code_shape_summary: "The map slot derivation trusted a reusable developer-supplied field_id as the namespace separator."
+search_motifs:
+  - "StorageMap field_id reuse"
+  - "two maps collide"
+  - "hash key through field_id"
+  - "manual storage namespace"
+negative_signals:
+  - "No issue if the compiler generates unique field ids from declaration paths."
+  - "A developer mistake is less severe if the API loudly documents and enforces uniqueness checks."
+patch_pattern: "Generate or validate unique StorageMap namespaces from declaration paths and reject duplicate field ids where possible."
+
+source_refs:
+  - "raw-findings/2024-06-17-fuel-attackathon-33488-storage-map-field-id-reuse.md"
+  - "https://github.com/FuelLabs/sway/tree/v0.61.2"
+  - "https://reports.immunefi.com/fuel-network-or-attackathon/attackathon-_-fuel-network-33488-smart-contract-medium-insecure-implementation-of-storagemap-could-l"
+notes:
+  - "Original Immunefi report id: 33488."
+  - "Original report severity: Medium."
+  - "Submitted: Sun Jul 21 2024 20:51:55 GMT-0400 (Atlantic Standard Time)."
+  - "Attackathon date provided by user: 2024-06-17."

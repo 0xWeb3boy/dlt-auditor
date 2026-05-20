@@ -1,0 +1,65 @@
+id: "nibiru-c4-2024-11-m07-batched-evm-nonce-replay"
+source_finding: "2024-11-m07-batched-evm-nonce-replay.md"
+project: "nibiru-c4"
+date: "2024-11-26"
+language_tags:
+  - "go"
+
+bug_family: "state_machine_and_lifecycle_consistency"
+bug_class: "batched-evm-nonce-regression"
+subsystem: "evm-transaction-processing"
+architecture_tags:
+  - "evm-integration"
+  - "cosmos-sdk"
+  - "batched-transactions"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "nonce monotonicity across batched messages"
+violated_invariant: "Every EVM message in a batch must leave the sender account sequence at least msg.Nonce()+1, regardless of contract creation vs call execution path."
+trust_boundary: "signed batched EVM transaction->account sequence state"
+entrypoint_type: "MsgEthereumTx execution in a Cosmos SDK tx"
+sensitive_sink: "stateDB account nonce commit after ApplyEvmMsg"
+
+attacker_capabilities:
+  - "Construct a Cosmos SDK transaction containing multiple MsgEthereumTx messages."
+  - "Place a contract creation before calls or transfers with later nonces."
+exploit_preconditions:
+  - "Batched EVM messages are accepted by the EVM ante path."
+  - "Contract-creation path resets nonce while normal call path does not advance it."
+blast_radius: "account-local"
+
+impact_types:
+  - "replay-risk"
+  - "state-integrity"
+  - "transaction-ordering-integrity"
+severity_guess: "medium"
+severity_rationale: "Confirmed nonce regression can make later batched EVM messages replayable, but the final severity was Medium due to limited direct asset/liveness impact."
+
+code_shape_summary: "ApplyEvmMsg manually set nonce for contract creation but delegated normal call nonce handling to evmObj.Call, which did not increment the sender nonce."
+search_motifs:
+  - "contractCreation stateDB.SetNonce msg.Nonce"
+  - "evmObj.Call does not increment sender nonce"
+  - "multiple EVM messages in one Cosmos tx"
+  - "MsgEthereumTx nonce replay"
+negative_signals:
+  - "No issue if batching MsgEthereumTx is impossible."
+  - "No issue if normal calls set nonce to msg.Nonce()+1 after execution."
+  - "No issue if ante and execution both enforce final monotonic sequence."
+patch_pattern: "Set the sender nonce to msg.Nonce()+1 for both contract creation and non-creation EVM message paths, with batched-message regression tests."
+
+source_refs:
+  - "raw-findings/2024-11-m07-batched-evm-nonce-replay.md"
+  - "/testing/learning-nibiru/report.md"
+  - "https://github.com/code-423n4/2024-11-nibiru-findings/issues/29"
+  - "https://github.com/NibiruChain/nibiru/pull/2130"
+notes:
+  - "Original C4 finding code: M-07."
+  - "Original C4 severity: Medium."
+  - "PR-2130: fix(evm): proper nonce management in statedb; created 2024-12-25T17:52:07Z; merged 2025-01-08T05:02:51Z."

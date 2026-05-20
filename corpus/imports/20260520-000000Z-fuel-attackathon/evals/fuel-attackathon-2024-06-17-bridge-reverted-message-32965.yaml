@@ -1,0 +1,25 @@
+id: "fuel-attackathon-2024-06-17-bridge-reverted-message-32965"
+source_record: "fuel-attackathon-2024-06-17-bridge-reverted-message-32965.yaml"
+project: "fuel-attackathon"
+
+expected_bug_family: "state_machine_and_lifecycle_consistency"
+expected_bug_class: "reverted-transaction-withdrawal-message-inclusion"
+expected_missing_property: "state-transition-result-gating"
+
+expected_impact_band: "critical"
+expected_severity_band: "critical"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+expected_trust_boundary: "vm-receipt->block-execution-data"
+expected_entrypoint_type: "state-transition"
+expected_sensitive_sink: "message id commitment used for L1 withdrawal proofs"
+expected_patch_pattern: "Gate message-id aggregation and proof eligibility on non-reverted execution, and add tests that failed withdrawals cannot produce spendable messages."
+
+false_positive_cautions:
+  - "Receipts from failed transactions are safe if they are only logs and cannot enter withdrawal commitments."
+  - "No issue if every proof verifier rejects messages from failed transaction status."
+notes:
+  - "Security-bearing execution artifacts must be committed only after the final state-transition result is known."
+  - "A failed L2 withdrawal could still produce an L1-withdrawable message while the L2 burn was reverted, threatening bridged funds."

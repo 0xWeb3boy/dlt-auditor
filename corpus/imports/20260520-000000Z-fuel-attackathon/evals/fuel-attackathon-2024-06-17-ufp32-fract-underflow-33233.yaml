@@ -1,0 +1,25 @@
+id: "fuel-attackathon-2024-06-17-ufp32-fract-underflow-33233"
+source_record: "fuel-attackathon-2024-06-17-ufp32-fract-underflow-33233.yaml"
+project: "fuel-attackathon"
+
+expected_bug_family: "checked_arithmetic_and_parameter_bounds"
+expected_bug_class: "fixed-point-fraction-underflow"
+expected_missing_property: "fractional-mask-bounds"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+expected_trust_boundary: "contract-input->financial-math-library"
+expected_entrypoint_type: "library-function"
+expected_sensitive_sink: "fract result used by ceil and signed fixed-point wrappers"
+expected_patch_pattern: "Replace subtractive masking with correct fractional extraction and add tests that fract and ceil work for representative valid inputs."
+
+false_positive_cautions:
+  - "No issue if the helper uses bit masks or modulo without underflow."
+  - "No issue if all callers catch the revert and preserve liveness."
+notes:
+  - "Bit-level fixed-point helpers should be tested for all-zero, max, and ordinary values before being used by higher-level rounding."
+  - "Every call to the helper can revert, making dependent contract functions unusable."

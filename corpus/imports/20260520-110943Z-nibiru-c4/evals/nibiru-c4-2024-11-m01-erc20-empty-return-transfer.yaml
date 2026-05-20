@@ -1,0 +1,22 @@
+id: "nibiru-c4-2024-11-m01-erc20-empty-return-transfer"
+source_record: "nibiru-c4-2024-11-m01-erc20-empty-return-transfer.yaml"
+project: "nibiru-c4"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "strict-erc20-return-decoding"
+expected_missing_property: "token-return-value compatibility handling"
+
+expected_impact_band: "supported token conversion DoS"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "No issue if the protocol explicitly excludes missing-return tokens."
+  - "No issue if token deployment is constrained to compliant contracts."
+  - "No issue if empty return data is already accepted after a non-reverting call."
+notes:
+  - "Original C4 finding code: M-01."
+  - "Expected answer should identify: Token integration code should distinguish call success from optional ERC20 return-data conventions when the supported token set includes missing-return tokens."
+  - "Treat a non-reverting transfer with empty return data as success, while still rejecting non-empty data that decodes to false or invalid values."

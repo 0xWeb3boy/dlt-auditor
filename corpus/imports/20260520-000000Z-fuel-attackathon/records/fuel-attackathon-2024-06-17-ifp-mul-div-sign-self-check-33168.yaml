@@ -1,0 +1,62 @@
+id: "fuel-attackathon-2024-06-17-ifp-mul-div-sign-self-check-33168"
+source_finding: "2024-06-17-fuel-attackathon-33168-ifp-mul-div-sign-self-check.md"
+project: "fuel-attackathon"
+date: "2024-06-17"
+language_tags:
+  - "sway"
+
+bug_family: "checked_arithmetic_and_parameter_bounds"
+bug_class: "fixed-point-multiply-divide-sign-misbinding"
+subsystem: "fixed-point-library"
+architecture_tags:
+  - "smart-contract-library"
+  - "fixed-point-math"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "public-attackathon-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "operand-sign-comparison"
+violated_invariant: "Multiplication and division of signed fixed-point values must set the result sign from both operands."
+trust_boundary: "contract-input->financial-math-library"
+entrypoint_type: "library-function"
+sensitive_sink: "fixed-point multiply or divide result used by financial logic"
+
+attacker_capabilities:
+  - "Supply one negative and one positive operand."
+  - "Trigger multiply or divide in a contract that relies on signed fixed-point math."
+exploit_preconditions:
+  - "The sign expression compares self.non_negative with itself."
+  - "Downstream financial logic treats the returned sign as authoritative."
+blast_radius: "ecosystem-wide"
+
+impact_types:
+  - "arithmetic-integrity"
+  - "asset-integrity"
+severity_guess: "high"
+severity_rationale: "Negative products or quotients can be returned as positive values, corrupting debt, reward, or balance math."
+
+code_shape_summary: "The result sign condition used self.non_negative in both operands, making the negative-result case unreachable."
+search_motifs:
+  - "self.non_negative && !self.non_negative"
+  - "multiply divide sign"
+  - "IFP result always positive"
+  - "divisor.non_negative missing"
+negative_signals:
+  - "No issue in unsigned fixed-point math."
+  - "No issue if callers reject negative operands before reaching multiply or divide."
+patch_pattern: "Compute sign from self versus other or divisor, and add sign-matrix tests for multiply and divide."
+
+source_refs:
+  - "raw-findings/2024-06-17-fuel-attackathon-33168-ifp-mul-div-sign-self-check.md"
+  - "https://github.com/FuelLabs/sway-libs/tree/0f47d33d6e5da25f782fc117d4be15b7b12d291b"
+  - "https://reports.immunefi.com/fuel-network-or-attackathon/attackathon-_-fuel-network-33168-smart-contract-high-incorrect-sign-determination-in-multiply-divide"
+notes:
+  - "Original Immunefi report id: 33168."
+  - "Original report severity: High."
+  - "Submitted: Sat Jul 13 2024 08:16:13 GMT-0400 (Atlantic Standard Time)."
+  - "Attackathon date provided by user: 2024-06-17."

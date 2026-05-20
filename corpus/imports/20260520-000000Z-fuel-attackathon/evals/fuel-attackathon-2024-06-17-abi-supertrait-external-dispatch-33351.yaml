@@ -1,0 +1,25 @@
+id: "fuel-attackathon-2024-06-17-abi-supertrait-external-dispatch-33351"
+source_record: "fuel-attackathon-2024-06-17-abi-supertrait-external-dispatch-33351.yaml"
+project: "fuel-attackathon"
+
+expected_bug_family: "authz_and_role_gates"
+expected_bug_class: "supertrait-method-dispatch-exposure"
+expected_missing_property: "external-interface-visibility-enforcement"
+
+expected_impact_band: "critical"
+expected_severity_band: "critical"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+expected_trust_boundary: "external-call->contract-dispatch-table"
+expected_entrypoint_type: "contract-call-dispatch"
+expected_sensitive_sink: "execution of ABI supertrait helper methods that developers expected to be internal"
+expected_patch_pattern: "Exclude ABI supertrait methods from external dispatch selector tables and add compiler tests that external calls to supertrait-only methods fail."
+
+false_positive_cautions:
+  - "No issue if the method is intentionally listed in the public ABI."
+  - "No issue if the exposed helper has complete independent authorization checks."
+notes:
+  - "Visibility rules must be enforced at every externally reachable dispatch surface, not only in generated metadata."
+  - "Methods assumed to be internal can become public entrypoints, bypassing contract-level access-control assumptions."

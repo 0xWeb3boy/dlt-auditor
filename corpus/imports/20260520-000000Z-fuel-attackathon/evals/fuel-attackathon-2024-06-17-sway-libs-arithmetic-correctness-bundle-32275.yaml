@@ -1,0 +1,25 @@
+id: "fuel-attackathon-2024-06-17-sway-libs-arithmetic-correctness-bundle-32275"
+source_record: "fuel-attackathon-2024-06-17-sway-libs-arithmetic-correctness-bundle-32275.yaml"
+project: "fuel-attackathon"
+
+expected_bug_family: "checked_arithmetic_and_parameter_bounds"
+expected_bug_class: "numeric-library-invariant-bundle"
+expected_missing_property: "numeric-library-spec-conformance"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+expected_trust_boundary: "contract-input->standard-library-math"
+expected_entrypoint_type: "library-function"
+expected_sensitive_sink: "multiple signed, unsigned, and fixed-point math helper results"
+expected_patch_pattern: "Define executable numeric invariants for each type family, fix each implementation to match them, and add cross-width edge-case tests."
+
+false_positive_cautions:
+  - "A precision tradeoff is lower risk if documented and not used for settlement."
+  - "A library bug is less severe when no reachable contract path uses the affected helper."
+notes:
+  - "Security-sensitive math libraries need invariant-driven tests across widths, signs, precision, and boundary values."
+  - "The report groups many correctness defects; individual exploitability depends on which helper a contract uses."

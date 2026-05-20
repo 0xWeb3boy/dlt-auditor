@@ -1,0 +1,22 @@
+id: "nibiru-c4-2024-11-h04-failed-precompile-gas-bypass"
+source_record: "nibiru-c4-2024-11-h04-failed-precompile-gas-bypass.yaml"
+project: "nibiru-c4"
+
+expected_bug_family: "resource_accounting_and_limits"
+expected_bug_class: "failed-precompile-gas-undercharge"
+expected_missing_property: "failure-path resource accounting"
+
+expected_impact_band: "undercharged failed precompile work"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "No issue if gas is consumed in a defer for both success and failure."
+  - "No issue if the failed call performs no meaningful metered work."
+  - "No issue if outer logic always charges the full gas limit on precompile failure."
+notes:
+  - "Original C4 finding code: H-04."
+  - "Expected answer should identify: Precompile gas charged to the EVM caller must include work consumed by the local/cache context even when the precompile returns an error."
+  - "Consume the cached/native gas before returning any precompile error, commonly via defer or by moving contract.UseGas ahead of error handling."

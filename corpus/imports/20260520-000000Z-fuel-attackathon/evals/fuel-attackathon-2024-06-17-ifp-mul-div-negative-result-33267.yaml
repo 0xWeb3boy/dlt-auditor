@@ -1,0 +1,25 @@
+id: "fuel-attackathon-2024-06-17-ifp-mul-div-negative-result-33267"
+source_record: "fuel-attackathon-2024-06-17-ifp-mul-div-negative-result-33267.yaml"
+project: "fuel-attackathon"
+
+expected_bug_family: "checked_arithmetic_and_parameter_bounds"
+expected_bug_class: "fixed-point-multiply-divide-sign-misbinding"
+expected_missing_property: "operand-sign-comparison"
+
+expected_impact_band: "high"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+expected_trust_boundary: "contract-input->financial-math-library"
+expected_entrypoint_type: "library-function"
+expected_sensitive_sink: "IFP64/IFP128/IFP256 multiply or divide result"
+expected_patch_pattern: "Replace self-only sign expressions with XOR-style operand sign comparison across all IFP widths."
+
+false_positive_cautions:
+  - "No issue if using an unaffected version with sign-matrix tests."
+  - "No issue if all values are unsigned by design."
+notes:
+  - "Duplicated arithmetic code across widths should share tested sign logic or generated test vectors."
+  - "Mixed-sign fixed-point operations return positive values, which can invert financial meaning."

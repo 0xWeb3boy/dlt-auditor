@@ -1,0 +1,62 @@
+id: "fuel-attackathon-2024-06-17-ifp-mul-div-negative-result-33267"
+source_finding: "2024-06-17-fuel-attackathon-33267-ifp-mul-div-negative-result.md"
+project: "fuel-attackathon"
+date: "2024-06-17"
+language_tags:
+  - "sway"
+
+bug_family: "checked_arithmetic_and_parameter_bounds"
+bug_class: "fixed-point-multiply-divide-sign-misbinding"
+subsystem: "fixed-point-library"
+architecture_tags:
+  - "smart-contract-library"
+  - "fixed-point-math"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "public-attackathon-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "operand-sign-comparison"
+violated_invariant: "Signed fixed-point multiply/divide must return negative output when exactly one operand is negative."
+trust_boundary: "contract-input->financial-math-library"
+entrypoint_type: "library-function"
+sensitive_sink: "IFP64/IFP128/IFP256 multiply or divide result"
+
+attacker_capabilities:
+  - "Pass one negative operand to multiply or divide."
+  - "Use the result in user-facing contract math."
+exploit_preconditions:
+  - "The non_negative expression never examines the second operand's sign."
+  - "The result controls value, eligibility, or liveness."
+blast_radius: "ecosystem-wide"
+
+impact_types:
+  - "arithmetic-integrity"
+  - "asset-integrity"
+severity_guess: "high"
+severity_rationale: "Mixed-sign fixed-point operations return positive values, which can invert financial meaning."
+
+code_shape_summary: "The same self-only sign expression was duplicated across fixed-point multiply and divide implementations."
+search_motifs:
+  - "ifp64 multiply divide non_negative"
+  - "self.non_negative only"
+  - "negative times positive returns positive"
+  - "IFP128 IFP256 sign"
+negative_signals:
+  - "No issue if using an unaffected version with sign-matrix tests."
+  - "No issue if all values are unsigned by design."
+patch_pattern: "Replace self-only sign expressions with XOR-style operand sign comparison across all IFP widths."
+
+source_refs:
+  - "raw-findings/2024-06-17-fuel-attackathon-33267-ifp-mul-div-negative-result.md"
+  - "https://github.com/FuelLabs/sway-libs/tree/0f47d33d6e5da25f782fc117d4be15b7b12d291b"
+  - "https://reports.immunefi.com/fuel-network-or-attackathon/attackathon-_-fuel-network-33267-smart-contract-high-bug-in-multiply-and-divide-function"
+notes:
+  - "Original Immunefi report id: 33267."
+  - "Original report severity: High."
+  - "Submitted: Tue Jul 16 2024 16:36:28 GMT-0400 (Atlantic Standard Time)."
+  - "Attackathon date provided by user: 2024-06-17."

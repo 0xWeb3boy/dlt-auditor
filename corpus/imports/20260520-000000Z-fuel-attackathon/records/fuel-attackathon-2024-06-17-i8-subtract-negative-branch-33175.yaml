@@ -1,0 +1,63 @@
+id: "fuel-attackathon-2024-06-17-i8-subtract-negative-branch-33175"
+source_finding: "2024-06-17-fuel-attackathon-33175-i8-subtract-negative-branch.md"
+project: "fuel-attackathon"
+date: "2024-06-17"
+language_tags:
+  - "sway"
+
+bug_family: "checked_arithmetic_and_parameter_bounds"
+bug_class: "biased-i8-subtraction-branch-error"
+subsystem: "signed-integer-library"
+architecture_tags:
+  - "smart-contract-library"
+  - "integer-math"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "public-attackathon-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "signed-branch-correctness"
+violated_invariant: "Subtracting two negative signed integers must preserve the biased offset and return the correct mathematical sign."
+trust_boundary: "contract-input->integer-library"
+entrypoint_type: "library-function"
+sensitive_sink: "I8 subtraction result used by downstream contract logic"
+
+attacker_capabilities:
+  - "Choose negative I8 operands such as -2 and -3."
+  - "Reach library subtraction in a contract flow."
+exploit_preconditions:
+  - "The branch for one negative operand adds indent where it should subtract or normalize it."
+  - "The wrong result feeds contract decisions."
+blast_radius: "ecosystem-wide"
+
+impact_types:
+  - "arithmetic-integrity"
+  - "asset-integrity"
+  - "denial-of-service"
+severity_guess: "high"
+severity_rationale: "Incorrect signed integer results can break financial calculations or freeze flows that rely on exact arithmetic."
+
+code_shape_summary: "The last conditional branch in I8 subtract mixed underlying ordering with the wrong indent adjustment."
+search_motifs:
+  - "I8 subtract last branch"
+  - "Self::indent add instead of subtract"
+  - "-2 - -3"
+  - "biased signed subtraction"
+negative_signals:
+  - "No issue if the implementation delegates to a shared tested signed subtraction primitive."
+  - "A single-width bug has lower scope if larger signed types are not affected."
+patch_pattern: "Fix the branch adjustment and add tests for negative-minus-negative operands around the indent boundary."
+
+source_refs:
+  - "raw-findings/2024-06-17-fuel-attackathon-33175-i8-subtract-negative-branch.md"
+  - "https://github.com/FuelLabs/sway-libs/tree/0f47d33d6e5da25f782fc117d4be15b7b12d291b"
+  - "https://reports.immunefi.com/fuel-network-or-attackathon/attackathon-_-fuel-network-33175-smart-contract-high-sway-lib-subtract-i-logic-vulnerability"
+notes:
+  - "Original Immunefi report id: 33175."
+  - "Original report severity: High."
+  - "Submitted: Sat Jul 13 2024 12:16:30 GMT-0400 (Atlantic Standard Time)."
+  - "Attackathon date provided by user: 2024-06-17."

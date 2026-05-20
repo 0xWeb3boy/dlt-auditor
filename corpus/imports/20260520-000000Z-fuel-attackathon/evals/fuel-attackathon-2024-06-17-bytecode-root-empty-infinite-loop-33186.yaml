@@ -1,0 +1,25 @@
+id: "fuel-attackathon-2024-06-17-bytecode-root-empty-infinite-loop-33186"
+source_record: "fuel-attackathon-2024-06-17-bytecode-root-empty-infinite-loop-33186.yaml"
+project: "fuel-attackathon"
+
+expected_bug_family: "resource_accounting_and_limits"
+expected_bug_class: "empty-input-nontermination"
+expected_missing_property: "empty-input-termination"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+expected_trust_boundary: "user-controlled-bytecode->verification-helper"
+expected_entrypoint_type: "library-function"
+expected_sensitive_sink: "unbounded loop inside bytecode root computation"
+expected_patch_pattern: "Add an explicit empty-bytecode case that returns the canonical empty root or rejects the input, with tests for all public wrappers."
+
+false_positive_cautions:
+  - "No issue if callers reject empty bytecode before invoking the helper."
+  - "No issue if VM gas reliably aborts without persistent liveness damage."
+notes:
+  - "Merkle and bytecode helpers need explicit zero-length cases; loop logic written for one-or-more chunks is brittle."
+  - "Empty bytecode can cause nontermination and block contract flows such as withdrawal queues."

@@ -1,0 +1,64 @@
+id: "fuel-attackathon-2024-06-17-ccp-zero-fill-undercharged-32465"
+source_finding: "2024-06-17-fuel-attackathon-32465-ccp-zero-fill-undercharged.md"
+project: "fuel-attackathon"
+date: "2024-06-17"
+language_tags:
+  - "rust"
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "undercharged-memory-zero-fill"
+subsystem: "vm-gas-metering"
+architecture_tags:
+  - "vm"
+  - "gas"
+  - "memory"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "public-attackathon-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "resource-accounting"
+violated_invariant: "Gas charged for a memory-copy opcode must cover all bytes written or zero-filled by the opcode."
+trust_boundary: "transaction-bytecode->vm-memory"
+entrypoint_type: "vm-opcode"
+sensitive_sink: "large memory zero-fill performed at low gas cost"
+
+attacker_capabilities:
+  - "Execute CCP with an offset beyond contract code and a large requested copy length."
+  - "Use the zero-fill behavior as a cheap memory clear."
+exploit_preconditions:
+  - "CCP charges based on contract bytecode size rather than the requested output length."
+  - "Out-of-range source data causes destination bytes to be zero-filled."
+blast_radius: "chain-wide"
+
+impact_types:
+  - "fee-bypass"
+  - "resource-exhaustion"
+  - "denial-of-service"
+severity_guess: "high"
+severity_rationale: "A user can perform large memory writes for much less gas than equivalent memory-clear operations."
+
+code_shape_summary: "The opcode loaded code, charged using source contract size, then zero-filled the caller-selected destination length when the source slice was empty."
+search_motifs:
+  - "code_copy offset greater than code length"
+  - "zero fill after copy_from_slice"
+  - "charge contract size not requested length"
+  - "CCP cheaper than MCL"
+negative_signals:
+  - "No issue if the charged cost scales with the destination length including zero fill."
+  - "Small bounded copies with equal charge and write length are not this pattern."
+patch_pattern: "Charge CCP for the requested output bytes or align zero-fill accounting with memory-clear gas costs, with tests for out-of-range offsets."
+
+source_refs:
+  - "raw-findings/2024-06-17-fuel-attackathon-32465-ccp-zero-fill-undercharged.md"
+  - "https://github.com/FuelLabs/fuel-vm/tree/0e46d324da460f2db8bcef51920fb9246ac2143b"
+  - "https://reports.immunefi.com/fuel-network-or-attackathon/attackathon-_-fuel-network-32465-blockchain_dlt-high-abuse-of-ccp-instruction-to-do-cheap-memory-cle"
+notes:
+  - "Original Immunefi report id: 32465."
+  - "Original report severity: High."
+  - "Submitted: Sat Jun 22 2024 14:11:33 GMT-0400 (Atlantic Standard Time)."
+  - "Attackathon date provided by user: 2024-06-17."

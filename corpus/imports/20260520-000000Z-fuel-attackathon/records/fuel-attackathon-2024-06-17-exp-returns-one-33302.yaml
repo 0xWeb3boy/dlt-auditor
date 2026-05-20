@@ -1,0 +1,61 @@
+id: "fuel-attackathon-2024-06-17-exp-returns-one-33302"
+source_finding: "2024-06-17-fuel-attackathon-33302-exp-returns-one.md"
+project: "fuel-attackathon"
+date: "2024-06-17"
+language_tags:
+  - "sway"
+
+bug_family: "checked_arithmetic_and_parameter_bounds"
+bug_class: "fixed-point-exp-result-discarded"
+subsystem: "fixed-point-library"
+architecture_tags:
+  - "smart-contract-library"
+  - "fixed-point-math"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "public-attackathon-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "computed-result-binding"
+violated_invariant: "Fixed-point exp must return a value derived from its input for non-zero exponents."
+trust_boundary: "contract-input->financial-math-library"
+entrypoint_type: "library-function"
+sensitive_sink: "exponential math output used by dependent contracts"
+
+attacker_capabilities:
+  - "Call exp with non-zero input."
+  - "Rely on the result for financial calculations."
+exploit_preconditions:
+  - "The function returns the one constant instead of one plus the computed series."
+  - "A contract uses exp for settlement-sensitive formulas."
+blast_radius: "ecosystem-wide"
+
+impact_types:
+  - "arithmetic-integrity"
+  - "asset-integrity"
+severity_guess: "medium"
+severity_rationale: "Constant exp output can break any protocol relying on growth, decay, or compounding math."
+
+code_shape_summary: "The return variable was the constant one even though the function computed a non-zero series adjustment."
+search_motifs:
+  - "exp function always returns UFP128::from((1, 0))"
+  - "return one not one + res_minus_1"
+  - "fixed point exp incorrect"
+negative_signals:
+  - "No issue for e^0 only."
+  - "No issue if the affected function is not exported or reachable in the used version."
+patch_pattern: "Return the computed exponential approximation and add non-zero test vectors with expected outputs."
+
+source_refs:
+  - "raw-findings/2024-06-17-fuel-attackathon-33302-exp-returns-one.md"
+  - "https://github.com/FuelLabs/sway-libs/tree/0f47d33d6e5da25f782fc117d4be15b7b12d291b"
+  - "https://reports.immunefi.com/fuel-network-or-attackathon/attackathon-_-fuel-network-33302-smart-contract-medium-exp-function-does-not-work-correctly"
+notes:
+  - "Original Immunefi report id: 33302."
+  - "Original report severity: Medium."
+  - "Submitted: Wed Jul 17 2024 10:20:43 GMT-0400 (Atlantic Standard Time)."
+  - "Attackathon date provided by user: 2024-06-17."

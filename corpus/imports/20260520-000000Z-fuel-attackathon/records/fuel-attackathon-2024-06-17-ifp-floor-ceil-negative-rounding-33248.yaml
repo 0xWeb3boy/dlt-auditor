@@ -1,0 +1,63 @@
+id: "fuel-attackathon-2024-06-17-ifp-floor-ceil-negative-rounding-33248"
+source_finding: "2024-06-17-fuel-attackathon-33248-ifp-floor-ceil-negative-rounding.md"
+project: "fuel-attackathon"
+date: "2024-06-17"
+language_tags:
+  - "sway"
+
+bug_family: "checked_arithmetic_and_parameter_bounds"
+bug_class: "fixed-point-negative-rounding-error"
+subsystem: "fixed-point-library"
+architecture_tags:
+  - "smart-contract-library"
+  - "fixed-point-math"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "public-attackathon-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "negative-rounding-invariants"
+violated_invariant: "floor and ceil for signed fixed-point values must obey mathematical rounding rules for negative inputs."
+trust_boundary: "contract-input->financial-math-library"
+entrypoint_type: "library-function"
+sensitive_sink: "rounded fixed-point values in contract logic"
+
+attacker_capabilities:
+  - "Supply negative fractional inputs."
+  - "Trigger floor, ceil, or round in financial calculations."
+exploit_preconditions:
+  - "The implementation uses the wrong unit conversion and subtracts even when already rounded."
+  - "Contracts assume the library implements mathematical floor and ceil."
+blast_radius: "ecosystem-wide"
+
+impact_types:
+  - "arithmetic-integrity"
+  - "asset-integrity"
+  - "denial-of-service"
+severity_guess: "high"
+severity_rationale: "Negative fixed-point rounding errors can overpay, underpay, or revert financial flows."
+
+code_shape_summary: "The signed fixed-point floor and ceil implementations mixed raw fixed-point units with integer units and used asymmetric negative branches."
+search_motifs:
+  - "IFP floor negative input"
+  - "UFP32::from(1) unit"
+  - "ceil unreachable branch sign change"
+  - "floor subtracts when rounded"
+negative_signals:
+  - "No issue if the helper is not used for settlement-sensitive values."
+  - "No issue if negative values are disallowed at type boundaries."
+patch_pattern: "Reimplement floor and ceil from mathematical definitions, using correct fixed-point unit constructors and tests for negative exact and fractional values."
+
+source_refs:
+  - "raw-findings/2024-06-17-fuel-attackathon-33248-ifp-floor-ceil-negative-rounding.md"
+  - "https://github.com/FuelLabs/sway-libs/tree/0f47d33d6e5da25f782fc117d4be15b7b12d291b"
+  - "https://reports.immunefi.com/fuel-network-or-attackathon/attackathon-_-fuel-network-33248-smart-contract-high-incorrect-implementation-of-ifp-floor-and-ceil"
+notes:
+  - "Original Immunefi report id: 33248."
+  - "Original report severity: High."
+  - "Submitted: Mon Jul 15 2024 23:00:54 GMT-0400 (Atlantic Standard Time)."
+  - "Attackathon date provided by user: 2024-06-17."

@@ -1,0 +1,63 @@
+id: "fuel-attackathon-2024-06-17-graphql-blocks-pagination-panic-32628"
+source_finding: "2024-06-17-fuel-attackathon-32628-graphql-blocks-pagination-panic.md"
+project: "fuel-attackathon"
+date: "2024-06-17"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "graphql-pagination-unreachable-panic"
+subsystem: "rpc-client-api"
+architecture_tags:
+  - "rpc"
+  - "graphql"
+  - "pagination"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "public-attackathon-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "api-parameter-combination-validation"
+violated_invariant: "Public block queries must validate cursor/count combinations before entering pagination logic."
+trust_boundary: "public-rpc-user->node-process"
+entrypoint_type: "rpc-handler"
+sensitive_sink: "unreachable macro in block pagination"
+
+attacker_capabilities:
+  - "Send a GraphQL blocks query with after or before but no first or last."
+  - "Target any node exposing the public GraphQL API."
+exploit_preconditions:
+  - "The validation layer accepts cursor-only pagination."
+  - "The pagination helper panics when neither first nor last is present."
+blast_radius: "node-local"
+
+impact_types:
+  - "denial-of-service"
+  - "rpc-availability"
+severity_guess: "medium"
+severity_rationale: "A cheap unauthenticated query can terminate public RPC service processes."
+
+code_shape_summary: "Shared pagination logic assumed validated counts but exposed a cursor-only path to unreachable!()."
+search_motifs:
+  - "blocks after without first"
+  - "before without last"
+  - "schema.rs unreachable"
+  - "GraphQL query crashes core"
+negative_signals:
+  - "No issue if the RPC layer catches panics and isolates the worker."
+  - "No issue if the endpoint is authenticated and invalid input is rejected before resolver logic."
+patch_pattern: "Move the first/last requirement into shared query_pagination validation and cover blocks, transactions, coins, and balances with invalid-combination tests."
+
+source_refs:
+  - "raw-findings/2024-06-17-fuel-attackathon-32628-graphql-blocks-pagination-panic.md"
+  - "https://github.com/FuelLabs/fuel-core/tree/8b1bf02103b8c90ce3ef2ba715214fb452b99885"
+  - "https://reports.immunefi.com/fuel-network-or-attackathon/attackathon-_-fuel-network-32628-blockchain_dlt-medium-a-graphql-query-crashes-core-process"
+notes:
+  - "Original Immunefi report id: 32628."
+  - "Original report severity: Medium."
+  - "Submitted: Thu Jun 27 2024 16:57:59 GMT-0400 (Atlantic Standard Time)."
+  - "Attackathon date provided by user: 2024-06-17."

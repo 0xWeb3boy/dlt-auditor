@@ -1,0 +1,25 @@
+id: "fuel-attackathon-2024-06-17-storage-map-field-id-reuse-33488"
+source_record: "fuel-attackathon-2024-06-17-storage-map-field-id-reuse-33488.yaml"
+project: "fuel-attackathon"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "storage-map-namespace-reuse"
+expected_missing_property: "storage-map-namespace-uniqueness"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+expected_trust_boundary: "library-composition->contract-storage"
+expected_entrypoint_type: "storage-map-api"
+expected_sensitive_sink: "StorageMap slots holding user balances or state"
+expected_patch_pattern: "Generate or validate unique StorageMap namespaces from declaration paths and reject duplicate field ids where possible."
+
+false_positive_cautions:
+  - "No issue if the compiler generates unique field ids from declaration paths."
+  - "A developer mistake is less severe if the API loudly documents and enforces uniqueness checks."
+notes:
+  - "Storage container APIs should make safe namespace separation automatic rather than depending on manual id discipline."
+  - "Storage aliasing can corrupt balances or fake deposits when maps are composed incorrectly."

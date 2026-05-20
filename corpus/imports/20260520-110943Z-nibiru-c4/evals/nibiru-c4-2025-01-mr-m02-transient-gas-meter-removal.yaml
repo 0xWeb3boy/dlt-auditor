@@ -1,0 +1,22 @@
+id: "nibiru-c4-2025-01-mr-m02-transient-gas-meter-removal"
+source_record: "nibiru-c4-2025-01-mr-m02-transient-gas-meter-removal.yaml"
+project: "nibiru-c4"
+
+expected_bug_family: "resource_accounting_and_limits"
+expected_bug_class: "evm-cosmos-gas-meter-semantic-drift"
+expected_missing_property: "EVM-equivalent gas isolation"
+
+expected_impact_band: "EVM gas compatibility drift"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "No issue if the chain intentionally documents and tests non-Ethereum gas semantics."
+  - "No issue if a replacement isolation model preserves EVM gas equivalence."
+  - "No issue if the removed meter was dead code and all observable gas remains unchanged."
+notes:
+  - "Original C4 finding code: MR-M-02."
+  - "Expected answer should identify: EVM gas accounting should remain isolated enough from Cosmos SDK gas accounting to preserve expected EVM gas semantics, or deviations must be explicit and documented."
+  - "Restore an EVM-specific transient gas meter or document and regression-test the intentional gas semantic difference from Ethereum."

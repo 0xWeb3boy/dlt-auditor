@@ -1,0 +1,22 @@
+id: "nibiru-c4-2024-11-h06-funtoken-recursive-gas-forwarding"
+source_record: "nibiru-c4-2024-11-h06-funtoken-recursive-gas-forwarding.yaml"
+project: "nibiru-c4"
+
+expected_bug_family: "resource_accounting_and_limits"
+expected_bug_class: "recursive-gas-forwarding"
+expected_missing_property: "caller-gas-bounded internal calls"
+
+expected_impact_band: "block production halt through recursive precompile calls"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "No issue if internal calls use at most 63/64 of remaining caller gas."
+  - "No issue if the callee ERC20 is trusted and non-reentrant by construction."
+  - "No issue if recursion depth and memory growth are bounded by charged caller gas."
+notes:
+  - "Original C4 finding code: H-06."
+  - "Expected answer should identify: Internal ERC20 calls made by a precompile must be bounded by remaining caller gas and preserve EVM recursive-call gas limits."
+  - "Forward a caller-relative gas budget to ERC20 helper calls and preserve EIP-150-style gas reduction for nested precompile/EVM recursion."

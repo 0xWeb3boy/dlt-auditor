@@ -1,0 +1,66 @@
+id: "fuel-attackathon-2024-06-17-sway-libs-arithmetic-correctness-bundle-32275"
+source_finding: "2024-06-17-fuel-attackathon-32275-sway-libs-arithmetic-correctness-bundle.md"
+project: "fuel-attackathon"
+date: "2024-06-17"
+language_tags:
+  - "sway"
+
+bug_family: "checked_arithmetic_and_parameter_bounds"
+bug_class: "numeric-library-invariant-bundle"
+subsystem: "math-libraries"
+architecture_tags:
+  - "smart-contract-library"
+  - "integer-math"
+  - "fixed-point-math"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "public-attackathon-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "numeric-library-spec-conformance"
+violated_invariant: "Core integer and fixed-point library helpers must preserve documented widths, signs, denominators, and precision across all edge cases."
+trust_boundary: "contract-input->standard-library-math"
+entrypoint_type: "library-function"
+sensitive_sink: "multiple signed, unsigned, and fixed-point math helper results"
+
+attacker_capabilities:
+  - "Use edge-case numeric values around widths, signs, denominators, min/max, or zero."
+  - "Reach any affected math helper in contract logic."
+exploit_preconditions:
+  - "Library implementations duplicate numeric rules across widths without exhaustive invariant tests."
+  - "Contracts trust library functions for asset or liveness decisions."
+blast_radius: "ecosystem-wide"
+
+impact_types:
+  - "arithmetic-integrity"
+  - "asset-integrity"
+  - "denial-of-service"
+severity_guess: "medium"
+severity_rationale: "The report groups many correctness defects; individual exploitability depends on which helper a contract uses."
+
+code_shape_summary: "A broad set of math helpers used inconsistent widths, denominators, sign rules, and overflow behavior without a shared invariant test suite."
+search_motifs:
+  - "i256 bits 128"
+  - "incorrect two's complement"
+  - "UFP32 fract underflow"
+  - "IFP ceil overflow"
+  - "sqrt denominator wrong"
+  - "negative zero compare"
+negative_signals:
+  - "A precision tradeoff is lower risk if documented and not used for settlement."
+  - "A library bug is less severe when no reachable contract path uses the affected helper."
+patch_pattern: "Define executable numeric invariants for each type family, fix each implementation to match them, and add cross-width edge-case tests."
+
+source_refs:
+  - "raw-findings/2024-06-17-fuel-attackathon-32275-sway-libs-arithmetic-correctness-bundle.md"
+  - "https://github.com/FuelLabs/sway-libs/tree/0f47d33d6e5da25f782fc117d4be15b7b12d291b"
+  - "https://reports.immunefi.com/fuel-network-or-attackathon/attackathon-_-fuel-network-32275-smart-contract-medium-various-sway-libs-bugs"
+notes:
+  - "Original Immunefi report id: 32275."
+  - "Original report severity: Medium."
+  - "Submitted: Mon Jun 17 2024 08:57:19 GMT-0400 (Atlantic Standard Time)."
+  - "Attackathon date provided by user: 2024-06-17."

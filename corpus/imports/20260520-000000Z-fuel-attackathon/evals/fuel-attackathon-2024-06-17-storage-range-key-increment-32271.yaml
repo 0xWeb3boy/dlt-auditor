@@ -1,0 +1,25 @@
+id: "fuel-attackathon-2024-06-17-storage-range-key-increment-32271"
+source_record: "fuel-attackathon-2024-06-17-storage-range-key-increment-32271.yaml"
+project: "fuel-attackathon"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "storage-range-iteration-off-by-one"
+expected_missing_property: "range-boundary-invariant"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+expected_trust_boundary: "vm-storage-instruction->contract-state"
+expected_entrypoint_type: "state-access-helper"
+expected_sensitive_sink: "contract storage range read/write/remove result"
+expected_patch_pattern: "Increment the key exactly once per processed slot and add boundary tests for range reads, inserts, and removes near max keys."
+
+false_positive_cautions:
+  - "No issue if overflow is returned only when the requested range truly exceeds key space."
+  - "Single-slot storage accessors are not this pattern."
+notes:
+  - "State range helpers need boundary tests that verify both contents and cursor movement, especially near maximum keys."
+  - "Valid storage operations can fail or access an unintended range, causing incorrect smart contract behavior without direct funds proof."

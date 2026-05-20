@@ -1,0 +1,25 @@
+id: "fuel-attackathon-2024-06-17-purity-check-storage-write-opcode-32886"
+source_record: "fuel-attackathon-2024-06-17-purity-check-storage-write-opcode-32886.yaml"
+project: "fuel-attackathon"
+
+expected_bug_family: "authz_and_role_gates"
+expected_bug_class: "read-only-effect-gate-bypass"
+expected_missing_property: "effect-permission-enforcement"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+expected_trust_boundary: "read-only-contract-call->storage-write"
+expected_entrypoint_type: "compiler-semantic-check"
+expected_sensitive_sink: "storage mutation from a function advertised as read-only"
+expected_patch_pattern: "Classify write-capable opcodes as mutations, strengthen cross-contract effect handling, and consider a runtime storage-mutation guard for read contexts."
+
+false_positive_cautions:
+  - "No issue if VM runtime enforces no-storage-write mode for read calls."
+  - "No issue if the function is not externally reachable or has explicit authorization."
+notes:
+  - "Effect systems are security gates when users rely on read-only labels; opcode classifications must be complete and conservative."
+  - "Users may safely call a function labeled read-only while it mutates state; exploitability depends on contract behavior."

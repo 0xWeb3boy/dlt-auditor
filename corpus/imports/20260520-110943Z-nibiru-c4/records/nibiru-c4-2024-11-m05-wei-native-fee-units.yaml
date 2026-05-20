@@ -1,0 +1,64 @@
+id: "nibiru-c4-2024-11-m05-wei-native-fee-units"
+source_finding: "2024-11-m05-wei-native-fee-units.md"
+project: "nibiru-c4"
+date: "2024-11-26"
+language_tags:
+  - "go"
+
+bug_family: "checked_arithmetic_and_parameter_bounds"
+bug_class: "fee-unit-conversion-mismatch"
+subsystem: "evm-ante-fees"
+architecture_tags:
+  - "evm-integration"
+  - "cosmos-sdk"
+  - "fee-accounting"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "denomination unit conversion"
+violated_invariant: "Fee amounts stored as native bank coins must be converted from wei into the native denomination before validation, display, or AuthInfo construction."
+trust_boundary: "EVM transaction fee data->Cosmos SDK fee validation and tx builder"
+entrypoint_type: "ante handler fee validation and BuildTx"
+sensitive_sink: "AuthInfo.Fee and ValidateBasic fee denomination checks"
+
+attacker_capabilities:
+  - "Submit EVM transactions whose fee fields are interpreted across both wei and unibi units."
+exploit_preconditions:
+  - "txData.Fee returns wei."
+  - "Code inserts that value directly into an EVMBankDenom coin without WeiToNative conversion."
+blast_radius: "chain-wide"
+
+impact_types:
+  - "fee-accounting-corruption"
+  - "fee-bypass-or-overcharge"
+  - "transaction-validation-inconsistency"
+severity_guess: "medium"
+severity_rationale: "Incorrect unit binding can make validation and transaction construction disagree about economic fees by orders of magnitude."
+
+code_shape_summary: "Fee validation and transaction building wrapped txData.Fee directly as a native denom coin even though the value was denominated in wei."
+search_motifs:
+  - "sdkmath.NewIntFromBigInt(txData.Fee())"
+  - "NewCoin EVMBankDenom feeAmt"
+  - "WeiToNative missing"
+  - "AuthInfo.Fee txData.Fee unit inconsistency"
+negative_signals:
+  - "No issue if the denomination is actually wei-denominated."
+  - "No issue if a helper already converts txData.Fee before coin creation."
+  - "Beware examples with 1 wei gas price if minimum transferable unit rules forbid them."
+patch_pattern: "Convert fee values through WeiToNative before constructing native denom coins in validation and transaction-building paths."
+
+source_refs:
+  - "raw-findings/2024-11-m05-wei-native-fee-units.md"
+  - "/testing/learning-nibiru/report.md"
+  - "https://github.com/code-423n4/2024-11-nibiru-findings/issues/44"
+  - "https://github.com/NibiruChain/nibiru/pull/2157"
+notes:
+  - "Original C4 finding code: M-05."
+  - "Original C4 severity: Medium."
+  - "PR-2157: fix(evm): Fix unit inconsistency related to AuthInfo.Fee and txData.Fee; created 2025-01-10T09:06:04Z; merged 2025-01-10T09:39:20Z."

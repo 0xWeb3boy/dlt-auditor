@@ -1,0 +1,65 @@
+id: "fuel-attackathon-2024-06-17-small-type-alu-overflow-33331"
+source_finding: "2024-06-17-fuel-attackathon-33331-small-type-alu-overflow.md"
+project: "fuel-attackathon"
+date: "2024-06-17"
+language_tags:
+  - "rust"
+  - "sway"
+
+bug_family: "checked_arithmetic_and_parameter_bounds"
+bug_class: "narrow-integer-overflow-check-missing"
+subsystem: "standard-library-math"
+architecture_tags:
+  - "compiler"
+  - "standard-library"
+  - "integer-math"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "public-attackathon-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "declared-width-overflow-enforcement"
+violated_invariant: "Operations on u8, u16, and u32 must enforce those widths even when the VM evaluates them in u64 registers."
+trust_boundary: "contract-input->standard-library-math"
+entrypoint_type: "library-function"
+sensitive_sink: "narrow integer value that may be displayed or ABI-encoded differently than stored"
+
+attacker_capabilities:
+  - "Choose pow operands that overflow a narrow type but not u64."
+  - "Rely on downstream code or SDK wrapping behavior."
+exploit_preconditions:
+  - "Narrow integer values are compiled into u64 storage."
+  - "pow lacks manual narrow-width overflow checks."
+blast_radius: "ecosystem-wide"
+
+impact_types:
+  - "arithmetic-integrity"
+  - "asset-integrity"
+  - "state-integrity"
+severity_guess: "high"
+severity_rationale: "Stored values can exceed their source type and later wrap or misencode, corrupting contract or SDK accounting."
+
+code_shape_summary: "The standard library implemented pow without the manual checks present in other narrow-type arithmetic helpers."
+search_motifs:
+  - "types less than u64 overflow"
+  - "pow implementation lacks check"
+  - "u8 stored as u64"
+  - "manual overflow checks in add but not pow"
+negative_signals:
+  - "No issue if the operation is performed on true u64/u256 where VM overflow semantics match the type."
+  - "No issue if the compiler inserts declared-width checks before return and storage."
+patch_pattern: "Add declared-width overflow checks to pow and test u8, u16, and u32 results at max boundaries."
+
+source_refs:
+  - "raw-findings/2024-06-17-fuel-attackathon-33331-small-type-alu-overflow.md"
+  - "https://github.com/FuelLabs/sway/tree/v0.61.2"
+  - "https://reports.immunefi.com/fuel-network-or-attackathon/attackathon-_-fuel-network-33331-smart-contract-high-overflow-in-types-less-than-u"
+notes:
+  - "Original Immunefi report id: 33331."
+  - "Original report severity: High."
+  - "Submitted: Wed Jul 17 2024 22:27:13 GMT-0400 (Atlantic Standard Time)."
+  - "Attackathon date provided by user: 2024-06-17."

@@ -1,0 +1,67 @@
+id: "nibiru-c4-2024-11-h02-shared-statedb-consensus-gas"
+source_finding: "2024-11-h02-shared-statedb-consensus-gas.md"
+project: "nibiru-c4"
+date: "2024-11-26"
+language_tags:
+  - "go"
+
+bug_family: "state_machine_and_lifecycle_consistency"
+bug_class: "shared-statedb-query-state-leakage"
+subsystem: "evm-bank-state-sync"
+architecture_tags:
+  - "cosmos-sdk"
+  - "evm-integration"
+  - "rpc-query"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "query-state isolation"
+violated_invariant: "Read-only RPC simulations must not mutate keeper fields that influence later consensus transaction execution or gas accounting."
+trust_boundary: "rpc-client->node-local keeper state used by consensus execution"
+entrypoint_type: "eth_estimateGas or read-only EVM simulation"
+sensitive_sink: "bank keeper StateDB pointer and gas-affecting SyncStateDBWithAccount control flow"
+
+attacker_capabilities:
+  - "Send read-only EVM query traffic to some nodes."
+  - "Cause those nodes to execute later bank transactions with a non-nil StateDB pointer."
+exploit_preconditions:
+  - "The bank keeper stores StateDB as a shared mutable pointer."
+  - "Nil vs non-nil StateDB changes gas-consuming execution paths."
+blast_radius: "chain-wide"
+
+impact_types:
+  - "consensus-integrity"
+  - "gas-nondeterminism"
+  - "denial-of-service"
+severity_guess: "high"
+severity_rationale: "Different nodes can compute different gas for the same transaction depending on local RPC history, creating a consensus failure risk."
+
+code_shape_summary: "NewStateDB assigned a pointer into a keeper field shared across read-only and state-mutating flows, and later bank methods branched on whether that field was nil."
+search_motifs:
+  - "keeper field StateDB *statedb.StateDB"
+  - "NewStateDB assigns evmKeeper.Bank.StateDB"
+  - "eth_estimateGas mutates keeper pointer"
+  - "SyncStateDBWithAccount nil check affects gas"
+negative_signals:
+  - "No issue if the pointer is scoped only to the current transaction context."
+  - "No issue if read-only queries use isolated keeper copies."
+  - "No issue if nil vs non-nil has no consensus-visible behavior or gas difference."
+patch_pattern: "Avoid multiple/shared StateDB copies during EVM execution and clear or scope the bank StateDB pointer so read-only calls cannot affect later consensus paths."
+
+source_refs:
+  - "raw-findings/2024-11-h02-shared-statedb-consensus-gas.md"
+  - "/testing/learning-nibiru/report.md"
+  - "https://github.com/code-423n4/2024-11-nibiru-findings/issues/57"
+  - "https://github.com/NibiruChain/nibiru/pull/2165"
+  - "https://github.com/NibiruChain/nibiru/pull/2173"
+notes:
+  - "Original C4 finding code: H-02."
+  - "Original C4 severity: High."
+  - "PR-2165: fix(evm): ensure only one copy of StateDB when executing Ethereum txs; created 2025-01-14T15:04:22Z; merged 2025-01-18T07:58:58Z."
+  - "PR-2173: fix(evm): ensure stateDB is nil after tx execution; created 2025-01-21T19:51:53Z; merged 2025-01-21T22:20:45Z."

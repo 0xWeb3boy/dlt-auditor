@@ -1,0 +1,63 @@
+id: "fuel-attackathon-2024-06-17-ufp-exp-returns-one-33170"
+source_finding: "2024-06-17-fuel-attackathon-33170-ufp-exp-returns-one.md"
+project: "fuel-attackathon"
+date: "2024-06-17"
+language_tags:
+  - "sway"
+
+bug_family: "checked_arithmetic_and_parameter_bounds"
+bug_class: "fixed-point-exp-result-discarded"
+subsystem: "fixed-point-library"
+architecture_tags:
+  - "smart-contract-library"
+  - "fixed-point-math"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "public-attackathon-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "computed-result-binding"
+violated_invariant: "A math helper must return the computed approximation, not a constant placeholder."
+trust_boundary: "contract-input->financial-math-library"
+entrypoint_type: "library-function"
+sensitive_sink: "exp result used in interest, rewards, pricing, or decay"
+
+attacker_capabilities:
+  - "Call exp with any non-zero input."
+  - "Use the result in financial formulas."
+exploit_preconditions:
+  - "The implementation computes res_minus_1 but returns one."
+  - "The protocol relies on exponential growth or decay."
+blast_radius: "ecosystem-wide"
+
+impact_types:
+  - "arithmetic-integrity"
+  - "asset-integrity"
+  - "contract-liveness"
+severity_guess: "medium"
+severity_rationale: "Returning one for every exponent can break reward, interest, or pricing logic, but impact depends on adoption."
+
+code_shape_summary: "The Taylor-series intermediate was calculated and then ignored in favor of a constant return value."
+search_motifs:
+  - "exp returns one"
+  - "res_minus_1 ignored"
+  - "Taylor series fixed point"
+  - "UFP exp constant"
+negative_signals:
+  - "No issue if exp is unused or explicitly documented as a stub."
+  - "No issue if input is always zero and e^0 = 1 is expected."
+patch_pattern: "Return one plus the computed series term and add tests for non-zero positive and negative exponent inputs."
+
+source_refs:
+  - "raw-findings/2024-06-17-fuel-attackathon-33170-ufp-exp-returns-one.md"
+  - "https://github.com/FuelLabs/sway-libs/tree/0f47d33d6e5da25f782fc117d4be15b7b12d291b"
+  - "https://reports.immunefi.com/fuel-network-or-attackathon/attackathon-_-fuel-network-33170-smart-contract-medium-ufp-exp-in-sway-lib-logic-vulnerability"
+notes:
+  - "Original Immunefi report id: 33170."
+  - "Original report severity: Medium."
+  - "Submitted: Sat Jul 13 2024 10:02:26 GMT-0400 (Atlantic Standard Time)."
+  - "Attackathon date provided by user: 2024-06-17."

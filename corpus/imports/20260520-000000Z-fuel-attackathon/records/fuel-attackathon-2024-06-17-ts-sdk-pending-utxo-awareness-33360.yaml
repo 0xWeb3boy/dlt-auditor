@@ -1,0 +1,64 @@
+id: "fuel-attackathon-2024-06-17-ts-sdk-pending-utxo-awareness-33360"
+source_finding: "2024-06-17-fuel-attackathon-33360-ts-sdk-pending-utxo-awareness.md"
+project: "fuel-attackathon"
+date: "2024-06-17"
+language_tags:
+  - "typescript"
+
+bug_family: "state_machine_and_lifecycle_consistency"
+bug_class: "pending-utxo-reservation-missing"
+subsystem: "sdk-coin-selection"
+architecture_tags:
+  - "sdk"
+  - "utxo"
+  - "mempool"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "public-attackathon-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "pending-spend-accounting"
+violated_invariant: "Client-side coin selection must not reuse a UTXO already reserved by another pending transaction from the same account."
+trust_boundary: "wallet-account-state->transaction-builder"
+entrypoint_type: "sdk-funding-helper"
+sensitive_sink: "transaction inputs selected for newly funded requests"
+
+attacker_capabilities:
+  - "Ask the SDK to fund multiple transactions in the same block interval."
+  - "Submit a first transaction before the node's GraphQL state removes its input."
+exploit_preconditions:
+  - "The fund helper queries spendable resources statelessly."
+  - "The node still reports the UTXO until a block consumes it or txpool state is considered."
+blast_radius: "client-local"
+
+impact_types:
+  - "transaction-liveness"
+  - "mempool-consistency"
+  - "user-fund-flow-disruption"
+severity_guess: "medium"
+severity_rationale: "Transactions can fail or replace earlier pending transactions, causing user-facing loss of expected execution rather than direct theft."
+
+code_shape_summary: "The SDK selected UTXOs only from confirmed GraphQL state and kept no local pending-spend reservation set."
+search_motifs:
+  - "getResourcesToSpend stateless"
+  - "fund multiple transactions same block"
+  - "already used UTXO"
+  - "pending transaction input reservation"
+negative_signals:
+  - "No issue if the wallet serializes funding until prior transactions confirm."
+  - "No issue if node resource queries exclude txpool-pending inputs for that owner."
+patch_pattern: "Track locally reserved pending UTXOs or query txpool-aware resources, and exclude them when funding subsequent transactions."
+
+source_refs:
+  - "raw-findings/2024-06-17-fuel-attackathon-33360-ts-sdk-pending-utxo-awareness.md"
+  - "https://github.com/FuelLabs/fuels-ts/tree/v0.91.0"
+  - "https://reports.immunefi.com/fuel-network-or-attackathon/attackathon-_-fuel-network-33360-blockchain_dlt-medium-the-typescript-sdk-has-no-awareness-of-to-be"
+notes:
+  - "Original Immunefi report id: 33360."
+  - "Original report severity: Medium."
+  - "Submitted: Thu Jul 18 2024 16:50:03 GMT-0400 (Atlantic Standard Time)."
+  - "Attackathon date provided by user: 2024-06-17."

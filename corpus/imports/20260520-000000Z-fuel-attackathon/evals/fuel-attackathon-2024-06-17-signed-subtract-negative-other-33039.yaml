@@ -1,0 +1,25 @@
+id: "fuel-attackathon-2024-06-17-signed-subtract-negative-other-33039"
+source_record: "fuel-attackathon-2024-06-17-signed-subtract-negative-other-33039.yaml"
+project: "fuel-attackathon"
+
+expected_bug_family: "checked_arithmetic_and_parameter_bounds"
+expected_bug_class: "biased-signed-subtraction-wrong-sign"
+expected_missing_property: "signed-operand-normalization"
+
+expected_impact_band: "high"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+expected_trust_boundary: "contract-input->integer-library"
+expected_entrypoint_type: "library-function"
+expected_sensitive_sink: "signed subtraction result used in balances or transfer amounts"
+expected_patch_pattern: "Normalize negative operands to magnitudes before subtraction and add exhaustive tests for positive and negative operand pairs."
+
+false_positive_cautions:
+  - "No issue if callers never use negative operands."
+  - "A wrong return value is lower risk without financial or authorization use."
+notes:
+  - "Library arithmetic must encode mathematical sign rules explicitly instead of relying on raw representation arithmetic."
+  - "Incorrect signed subtraction can produce wrong payment or accounting amounts in contracts using the library."

@@ -1,0 +1,25 @@
+id: "fuel-attackathon-2024-06-17-ifp-ceil-negative-sign-32696"
+source_record: "fuel-attackathon-2024-06-17-ifp-ceil-negative-sign-32696.yaml"
+project: "fuel-attackathon"
+
+expected_bug_family: "checked_arithmetic_and_parameter_bounds"
+expected_bug_class: "fixed-point-rounding-sign-misbinding"
+expected_missing_property: "sign-propagation-invariant"
+
+expected_impact_band: "high"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+expected_trust_boundary: "contract-input->financial-math-library"
+expected_entrypoint_type: "library-function"
+expected_sensitive_sink: "rounded fixed-point amount used by downstream contracts"
+expected_patch_pattern: "Derive non_negative from the rounded mathematical result and add tests for negative values rounded across zero."
+
+false_positive_cautions:
+  - "No issue if callers ignore the sign flag and use a canonical numeric representation."
+  - "A display-only rounding bug has lower severity without asset accounting use."
+notes:
+  - "Composite numeric types must update metadata such as sign flags whenever arithmetic changes the represented value."
+  - "Wrong sign on rounded fixed-point values can invert financial accounting in contracts using the library."

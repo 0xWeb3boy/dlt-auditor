@@ -1,0 +1,65 @@
+id: "nibiru-c4-2024-11-m02-fee-on-transfer-supply-drift"
+source_finding: "2024-11-m02-fee-on-transfer-supply-drift.md"
+project: "nibiru-c4"
+date: "2024-11-26"
+language_tags:
+  - "go"
+  - "solidity"
+
+bug_family: "state_machine_and_lifecycle_consistency"
+bug_class: "fee-on-transfer-supply-drift"
+subsystem: "evm-funtoken-conversion"
+architecture_tags:
+  - "evm-integration"
+  - "token-bridge"
+  - "erc20-compatibility"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "security-fix"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "supply-backing invariant enforcement"
+violated_invariant: "Bank coin supply minted for escrowed ERC20s must be fully burned for the user-submitted bank amount when converting back, even if the outbound ERC20 transfer takes a fee."
+trust_boundary: "external fee-on-transfer ERC20->bank coin representation"
+entrypoint_type: "bank-coin-to-EVM conversion transaction"
+sensitive_sink: "bank coin burn amount during ERC20-born FunToken conversion"
+
+attacker_capabilities:
+  - "Convert a fee-on-transfer ERC20 into bank coins and then convert bank coins back to ERC20."
+exploit_preconditions:
+  - "The outbound ERC20 transfer returns actual received amount after fees."
+  - "Burn logic uses actual received amount instead of the full bank coin input."
+blast_radius: "asset-local"
+
+impact_types:
+  - "supply-invariant-break"
+  - "state-accounting"
+  - "unbacked-bank-coins"
+severity_guess: "medium"
+severity_rationale: "Fee-on-transfer handling leaves unburned bank coins and corrupts supply accounting for the affected asset, though sponsor noted the residual coins may be inaccessible."
+
+code_shape_summary: "convertCoinToEvmBornERC20 transferred the full requested ERC20 amount but burned only actualSentAmount after transfer fees."
+search_motifs:
+  - "actualSentAmount from ERC20 Transfer"
+  - "burnCoin uses actualSentAmount"
+  - "fee-on-transfer token conversion"
+  - "bank coin supply invariant comment"
+negative_signals:
+  - "No issue if fee-on-transfer tokens are excluded."
+  - "No issue if the full input bank coin is burned regardless of ERC20 transfer fee."
+  - "No issue if conversion accounting explicitly mints/burns fee-adjusted shares rather than fixed-denom bank coins."
+patch_pattern: "Burn the full bank coin input amount on conversion back to ERC20 and document that outbound token fees reduce the recipient ERC20 amount."
+
+source_refs:
+  - "raw-findings/2024-11-m02-fee-on-transfer-supply-drift.md"
+  - "/testing/learning-nibiru/report.md"
+  - "https://github.com/code-423n4/2024-11-nibiru-findings/issues/48"
+  - "https://github.com/NibiruChain/nibiru/pull/2139"
+notes:
+  - "Original C4 finding code: M-02."
+  - "Original C4 severity: Medium."
+  - "PR-2139: fix(evm): erc20 born funtoken: properly burn bank coins after convert; created 2025-01-03T17:12:03Z; merged 2025-01-08T04:26:52Z."

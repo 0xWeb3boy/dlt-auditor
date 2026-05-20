@@ -1,0 +1,63 @@
+id: "nibiru-c4-2025-01-mr-h01-statedb-pointer-not-cleared"
+source_finding: "2025-01-mr-h01-statedb-pointer-not-cleared.md"
+project: "nibiru-c4"
+date: "2025-01-28"
+language_tags:
+  - "go"
+
+bug_family: "state_machine_and_lifecycle_consistency"
+bug_class: "statedb-pointer-lifecycle-cleanup-missing"
+subsystem: "evm-bank-state-sync"
+architecture_tags:
+  - "evm-integration"
+  - "precompile"
+  - "state-lifecycle"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "mitigation-review-security-fix"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "state pointer lifecycle cleanup"
+violated_invariant: "A transaction-scoped StateDB pointer must be cleared after EVM/precompile execution so later read-only or bank paths cannot observe stale transaction state."
+trust_boundary: "EVM/precompile execution->shared bank keeper field"
+entrypoint_type: "FunToken or Wasm precompile execution"
+sensitive_sink: "NibiruBankKeeper.StateDB pointer used by SyncStateDBWithAccount"
+
+attacker_capabilities:
+  - "Trigger EVM or precompile paths that set the bank StateDB pointer before later bank operations."
+exploit_preconditions:
+  - "Mitigation left the pointer set after execution."
+  - "Later code branches on the pointer being nil vs non-nil."
+blast_radius: "chain-wide"
+
+impact_types:
+  - "consensus-integrity"
+  - "state-lifecycle-leak"
+  - "gas-nondeterminism"
+severity_guess: "high"
+severity_rationale: "The mitigation review confirmed the stale pointer could reintroduce the same high-severity nondeterminism class as H-02."
+
+code_shape_summary: "A post-contest mitigation still assigned the bank StateDB pointer in precompile paths but did not reliably clear it back to nil after execution."
+search_motifs:
+  - "Bank.StateDB set but not nilled"
+  - "precompile funtoken NewStateDB lifecycle"
+  - "SyncStateDBWithAccount sees stale StateDB"
+  - "ensure stateDB is nil after tx execution"
+negative_signals:
+  - "No issue if StateDB is passed through context only."
+  - "No issue if a defer always clears the pointer on every return path."
+  - "No issue if nil vs non-nil does not affect consensus-visible execution."
+patch_pattern: "Add lifecycle cleanup that sets the bank StateDB pointer to nil after tx or precompile execution on all paths."
+
+source_refs:
+  - "raw-findings/2025-01-mr-h01-statedb-pointer-not-cleared.md"
+  - "/testing/learning-nibiru/report.md"
+  - "https://github.com/NibiruChain/nibiru/pull/2173"
+notes:
+  - "Original C4 finding code: MR-H-01."
+  - "Original C4 severity: High."
+  - "PR-2173: fix(evm): ensure stateDB is nil after tx execution; created 2025-01-21T19:51:53Z; merged 2025-01-21T22:20:45Z."

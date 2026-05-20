@@ -1,0 +1,62 @@
+id: "fuel-attackathon-2024-06-17-ifp-ceil-negative-sign-32696"
+source_finding: "2024-06-17-fuel-attackathon-32696-ifp-ceil-negative-sign.md"
+project: "fuel-attackathon"
+date: "2024-06-17"
+language_tags:
+  - "sway"
+
+bug_family: "checked_arithmetic_and_parameter_bounds"
+bug_class: "fixed-point-rounding-sign-misbinding"
+subsystem: "fixed-point-library"
+architecture_tags:
+  - "smart-contract-library"
+  - "fixed-point-math"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "public-attackathon-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "sign-propagation-invariant"
+violated_invariant: "Fixed-point rounding must return the mathematically correct sign for the rounded value, including transitions around zero."
+trust_boundary: "contract-input->financial-math-library"
+entrypoint_type: "library-function"
+sensitive_sink: "rounded fixed-point amount used by downstream contracts"
+
+attacker_capabilities:
+  - "Supply negative fixed-point values near a rounding boundary."
+  - "Trigger contract logic that relies on ceil or round."
+exploit_preconditions:
+  - "ceil computes a positive rounded underlying value but returns the original negative sign flag."
+  - "Downstream code trusts the sign flag for value transfers or accounting."
+blast_radius: "ecosystem-wide"
+
+impact_types:
+  - "arithmetic-integrity"
+  - "asset-integrity"
+severity_guess: "high"
+severity_rationale: "Wrong sign on rounded fixed-point values can invert financial accounting in contracts using the library."
+
+code_shape_summary: "The return struct reused self.non_negative after computing a rounded value whose sign should have changed."
+search_motifs:
+  - "ceil == UFP64::from(1)"
+  - "non_negative from self"
+  - "round returns ceil"
+  - "IFP ceil sign flag"
+negative_signals:
+  - "No issue if callers ignore the sign flag and use a canonical numeric representation."
+  - "A display-only rounding bug has lower severity without asset accounting use."
+patch_pattern: "Derive non_negative from the rounded mathematical result and add tests for negative values rounded across zero."
+
+source_refs:
+  - "raw-findings/2024-06-17-fuel-attackathon-32696-ifp-ceil-negative-sign.md"
+  - "https://github.com/FuelLabs/sway-libs/tree/0f47d33d6e5da25f782fc117d4be15b7b12d291b"
+  - "https://reports.immunefi.com/fuel-network-or-attackathon/attackathon-_-fuel-network-32696-smart-contract-high-incorrect-setting-of-non_negative-value-in-ceil"
+notes:
+  - "Original Immunefi report id: 32696."
+  - "Original report severity: High."
+  - "Submitted: Sat Jun 29 2024 20:22:34 GMT-0400 (Atlantic Standard Time)."
+  - "Attackathon date provided by user: 2024-06-17."

@@ -1,0 +1,65 @@
+id: "fuel-attackathon-2024-06-17-storage-map-variable-slot-collision-32884"
+source_finding: "2024-06-17-fuel-attackathon-32884-storage-map-variable-slot-collision.md"
+project: "fuel-attackathon"
+date: "2024-06-17"
+language_tags:
+  - "rust"
+  - "sway"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "storage-slot-domain-collision"
+subsystem: "compiler-storage-layout"
+architecture_tags:
+  - "compiler"
+  - "storage"
+  - "smart-contract-language"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "public-attackathon-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "storage-domain-separation"
+violated_invariant: "Distinct storage declarations and map entries must not be able to derive the same storage slot from valid source-level names and keys."
+trust_boundary: "contract-developer-or-user-input->contract-storage"
+entrypoint_type: "storage-layout-derivation"
+sensitive_sink: "contract storage slots shared by variables and StorageMap entries"
+
+attacker_capabilities:
+  - "Craft storage names and map keys whose byte preimages collide under the layout scheme."
+  - "Deploy a contract that hides a backdoor storage alias."
+exploit_preconditions:
+  - "Simple variables and map entries use compatible unframed hash preimages."
+  - "A map key can be caller-controlled or chosen to match a variable-name preimage."
+blast_radius: "ecosystem-wide"
+
+impact_types:
+  - "storage-integrity"
+  - "unauthorized-action"
+  - "asset-integrity"
+severity_guess: "medium"
+severity_rationale: "Storage aliasing can hide backdoors or overwrite balances, but exploitability depends on crafted contract layout and key control."
+
+code_shape_summary: "Two storage namespaces hashed different logical objects without domain tags or length framing, making equal byte preimages possible."
+search_motifs:
+  - "sha256 variableName equals key field_id"
+  - "StorageMap storage collision"
+  - "unframed hash preimage"
+  - "storage variable map element same slot"
+negative_signals:
+  - "No issue if storage derivation uses domain tags and length-delimited encodings."
+  - "A theoretical hash collision is not required; this pattern is about equal preimages from ambiguous framing."
+patch_pattern: "Domain-separate and length-frame storage slot derivation for variables, maps, and nested fields, with compiler tests for crafted preimage aliases."
+
+source_refs:
+  - "raw-findings/2024-06-17-fuel-attackathon-32884-storage-map-variable-slot-collision.md"
+  - "https://github.com/FuelLabs/sway/tree/v0.61.2"
+  - "https://reports.immunefi.com/fuel-network-or-attackathon/attackathon-_-fuel-network-32884-smart-contract-medium-compilerstd-lib-storage-collison-between-vari"
+notes:
+  - "Original Immunefi report id: 32884."
+  - "Original report severity: Medium."
+  - "Submitted: Sat Jul 06 2024 03:21:08 GMT-0400 (Atlantic Standard Time)."
+  - "Attackathon date provided by user: 2024-06-17."

@@ -1,0 +1,64 @@
+id: "fuel-attackathon-2024-06-17-storage-range-key-increment-32271"
+source_finding: "2024-06-17-fuel-attackathon-32271-storage-range-key-increment.md"
+project: "fuel-attackathon"
+date: "2024-06-17"
+language_tags:
+  - "rust"
+
+bug_family: "input_validation_and_invariant_enforcement"
+bug_class: "storage-range-iteration-off-by-one"
+subsystem: "storage"
+architecture_tags:
+  - "storage"
+  - "vm-state"
+  - "range-iterator"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "public-attackathon-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "range-boundary-invariant"
+violated_invariant: "Range helpers must read or mutate exactly the requested contiguous storage slots without extra key increments or spurious overflow errors."
+trust_boundary: "vm-storage-instruction->contract-state"
+entrypoint_type: "state-access-helper"
+sensitive_sink: "contract storage range read/write/remove result"
+
+attacker_capabilities:
+  - "Trigger storage range instructions near key-space boundaries."
+  - "Use valid range reads that expose helper iteration errors."
+exploit_preconditions:
+  - "The helper increments the storage key too many times in or around the loop."
+  - "The extra increment can overflow or skip a valid slot."
+blast_radius: "chain-wide"
+
+impact_types:
+  - "state-integrity"
+  - "denial-of-service"
+  - "contract-behavior-integrity"
+severity_guess: "medium"
+severity_rationale: "Valid storage operations can fail or access an unintended range, causing incorrect smart contract behavior without direct funds proof."
+
+code_shape_summary: "A range helper advanced the mutable key cursor more often than the number of requested slots required."
+search_motifs:
+  - "contract_state_range key.increase"
+  - "storage range helper loop"
+  - "SCWQ SRWQ SWWQ contiguous slots"
+  - "valid storage read errors"
+negative_signals:
+  - "No issue if overflow is returned only when the requested range truly exceeds key space."
+  - "Single-slot storage accessors are not this pattern."
+patch_pattern: "Increment the key exactly once per processed slot and add boundary tests for range reads, inserts, and removes near max keys."
+
+source_refs:
+  - "raw-findings/2024-06-17-fuel-attackathon-32271-storage-range-key-increment.md"
+  - "https://github.com/FuelLabs/fuel-core/tree/8b1bf02103b8c90ce3ef2ba715214fb452b99885"
+  - "https://reports.immunefi.com/fuel-network-or-attackathon/attackathon-_-fuel-network-32271-blockchain_dlt-medium-incorrect-state-range-access-helper"
+notes:
+  - "Original Immunefi report id: 32271."
+  - "Original report severity: Medium."
+  - "Submitted: Mon Jun 17 2024 08:25:13 GMT-0400 (Atlantic Standard Time)."
+  - "Attackathon date provided by user: 2024-06-17."

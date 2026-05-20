@@ -1,0 +1,22 @@
+id: "nibiru-c4-2024-11-h02-shared-statedb-consensus-gas"
+source_record: "nibiru-c4-2024-11-h02-shared-statedb-consensus-gas.yaml"
+project: "nibiru-c4"
+
+expected_bug_family: "state_machine_and_lifecycle_consistency"
+expected_bug_class: "shared-statedb-query-state-leakage"
+expected_missing_property: "query-state isolation"
+
+expected_impact_band: "consensus gas nondeterminism"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "No issue if the pointer is scoped only to the current transaction context."
+  - "No issue if read-only queries use isolated keeper copies."
+  - "No issue if nil vs non-nil has no consensus-visible behavior or gas difference."
+notes:
+  - "Original C4 finding code: H-02."
+  - "Expected answer should identify: Read-only RPC simulations must not mutate keeper fields that influence later consensus transaction execution or gas accounting."
+  - "Avoid multiple/shared StateDB copies during EVM execution and clear or scope the bank StateDB pointer so read-only calls cannot affect later consensus paths."

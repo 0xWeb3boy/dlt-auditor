@@ -1,0 +1,25 @@
+id: "fuel-attackathon-2024-06-17-exp-returns-one-33302"
+source_record: "fuel-attackathon-2024-06-17-exp-returns-one-33302.yaml"
+project: "fuel-attackathon"
+
+expected_bug_family: "checked_arithmetic_and_parameter_bounds"
+expected_bug_class: "fixed-point-exp-result-discarded"
+expected_missing_property: "computed-result-binding"
+
+expected_impact_band: "medium"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+expected_trust_boundary: "contract-input->financial-math-library"
+expected_entrypoint_type: "library-function"
+expected_sensitive_sink: "exponential math output used by dependent contracts"
+expected_patch_pattern: "Return the computed exponential approximation and add non-zero test vectors with expected outputs."
+
+false_positive_cautions:
+  - "No issue for e^0 only."
+  - "No issue if the affected function is not exported or reachable in the used version."
+notes:
+  - "Tests for math helpers should assert output changes with input, catching accidentally constant returns."
+  - "Constant exp output can break any protocol relying on growth, decay, or compounding math."

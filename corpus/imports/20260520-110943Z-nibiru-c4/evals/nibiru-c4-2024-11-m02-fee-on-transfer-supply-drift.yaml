@@ -1,0 +1,22 @@
+id: "nibiru-c4-2024-11-m02-fee-on-transfer-supply-drift"
+source_record: "nibiru-c4-2024-11-m02-fee-on-transfer-supply-drift.yaml"
+project: "nibiru-c4"
+
+expected_bug_family: "state_machine_and_lifecycle_consistency"
+expected_bug_class: "fee-on-transfer-supply-drift"
+expected_missing_property: "supply-backing invariant enforcement"
+
+expected_impact_band: "unbacked bank coin supply drift"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "No issue if fee-on-transfer tokens are excluded."
+  - "No issue if the full input bank coin is burned regardless of ERC20 transfer fee."
+  - "No issue if conversion accounting explicitly mints/burns fee-adjusted shares rather than fixed-denom bank coins."
+notes:
+  - "Original C4 finding code: M-02."
+  - "Expected answer should identify: Bank coin supply minted for escrowed ERC20s must be fully burned for the user-submitted bank amount when converting back, even if the outbound ERC20 transfer takes a fee."
+  - "Burn the full bank coin input amount on conversion back to ERC20 and document that outbound token fees reduce the recipient ERC20 amount."

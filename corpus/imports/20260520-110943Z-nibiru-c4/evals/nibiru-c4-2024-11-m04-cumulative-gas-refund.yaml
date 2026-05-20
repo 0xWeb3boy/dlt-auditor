@@ -1,0 +1,22 @@
+id: "nibiru-c4-2024-11-m04-cumulative-gas-refund"
+source_record: "nibiru-c4-2024-11-m04-cumulative-gas-refund.yaml"
+project: "nibiru-c4"
+
+expected_bug_family: "resource_accounting_and_limits"
+expected_bug_class: "cumulative-gas-refund-miscalculation"
+expected_missing_property: "per-message refund accounting"
+
+expected_impact_band: "under-refunded gas fees"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "No issue if fee deduction is explicitly based on the same aggregate batch gas unit."
+  - "No issue if only one EVM message can exist per transaction."
+  - "No issue if cumulative gas is never used in per-message refund math."
+notes:
+  - "Original C4 finding code: M-04."
+  - "Expected answer should identify: Gas refunded for one EVM message should be based on that message budget and usage, not unrelated cumulative gas unless the fee was charged for the full batch unit."
+  - "Calculate refunds from each EVM message gas limit minus that message actual gas used, with cumulative gas used only for transaction-level metering."

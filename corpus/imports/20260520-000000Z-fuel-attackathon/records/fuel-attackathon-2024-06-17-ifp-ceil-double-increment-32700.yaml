@@ -1,0 +1,62 @@
+id: "fuel-attackathon-2024-06-17-ifp-ceil-double-increment-32700"
+source_finding: "2024-06-17-fuel-attackathon-32700-ifp-ceil-double-increment.md"
+project: "fuel-attackathon"
+date: "2024-06-17"
+language_tags:
+  - "sway"
+
+bug_family: "checked_arithmetic_and_parameter_bounds"
+bug_class: "fixed-point-rounding-double-adjustment"
+subsystem: "fixed-point-library"
+architecture_tags:
+  - "smart-contract-library"
+  - "fixed-point-math"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "public-attackathon-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "rounding-step-idempotence"
+violated_invariant: "Ceil must add at most one unit of precision when the value has a fractional component."
+trust_boundary: "contract-input->financial-math-library"
+entrypoint_type: "library-function"
+sensitive_sink: "rounded fixed-point amount used in transfers or settlement"
+
+attacker_capabilities:
+  - "Submit values with fractional parts to contract logic using ceil or round."
+  - "Choose negative inputs that enter the double-adjustment branch."
+exploit_preconditions:
+  - "ceil delegates to underlying ceil and then adds another unit in the wrapper."
+  - "The result is used as a token amount, debt amount, or price input."
+blast_radius: "ecosystem-wide"
+
+impact_types:
+  - "arithmetic-integrity"
+  - "asset-integrity"
+severity_guess: "high"
+severity_rationale: "Rounding upward by more than one step can overpay or overcharge in financial calculations."
+
+code_shape_summary: "The wrapper rounded the underlying value, then applied a second from(1) adjustment when it detected a change."
+search_motifs:
+  - "ceil underlying then add one"
+  - "double increase underlying"
+  - "round calls ceil"
+  - "fixed point ceil wrapper"
+negative_signals:
+  - "No issue if the second adjustment is guarded by a distinct unit conversion that does not change value."
+  - "Pure presentation rounding is lower risk without settlement use."
+patch_pattern: "Make ceil a single adjustment from truncation to the next integer and add boundary tests for positive and negative fractional inputs."
+
+source_refs:
+  - "raw-findings/2024-06-17-fuel-attackathon-32700-ifp-ceil-double-increment.md"
+  - "https://github.com/FuelLabs/sway-libs/tree/0f47d33d6e5da25f782fc117d4be15b7b12d291b"
+  - "https://reports.immunefi.com/fuel-network-or-attackathon/attackathon-_-fuel-network-32700-smart-contract-high-double-increasing-underlying-value-in-ceil-func"
+notes:
+  - "Original Immunefi report id: 32700."
+  - "Original report severity: High."
+  - "Submitted: Sat Jun 29 2024 20:44:41 GMT-0400 (Atlantic Standard Time)."
+  - "Attackathon date provided by user: 2024-06-17."

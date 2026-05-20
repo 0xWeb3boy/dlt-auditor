@@ -1,0 +1,65 @@
+id: "nibiru-c4-2025-01-mr-m01-prevrandao-proposer-bias"
+source_finding: "2025-01-mr-m01-prevrandao-proposer-bias.md"
+project: "nibiru-c4"
+date: "2025-01-28"
+language_tags:
+  - "go"
+
+bug_family: "attestation_trust_and_freshness"
+bug_class: "proposer-biased-randomness-source"
+subsystem: "evm-block-context"
+architecture_tags:
+  - "evm-integration"
+  - "consensus"
+  - "randomness"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "acknowledged-risk"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "taxonomy_refinement"
+
+missing_property: "unbiased randomness source binding"
+violated_invariant: "EVM PREVRANDAO-style randomness should not give block proposers materially more grinding influence than the documented consensus randomness model."
+trust_boundary: "block proposer-controlled header fields->EVM randomness opcode consumers"
+entrypoint_type: "EVM block context construction"
+sensitive_sink: "PREVRANDAO value exposed to contracts"
+
+attacker_capabilities:
+  - "Act as block proposer or validator with influence over block timestamp."
+  - "Choose or grind timestamp values within consensus tolerance to bias pseudo-random output."
+exploit_preconditions:
+  - "PREVRANDAO is derived from proposer-influenced time plus last commit hash."
+  - "Contracts rely on PREVRANDAO for economically meaningful randomness."
+blast_radius: "application-local"
+
+impact_types:
+  - "randomness-bias"
+  - "fairness-loss"
+  - "state-integrity-risk"
+severity_guess: "medium"
+severity_rationale: "The mitigation review rated this Medium because proposer-influenced timestamp hashing can bias contract-visible randomness beyond Ethereum expectations."
+
+code_shape_summary: "PREVRANDAO was derived from Time.UnixNano appended to LastCommitHash, giving proposers timestamp grinding leverage over the pseudo-random value."
+search_motifs:
+  - "PREVRANDAO pseudoRandomBytes Time.UnixNano"
+  - "LastCommitHash keccak randomness"
+  - "EIP-4399 biasability"
+  - "randao support EVM"
+negative_signals:
+  - "No issue if PREVRANDAO remains documented as zero or non-random."
+  - "No issue if source randomness comes from an unbiased consensus beacon."
+  - "No issue if contracts cannot access or rely on the value."
+patch_pattern: "Use a consensus-provided randomness source with documented bias bounds, keep PREVRANDAO zero, or clearly document non-Ethereum randomness semantics."
+
+source_refs:
+  - "raw-findings/2025-01-mr-m01-prevrandao-proposer-bias.md"
+  - "/testing/learning-nibiru/report.md"
+  - "https://github.com/code-423n4/2024-11-nibiru-findings/issues/51"
+  - "https://github.com/NibiruChain/nibiru/pull/2151"
+notes:
+  - "Original C4 finding code: MR-M-01."
+  - "Original C4 severity: Medium."
+  - "Source change PR-2151: feat(evm): randao support for evm; created 2025-01-08T14:53:26Z; merged 2025-01-09T00:19:51Z."
+  - "The mitigation review records this as acknowledged; no confirmed fix PR is listed for this issue."

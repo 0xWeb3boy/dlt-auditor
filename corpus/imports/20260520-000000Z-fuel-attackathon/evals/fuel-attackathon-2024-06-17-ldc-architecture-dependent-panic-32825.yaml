@@ -1,0 +1,25 @@
+id: "fuel-attackathon-2024-06-17-ldc-architecture-dependent-panic-32825"
+source_record: "fuel-attackathon-2024-06-17-ldc-architecture-dependent-panic-32825.yaml"
+project: "fuel-attackathon"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "architecture-dependent-consensus-result"
+expected_missing_property: "architecture-independent-error-semantics"
+
+expected_impact_band: "high"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+expected_trust_boundary: "transaction-bytecode->consensus-receipt"
+expected_entrypoint_type: "vm-opcode"
+expected_sensitive_sink: "panic reason committed into receipts and block hash"
+expected_patch_pattern: "Use architecture-independent integer widths in consensus logic and normalize length validation order so all platforms emit the same error."
+
+false_positive_cautions:
+  - "No issue if the architecture-dependent conversion happens outside consensus outputs."
+  - "No issue if all supported execution targets use one fixed word size."
+notes:
+  - "Consensus code must avoid platform-sized types anywhere that can influence state, receipts, or header hashes."
+  - "Architecture-dependent receipts can cause validators to compute different block hashes for the same transaction."

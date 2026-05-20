@@ -1,0 +1,62 @@
+id: "fuel-attackathon-2024-06-17-signed-subtract-negative-other-33039"
+source_finding: "2024-06-17-fuel-attackathon-33039-signed-subtract-negative-other.md"
+project: "fuel-attackathon"
+date: "2024-06-17"
+language_tags:
+  - "sway"
+
+bug_family: "checked_arithmetic_and_parameter_bounds"
+bug_class: "biased-signed-subtraction-wrong-sign"
+subsystem: "signed-integer-library"
+architecture_tags:
+  - "smart-contract-library"
+  - "integer-math"
+
+confidence_tier: "tier_b_likely"
+security_verdict: "likely"
+validated_as: "public-attackathon-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "signed-operand-normalization"
+violated_invariant: "Subtracting a negative operand must increase the result by that operand's magnitude, not subtract its biased encoding."
+trust_boundary: "contract-input->integer-library"
+entrypoint_type: "library-function"
+sensitive_sink: "signed subtraction result used in balances or transfer amounts"
+
+attacker_capabilities:
+  - "Choose a negative other operand in signed integer subtraction."
+  - "Trigger business logic that trusts signed library arithmetic."
+exploit_preconditions:
+  - "The implementation adds or subtracts the biased underlying value without converting to magnitude."
+  - "The resulting amount controls a transfer, debt, or reward calculation."
+blast_radius: "ecosystem-wide"
+
+impact_types:
+  - "arithmetic-integrity"
+  - "asset-integrity"
+severity_guess: "high"
+severity_rationale: "Incorrect signed subtraction can produce wrong payment or accounting amounts in contracts using the library."
+
+code_shape_summary: "Branches for negative operands manipulated encoded values directly instead of applying signed arithmetic over normalized magnitudes."
+search_motifs:
+  - "other parameter is negative"
+  - "subtract instead of add absolute value"
+  - "signed integer subtract"
+  - "indent offset"
+negative_signals:
+  - "No issue if callers never use negative operands."
+  - "A wrong return value is lower risk without financial or authorization use."
+patch_pattern: "Normalize negative operands to magnitudes before subtraction and add exhaustive tests for positive and negative operand pairs."
+
+source_refs:
+  - "raw-findings/2024-06-17-fuel-attackathon-33039-signed-subtract-negative-other.md"
+  - "https://github.com/FuelLabs/sway-libs/tree/0f47d33d6e5da25f782fc117d4be15b7b12d291b"
+  - "https://reports.immunefi.com/fuel-network-or-attackathon/attackathon-_-fuel-network-33039-smart-contract-high-the-subtraction-function-is-not-correctly-imple"
+notes:
+  - "Original Immunefi report id: 33039."
+  - "Original report severity: High."
+  - "Submitted: Tue Jul 09 2024 20:44:32 GMT-0400 (Atlantic Standard Time)."
+  - "Attackathon date provided by user: 2024-06-17."
