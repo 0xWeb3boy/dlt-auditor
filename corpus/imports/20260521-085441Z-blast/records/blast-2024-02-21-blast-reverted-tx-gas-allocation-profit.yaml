@@ -1,0 +1,70 @@
+id: "blast-2024-02-21-blast-reverted-tx-gas-allocation-profit"
+source_finding: "2024-02-21-blast-reverted-tx-gas-allocation-profit.md"
+project: "blast"
+date: "2024-02-21"
+language_tags:
+  - "go"
+  - "solidity"
+
+bug_family: "state_machine_and_lifecycle_consistency"
+bug_class: "non-rollbacked-sidecar-accounting"
+subsystem: "gas-fee-attribution"
+architecture_tags:
+  - "rollup"
+  - "bridge"
+  - "evm"
+  - "native-yield"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "competition-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "sidecar-rollback-atomicity"
+violated_invariant: "Per-frame gas attribution sidecars should follow EVM rollback semantics when the attributed contract state and call frame revert."
+trust_boundary: "EVM execution/revert -> post-transaction gas finalizer"
+entrypoint_type: "reverting claimable-gas contract frame or failed transaction"
+sensitive_sink: "GasTracker.AllocateDevGas persistent claimable balance"
+
+attacker_capabilities:
+  - "execute or induce paid work inside an attacker-governed claimable contract that reverts"
+exploit_preconditions:
+  - "GasTracker allocation is not snapshotted with StateDB"
+  - "AllocateDevGas runs after the revert"
+blast_radius: "victim or sponsor paid transaction gas"
+
+impact_types:
+  - "fee-bypass"
+  - "unauthorized-value-shift"
+  - "state-machine-inconsistency"
+severity_guess: "medium"
+severity_rationale: "Accepted medium severity competition finding. The mechanism crosses EVM execution/revert -> post-transaction gas finalizer and can affect fee-bypass, unauthorized-value-shift."
+
+code_shape_summary: "StateDB snapshots roll back storage/logs/refunds, but the transaction-local GasTracker allocation map is not journaled and is finalized anyway."
+search_motifs:
+  - "ErrExecutionReverted"
+  - "RevertToSnapshot"
+  - "GasTracker not journaled"
+  - "AllocateDevGas after vmerr"
+  - "claimable gas on failed tx"
+negative_signals:
+  - "The same property is enforced earlier on every reachable path before state, gas, or value is committed."
+  - "The actor who can trigger the path already owns the affected role, funds, or address-lifecycle authority."
+  - "The behavior is explicitly documented and all downstream accounting prices it as an intended policy choice."
+  - "The path is test-only, deployment-local, or requires an operator-only misconfiguration with no protocol effect."
+patch_pattern: "Snapshot or roll back gas attribution entries for reverted frames, or define/restrict claimability for failed work explicitly."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/design-lab/benchmarks/blast/ground-truth/report.md"
+  - "M-15 Exploiting Gas Allocation Mechanics On Reverted Transactions To Profit From Spamming The Network (#626)"
+  - "report.md#M-15"
+  - "state_transition.go"
+  - "evm.go"
+  - "gas_tracker.go"
+notes:
+  - "Derived from the Blast competition findings report, not from a live production incident write-up."
+  - "Patch pattern is report/recommendation-derived unless a source reference names a concrete fix artifact."
+  - "Competition window: 2024-01-31 to 2024-02-21."

@@ -1,0 +1,21 @@
+id: "blast-2024-02-21-blast-protocol-fee-vault-discounted-withdrawal"
+source_record: "blast-2024-02-21-blast-protocol-fee-vault-discounted-withdrawal.yaml"
+project: "blast"
+
+expected_bug_family: "state_machine_and_lifecycle_consistency"
+expected_bug_class: "fee-vault-discount-domain-mismatch"
+expected_missing_property: "fee-bucket-discount-exemption"
+
+expected_impact_band: "fee-bypass,protocol-revenue-loss"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The same property is enforced earlier on every reachable path before state, gas, or value is committed."
+  - "The actor who can trigger the path already owns the affected role, funds, or address-lifecycle authority."
+  - "The behavior is explicitly documented and all downstream accounting prices it as an intended policy choice."
+notes:
+  - "Expected detector rationale should mention fee-bucket-discount-exemption at the permissionless L2 fee-vault withdrawal -> L1 discounted ETH settlement boundary."
+  - "Source report finding: M-05 Blast can be forced to withdraw protocol gas fees at a discount in negative yield event (#1005)"

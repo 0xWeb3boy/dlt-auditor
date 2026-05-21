@@ -1,0 +1,21 @@
+id: "blast-2024-02-21-blast-eth-yield-token-decimal-conversion"
+source_record: "blast-2024-02-21-blast-eth-yield-token-decimal-conversion.yaml"
+project: "blast"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "cross-domain-unit-conversion-mismatch"
+expected_missing_property: "unit-consistency"
+
+expected_impact_band: "asset-stranding,cross-domain-accounting-error"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The same property is enforced earlier on every reachable path before state, gas, or value is committed."
+  - "The actor who can trigger the path already owns the affected role, funds, or address-lifecycle authority."
+  - "The behavior is explicitly documented and all downstream accounting prices it as an intended policy choice."
+notes:
+  - "Expected detector rationale should mention unit-consistency at the L1 ERC20 deposit amount -> L2 native ETH finalizer boundary."
+  - "Source report finding: M-12 SpearBit's 5.3.2 Unaddressed: L1BlastBridge directly sends _amount of ETH without converting to 18 decimals (#775)"

@@ -1,0 +1,21 @@
+id: "blast-2024-02-21-blast-address-keyed-governor-redeploy"
+source_record: "blast-2024-02-21-blast-address-keyed-governor-redeploy.yaml"
+project: "blast"
+
+expected_bug_family: "state_machine_and_lifecycle_consistency"
+expected_bug_class: "durable-address-keyed-configuration"
+expected_missing_property: "code-identity-binding"
+
+expected_impact_band: "unauthorized-action,fee-claim-theft"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The same property is enforced earlier on every reachable path before state, gas, or value is committed."
+  - "The actor who can trigger the path already owns the affected role, funds, or address-lifecycle authority."
+  - "The behavior is explicitly documented and all downstream accounting prices it as an intended policy choice."
+notes:
+  - "Expected detector rationale should mention code-identity-binding at the contract address lifecycle -> Blast gas/yield governance boundary."
+  - "Source report finding: M-02 CREATE2 deployments can have governor role stolen (#1091)"

@@ -1,0 +1,73 @@
+id: "blast-2024-02-21-blast-upgrade-reinitializer-double-withdrawal"
+source_finding: "2024-02-21-blast-upgrade-reinitializer-double-withdrawal.md"
+project: "blast"
+date: "2024-02-21"
+language_tags:
+  - "go"
+  - "solidity"
+
+bug_family: "state_machine_and_lifecycle_consistency"
+bug_class: "upgrade-reinitializer-reentrancy-reset"
+subsystem: "cross-domain-messenger-upgrades"
+architecture_tags:
+  - "rollup"
+  - "bridge"
+  - "evm"
+  - "native-yield"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "competition-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "active-replay-guard-preservation"
+violated_invariant: "Upgrade initializers must not reset active reentrancy/replay guard state while a failed value-bearing message retry is executing."
+trust_boundary: "governance upgrade transaction -> active cross-domain message relay"
+entrypoint_type: "failed value-bearing relay target that executes signed upgrade and reenters relayMessage"
+sensitive_sink: "xDomainMsgSender guard and successfulMessages/failedMessages maps"
+
+attacker_capabilities:
+  - "observe a signed upgrade transaction"
+  - "front-run it inside a failed value-bearing withdrawal payload"
+  - "reenter relayMessage from the target callback"
+exploit_preconditions:
+  - "failedMessages is already true for the message"
+  - "initializer resets xDomainMsgSender during the callback"
+  - "successfulMessages is not rechecked after the external call"
+blast_radius: "L1 messenger ETH balance and failed value messages"
+
+impact_types:
+  - "double-withdrawal"
+  - "asset-drain"
+  - "cross-domain-replay"
+severity_guess: "medium"
+severity_rationale: "Accepted medium severity competition finding. The mechanism crosses governance upgrade transaction -> active cross-domain message relay and can affect double-withdrawal, asset-drain."
+
+code_shape_summary: "relayMessage sets xDomainMsgSender before the external call and marks success afterward; a reinitializer can reset the guard mid-call, allowing nested replay before success is recorded."
+search_motifs:
+  - "xDomainMsgSender"
+  - "__CrossDomainMessenger_init"
+  - "reinitializer during relay"
+  - "failedMessages true"
+  - "successfulMessages after external call"
+negative_signals:
+  - "The same property is enforced earlier on every reachable path before state, gas, or value is committed."
+  - "The actor who can trigger the path already owns the affected role, funds, or address-lifecycle authority."
+  - "The behavior is explicitly documented and all downstream accounting prices it as an intended policy choice."
+  - "The path is test-only, deployment-local, or requires an operator-only misconfiguration with no protocol effect."
+patch_pattern: "Do not reset active relay guards in upgrade initializers, and recheck successfulMessages or active relay state after the external target call returns."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/design-lab/benchmarks/blast/ground-truth/report.md"
+  - "M-20 Anyone can front-run upgrades to execute a double withdrawal (#12)"
+  - "report.md#M-20"
+  - "CrossDomainMessenger.sol"
+  - "L1CrossDomainMessenger.sol"
+  - "ProxyAdmin.upgradeAndCall"
+notes:
+  - "Derived from the Blast competition findings report, not from a live production incident write-up."
+  - "Patch pattern is report/recommendation-derived unless a source reference names a concrete fix artifact."
+  - "Competition window: 2024-01-31 to 2024-02-21."

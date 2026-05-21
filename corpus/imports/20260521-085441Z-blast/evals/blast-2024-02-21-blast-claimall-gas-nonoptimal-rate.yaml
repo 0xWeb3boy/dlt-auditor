@@ -1,0 +1,21 @@
+id: "blast-2024-02-21-blast-claimall-gas-nonoptimal-rate"
+source_record: "blast-2024-02-21-blast-claimall-gas-nonoptimal-rate.yaml"
+project: "blast"
+
+expected_bug_family: "resource_accounting_and_limits"
+expected_bug_class: "claim-helper-nonoptimal-payout"
+expected_missing_property: "claim-curve-optimality"
+
+expected_impact_band: "fee-bypass,value-miscalculation"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The same property is enforced earlier on every reachable path before state, gas, or value is committed."
+  - "The actor who can trigger the path already owns the affected role, funds, or address-lifecycle authority."
+  - "The behavior is explicitly documented and all downstream accounting prices it as an intended policy choice."
+notes:
+  - "Expected detector rationale should mention claim-curve-optimality at the authorized gas governor -> Gas predeploy claim curve boundary."
+  - "Source report finding: M-04 claimAll() function may not claim gas at optimal rate (#1014)"

@@ -1,0 +1,69 @@
+id: "blast-2024-02-21-blast-claimall-gas-nonoptimal-rate"
+source_finding: "2024-02-21-blast-claimall-gas-nonoptimal-rate.md"
+project: "blast"
+date: "2024-02-21"
+language_tags:
+  - "go"
+  - "solidity"
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "claim-helper-nonoptimal-payout"
+subsystem: "gas-claim-predeploy"
+architecture_tags:
+  - "rollup"
+  - "bridge"
+  - "evm"
+  - "native-yield"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "competition-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "claim-curve-optimality"
+violated_invariant: "Convenience claim helpers should not force a lower payout than an equivalent sequence of allowed split claims over the same balance and maturity state."
+trust_boundary: "authorized gas governor -> Gas predeploy claim curve"
+entrypoint_type: "claimAllGas or claimMaxGas helper"
+sensitive_sink: "claimable gas payout and retained seconds accounting"
+
+attacker_capabilities:
+  - "control or govern a contract with claimable gas"
+  - "choose claim helper and claim timing"
+exploit_preconditions:
+  - "claim curve has base/ceil regions"
+  - "partial claims can preserve maturity more efficiently than a one-shot helper"
+blast_radius: "claimable gas owners and fee vault penalties"
+
+impact_types:
+  - "fee-bypass"
+  - "value-miscalculation"
+severity_guess: "medium"
+severity_rationale: "Accepted medium severity competition finding. The mechanism crosses authorized gas governor -> Gas predeploy claim curve and can affect fee-bypass, value-miscalculation."
+
+code_shape_summary: "The helper drains all gas using one rate calculation, while lower-level claims can split amount/seconds to obtain a better effective rate."
+search_motifs:
+  - "claimAllGas"
+  - "claimGasAtMinClaimRate"
+  - "baseClaimRate"
+  - "ceilClaimRate"
+  - "gasSecondsToConsume"
+negative_signals:
+  - "The same property is enforced earlier on every reachable path before state, gas, or value is committed."
+  - "The actor who can trigger the path already owns the affected role, funds, or address-lifecycle authority."
+  - "The behavior is explicitly documented and all downstream accounting prices it as an intended policy choice."
+  - "The path is test-only, deployment-local, or requires an operator-only misconfiguration with no protocol effect."
+patch_pattern: "Make claimAll compute the optimal payout over the claim curve or document it as non-optimal and expose safe helper semantics."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/design-lab/benchmarks/blast/ground-truth/report.md"
+  - "M-04 claimAll() function may not claim gas at optimal rate (#1014)"
+  - "report.md#M-04"
+  - "Gas.sol::claimAll"
+  - "Gas.sol::claimGasAtMinClaimRate"
+notes:
+  - "Derived from the Blast competition findings report, not from a live production incident write-up."
+  - "Patch pattern is report/recommendation-derived unless a source reference names a concrete fix artifact."
+  - "Competition window: 2024-01-31 to 2024-02-21."

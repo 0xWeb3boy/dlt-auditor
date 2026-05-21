@@ -1,0 +1,70 @@
+id: "blast-2024-02-21-blast-nonupgradeable-predeploys-proxied"
+source_finding: "2024-02-21-blast-nonupgradeable-predeploys-proxied.md"
+project: "blast"
+date: "2024-02-21"
+language_tags:
+  - "go"
+  - "solidity"
+
+bug_family: "state_machine_and_lifecycle_consistency"
+bug_class: "constructor-only-contract-behind-proxy"
+subsystem: "l2-genesis-predeploys"
+architecture_tags:
+  - "rollup"
+  - "bridge"
+  - "evm"
+  - "native-yield"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "competition-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "proxy-intent-and-initializer-model"
+violated_invariant: "Contracts intended to rely on constructor-only invariants should either not be proxied or should provide initializer/reinitializer paths and tests for every proxy upgrade scenario."
+trust_boundary: "genesis/deployment proxy admin -> system predeploy logic"
+entrypoint_type: "L2 predeploy proxy installation and future ProxyAdmin upgrade"
+sensitive_sink: "Blast and Gas predeploy implementation and mutable configuration"
+
+attacker_capabilities:
+  - "control or compromise the proxy admin, or rely on future upgrades that bypass constructor validation"
+exploit_preconditions:
+  - "constructor-only Blast/Gas contracts are treated as proxied system contracts"
+  - "upgrade authority can swap logic without constructor parity"
+blast_radius: "chain-wide system predeploys"
+
+impact_types:
+  - "upgrade-safety"
+  - "unauthorized-action"
+  - "state-integrity"
+severity_guess: "medium"
+severity_rationale: "Accepted medium severity competition finding. The mechanism crosses genesis/deployment proxy admin -> system predeploy logic and can affect upgrade-safety, unauthorized-action."
+
+code_shape_summary: "Predeploy proxy rules include Blast and Gas even though their security-relevant setup is constructor-oriented and not expressed as upgradeable Initializable storage."
+search_motifs:
+  - "IsProxied default true"
+  - "Gas constructor"
+  - "Blast constructor"
+  - "no Initializable"
+  - "ProxyAdmin can upgrade predeploy"
+negative_signals:
+  - "The same property is enforced earlier on every reachable path before state, gas, or value is committed."
+  - "The actor who can trigger the path already owns the affected role, funds, or address-lifecycle authority."
+  - "The behavior is explicitly documented and all downstream accounting prices it as an intended policy choice."
+  - "The path is test-only, deployment-local, or requires an operator-only misconfiguration with no protocol effect."
+patch_pattern: "Mark constructor-only predeploys as non-proxied, or convert them to explicit upgradeable contracts with initializer parity and upgrade tests."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/design-lab/benchmarks/blast/ground-truth/report.md"
+  - "M-10 Non-upgradeable predeploys are deployed behind upgradeable proxies (#786)"
+  - "report.md#M-10"
+  - "op-bindings/predeploys/addresses.go::IsProxied"
+  - "Gas.sol"
+  - "Blast.sol"
+notes:
+  - "Derived from the Blast competition findings report, not from a live production incident write-up."
+  - "Patch pattern is report/recommendation-derived unless a source reference names a concrete fix artifact."
+  - "Competition window: 2024-01-31 to 2024-02-21."

@@ -1,0 +1,70 @@
+id: "blast-2024-02-21-blast-pending-balance-withdrawal-shareprice"
+source_finding: "2024-02-21-blast-pending-balance-withdrawal-shareprice.md"
+project: "blast"
+date: "2024-02-21"
+language_tags:
+  - "go"
+  - "solidity"
+
+bug_family: "state_machine_and_lifecycle_consistency"
+bug_class: "stale-provider-loss-checkpoint"
+subsystem: "yield-provider-accounting"
+architecture_tags:
+  - "rollup"
+  - "bridge"
+  - "evm"
+  - "native-yield"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "competition-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "authoritative-provider-state-refresh"
+violated_invariant: "Withdrawal checkpoints should not price pending or claimable provider exits at par when their realized value is already knowable and below nominal."
+trust_boundary: "external yield provider state -> L1 withdrawal queue checkpoint"
+entrypoint_type: "YieldManager.finalize before Lido claim/report catches up"
+sensitive_sink: "WithdrawalQueue finalized checkpoint share price"
+
+attacker_capabilities:
+  - "time withdrawals around provider exit finalization and admin/keeper sequencing"
+exploit_preconditions:
+  - "pending Lido exits are claimable below nominal"
+  - "finalize runs before all losses are claimed/reported"
+blast_radius: "ETH yield manager withdrawal cohorts"
+
+impact_types:
+  - "insolvency-risk"
+  - "value-transfer-between-cohorts"
+  - "state-integrity"
+severity_guess: "medium"
+severity_rationale: "Accepted medium severity competition finding. The mechanism crosses external yield provider state -> L1 withdrawal queue checkpoint and can affect insolvency-risk, value-transfer-between-cohorts."
+
+code_shape_summary: "Provider totalValue includes pendingBalance at nominal value, while realized negative yield is only recorded when claim/report hooks process exits."
+search_motifs:
+  - "pendingBalance"
+  - "claimable Lido exits"
+  - "finalize before commitYieldReport"
+  - "claimBatchSize"
+  - "sharePrice checkpoint"
+negative_signals:
+  - "The same property is enforced earlier on every reachable path before state, gas, or value is committed."
+  - "The actor who can trigger the path already owns the affected role, funds, or address-lifecycle authority."
+  - "The behavior is explicitly documented and all downstream accounting prices it as an intended policy choice."
+  - "The path is test-only, deployment-local, or requires an operator-only misconfiguration with no protocol effect."
+patch_pattern: "Before finalizing withdrawals, force provider claim/report freshness or block finalization while claimable below-par exits remain unprocessed."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/design-lab/benchmarks/blast/ground-truth/report.md"
+  - "M-09 Insolvency due to Inclusion of pendingBalance Funds in Withdrawal sharePrice Calculation (#795)"
+  - "report.md#M-09"
+  - "YieldManager.sol::finalize"
+  - "LidoYieldProvider.sol"
+  - "WithdrawalQueue.sol"
+notes:
+  - "Derived from the Blast competition findings report, not from a live production incident write-up."
+  - "Patch pattern is report/recommendation-derived unless a source reference names a concrete fix artifact."
+  - "Competition window: 2024-01-31 to 2024-02-21."

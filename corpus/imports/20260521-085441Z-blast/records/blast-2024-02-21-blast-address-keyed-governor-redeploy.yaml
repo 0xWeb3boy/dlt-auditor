@@ -1,0 +1,69 @@
+id: "blast-2024-02-21-blast-address-keyed-governor-redeploy"
+source_finding: "2024-02-21-blast-address-keyed-governor-redeploy.md"
+project: "blast"
+date: "2024-02-21"
+language_tags:
+  - "go"
+  - "solidity"
+
+bug_family: "state_machine_and_lifecycle_consistency"
+bug_class: "durable-address-keyed-configuration"
+subsystem: "l2-predeploy-configuration"
+architecture_tags:
+  - "rollup"
+  - "bridge"
+  - "evm"
+  - "native-yield"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "competition-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "code-identity-binding"
+violated_invariant: "Gas/yield governor state that grants rights over a contract should be bound to the intended code identity or cleared/rebound across destructive lifecycle and redeploy events."
+trust_boundary: "contract address lifecycle -> Blast gas/yield governance"
+entrypoint_type: "CREATE2/metamorphic deployment or proxy/redeploy lifecycle"
+sensitive_sink: "Blast.governorMap and Gas per-address configuration"
+
+attacker_capabilities:
+  - "preconfigure or retain governor rights for an address whose code identity later changes"
+exploit_preconditions:
+  - "a later contract is deployed or upgraded at the same configured address"
+  - "old address-keyed state remains authoritative"
+blast_radius: "affected contracts and governors"
+
+impact_types:
+  - "unauthorized-action"
+  - "fee-claim-theft"
+  - "stale-trust-state"
+severity_guess: "medium"
+severity_rationale: "Accepted medium severity competition finding. The mechanism crosses contract address lifecycle -> Blast gas/yield governance and can affect unauthorized-action, fee-claim-theft."
+
+code_shape_summary: "Blast authorization is keyed by address only; create/redeploy/proxy lifecycle can change code while governor and gas/yield state persist outside the contract storage."
+search_motifs:
+  - "governorMap[address]"
+  - "CREATE2 redeploy"
+  - "selfdestruct then redeploy"
+  - "configureContract"
+  - "address-keyed gas params"
+negative_signals:
+  - "The same property is enforced earlier on every reachable path before state, gas, or value is committed."
+  - "The actor who can trigger the path already owns the affected role, funds, or address-lifecycle authority."
+  - "The behavior is explicitly documented and all downstream accounting prices it as an intended policy choice."
+  - "The path is test-only, deployment-local, or requires an operator-only misconfiguration with no protocol effect."
+patch_pattern: "Clear/rebind external gas/yield config on code identity changes or require deployments to opt into durable address-lifetime ownership explicitly."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/design-lab/benchmarks/blast/ground-truth/report.md"
+  - "M-02 CREATE2 deployments can have governor role stolen (#1091)"
+  - "report.md#M-02"
+  - "Blast.sol::governorMap"
+  - "Gas.sol"
+notes:
+  - "Derived from the Blast competition findings report, not from a live production incident write-up."
+  - "Patch pattern is report/recommendation-derived unless a source reference names a concrete fix artifact."
+  - "Competition window: 2024-01-31 to 2024-02-21."

@@ -1,0 +1,69 @@
+id: "blast-2024-02-21-blast-lido-oracle-cap-withdrawal-overpayment"
+source_finding: "2024-02-21-blast-lido-oracle-cap-withdrawal-overpayment.md"
+project: "blast"
+date: "2024-02-21"
+language_tags:
+  - "go"
+  - "solidity"
+
+bug_family: "attestation_trust_and_freshness"
+bug_class: "external-oracle-loss-lag"
+subsystem: "yield-provider-accounting"
+architecture_tags:
+  - "rollup"
+  - "bridge"
+  - "evm"
+  - "native-yield"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "competition-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "loss-freshness-before-withdrawal"
+violated_invariant: "External provider losses that are known or pending must be reflected before withdrawal checkpoints can pay exiting users at par."
+trust_boundary: "Lido oracle/provider truth -> Blast withdrawal settlement"
+entrypoint_type: "YieldManager.finalize during oracle-cap or delayed-loss window"
+sensitive_sink: "withdrawal checkpoint share price and payout amount"
+
+attacker_capabilities:
+  - "time a withdrawal before operators report/claim the full Lido loss"
+exploit_preconditions:
+  - "Lido loss exceeds reporting cap or is delayed from Blast accounting"
+  - "withdrawal finalization uses stale share price"
+blast_radius: "ETH yield manager and remaining ETH holders"
+
+impact_types:
+  - "insolvency-risk"
+  - "value-transfer-between-cohorts"
+  - "stale-trust-state"
+severity_guess: "medium"
+severity_rationale: "Accepted medium severity competition finding. The mechanism crosses Lido oracle/provider truth -> Blast withdrawal settlement and can affect insolvency-risk, value-transfer-between-cohorts."
+
+code_shape_summary: "Share price depends on provider totalValue and accumulatedNegativeYields, but Lido losses are only realized after oracle/report/claim sequencing."
+search_motifs:
+  - "oracle cap"
+  - "sharePrice still 1e27"
+  - "accumulatedNegativeYields"
+  - "finalize before loss report"
+  - "Lido slash"
+negative_signals:
+  - "The same property is enforced earlier on every reachable path before state, gas, or value is committed."
+  - "The actor who can trigger the path already owns the affected role, funds, or address-lifecycle authority."
+  - "The behavior is explicitly documented and all downstream accounting prices it as an intended policy choice."
+  - "The path is test-only, deployment-local, or requires an operator-only misconfiguration with no protocol effect."
+patch_pattern: "Require fresh provider loss reporting/claiming before finalization, especially around oracle-capped or delayed-loss windows."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/design-lab/benchmarks/blast/ground-truth/report.md"
+  - "M-11 Insolvency due to Overpayment For Withdrawals in Slashing Events Exceeding 5% (#783)"
+  - "report.md#M-11"
+  - "YieldManager.sol::sharePrice"
+  - "LidoYieldProvider.sol"
+notes:
+  - "Derived from the Blast competition findings report, not from a live production incident write-up."
+  - "Patch pattern is report/recommendation-derived unless a source reference names a concrete fix artifact."
+  - "Competition window: 2024-01-31 to 2024-02-21."

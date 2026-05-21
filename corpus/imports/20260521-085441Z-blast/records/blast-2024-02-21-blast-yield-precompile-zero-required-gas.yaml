@@ -1,0 +1,69 @@
+id: "blast-2024-02-21-blast-yield-precompile-zero-required-gas"
+source_finding: "2024-02-21-blast-yield-precompile-zero-required-gas.md"
+project: "blast"
+date: "2024-02-21"
+language_tags:
+  - "go"
+  - "solidity"
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "native-precompile-requiredgas-predicate"
+subsystem: "execution-client-native-precompile"
+architecture_tags:
+  - "rollup"
+  - "bridge"
+  - "evm"
+  - "native-yield"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "competition-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "native-work-metering"
+violated_invariant: "Every valid native precompile selector should charge its intended RequiredGas before executing native state reads, writes, and share accounting."
+trust_boundary: "EVM call -> native precompile execution"
+entrypoint_type: "CALL/STATICCALL to Blast yield precompile"
+sensitive_sink: "StateDB yield accounting and Shares predeploy storage"
+
+attacker_capabilities:
+  - "call read selectors directly"
+  - "use authorized wrapper paths for configure or claim selectors"
+exploit_preconditions:
+  - "RequiredGas dispatch falls through for valid selectors"
+  - "native work is reachable after the zero-cost check"
+blast_radius: "execution-client block processing"
+
+impact_types:
+  - "denial-of-service"
+  - "fee-bypass"
+  - "resource-accounting"
+severity_guess: "high"
+severity_rationale: "Accepted high severity competition finding. The mechanism crosses EVM call -> native precompile execution and can affect denial-of-service, fee-bypass."
+
+code_shape_summary: "The selector table is placed under the wrong branch of selector parsing, so valid ABI calldata skips the intended per-selector gas costs and returns zero RequiredGas."
+search_motifs:
+  - "RequiredGas"
+  - "readFunctionSelector"
+  - "err != nil"
+  - "valid selector returns 0"
+  - "RunPrecompiledContract subtracts RequiredGas"
+negative_signals:
+  - "The same property is enforced earlier on every reachable path before state, gas, or value is committed."
+  - "The actor who can trigger the path already owns the affected role, funds, or address-lifecycle authority."
+  - "The behavior is explicitly documented and all downstream accounting prices it as an intended policy choice."
+  - "The path is test-only, deployment-local, or requires an operator-only misconfiguration with no protocol effect."
+patch_pattern: "Fix selector dispatch so valid selectors return their intended nonzero costs, and add tests for valid and invalid selector metering."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/design-lab/benchmarks/blast/ground-truth/report.md"
+  - "H-05 DoS due to Yield Precompile Always Charging 0 Gas (#787)"
+  - "report.md#H-05"
+  - "blast-geth/core/vm/contracts.go"
+notes:
+  - "Derived from the Blast competition findings report, not from a live production incident write-up."
+  - "Patch pattern is report/recommendation-derived unless a source reference names a concrete fix artifact."
+  - "Competition window: 2024-01-31 to 2024-02-21."

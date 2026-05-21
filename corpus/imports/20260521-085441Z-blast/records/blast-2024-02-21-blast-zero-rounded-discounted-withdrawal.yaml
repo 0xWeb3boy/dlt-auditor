@@ -1,0 +1,68 @@
+id: "blast-2024-02-21-blast-zero-rounded-discounted-withdrawal"
+source_finding: "2024-02-21-blast-zero-rounded-discounted-withdrawal.md"
+project: "blast"
+date: "2024-02-21"
+language_tags:
+  - "go"
+  - "solidity"
+
+bug_family: "state_machine_and_lifecycle_consistency"
+bug_class: "zero-rounded-positive-value-lifecycle"
+subsystem: "bridge-withdrawal-discounting"
+architecture_tags:
+  - "rollup"
+  - "bridge"
+  - "evm"
+  - "native-yield"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "competition-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "zero-progress-handling"
+violated_invariant: "A positive nominal withdrawal whose discounted value rounds to zero should be rejected before consuming state or recorded as replayable failure."
+trust_boundary: "discounted yield withdrawal -> cross-domain messenger replay state"
+entrypoint_type: "positive-value L2-to-L1 withdrawal during negative yield"
+sensitive_sink: "portal finalizedWithdrawals and messenger failedMessages/discountedValues"
+
+attacker_capabilities:
+  - "create a dust positive-value withdrawal while share price is below par"
+exploit_preconditions:
+  - "nominal amount times share price floors to zero"
+  - "portal/yield state is consumed before messenger records failure"
+blast_radius: "dust or low-value discounted withdrawals unless share price collapse is severe"
+
+impact_types:
+  - "asset-stranding"
+  - "cross-domain-lifecycle-failure"
+severity_guess: "medium"
+severity_rationale: "Accepted medium severity competition finding. The mechanism crosses discounted yield withdrawal -> cross-domain messenger replay state and can affect asset-stranding, cross-domain-lifecycle-failure."
+
+code_shape_summary: "The withdrawal queue allows realAmount == 0 for a positive nominal request; messenger first-submission assertions then fail before writing retry state."
+search_motifs:
+  - "realAmount == 0"
+  - "nominalAmount * sharePrice / 1e27"
+  - "_value > 0 && msg.value == 0"
+  - "failedMessages not written"
+negative_signals:
+  - "The same property is enforced earlier on every reachable path before state, gas, or value is committed."
+  - "The actor who can trigger the path already owns the affected role, funds, or address-lifecycle authority."
+  - "The behavior is explicitly documented and all downstream accounting prices it as an intended policy choice."
+  - "The path is test-only, deployment-local, or requires an operator-only misconfiguration with no protocol effect."
+patch_pattern: "Reject positive nominal claims that discount to zero before finalization, or teach messenger/portal replay state to represent zero-rounded positive messages."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/design-lab/benchmarks/blast/ground-truth/report.md"
+  - "M-03 Withdrawals that include 1 wei will be bricked in the event of a negative rebase (#1031)"
+  - "report.md#M-03"
+  - "WithdrawalQueue.sol"
+  - "OptimismPortal.sol"
+  - "L1CrossDomainMessenger.sol"
+notes:
+  - "Derived from the Blast competition findings report, not from a live production incident write-up."
+  - "Patch pattern is report/recommendation-derived unless a source reference names a concrete fix artifact."
+  - "Competition window: 2024-01-31 to 2024-02-21."

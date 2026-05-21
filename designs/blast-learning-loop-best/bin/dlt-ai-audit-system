@@ -1,0 +1,896 @@
+#!/usr/bin/env python3
+"""Scaffold a full max-depth blockchain/DLT audit run with an autonomous driver prompt."""
+
+from __future__ import annotations
+
+import argparse
+import datetime as dt
+import os
+import re
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+
+def slugify(value: str) -> str:
+    value = value.strip().lower()
+    value = re.sub(r"[^a-z0-9]+", "-", value)
+    value = re.sub(r"-+", "-", value).strip("-")
+    return value or "target"
+
+
+def run_git(args: list[str], cwd: Path) -> str | None:
+    try:
+        completed = subprocess.run(
+            ["git", *args],
+            cwd=cwd,
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            text=True,
+        )
+    except (OSError, subprocess.CalledProcessError):
+        return None
+    return completed.stdout.strip() or None
+
+
+def detect_target(target_arg: str | None, system_root: Path) -> Path:
+    if target_arg:
+        return Path(target_arg).expanduser().resolve()
+
+    cwd = Path.cwd().resolve()
+    if cwd == system_root or system_root in cwd.parents:
+        return system_root.parent.resolve()
+    return cwd
+
+
+def copy_template(src: Path, dst: Path, force: bool) -> None:
+    if dst.exists() and not force:
+        return
+    shutil.copyfile(src, dst)
+
+
+def build_blind_audit_isolation(target: Path, run_dir: Path) -> str:
+    return f"""## Blind Audit Isolation
+
+This is a blind audit prompt. Use only:
+- The target repository: `{target}`
+- This generated audit run directory: `{run_dir}`
+- Prompt, template, design, and corpus files explicitly named in this prompt.
+
+Do not read, search, summarize, or use any answer-key material while producing blind audit outputs:
+- No `design-lab/benchmarks/**` files.
+- No benchmark `ground-truth/**` files or known-findings files.
+- No prior learning-loop artifacts from `design-lab/runs/**`, including `scorecard.md`, `misses.md`, `result-record.json`, `design-refinement-plan.md`, `leaderboard.md`, `audit-output-snapshot/**`, candidate `results/**`, or prior round folders.
+- No previous loop outputs as evidence for a finding.
+
+If this run is executing from a candidate design snapshot under `design-lab/runs/<loop>/candidates/<candidate>/design/`, that candidate's design files and this generated run directory are allowed. Other learning-loop folders and scoring/refinement artifacts are still forbidden.
+
+If you accidentally see ground truth or prior scoring material, do not use it. Record the contamination risk in `verification-log.md` and continue only with target-code evidence.
+
+"""
+
+
+def build_prompt_header(title: str, target: Path, run_dir: Path) -> str:
+    return f"""# {title}
+
+Target repo: `{target}`
+Run directory: `{run_dir}`
+
+Work deeply. Prefer concrete file/function evidence over broad claims. Keep outputs structured, factual, and explicit about uncertainty.
+
+{build_blind_audit_isolation(target, run_dir)}
+"""
+
+
+def build_diff_instructions(previous_ref: str | None, current_ref: str | None) -> str:
+    previous = previous_ref or "not provided"
+    current = current_ref or "not provided"
+    if previous_ref and current_ref:
+        baseline = (
+            f"Previous ref: `{previous_ref}`\n"
+            f"Current ref: `{current_ref}`\n\n"
+            "Run and inspect `git diff --stat {previous_ref}..{current_ref}`, "
+            "`git diff --name-only {previous_ref}..{current_ref}`, and targeted "
+            "file diffs for changed protocol, ledger, transaction, amendment, RPC, "
+            "p2p, storage, and test files."
+        ).format(previous_ref=previous_ref, current_ref=current_ref)
+    else:
+        baseline = (
+            f"Previous ref: `{previous}`\n"
+            f"Current ref: `{current}`\n\n"
+            "A complete previous/current ref pair was not provided. Search local "
+            "contest docs, README files, release notes, git tags, and branch names "
+            "for the intended comparison. If you cannot establish it, record "
+            "`Diff status: unavailable` with the reason and continue with a "
+            "full-repository review."
+        )
+
+    return f"""## Diff Awareness
+
+{baseline}
+
+Requirements:
+- Record the diff status in `repo-context.md` and `feature-coverage.md`.
+- Prioritize changed and newly reachable files, but do not ignore unchanged consensus-critical code.
+- For every surviving candidate, explain the upgrade or change linkage. If no linkage exists, write `Upgrade linkage: none identified`.
+- Compare old and new equivalent paths when a feature, amendment, migration, or compatibility path exists.
+"""
+
+
+def default_shared_corpus_root(system_root: Path) -> Path:
+    if system_root.parent.name == "designs":
+        return system_root.parents[1] / "corpus" / "imports"
+    return system_root / "corpus" / "imports"
+
+
+def write_file(path: Path, content: str, force: bool) -> None:
+    if path.exists() and not force:
+        return
+    path.write_text(content, encoding="utf-8")
+
+
+def build_autonomous_prompt(
+    system_root: Path,
+    target: Path,
+    run_dir: Path,
+    prompt_files: list[Path],
+    previous_ref: str | None,
+    current_ref: str | None,
+    corpus_root: Path,
+    corpus_top_k: int,
+) -> str:
+    scan_prompts = "\n".join(
+        f"- `{run_dir / 'agent-prompts' / f'scan-{prompt_file.stem}.md'}`"
+        for prompt_file in prompt_files
+    )
+    family_outputs = "\n".join(
+        f"- `{run_dir / f'family-scan-{prompt_file.stem}.md'}`"
+        for prompt_file in prompt_files
+    )
+    diff_instructions = build_diff_instructions(previous_ref, current_ref)
+    return build_prompt_header("Autonomous Max Audit", target, run_dir) + f"""You are the AI auditor for this run.
+
+Do the entire audit pipeline end to end without waiting for separate prompts unless you hit a real blocker that cannot be resolved from local context.
+
+This is a max-depth audit. Do not treat speed as success. Treat the run as incomplete until the quality gates below are satisfied or each unsatisfied gate has a concrete blocker recorded.
+
+## Inputs
+
+- Protocol mapper prompt: `{system_root / "00_protocol_mapper.md"}`
+- Base hunter prompt: `{system_root / "01_base_hunter.md"}`
+- Validation prompt: `{system_root / "02_validation_and_impact.md"}`
+- Corpus pattern prompt: `{system_root / "05_corpus_pattern_search.md"}`
+- Corpus search tool: `{system_root / "bin" / "search-corpus"}`
+- Shared corpus root: `{corpus_root}`
+- Repo context output: `{run_dir / "repo-context.md"}`
+- Feature coverage output: `{run_dir / "feature-coverage.md"}`
+- Verification log output: `{run_dir / "verification-log.md"}`
+- Corpus match index output: `{run_dir / "corpus-match-index.md"}`
+- Corpus pattern candidates output: `{run_dir / "corpus-pattern-candidates.md"}`
+- Corpus retrieval output directory: `{run_dir / "corpus-retrieval"}`
+- Candidate template: `{system_root / "templates" / "candidate-template.md"}`
+- Family scan prompts:
+{scan_prompts}
+
+{diff_instructions}
+
+## Required Outputs
+
+- Filled repo context: `{run_dir / "repo-context.md"}`
+- Filled feature coverage table: `{run_dir / "feature-coverage.md"}`
+- Filled verification log: `{run_dir / "verification-log.md"}`
+- Filled corpus match index: `{run_dir / "corpus-match-index.md"}`
+- Filled corpus pattern candidates: `{run_dir / "corpus-pattern-candidates.md"}`
+- Corpus retrieval notes in: `{run_dir / "corpus-retrieval"}`
+- Filled family scans:
+{family_outputs}
+- Candidate index: `{run_dir / "candidate-index.md"}`
+- Rejected/weak candidate log: `{run_dir / "rejected-candidates.md"}`
+- Validated candidate dossiers: `candidate-<id>.md` files in `{run_dir}`
+- Final coverage report: `{run_dir / "final-coverage-report.md"}`
+- Final audit report: `{run_dir / "FINAL_AUDIT_REPORT.md"}`
+- Updated checklist: `{run_dir / "MAX_AUDIT_CHECKLIST.md"}`
+
+## Execution Phases
+
+1. Phase 0 - Scope and metadata: identify target commit, branch, available contest docs, build system, and likely feature scope.
+2. Phase 1 - Repository map: fill `repo-context.md` with concrete files, functions, trust boundaries, state machines, and high-risk surfaces.
+3. Phase 2 - Diff map: complete the diff-awareness work above and mark diff status as complete, partial, or unavailable.
+4. Phase 3 - Corpus pattern search: run `{system_root / "05_corpus_pattern_search.md"}` and use `{system_root / "bin" / "search-corpus"}` to retrieve the top `{corpus_top_k}` compact corpus matches into `{run_dir / "corpus-retrieval"}`.
+5. Phase 4 - Feature deep dives: fill `feature-coverage.md`, including changed/new features, amendment-gated behavior, corpus-inspired target searches, and high-value unchanged dependencies.
+6. Phase 5 - Family scans: run every family prompt using `01_base_hunter.md`, `repo-context.md`, `feature-coverage.md`, and `corpus-match-index.md`.
+7. Phase 6 - Candidate canonicalization: deduplicate scan output into concrete `candidate-*.md` dossiers.
+8. Phase 7 - Candidate validation: validate every plausible Medium-or-higher candidate using `02_validation_and_impact.md` and the candidate template.
+9. Phase 8 - Aggregate validated findings into the final candidate index and report draft.
+10. Phase 9 - Final coverage pass: produce `final-coverage-report.md` and identify uncovered high-risk surfaces.
+11. Phase 10 - Final report: produce `FINAL_AUDIT_REPORT.md` containing only surviving findings plus residual risk and test gaps.
+
+## Feature Coverage Expectations
+
+Start with these EVM/L2 protocol surfaces unless the repository evidence proves they are irrelevant:
+- Execution-layer gas accounting, precompiles, refund/discount logic, and custom fee attribution.
+- Cross-domain messaging, bridge deposit/withdrawal paths, replay protection, gas forwarding, and value conversion.
+- Deployment, genesis, proxy, implementation, and initialization paths that create durable privileged state.
+- Native/VM state mirrors, system contracts, special accounts, and storage sync around execution.
+- External yield, staking, vault, oracle, withdrawal, shutdown, and recovery integrations.
+- Fork gates, migration paths, compatibility paths, RPC exposure, replay/recovery, simulation, and invariants that touch any of the above.
+
+For each feature, record files/functions reviewed, tests searched, changed files, equivalent paths compared, candidate IDs, rejected ideas, and residual risk.
+
+## Quality Gates
+
+Do not write `FINAL_AUDIT_REPORT.md` until these gates are met:
+- `repo-context.md` names concrete files, functions, state machines, trust boundaries, build/test entry points, and high-risk surfaces.
+- Diff review is complete or explicitly marked unavailable with the exact reason.
+- `corpus-match-index.md` records corpus searches run, matches used, target surfaces inspected, killed hypotheses, and pattern-derived candidates.
+- `feature-coverage.md` has a non-placeholder row for every in-scope feature and high-risk cross-cutting surface.
+- Every `family-scan-*.md` records modules reviewed, key code paths, searches run, suspicious asymmetries, candidate findings, and rejected ideas.
+- Every surviving candidate dossier includes line-level evidence, attacker preconditions, reachability, existing checks, compensating controls, impact, confidence, and upgrade/change linkage.
+- `verification-log.md` records build/test commands attempted or the concrete blocker that prevented them. No PoC is required for this run.
+- `candidate-index.md` and `rejected-candidates.md` are deduplicated and reference the relevant family scan or dossier.
+- `final-coverage-report.md` lists residual blind spots, unreviewed high-risk files, and why they remain.
+- No required output still contains template-only placeholders.
+
+## Audit Discipline
+
+- Prefer concrete file/function evidence over broad claims.
+- Treat corpus matches and previous runs as hypothesis generators only, not as proof of a live issue.
+- When a corpus match inspires a candidate, record the target-code search and the target-specific evidence that survived false-positive cautions.
+- Compare equivalent paths: admission vs execution, simulation vs live, replay/recovery vs normal, feature disabled vs enabled, admin vs user, peer vs local, old API vs new API.
+- When in doubt, downgrade or reject. A high-quality killed-candidate log is better than inflated findings.
+- Keep intermediate files structured and readable. Do not paste raw command dumps.
+- Use stable candidate IDs such as `F10-001`, `F11-001`, and so on, matching the prompt family number.
+- Update `MAX_AUDIT_CHECKLIST.md` as each phase completes.
+- Do not require a PoC. Prefer source-level proof, invariant reasoning, reachable execution paths, and existing test references.
+    """
+
+
+def build_parallel_codex_prompt(system_root: Path, target: Path, run_dir: Path, jobs: int) -> str:
+    return build_prompt_header("Parallel Codex Runner", target, run_dir) + f"""This run can be executed with multiple Codex CLI workers.
+
+The safe split is:
+
+1. Run the protocol mapper serially.
+2. Run corpus pattern search serially.
+3. Run family scans in parallel. Each worker edits only its assigned `family-scan-*.md` file.
+4. Run candidate canonicalization serially to create deduplicated `candidate-*.md` dossiers.
+5. Run candidate validations in parallel only when `candidate-*.md` dossiers exist.
+6. Run aggregate findings serially.
+7. Run the final coverage pass serially.
+
+Recommended command:
+
+```bash
+{system_root / "bin" / "run-parallel-codex"} {run_dir} --jobs {jobs} --service-tier standard --reasoning-effort high --deep-reasoning-effort xhigh
+```
+
+Useful partial commands:
+
+```bash
+{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase mapper --service-tier standard --reasoning-effort high
+{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase corpus --service-tier standard --reasoning-effort high
+{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase scans --jobs {jobs} --service-tier standard --reasoning-effort high
+{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase canonicalize --service-tier standard --deep-reasoning-effort xhigh
+{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase validations --service-tier standard --deep-reasoning-effort xhigh
+{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase aggregate --service-tier standard --deep-reasoning-effort xhigh
+{system_root / "bin" / "run-parallel-codex"} {run_dir} --phase final --service-tier standard --deep-reasoning-effort xhigh
+```
+
+Operational rules:
+- Keep `--jobs` modest. Start with `{jobs}`; use `1` to disable parallelism.
+- Default Codex service tier is `standard`; pass `--service-tier fast` to use the fast-tier override.
+- Default reasoning is `high` for mapper/corpus/scans and `xhigh` for canonicalize/validations/aggregate/final.
+- Do not run parallel family scans until `repo-context.md` has real content.
+- Corpus matches are hypotheses only, not evidence.
+- Workers should not edit shared files except the specific outputs named in their prompt.
+- If quota or rate-limit exhaustion occurs, the runner stops so you can resume the same phase later.
+"""
+
+
+def build_candidate_index(now: dt.datetime, target: Path, branch: str, commit: str) -> str:
+    return f"""# Candidate Index
+
+## Metadata
+
+- Target repo: `{target}`
+- Target branch: `{branch}`
+- Target commit: `{commit}`
+- Created UTC: {now:%Y-%m-%d %H:%M:%S}
+
+## Surviving Candidates
+
+| ID | Family | Feature/Surface | Title | Severity | Confidence | Upgrade Linkage | Dossier | Status |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+
+## Deduplication Notes
+
+- Record candidates that appear in multiple family scans and choose one canonical ID.
+- Reference rejected duplicates in `rejected-candidates.md`.
+"""
+
+
+def build_rejected_candidates(now: dt.datetime, target: Path) -> str:
+    return f"""# Rejected And Weak Candidates
+
+## Metadata
+
+- Target repo: `{target}`
+- Created UTC: {now:%Y-%m-%d %H:%M:%S}
+
+## Rejected Candidates
+
+| ID | Family | Feature/Surface | Suspicion | Why Rejected Or Downgraded | Evidence |
+| --- | --- | --- | --- | --- | --- |
+
+## Notes
+
+- Include plausible ideas that were killed by compensating controls, unreachable paths, feature gates, admin-only assumptions, or lack of attacker control.
+- Keep enough detail that a later auditor can avoid redoing the same dead end.
+"""
+
+
+def build_feature_coverage(now: dt.datetime, target: Path, previous_ref: str | None, current_ref: str | None) -> str:
+    return f"""# Feature Coverage
+
+## Metadata
+
+- Target repo: `{target}`
+- Created UTC: {now:%Y-%m-%d %H:%M:%S}
+- Previous ref: `{previous_ref or "not provided"}`
+- Current ref: `{current_ref or "not provided"}`
+- Diff status:
+
+## Coverage Table
+
+| Feature / Surface | Status | Changed Files | Files And Functions Reviewed | Equivalent Paths Compared | Tests Searched | Candidate IDs | Rejected Ideas | Remaining Risk |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Execution gas, precompiles, refunds, discounts, and fee attribution | Not started |  |  |  |  |  |  |  |
+| Cross-domain bridge messaging, gas forwarding, replay, deposits, and withdrawals | Not started |  |  |  |  |  |  |  |
+| Deployment, genesis, proxy, implementation, initialization, and durable config | Not started |  |  |  |  |  |  |  |
+| Native/VM state mirrors, system contracts, and special accounts | Not started |  |  |  |  |  |  |  |
+| External yield providers, staking/vault flows, oracles, shutdown, and recovery | Not started |  |  |  |  |  |  |  |
+| Fork gates, migrations, and compatibility paths | Not started |  |  |  |  |  |  |  |
+| RPC, simulation, replay, recovery, and debug paths | Not started |  |  |  |  |  |  |  |
+| Invariants, accounting, deletion, and refund paths | Not started |  |  |  |  |  |  |  |
+| Other high-risk surfaces discovered during mapping | Not started |  |  |  |  |  |  |  |
+
+## Notes
+
+- Replace `Not started` with `Covered`, `Partially covered`, `Out of scope`, or `Blocked`.
+- Every non-out-of-scope row should name concrete files/functions and at least one comparison or search performed.
+"""
+
+
+def build_verification_log(now: dt.datetime, target: Path) -> str:
+    return f"""# Verification Log
+
+## Metadata
+
+- Target repo: `{target}`
+- Created UTC: {now:%Y-%m-%d %H:%M:%S}
+
+## Build And Test Entry Points
+
+| Entry Point | How Found | Relevance | Status |
+| --- | --- | --- | --- |
+
+## Commands Attempted
+
+| Command | Purpose | Result | Notes |
+| --- | --- | --- | --- |
+
+## Test References Reviewed
+
+| File | Feature / Candidate | What It Covers | Gap |
+| --- | --- | --- | --- |
+
+## Blockers
+
+- Record missing dependencies, unsupported environment, excessive runtime, unavailable fixtures, or other concrete blockers.
+
+## Notes
+
+- No PoC is required for this run. Record validation and test references when available.
+"""
+
+
+def build_final_report(now: dt.datetime, target: Path, branch: str, commit: str) -> str:
+    return f"""# Final Audit Report
+
+## Metadata
+
+- Target repo: `{target}`
+- Target branch: `{branch}`
+- Target commit: `{commit}`
+- Created UTC: {now:%Y-%m-%d %H:%M:%S}
+
+## Executive Summary
+
+- Fill after all scans and validations complete.
+
+## Scope And Diff Status
+
+- Scope:
+- Previous/current refs:
+- Diff status:
+- Major changed or newly reachable surfaces:
+
+## Findings
+
+| ID | Severity | Feature/Surface | Title | Confidence | Upgrade Linkage | Dossier |
+| --- | --- | --- | --- | --- | --- | --- |
+
+## Feature Coverage Summary
+
+- Summarize `feature-coverage.md`, including partially covered or blocked rows.
+
+## Verification Summary
+
+- Summarize `verification-log.md`, including commands attempted and blockers.
+
+## Residual Risk And Test Gaps
+
+- Summarize meaningful blind spots, untested high-risk surfaces, and candidates that need more proof.
+
+## Coverage
+
+- Link to `repo-context.md`, `feature-coverage.md`, `verification-log.md`, every `family-scan-*.md`, `candidate-index.md`, `rejected-candidates.md`, and `final-coverage-report.md`.
+"""
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        description=(
+            "Create a max-depth dlt-ai-audit-system run with an autonomous "
+            "AI-auditor driver prompt for a blockchain/DLT repository."
+        ),
+    )
+    parser.add_argument(
+        "target",
+        nargs="?",
+        help="Target blockchain/DLT repository. Defaults to the current directory, or the parent of dlt-ai-audit-system when run from inside this tool.",
+    )
+    parser.add_argument(
+        "--run-name",
+        help="Run folder name to create under runs/. Defaults to a UTC timestamp plus target name.",
+    )
+    parser.add_argument(
+        "--operator",
+        default=os.environ.get("USER", "operator"),
+        help="Operator name to include in generated notes.",
+    )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Overwrite generated files if the run folder already exists.",
+    )
+    parser.add_argument(
+        "--previous-ref",
+        default=os.environ.get("DLT_AUDIT_PREVIOUS_REF"),
+        help="Optional previous git ref for diff-aware audits. Can also be set with DLT_AUDIT_PREVIOUS_REF.",
+    )
+    parser.add_argument(
+        "--current-ref",
+        default=os.environ.get("DLT_AUDIT_CURRENT_REF", "HEAD"),
+        help="Optional current git ref for diff-aware audits. Defaults to HEAD or DLT_AUDIT_CURRENT_REF.",
+    )
+    parser.add_argument(
+        "--corpus-root",
+        default=os.environ.get("DLT_AUDIT_CORPUS_ROOT"),
+        help="Shared corpus import root for pattern search. Defaults to the repository-level corpus/imports.",
+    )
+    parser.add_argument(
+        "--corpus-top-k",
+        type=int,
+        default=int(os.environ.get("DLT_AUDIT_CORPUS_TOP_K", "30")),
+        help="Default number of corpus matches to retrieve during the corpus-search phase.",
+    )
+    parser.add_argument(
+        "--parallel-jobs",
+        type=int,
+        default=int(os.environ.get("DLT_AUDIT_PARALLEL_JOBS", "8")),
+        help="Suggested Codex worker count recorded in generated parallel-run instructions.",
+    )
+    args = parser.parse_args()
+
+    system_root = Path(__file__).resolve().parents[1]
+    corpus_root = (
+        Path(args.corpus_root).expanduser().resolve()
+        if args.corpus_root
+        else default_shared_corpus_root(system_root)
+    )
+    target = detect_target(args.target, system_root)
+    if not target.exists():
+        print(f"Target repo does not exist: {target}", file=sys.stderr)
+        return 2
+
+    prompts_dir = system_root / "prompts"
+    templates_dir = system_root / "templates"
+    runs_dir = system_root / "runs"
+    prompt_files = sorted(prompts_dir.glob("*.md"))
+    if not prompt_files:
+        print(f"No prompt families found under {prompts_dir}", file=sys.stderr)
+        return 2
+
+    now = dt.datetime.now(dt.UTC)
+    target_slug = slugify(target.name)
+    run_name = args.run_name or f"{now:%Y%m%d-%H%M%SZ}-{target_slug}-max-audit"
+    run_dir = runs_dir / run_name
+    prompt_out_dir = run_dir / "agent-prompts"
+    corpus_retrieval_dir = run_dir / "corpus-retrieval"
+
+    run_dir.mkdir(parents=True, exist_ok=True)
+    prompt_out_dir.mkdir(parents=True, exist_ok=True)
+    corpus_retrieval_dir.mkdir(parents=True, exist_ok=True)
+
+    branch = run_git(["branch", "--show-current"], target) or "unknown"
+    commit = run_git(["rev-parse", "--short", "HEAD"], target) or "unknown"
+
+    copy_template(templates_dir / "repo-context-template.md", run_dir / "repo-context.md", args.force)
+    copy_template(
+        templates_dir / "corpus-match-index-template.md",
+        run_dir / "corpus-match-index.md",
+        args.force,
+    )
+    copy_template(
+        templates_dir / "corpus-pattern-candidates-template.md",
+        run_dir / "corpus-pattern-candidates.md",
+        args.force,
+    )
+
+    family_rows: list[str] = []
+    for prompt_file in prompt_files:
+        stem = prompt_file.stem
+        scan_path = run_dir / f"family-scan-{stem}.md"
+        copy_template(templates_dir / "family-scan-template.md", scan_path, args.force)
+        family_rows.append(f"- [ ] `{prompt_file.name}` -> `{scan_path.name}`")
+
+        family_prompt = build_prompt_header(f"Family Scan: {prompt_file.name}", target, run_dir)
+        family_prompt += f"""Use these inputs:
+- `{system_root / "01_base_hunter.md"}`
+- `{prompt_file}`
+- `{run_dir / "repo-context.md"}`
+- `{run_dir / "feature-coverage.md"}`
+- `{run_dir / "corpus-match-index.md"}`
+
+Fill this output file:
+- `{scan_path}`
+
+Instructions:
+1. Enumerate the relevant target files and functions before proposing candidates.
+2. Compare equivalent paths: admission/execution, simulation/live, replay/recovery, upgrade/migration, enabled/disabled feature states, and normal/special-case modes.
+3. Look for missing checks, stale authoritative state, skipped validation, weak binding, resource/accounting gaps, and compensating controls.
+4. Cross-check diff evidence and feature coverage rows before ranking candidates.
+5. Check relevant corpus matches and translate their search motifs into target-code searches where the target architecture has an analogue.
+6. Record searches run, corpus matches used or killed, files actually read, rejected ideas, and residual blind spots in the family scan output.
+7. Return at most the strongest 5 candidates for this family, ranked by likelihood.
+8. Do not stop at the first plausible bug. Continue until the high-risk surfaces in the repo context and feature coverage table have been covered for this family.
+9. In parallel runs, only edit `{scan_path}`. Do not edit shared run files or other family scan outputs.
+"""
+        write_file(prompt_out_dir / f"scan-{stem}.md", family_prompt, args.force)
+
+    write_file(
+        prompt_out_dir / "00-RUN-AUTONOMOUS-MAX-AUDIT.md",
+        build_autonomous_prompt(
+            system_root,
+            target,
+            run_dir,
+            prompt_files,
+            args.previous_ref,
+            args.current_ref,
+            corpus_root,
+            args.corpus_top_k,
+        ),
+        args.force,
+    )
+    write_file(
+        prompt_out_dir / "00-RUN-PARALLEL-CODEX.md",
+        build_parallel_codex_prompt(system_root, target, run_dir, args.parallel_jobs),
+        args.force,
+    )
+
+    mapper_prompt = build_prompt_header("Protocol Mapper", target, run_dir)
+    mapper_prompt += f"""Use this input:
+- `{system_root / "00_protocol_mapper.md"}`
+
+Fill these output files:
+- `{run_dir / "repo-context.md"}`
+- `{run_dir / "feature-coverage.md"}`
+- `{run_dir / "verification-log.md"}`
+
+{build_diff_instructions(args.previous_ref, args.current_ref)}
+
+Instructions:
+1. Map the repository before proposing findings.
+2. Be exhaustive across consensus, transaction execution, ledger/state, fork/amendment gates, authorization, signatures, RPC, p2p, storage, validator/trust-list material, invariants, resource accounting, and recovery/simulation/debug paths.
+3. Name concrete files, functions, types, state machines, and trust boundaries.
+4. Mark surfaces that must be checked by later family scans.
+5. Identify build and test entry points and record them in `verification-log.md`.
+6. Seed `feature-coverage.md` with discovered feature files, changed files, tests, and initial residual risk.
+"""
+    write_file(prompt_out_dir / "00-protocol-mapper.md", mapper_prompt, args.force)
+
+    corpus_prompt = build_prompt_header("Corpus Pattern Search", target, run_dir)
+    corpus_prompt += f"""Use these inputs:
+- `{system_root / "05_corpus_pattern_search.md"}`
+- `{system_root / "bin" / "search-corpus"}`
+- `{run_dir / "repo-context.md"}`
+- `{run_dir / "feature-coverage.md"}`
+- shared corpus root `{corpus_root}`
+
+Fill these output files:
+- `{run_dir / "corpus-match-index.md"}`
+- `{run_dir / "corpus-pattern-candidates.md"}`
+- retrieval result files under `{corpus_retrieval_dir}`
+
+Suggested first command:
+
+```bash
+{system_root / "bin" / "search-corpus"} \\
+  --corpus-root {corpus_root} \\
+  --query-file {run_dir / "repo-context.md"} \\
+  --top-k {args.corpus_top_k} \\
+  --output {corpus_retrieval_dir / "all-families.md"}
+```
+
+Instructions:
+1. Retrieve compact corpus matches after the repo map exists.
+2. Prefer records and cards over raw findings.
+3. Translate search motifs into target-code searches and file/function inspections.
+4. Record every used or killed match in `corpus-match-index.md`.
+5. Add only concrete pattern-derived hypotheses to `corpus-pattern-candidates.md`.
+6. Do not claim a vulnerability from corpus similarity alone.
+"""
+    write_file(prompt_out_dir / "05-corpus-pattern-search.md", corpus_prompt, args.force)
+
+    validation_prompt = build_prompt_header("Candidate Validation", target, run_dir)
+    validation_prompt += f"""Use this input for every promising candidate:
+- `{system_root / "02_validation_and_impact.md"}`
+- `{run_dir / "feature-coverage.md"}`
+- `{run_dir / "verification-log.md"}`
+
+For each candidate:
+1. Copy `{templates_dir / "candidate-template.md"}` to `candidate-<id>.md` in the run directory.
+2. Try to kill the finding first.
+3. Check reachability, attacker control, feature/fork gates, existing equivalent checks, invariant finalizers, tests, preconditions, and concrete impact.
+4. Downgrade or reject candidates when compensating controls are real.
+5. Record line-level evidence, upgrade/change linkage, and any existing tests or verification commands reviewed.
+6. Do not require a PoC for acceptance.
+
+Special validation discipline for gas/refund/rebate/accounting candidates:
+- A conserved total fee pool or existing unit test is not by itself killer evidence. It may only prove current behavior.
+- Before rejecting, name who paid, who induced the gas, who can claim/receive the rebate, who loses expected fee share, and whether a different victim can be induced to pay a reverting or refunding path.
+- Preserve exact wrong-recipient, wrong-helper, or wrong-target mechanisms as confirmed/likely with bounded severity when the code proves the mechanism, even if protocol intent is uncertain.
+- Validate CALL, STATICCALL, DELEGATECALL, CALLCODE, precompile, no-code, access-list-warmed, first-use, and repeated-use cases separately.
+
+Regression and partial-to-exact validation discipline:
+- If a candidate matches a pinned preservation motif from the union-preservation prompt, keep the mechanism in the candidate index even when severity is Low, conditional, policy-dependent, or hardening-only. The aggregate report may exclude it, but canonical recall depends on preserving the root cause.
+- Preserve direct-genesis initializer/storage parity candidates when any constructor or initializer would have set nonzero bootstrap state such as share price, share count, owner, initialized flag, version marker, role, or replay marker.
+- Preserve bridge unit-conversion candidates when raw token units, canonical 18-decimal units, portal mint/value, provider principal, escrow/burn amount, event amount, and finalizer calldata amount are not identical by construction.
+- Preserve reverted or failed transaction gas-attribution candidates until transaction-level gas trackers, StateDB journals, refund counters, and fee finalization have all been compared under a victim-paid path.
+- For saved gas seconds or maturity counters, test whether old maturity can make later gas immediately claimable and reusable for resource exhaustion, not only whether the fee-vault split changes.
+- For direct non-replayable deposits, compute whether the user-requested minimum gas reaches the final user sink after wrapper overhead, EIP-150 forwarding, reserve gas, finalizer checks, events, and post-call writes.
+- For discounted bridge/messenger paths, check both replay bookkeeping and reserved-gas constants after any newly added storage write or value-discount bookkeeping.
+- For the Blast native precompile, split valid-selector zero required-gas from invalid-selector/revert remaining-gas behavior. A valid-selector finding does not cover the revert path unless `ErrExecutionReverted` and remaining gas are explicitly analyzed.
+- For saved gas seconds, require a capital-at-risk/resource-exhaustion paragraph: can an attacker wait, fully claim, reuse old seconds for future block-filling gas, and keep only a small amount clawbackable at a time?
+- For proxied predeploys and system contracts, build a constructor/initializer/proxy matrix before rejection. Compare implementation constructor state, proxy storage, direct-genesis storage, initialized flags, owner/governor, version markers, and upgrade safety.
+- For an uninitialized implementation with provider/plugin delegatecall hooks, check direct implementation initialization through to delegatecall, code-destruction, permanent bricking, and implementation-code availability impacts before downgrading.
+- For Lido/provider oracle caps, model a large externally knowable loss before the capped local report catches up. Check whether early withdrawals, pending exits, or claimable exits are under-discounted.
+- For Maker/DSR integrations, check emergency shutdown/cage states, whether the normal exit path still works, who owns assets inside manager/provider contracts, and whether recovery is possible without normal provider operation.
+- For L1 data fees, write the equation linking the L2 fee charged to real L1 value recovered. Discounted, rounded, or negative-yield withdrawals must be checked against L1 fee vault and protocol cost recovery.
+- For custom native bookkeeping, compare resource work to charged gas: state writes, journal entries, predeploy updates, maps, loops over touched contracts, post-transaction allocation, and refunds/rebates that lower effective cost.
+- For bridge or messenger upgrades, compare old and new storage keys for successful messages, failed messages, finalized withdrawals, proven withdrawal records, request ids, output roots, nonces, and versioned hashes.
+- For insurance or backstops, distinguish exact loss cover, buffer residual, over-recovery, and fresh-depositor front-running before the loss is locally reported. Current-holder distribution is not equivalent to loss-time eligibility.
+- For uninitialized implementations, validate the implementation-address attack sequence separately from proxy storage compromise: direct initialize implementation, gain implementation-local owner/admin, configure malicious provider/plugin, invoke privileged delegatecall/arbitrary-call hook, then assess bricking/code-destruction under active fork semantics.
+- For constructor-only or non-upgradeable system contracts behind proxies, validate both current genesis state and future upgrade/reinitializer safety. A working initial genesis does not kill a proxy-intent mismatch if later upgrades can bypass constructor-only invariants.
+- For broad native bookkeeping overhead, promote at least one budget-table candidate when attacker-controlled extra native work is only partly metered. It may be Low/Medium or hardening; do not collapse it into exact selector/surcharge findings.
+- For invalid precompile selectors, record required gas, `Run` behavior, error type, remaining gas, gas-tracker attribution, and repeatability separately from valid-selector undercharge.
+- For Lido oracle caps, evaluate the withdrawal-finalization sink explicitly: stale share price, pending/claimable provider loss, local finalization, and later loss realization.
+- For insurance timing, include a two-cohort payoff table for old holders and fresh depositors under exact cover, no cover, partial cover, residual buffer, and over-recovery.
+- For upgrade replay/double withdrawal, prove or kill duplicate successful value delivery. Adjacent zero-value underdelivery or stranded-value bugs should not be treated as exact double-withdrawal matches.
+- For saved gas seconds, include numeric economics after penalties and admin clawback. Do not reject the mechanism solely as intentional claim-rate behavior until resource pressure and capital-at-risk are modeled.
+- For uninitialized implementations, separate proxy storage compromise from implementation-address bricking. State the active selfdestruct or destructive-delegatecall semantics before killing the implementation impact.
+- For reinitializer double withdrawal, require the in-call upgrade/reset trace: failed value-bearing replay, target-controlled upgrade execution, `xDomainMsgSender` or equivalent guard reset, inner replay, and two successful value deliveries.
+- For generic RPC, p2p, faucet, and operator-admin findings, keep them residual or rejected unless they materially affect Blast bridge, yield, gas, predeploy, provider, fee-vault, or upgrade settlement.
+- For broad native bookkeeping overhead, validate and preserve two sibling candidates when code supports them: gas-refund/claimable-gas finalizer overhead and native-yield balance/share-count overhead. A finalizer-only candidate does not cover the balance/share-count half.
+- Native-yield balance/share-count candidates need a budget table for Balance, SetBalance, SetFlags, GetClaimableAmount, SubClaimableAmount, adjustShareCount, StateDB journals, predeploy storage, automatic value transfers, gas buy/refund balance changes, and selfdestruct beneficiaries.
+"""
+    write_file(prompt_out_dir / "90-validate-candidates.md", validation_prompt, args.force)
+
+    canonicalize_prompt = build_prompt_header("Candidate Canonicalization", target, run_dir)
+    canonicalize_prompt += f"""Use these inputs:
+- `{system_root / "02_validation_and_impact.md"}`
+- `{templates_dir / "candidate-template.md"}`
+- `{run_dir / "repo-context.md"}`
+- `{run_dir / "feature-coverage.md"}`
+- `{run_dir / "corpus-pattern-candidates.md"}`
+- every `{run_dir / "family-scan-*.md"}`
+
+Fill these output files:
+- `{run_dir / "candidate-index.md"}`
+- `{run_dir / "rejected-candidates.md"}`
+- `candidate-<id>.md` files in `{run_dir}`
+
+Instructions:
+1. Read all family scans and corpus pattern candidates after scan workers finish.
+2. Extract only concrete Medium-or-higher hypotheses with file/function evidence, attacker or faulty-peer control, a missing property, and plausible impact.
+3. Deduplicate by root cause, affected trust boundary, and missing invariant. If several scans describe the same mechanism, pick one canonical candidate id and cite the other scan ids as related.
+4. Create dossiers by copying the candidate template structure into `candidate-<id>.md` files. Fill title, severity hypothesis, confidence, affected files/functions, missing property, attack preconditions, reachability, impact, compensating controls, evidence to confirm, evidence that would kill, and upgrade/change linkage.
+5. Prefer stable ids derived from family ids, such as `F14-001`, `F19-001`, or `F26-001`. Do not create duplicate dossiers for the same mechanism.
+6. Fill `candidate-index.md` with every surviving dossier and status `needs validation`.
+7. Fill `rejected-candidates.md` with weak, duplicate, killed, low-impact, admin-only, unreachable, or no-attacker-control hypotheses and the evidence that killed or downgraded them.
+8. Promote exact, concrete mechanisms even when production reachability or severity is uncertain; the validation phase should qualify severity instead of losing the mechanism in a rejected table.
+9. Do not read benchmark ground truth, previous scored loop artifacts, or answer keys. Corpus matches are hypothesis sources only, not evidence.
+10. Keep the candidate set focused but broad enough to preserve distinct mechanisms. Promote all pinned preservation motifs first, even if they are conditional or hardening-only, then fill the remaining budget with the strongest new ideas. If many weak ideas exist, 30 to 42 dossiers is acceptable; do not prune a pinned exact motif merely to satisfy a smaller count.
+11. Do not run final validation in this phase; create clean dossiers for the validation workers.
+
+Current high-value preservation rules:
+- Preserve exact motifs from earlier successful scans even when a later scan emphasizes a different family. In particular, keep direct-genesis initializer parity, raw-vs-converted bridge amounts, and reverted-transaction gas attribution as standalone candidate shapes.
+- The union of high-value motif classes must be represented before lower-confidence new findings are promoted: precompile selector gas, precompile invalid-selector revert gas, missing native-yield journal flags, WETH genesis parity, direct deposit min-gas, direct bridge unit conversion, discounted messenger zero rounding, discounted messenger reserved gas, refund socialization, precompile/no-code/delegate/custom surcharge variants, access-list intrinsic/custom warmth, claimAll split optimum, saved seconds carry-forward, Lido pending/claimable exits at par, fee-vault negative-yield discount, reverted child/top-level gas attribution, and durable address-keyed governor/gas state.
+- Do not merge native precompile zero RequiredGas with high-frame precompile custom surcharge. They have different charging predicates, different value recipients, and different tests.
+- Do not merge no-code/EOA surcharge with precompile surcharge or delegate-style surcharge. Each target/opcode class must be separately preserved when code evidence exists.
+- Do not merge saved-seconds carry-forward with claimAll split optimum. The first is a lifecycle/resource-cap issue; the second is a helper-choice/curve-optimization issue.
+- Durable maturity counters, accumulated seconds, or yield-accounting clocks are distinct from generic arithmetic. Preserve them when evidence ties the value to final balances, eligibility, or fee/yield distribution.
+- Durable maturity candidates must also ask whether saved time/seconds turn new gas into immediately reusable capital for resource exhaustion or node DoS. Do not collapse that into ordinary claim-rate optimization.
+- Global discounts, refunds, access-list behavior, precompile costs, and custom gas penalties must be compared with per-contract attribution and the entity that receives fees. Do not merge these into a generic gas issue unless the charging predicate and value recipient are identical.
+- A refund or gas-attribution hypothesis must not be rejected as intentional until the audit names who paid, who earned the refund, who receives the residual fee, and which exact contract/account owns the warmed or charged state.
+- A custom penalty hypothesis is distinct for no-code targets, delegate-style calls, call-code-like calls, precompile/system calls, first call, repeated call, and access-list-warmed call. Preserve separate dossiers unless the same state write and same value recipient explain all of them.
+- Reverted-frame fee attribution and refund socialization must be modeled with an attacker-controlled claimable/refunding contract and a separate victim-paid transaction route before rejection.
+- Access-list hypotheses must separately check intrinsic-gas attribution and whether custom warm/cold penalties still apply after EIP-2930 prepayment.
+- A gas maturity or claim-curve hypothesis is distinct when accumulated time, saved seconds, balance withdrawal, redeposit, claim-rate optimization, or packed timestamp/counter state changes the economic optimum or resource cap.
+- Claim helpers must be separated by sink: claim-all, claim-max, minimum-rate, explicit claim, withdraw balance, and mode change. Preserve split-claim or interior-optimum hypotheses even if a different helper is safe.
+- Direct cross-domain deposit and replay paths must compare requested minimum gas, forwarded gas, reserve gas, added post-call storage writes, replay guards, and rounded or discounted value.
+- Direct non-replayable deposit hypotheses must include a finalizer gas-budget table. Compare the user's requested sink gas with portal minimums, messenger/baseGas equivalents, call-wrapper overhead, EIP-150 63/64 withholding, finalizer checks/events, and downstream recipient call gas.
+- Bridge amount hypotheses must compare raw token amount, decimal-converted amount, canonical WAD amount, principal accounting amount, portal mint/value, escrow/burn amount, L2 finalizer calldata amount, and emitted event amount.
+- Fee-vault/protocol-owned balances and user-owned balances must both be checked through negative-yield, discounted, or rounded withdrawal paths.
+- Protocol-owned gas and fee vault balances must be reviewed as first-class loss victims, including L1 fee vaults, base fee vaults, sequencer/protocol recipients, VOID-mode gas buckets, and data-availability fee accounting.
+- Deployment, genesis, proxy, and implementation initialization checks must compare constructors, initializers, storage layout, proxy intent, and durable per-address configuration across selfdestruct, redeploy, and upgrade scenarios.
+- Do not reject an uninitialized implementation, direct-genesis-storage, or proxy-intent mismatch solely because the proxy has separate storage. First check whether delegatecall, upgrade, code identity, code destruction, or inherited storage layout can make implementation code availability or initializer state security-sensitive.
+- Direct genesis or migration storage must be compared field-by-field against constructor and initializer postconditions, especially initial share price, total shares, initialized flags, owner/governor, implementation slots, version markers, and bootstrap balances.
+- Durable per-address config must be checked across ordinary create, deterministic create, selfdestruct, same-transaction deletion, redeploy, and upgrade. Preserve candidates where config can outlive the code identity it was meant to authorize.
+- External yield-provider hypotheses must model pending withdrawals, oracle caps, insurance timing, emergency shutdown, and recovery ownership before being rejected as only operational risk.
+- External-provider loss hypotheses must compare pending, claimable, insured, slashed, paused, shutdown, removed, and migrated provider states. Preserve owner/admin-only mechanisms when a compromised owner, delayed public event, or migration operation can leak value between users or reset eligibility.
+- Slashing/insurance hypotheses must separate pre-loss front-running, loss-time snapshots, post-loss deposits, and recovery distribution. A par-mint issue after loss does not kill an insurance eligibility issue before loss.
+- Upgrade hypotheses must preserve pending message, withdrawal, output-root, nonce, replay, failed-message, successful-message, and finalized-withdrawal state across initialization, reinitialization, proxy upgrade, migration, and governance execution windows.
+- Round-seven targeted candidate classes get explicit space after the pinned union: proxied Blast/Gas constructor-only state, Lido oracle-cap delayed truth, Maker DSR shutdown recovery, discounted-withdrawal L1 DA fee equations, native bookkeeping overhead metering, high-frame precompile custom surcharge, predictable-slashing insurance front-run, and upgrade storage-migration double withdrawal.
+- Do not merge high-frame precompile custom surcharge into generic precompile wrong-recipient attribution unless repeated `BlastGasParamStorageGas` is proven or killed separately.
+- Do not merge L1 DA fee undercharge into generic fee-vault discount unless the charged L2 data fee and real L1 recovered value are equal by construction.
+- Do not merge Maker shutdown into generic provider risk unless the normal DSR exit/recovery path is proven available after emergency shutdown.
+- Do not merge Lido oracle caps into pending-exit par valuation unless the cap/delayed-report path is separately proven or killed.
+- Do not merge upgrade double withdrawal into impossible-finalization or zero-value replay. The double-withdrawal candidate must check duplicate successful value delivery across old/new replay or finalization maps.
+- Round-eight targeted candidate classes get explicit space after round-seven hits: direct uninitialized-implementation takeover plus privileged delegatecall, constructor-only proxy-intent mismatch, broad native bookkeeping overhead, invalid precompile revert gas, Lido oracle-cap withdrawal under-discount, fresh-stETH insurance front-run payoff, and true upgrade double-delivery.
+- Do not reject an implementation-takeover candidate solely because live proxy storage is separate. First test implementation-local privileged methods reachable after direct initialization and whether implementation code/state availability matters to proxy upgrades or deployments.
+- Do not reject constructor-only proxy findings solely because genesis wrote enough storage for the current implementation. Check whether the system contract is intentionally non-upgradeable and whether proxy upgrade authority can bypass constructor validation later.
+- Do not let the broad native bookkeeping overhead candidate be crowded out by exact native precompile or high-frame surcharge findings. Keep a separate dossier or rejected entry with the overhead budget table.
+- Invalid precompile selector/revert gas must be a standalone dossier when the root predicate is present, even if final severity is Low or adjacent to valid-selector zero gas.
+- Lido oracle-cap withdrawal under-discount must be checked at `finalize`/share-price locking, not merely at bridge deposit admission.
+- Fresh-stETH insurance front-running must include a payoff table showing whether exact cover, residual cover, or stale loss admission benefits old holders, fresh entrants, or harms fresh victims.
+- Upgrade double-delivery candidates must name the two successful value-delivery paths and the two replay/finality keys. Zero-value replay is adjacent but not a substitute.
+- Round-nine targeted candidate classes get explicit space after round-eight hits: saved-seconds capital/resource loops, implementation-address bricking under active fork semantics, nested reinitializer `xDomainMsgSender` double withdrawal, and final-report filtering for generic non-Blast surfaces.
+- Saved-seconds candidates must include numeric economics after penalties and admin clawback, not only local claim-rate semantics.
+- Implementation-bricking candidates must separate proxy storage compromise from implementation code/state availability and must state the exact selfdestruct or destructive-delegatecall semantics assumed.
+- Reinitializer double-withdrawal candidates must prove the in-call upgrade/reset trace, not only migration key mismatch or stranded-value behavior.
+- Generic RPC, p2p, faucet, and operator-admin findings should remain residual or rejected unless they materially affect Blast bridge/yield/gas/predeploy/provider settlement.
+- Round-ten final targeted class gets explicit space: native-yield balance/share-count bookkeeping overhead as a sibling to the gas-refund finalizer overhead. Preserve both if source evidence exists.
+- Do not let the native-yield balance/share-count overhead candidate be crowded out by native precompile gas, invalid precompile revert gas, custom surcharge, or `AllocateDevGas` finalizer findings.
+"""
+    write_file(prompt_out_dir / "80-canonicalize-candidates.md", canonicalize_prompt, args.force)
+
+    aggregate_prompt = build_prompt_header("Aggregate Validated Findings", target, run_dir)
+    aggregate_prompt += f"""Use these inputs:
+- every `candidate-*.md` dossier in `{run_dir}`
+- `{run_dir / "candidate-index.md"}`
+- `{run_dir / "rejected-candidates.md"}`
+- `{run_dir / "feature-coverage.md"}`
+- `{run_dir / "verification-log.md"}`
+- `{run_dir / "corpus-pattern-candidates.md"}`
+- `{run_dir / "MAX_AUDIT_CHECKLIST.md"}`
+- `{run_dir / "FINAL_AUDIT_REPORT.md"}`
+
+Refresh these outputs:
+- `{run_dir / "candidate-index.md"}`
+- `{run_dir / "rejected-candidates.md"}`
+- `{run_dir / "feature-coverage.md"}`
+- `{run_dir / "verification-log.md"}`
+- `{run_dir / "corpus-pattern-candidates.md"}`
+- `{run_dir / "MAX_AUDIT_CHECKLIST.md"}`
+- `{run_dir / "FINAL_AUDIT_REPORT.md"}`
+
+Instructions:
+1. Read every validated dossier and classify it as `confirmed`, `likely`, `needs more proof`, `invalid`, `duplicate`, `out of scope`, or `hardening only`.
+2. Update `candidate-index.md` so statuses reflect validation, not canonicalization.
+3. Move killed or duplicate candidates into `rejected-candidates.md` with the killer evidence.
+4. Update `feature-coverage.md` rows with candidate ids, validation status, tests reviewed, and residual risk.
+5. Update `verification-log.md` with any build/test commands or blockers recorded in candidate dossiers.
+6. Update `corpus-pattern-candidates.md` so corpus-derived hypotheses point to final candidate dispositions.
+7. Fill `FINAL_AUDIT_REPORT.md` with only confirmed/likely Medium-or-higher findings, plus residual risk and verification gaps. Do not leave template placeholders.
+8. Mark completed checklist items in `MAX_AUDIT_CHECKLIST.md`.
+9. Do not read benchmark ground truth, previous scored loop artifacts, or answer keys.
+10. Preserve uncertainty: if a finding is real but reachability is uncertain, include that uncertainty in severity/confidence instead of deleting the mechanism.
+"""
+    write_file(prompt_out_dir / "95-aggregate-validated-findings.md", aggregate_prompt, args.force)
+
+    coverage_prompt = build_prompt_header("Final Coverage Pass", target, run_dir)
+    coverage_prompt += f"""Review every file in:
+- `{run_dir}`
+
+Produce:
+- `{run_dir / "final-coverage-report.md"}`
+
+Check for:
+1. Protocol surfaces from `repo-context.md` not covered by any family scan.
+2. Feature rows in `feature-coverage.md` that are empty, template-only, or unsupported by concrete file/function evidence.
+3. High-risk files/functions with no review notes.
+4. Duplicated candidates across families.
+5. Candidates that need validation or should be killed.
+6. Corpus matches that produced candidates but were not validated or killed.
+7. Missing build/test attempts or missing blockers in `verification-log.md`.
+8. Simulation, replay, recovery, debug, compatibility, migration, and feature-gated paths that were not compared to normal execution.
+9. Remaining blind spots and the next highest-value scan.
+"""
+    write_file(prompt_out_dir / "99-final-coverage-pass.md", coverage_prompt, args.force)
+
+    write_file(run_dir / "candidate-index.md", build_candidate_index(now, target, branch, commit), args.force)
+    write_file(run_dir / "rejected-candidates.md", build_rejected_candidates(now, target), args.force)
+    write_file(
+        run_dir / "feature-coverage.md",
+        build_feature_coverage(now, target, args.previous_ref, args.current_ref),
+        args.force,
+    )
+    write_file(run_dir / "verification-log.md", build_verification_log(now, target), args.force)
+    write_file(run_dir / "FINAL_AUDIT_REPORT.md", build_final_report(now, target, branch, commit), args.force)
+
+    checklist = f"""# Max Audit Checklist
+
+## Metadata
+
+- Target repo: `{target}`
+- Target branch: `{branch}`
+- Target commit: `{commit}`
+- Run directory: `{run_dir}`
+- Operator: {args.operator}
+- Created UTC: {now:%Y-%m-%d %H:%M:%S}
+
+## Workflow
+
+- [ ] Run `agent-prompts/00-RUN-AUTONOMOUS-MAX-AUDIT.md` to execute the whole audit in one agent pass.
+- [ ] Optional: run `agent-prompts/00-RUN-PARALLEL-CODEX.md` if using multiple Codex workers.
+- [ ] Establish scope and diff baseline.
+- [ ] Run `agent-prompts/00-protocol-mapper.md` and fill `repo-context.md`, `feature-coverage.md`, and `verification-log.md`.
+- [ ] Run `agent-prompts/05-corpus-pattern-search.md` and fill `corpus-match-index.md` plus `corpus-pattern-candidates.md`.
+- [ ] Run every family scan prompt below.
+- [ ] Run `agent-prompts/80-canonicalize-candidates.md` and create deduplicated `candidate-*.md` dossiers.
+- [ ] Validate every serious candidate with `agent-prompts/90-validate-candidates.md`.
+- [ ] Confirm each surviving candidate has line-level evidence, reachability, impact, confidence, and upgrade/change linkage.
+- [ ] Attempt build/tests or record concrete blocker in `verification-log.md`.
+- [ ] Run `agent-prompts/95-aggregate-validated-findings.md`.
+- [ ] Run `agent-prompts/99-final-coverage-pass.md`.
+- [ ] Fill `candidate-index.md`, `rejected-candidates.md`, `final-coverage-report.md`, and `FINAL_AUDIT_REPORT.md`.
+- [ ] Confirm no required output contains template-only placeholders.
+
+## Family Scans
+
+{chr(10).join(family_rows)}
+
+## Notes
+
+- Keep old/example reports in `previous-runs/`; do not mix them into this run unless intentionally using them for calibration.
+- Treat historical corpus material as search patterns, not proof that the same bug exists here.
+- Prefer killing weak candidates over inflating them.
+"""
+    write_file(run_dir / "MAX_AUDIT_CHECKLIST.md", checklist, args.force)
+
+    print(f"Created max audit run: {run_dir}")
+    print(f"Target: {target} ({branch} {commit})")
+    print(f"Shared corpus root: {corpus_root}")
+    print("Start with:")
+    print(f"  {prompt_out_dir / '00-RUN-AUTONOMOUS-MAX-AUDIT.md'}")
+    print("Or run the pipeline manually with prompts under:")
+    print(f"  {prompt_out_dir}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

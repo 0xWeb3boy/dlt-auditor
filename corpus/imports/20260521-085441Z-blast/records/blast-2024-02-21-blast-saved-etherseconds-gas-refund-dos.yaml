@@ -1,0 +1,71 @@
+id: "blast-2024-02-21-blast-saved-etherseconds-gas-refund-dos"
+source_finding: "2024-02-21-blast-saved-etherseconds-gas-refund-dos.md"
+project: "blast"
+date: "2024-02-21"
+language_tags:
+  - "go"
+  - "solidity"
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "gas-refund-maturity-reuse"
+subsystem: "gas-refund-accounting"
+architecture_tags:
+  - "rollup"
+  - "bridge"
+  - "evm"
+  - "native-yield"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "competition-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "resource-accounting"
+violated_invariant: "Gas refund maturity should be consumed when the corresponding gas balance is claimed so old seconds cannot subsidize future block-stuffing work."
+trust_boundary: "user transaction -> Blast gas-refund accounting"
+entrypoint_type: "gas-claim path and post-transaction gas allocation"
+sensitive_sink: "Gas predeploy etherBalance and etherSeconds state"
+
+attacker_capabilities:
+  - "control a contract or governor that accrues claimable gas"
+  - "submit gas-heavy transactions and time gas claims"
+exploit_preconditions:
+  - "gas refunds mature faster than the attack capital is exhausted"
+  - "claim paths can drain etherBalance while leaving surplus etherSeconds"
+blast_radius: "chain-wide resource pressure"
+
+impact_types:
+  - "denial-of-service"
+  - "fee-bypass"
+  - "resource-accounting"
+severity_guess: "high"
+severity_rationale: "Accepted high severity competition finding. The mechanism crosses user transaction -> Blast gas-refund accounting and can affect denial-of-service, fee-bypass."
+
+code_shape_summary: "Gas accounting stores claimable gas value and maturity seconds separately; a full-balance claim consumes only the seconds needed for the selected payout rate and can leave reusable maturity behind."
+search_motifs:
+  - "etherSeconds"
+  - "claimAllGas"
+  - "claimMaxGas"
+  - "gasToClaim * ceilGasSeconds"
+  - "updateGasPredeploy"
+  - "maturity seconds survive zero balance"
+negative_signals:
+  - "The same property is enforced earlier on every reachable path before state, gas, or value is committed."
+  - "The actor who can trigger the path already owns the affected role, funds, or address-lifecycle authority."
+  - "The behavior is explicitly documented and all downstream accounting prices it as an intended policy choice."
+  - "The path is test-only, deployment-local, or requires an operator-only misconfiguration with no protocol effect."
+patch_pattern: "When claimable gas balance is fully withdrawn, clear or cap the associated maturity seconds so old seconds cannot apply to newly accrued gas."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/design-lab/benchmarks/blast/ground-truth/report.md"
+  - "H-01 etherSeconds can be accrued to allow riskless DOS of the node (#1101)"
+  - "report.md#H-01"
+  - "blast-optimism/packages/contracts-bedrock/src/L2/Gas.sol"
+  - "blast-geth/core/vm/gas_tracker.go"
+notes:
+  - "Derived from the Blast competition findings report, not from a live production incident write-up."
+  - "Patch pattern is report/recommendation-derived unless a source reference names a concrete fix artifact."
+  - "Competition window: 2024-01-31 to 2024-02-21."

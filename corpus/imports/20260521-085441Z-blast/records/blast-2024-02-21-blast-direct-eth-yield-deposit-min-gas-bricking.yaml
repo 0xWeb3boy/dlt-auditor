@@ -1,0 +1,70 @@
+id: "blast-2024-02-21-blast-direct-eth-yield-deposit-min-gas-bricking"
+source_finding: "2024-02-21-blast-direct-eth-yield-deposit-min-gas-bricking.md"
+project: "blast"
+date: "2024-02-21"
+language_tags:
+  - "go"
+  - "solidity"
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "bridge-direct-deposit-gas-budget"
+subsystem: "bridge"
+architecture_tags:
+  - "rollup"
+  - "bridge"
+  - "evm"
+  - "native-yield"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "competition-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "cross-domain-replay-and-gas-budgeting"
+violated_invariant: "Direct bridge deposits that bypass the messenger must still budget enough gas for finalization or provide an equivalent replay/refund path."
+trust_boundary: "L1 bridge deposit -> L2 value finalization"
+entrypoint_type: "L1 ETH-yield-token bridgeERC20/bridgeERC20To"
+sensitive_sink: "L2 direct ETH finalizer and recipient transfer"
+
+attacker_capabilities:
+  - "submit or induce a direct ETH-yield-token bridge deposit"
+  - "choose a low minGasLimit or recipient behavior that makes finalization fail"
+exploit_preconditions:
+  - "deposit uses the direct portal path rather than normal messenger retry semantics"
+  - "finalization failure occurs after L1-side custody/accounting changes"
+blast_radius: "bridge-domain to settlement-domain"
+
+impact_types:
+  - "asset-stranding"
+  - "denial-of-service"
+  - "cross-domain-lifecycle-failure"
+severity_guess: "high"
+severity_rationale: "Accepted high severity competition finding. The mechanism crosses L1 bridge deposit -> L2 value finalization and can affect asset-stranding, denial-of-service."
+
+code_shape_summary: "A direct deposit path sends portal value and finalizer calldata with user-provided minGasLimit, but the L2 finalizer has no messenger failed-message state or replay handle."
+search_motifs:
+  - "finalizeBridgeETHDirect"
+  - "depositTransaction"
+  - "_minGasLimit"
+  - "direct ETH yield token bridge"
+  - "no failedMessages replay"
+negative_signals:
+  - "The same property is enforced earlier on every reachable path before state, gas, or value is committed."
+  - "The actor who can trigger the path already owns the affected role, funds, or address-lifecycle authority."
+  - "The behavior is explicitly documented and all downstream accounting prices it as an intended policy choice."
+  - "The path is test-only, deployment-local, or requires an operator-only misconfiguration with no protocol effect."
+patch_pattern: "Compute a mandatory base gas floor for the direct finalizer or route value-bearing deposits through a replayable messenger path."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/design-lab/benchmarks/blast/ground-truth/report.md"
+  - "H-03 minGasLimit miscalculated for stETH deposits, leading to bricked funds (#1077)"
+  - "report.md#H-03"
+  - "L1BlastBridge.sol"
+  - "L2BlastBridge.sol"
+notes:
+  - "Derived from the Blast competition findings report, not from a live production incident write-up."
+  - "Patch pattern is report/recommendation-derived unless a source reference names a concrete fix artifact."
+  - "Competition window: 2024-01-31 to 2024-02-21."

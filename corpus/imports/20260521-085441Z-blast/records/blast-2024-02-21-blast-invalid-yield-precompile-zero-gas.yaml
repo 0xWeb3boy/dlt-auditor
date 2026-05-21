@@ -1,0 +1,67 @@
+id: "blast-2024-02-21-blast-invalid-yield-precompile-zero-gas"
+source_finding: "2024-02-21-blast-invalid-yield-precompile-zero-gas.md"
+project: "blast"
+date: "2024-02-21"
+language_tags:
+  - "go"
+  - "solidity"
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "invalid-precompile-revert-undercharge"
+subsystem: "execution-client-native-precompile"
+architecture_tags:
+  - "rollup"
+  - "bridge"
+  - "evm"
+  - "native-yield"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "competition-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "native-error-path-metering"
+violated_invariant: "Malformed or unknown native precompile calls should still charge enough gas for native dispatch, parsing, rollback, and attribution work."
+trust_boundary: "EVM call -> native precompile error handling"
+entrypoint_type: "CALL/STATICCALL to Blast yield precompile with invalid calldata"
+sensitive_sink: "RunPrecompiledContract revert path and GasTracker attribution"
+
+attacker_capabilities:
+  - "submit transactions or contract loops that call the native precompile with malformed calldata"
+exploit_preconditions:
+  - "invalid selector returns zero RequiredGas"
+  - "revert returns unused subcall gas without charging native body work"
+blast_radius: "execution-client block processing"
+
+impact_types:
+  - "denial-of-service"
+  - "resource-accounting"
+severity_guess: "medium"
+severity_rationale: "Accepted medium severity competition finding. The mechanism crosses EVM call -> native precompile error handling and can affect denial-of-service, resource-accounting."
+
+code_shape_summary: "Invalid precompile calls reach native selector parsing and revert handling while RequiredGas is zero and remaining gas is returned to the caller."
+search_motifs:
+  - "invalid selector"
+  - "ErrExecutionReverted"
+  - "remainingGas == suppliedGas"
+  - "zero RequiredGas"
+  - "native precompile dispatch"
+negative_signals:
+  - "The same property is enforced earlier on every reachable path before state, gas, or value is committed."
+  - "The actor who can trigger the path already owns the affected role, funds, or address-lifecycle authority."
+  - "The behavior is explicitly documented and all downstream accounting prices it as an intended policy choice."
+  - "The path is test-only, deployment-local, or requires an operator-only misconfiguration with no protocol effect."
+patch_pattern: "Charge a minimum invalid-call cost or make malformed dispatch consume the intended native precompile gas before returning a revert."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/design-lab/benchmarks/blast/ground-truth/report.md"
+  - "M-01 Blast precompile reverts cost zero gas, allowing resource consumption related DOS (#1105)"
+  - "report.md#M-01"
+  - "blast-geth/core/vm/contracts.go"
+notes:
+  - "Derived from the Blast competition findings report, not from a live production incident write-up."
+  - "Patch pattern is report/recommendation-derived unless a source reference names a concrete fix artifact."
+  - "Competition window: 2024-01-31 to 2024-02-21."

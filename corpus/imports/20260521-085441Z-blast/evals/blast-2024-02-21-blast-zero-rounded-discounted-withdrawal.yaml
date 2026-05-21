@@ -1,0 +1,21 @@
+id: "blast-2024-02-21-blast-zero-rounded-discounted-withdrawal"
+source_record: "blast-2024-02-21-blast-zero-rounded-discounted-withdrawal.yaml"
+project: "blast"
+
+expected_bug_family: "state_machine_and_lifecycle_consistency"
+expected_bug_class: "zero-rounded-positive-value-lifecycle"
+expected_missing_property: "zero-progress-handling"
+
+expected_impact_band: "asset-stranding,cross-domain-lifecycle-failure"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The same property is enforced earlier on every reachable path before state, gas, or value is committed."
+  - "The actor who can trigger the path already owns the affected role, funds, or address-lifecycle authority."
+  - "The behavior is explicitly documented and all downstream accounting prices it as an intended policy choice."
+notes:
+  - "Expected detector rationale should mention zero-progress-handling at the discounted yield withdrawal -> cross-domain messenger replay state boundary."
+  - "Source report finding: M-03 Withdrawals that include 1 wei will be bricked in the event of a negative rebase (#1031)"

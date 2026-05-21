@@ -1,0 +1,71 @@
+id: "blast-2024-02-21-blast-weth-rebasing-genesis-zero-share-price"
+source_finding: "2024-02-21-blast-weth-rebasing-genesis-zero-share-price.md"
+project: "blast"
+date: "2024-02-21"
+language_tags:
+  - "go"
+  - "solidity"
+
+bug_family: "state_machine_and_lifecycle_consistency"
+bug_class: "initializer-genesis-state-mismatch"
+subsystem: "l2-genesis-predeploys"
+architecture_tags:
+  - "rollup"
+  - "bridge"
+  - "evm"
+  - "native-yield"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "competition-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "initializer-postcondition-parity"
+violated_invariant: "Genesis storage for initialized proxied predeploys must include all storage postconditions of the initializer, especially accounting price and share state."
+trust_boundary: "genesis builder -> live L2 predeploy state"
+entrypoint_type: "L2 genesis construction"
+sensitive_sink: "WETHRebasing ERC20 share-price and total-share accounting"
+
+attacker_capabilities:
+  - "no attacker needed; any user later deposits into the affected WETH predeploy"
+exploit_preconditions:
+  - "genesis marks initializer consumed while omitting price/share accounting fields"
+  - "normal initializer cannot run after launch"
+blast_radius: "chain-wide WETH predeploy accounting"
+
+impact_types:
+  - "state-integrity"
+  - "asset-yield-loss"
+  - "lifecycle-invariant-break"
+severity_guess: "high"
+severity_rationale: "Accepted high severity competition finding. The mechanism crosses genesis builder -> live L2 predeploy state and can affect state-integrity, asset-yield-loss."
+
+code_shape_summary: "Direct genesis storage sets initialized flags and native yield mode, but does not seed the WETH rebasing token price that normal initialize would set from Shares.price."
+search_motifs:
+  - "NewL2StorageConfig"
+  - "_initialized = 1"
+  - "WETHRebasing.initialize"
+  - "price not set"
+  - "_totalShares == 0"
+  - "_addValue returns"
+negative_signals:
+  - "The same property is enforced earlier on every reachable path before state, gas, or value is committed."
+  - "The actor who can trigger the path already owns the affected role, funds, or address-lifecycle authority."
+  - "The behavior is explicitly documented and all downstream accounting prices it as an intended policy choice."
+  - "The path is test-only, deployment-local, or requires an operator-only misconfiguration with no protocol effect."
+patch_pattern: "Execute the initializer during genesis or write every initializer-equivalent storage field, including price, metadata, and Blast config."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/design-lab/benchmarks/blast/ground-truth/report.md"
+  - "H-06 WETH will never rebase because the initial share price and share count of WETHRebasing is 0. (#109)"
+  - "report.md#H-06"
+  - "op-chain-ops/genesis/config.go"
+  - "WETHRebasing.sol"
+  - "ERC20Rebasing.sol"
+notes:
+  - "Derived from the Blast competition findings report, not from a live production incident write-up."
+  - "Patch pattern is report/recommendation-derived unless a source reference names a concrete fix artifact."
+  - "Competition window: 2024-01-31 to 2024-02-21."

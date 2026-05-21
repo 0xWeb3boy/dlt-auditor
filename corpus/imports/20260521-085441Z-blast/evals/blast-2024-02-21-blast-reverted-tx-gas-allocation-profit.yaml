@@ -1,0 +1,21 @@
+id: "blast-2024-02-21-blast-reverted-tx-gas-allocation-profit"
+source_record: "blast-2024-02-21-blast-reverted-tx-gas-allocation-profit.yaml"
+project: "blast"
+
+expected_bug_family: "state_machine_and_lifecycle_consistency"
+expected_bug_class: "non-rollbacked-sidecar-accounting"
+expected_missing_property: "sidecar-rollback-atomicity"
+
+expected_impact_band: "fee-bypass,unauthorized-value-shift"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The same property is enforced earlier on every reachable path before state, gas, or value is committed."
+  - "The actor who can trigger the path already owns the affected role, funds, or address-lifecycle authority."
+  - "The behavior is explicitly documented and all downstream accounting prices it as an intended policy choice."
+notes:
+  - "Expected detector rationale should mention sidecar-rollback-atomicity at the EVM execution/revert -> post-transaction gas finalizer boundary."
+  - "Source report finding: M-15 Exploiting Gas Allocation Mechanics On Reverted Transactions To Profit From Spamming The Network (#626)"

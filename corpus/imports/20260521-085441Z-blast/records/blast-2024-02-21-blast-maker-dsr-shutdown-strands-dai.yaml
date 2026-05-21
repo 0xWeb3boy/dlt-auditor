@@ -1,0 +1,70 @@
+id: "blast-2024-02-21-blast-maker-dsr-shutdown-strands-dai"
+source_finding: "2024-02-21-blast-maker-dsr-shutdown-strands-dai.md"
+project: "blast"
+date: "2024-02-21"
+language_tags:
+  - "go"
+  - "solidity"
+
+bug_family: "staking_registry_and_accountability"
+bug_class: "external-provider-shutdown-recovery-gap"
+subsystem: "usd-yield-provider"
+architecture_tags:
+  - "rollup"
+  - "bridge"
+  - "evm"
+  - "native-yield"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "competition-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "emergency-recovery-path"
+violated_invariant: "External staking-provider integration must support the provider shutdown/recovery mechanism for assets whose normal manager wrapper can no longer exit."
+trust_boundary: "Maker emergency shutdown -> Blast USD yield accounting"
+entrypoint_type: "DSRYieldProvider unstake or premium path after Maker cage/shutdown"
+sensitive_sink: "DSR_MANAGER.exit and DAI recovery ownership"
+
+attacker_capabilities:
+  - "no attacker required beyond Maker shutdown; users/operators later need withdrawals or recovery"
+exploit_preconditions:
+  - "Blast has DAI staked through DSR_MANAGER"
+  - "Maker disables normal exit or requires End.sol recovery outside DSR_MANAGER"
+blast_radius: "USD yield manager DAI backing"
+
+impact_types:
+  - "asset-stranding"
+  - "liveness-failure"
+  - "staking-recovery-failure"
+severity_guess: "medium"
+severity_rationale: "Accepted medium severity competition finding. The mechanism crosses Maker emergency shutdown -> Blast USD yield accounting and can affect asset-stranding, liveness-failure."
+
+code_shape_summary: "The provider uses DSR_MANAGER.join/exit and values pieOf as recoverable, but lacks an alternate End.sol/Pot/DaiJoin shutdown recovery route."
+search_motifs:
+  - "DSR_MANAGER.join"
+  - "DSR_MANAGER.exit"
+  - "pot.live"
+  - "daiJoin.live"
+  - "Maker Emergency Shutdown"
+  - "End.sol recovery"
+negative_signals:
+  - "The same property is enforced earlier on every reachable path before state, gas, or value is committed."
+  - "The actor who can trigger the path already owns the affected role, funds, or address-lifecycle authority."
+  - "The behavior is explicitly documented and all downstream accounting prices it as an intended policy choice."
+  - "The path is test-only, deployment-local, or requires an operator-only misconfiguration with no protocol effect."
+patch_pattern: "Integrate directly with Maker shutdown redemption flows or add an audited emergency recovery path that can recover DAI when DSR_MANAGER exit is unavailable."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/design-lab/benchmarks/blast/ground-truth/report.md"
+  - "M-17 All staked DAI will be permanently lost if Maker initiates the Shutdown Mechanism (#527)"
+  - "report.md#M-17"
+  - "DSRYieldProvider.sol"
+  - "Maker DSR_MANAGER"
+notes:
+  - "Derived from the Blast competition findings report, not from a live production incident write-up."
+  - "Patch pattern is report/recommendation-derived unless a source reference names a concrete fix artifact."
+  - "Competition window: 2024-01-31 to 2024-02-21."

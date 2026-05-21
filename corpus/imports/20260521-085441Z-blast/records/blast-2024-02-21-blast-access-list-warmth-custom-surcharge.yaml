@@ -1,0 +1,69 @@
+id: "blast-2024-02-21-blast-access-list-warmth-custom-surcharge"
+source_finding: "2024-02-21-blast-access-list-warmth-custom-surcharge.md"
+project: "blast"
+date: "2024-02-21"
+language_tags:
+  - "go"
+  - "solidity"
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "access-list-custom-gas-incompatibility"
+subsystem: "execution-client-gas-accounting"
+architecture_tags:
+  - "rollup"
+  - "bridge"
+  - "evm"
+  - "native-yield"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "competition-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "access-list-warmth-parity"
+violated_invariant: "If an access list prewarms a target for EVM gas semantics, Blast-specific custom gas should not reintroduce an unpriced cold-style failure mode for the same target class."
+trust_boundary: "transaction access list -> CALL-family gas calculation"
+entrypoint_type: "EIP-2930 or EIP-1559 transaction with access list"
+sensitive_sink: "CALL dynamic gas and OOG behavior"
+
+attacker_capabilities:
+  - "submit transactions with access lists or rely on relayer-generated access lists"
+exploit_preconditions:
+  - "call path crosses Blast high-frame threshold"
+  - "contract assumes prewarmed access will fit a gas budget"
+blast_radius: "applications relying on access-list gas guarantees"
+
+impact_types:
+  - "compatibility-break"
+  - "denial-of-service"
+  - "gas-accounting"
+severity_guess: "medium"
+severity_rationale: "Accepted medium severity competition finding. The mechanism crosses transaction access list -> CALL-family gas calculation and can affect compatibility-break, denial-of-service."
+
+code_shape_summary: "The standard cold-account cost respects access-list warmth, but the Blast high-frame surcharge ignores that warmth and can still add storage-style gas."
+search_motifs:
+  - "accessList"
+  - "AddressInAccessList"
+  - "warm target"
+  - "BlastGasParamStorageGas"
+  - "frameCount > BlastMaxFrameCount"
+negative_signals:
+  - "The same property is enforced earlier on every reachable path before state, gas, or value is committed."
+  - "The actor who can trigger the path already owns the affected role, funds, or address-lifecycle authority."
+  - "The behavior is explicitly documented and all downstream accounting prices it as an intended policy choice."
+  - "The path is test-only, deployment-local, or requires an operator-only misconfiguration with no protocol effect."
+patch_pattern: "Integrate access-list warmth into the custom surcharge or expose/document a separate gas rule that callers can estimate reliably."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/design-lab/benchmarks/blast/ground-truth/report.md"
+  - "M-07 EVM-incompatibility: EIP-2930 which mitigates risks of EIP-2929, could possibly break for some contracts (#841)"
+  - "report.md#M-07"
+  - "operations_acl.go"
+  - "state_transition.go access list"
+notes:
+  - "Derived from the Blast competition findings report, not from a live production incident write-up."
+  - "Patch pattern is report/recommendation-derived unless a source reference names a concrete fix artifact."
+  - "Competition window: 2024-01-31 to 2024-02-21."

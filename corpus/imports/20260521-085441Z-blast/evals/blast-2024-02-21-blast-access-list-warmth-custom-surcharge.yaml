@@ -1,0 +1,21 @@
+id: "blast-2024-02-21-blast-access-list-warmth-custom-surcharge"
+source_record: "blast-2024-02-21-blast-access-list-warmth-custom-surcharge.yaml"
+project: "blast"
+
+expected_bug_family: "resource_accounting_and_limits"
+expected_bug_class: "access-list-custom-gas-incompatibility"
+expected_missing_property: "access-list-warmth-parity"
+
+expected_impact_band: "compatibility-break,denial-of-service"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The same property is enforced earlier on every reachable path before state, gas, or value is committed."
+  - "The actor who can trigger the path already owns the affected role, funds, or address-lifecycle authority."
+  - "The behavior is explicitly documented and all downstream accounting prices it as an intended policy choice."
+notes:
+  - "Expected detector rationale should mention access-list-warmth-parity at the transaction access list -> CALL-family gas calculation boundary."
+  - "Source report finding: M-07 EVM-incompatibility: EIP-2930 which mitigates risks of EIP-2929, could possibly break for some contracts (#841)"

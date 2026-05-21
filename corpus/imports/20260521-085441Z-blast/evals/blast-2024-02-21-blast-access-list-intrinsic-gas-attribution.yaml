@@ -1,0 +1,21 @@
+id: "blast-2024-02-21-blast-access-list-intrinsic-gas-attribution"
+source_record: "blast-2024-02-21-blast-access-list-intrinsic-gas-attribution.yaml"
+project: "blast"
+
+expected_bug_family: "resource_accounting_and_limits"
+expected_bug_class: "intrinsic-gas-attribution-mismatch"
+expected_missing_property: "fee-recipient-attribution"
+
+expected_impact_band: "fee-attribution-error,fee-bypass"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The same property is enforced earlier on every reachable path before state, gas, or value is committed."
+  - "The actor who can trigger the path already owns the affected role, funds, or address-lifecycle authority."
+  - "The behavior is explicitly documented and all downstream accounting prices it as an intended policy choice."
+notes:
+  - "Expected detector rationale should mention fee-recipient-attribution at the transaction intrinsic gas -> developer gas accounting boundary."
+  - "Source report finding: M-14 Access lists attribute gas to Blast instead of the smart contracts that induce them (#641)"

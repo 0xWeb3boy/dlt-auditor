@@ -1,0 +1,71 @@
+id: "blast-2024-02-21-blast-uninitialized-usd-yield-manager-implementation"
+source_finding: "2024-02-21-blast-uninitialized-usd-yield-manager-implementation.md"
+project: "blast"
+date: "2024-02-21"
+language_tags:
+  - "go"
+  - "solidity"
+
+bug_family: "authz_and_role_gates"
+bug_class: "unlocked-proxy-implementation-initializer"
+subsystem: "yield-manager-upgradeability"
+architecture_tags:
+  - "rollup"
+  - "bridge"
+  - "evm"
+  - "native-yield"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "competition-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "implementation-initializer-locking"
+violated_invariant: "Implementation contracts behind proxies must not remain publicly initializable when initialization grants ownership or reaches delegatecall hooks."
+trust_boundary: "external caller -> implementation contract address"
+entrypoint_type: "direct initialize call on implementation"
+sensitive_sink: "owner-only provider registration and delegatecall to provider code"
+
+attacker_capabilities:
+  - "call the implementation address directly before it is locked"
+  - "deploy provider code bound to the implementation address"
+exploit_preconditions:
+  - "implementation initializer is unconsumed"
+  - "provider initialization or destructive code executes in implementation context"
+blast_radius: "implementation availability and deployment safety"
+
+impact_types:
+  - "denial-of-service"
+  - "upgrade-safety"
+  - "unauthorized-action"
+severity_guess: "high"
+severity_rationale: "Accepted high severity competition finding. The mechanism crosses external caller -> implementation contract address and can affect denial-of-service, upgrade-safety."
+
+code_shape_summary: "ETHYieldManager locks its implementation in the constructor, while USDYieldManager leaves the Initializable path open; owner-only addProvider can delegatecall attacker-controlled provider code."
+search_motifs:
+  - "constructor does not call initialize"
+  - "_disableInitializers missing"
+  - "initializer on implementation"
+  - "addProvider delegatecall"
+  - "selfdestruct in provider initialize"
+negative_signals:
+  - "The same property is enforced earlier on every reachable path before state, gas, or value is committed."
+  - "The actor who can trigger the path already owns the affected role, funds, or address-lifecycle authority."
+  - "The behavior is explicitly documented and all downstream accounting prices it as an intended policy choice."
+  - "The path is test-only, deployment-local, or requires an operator-only misconfiguration with no protocol effect."
+patch_pattern: "Lock implementation initializers in constructors and avoid exposing implementation-local ownership paths that can reach delegatecall-capable plugins."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/design-lab/benchmarks/blast/ground-truth/report.md"
+  - "H-04 USD Yield Manager can be bricked by self destructing uninitialized implementation (#1036)"
+  - "report.md#H-04"
+  - "USDYieldManager.sol"
+  - "ETHYieldManager.sol"
+  - "YieldManager.sol::addProvider"
+notes:
+  - "Derived from the Blast competition findings report, not from a live production incident write-up."
+  - "Patch pattern is report/recommendation-derived unless a source reference names a concrete fix artifact."
+  - "Competition window: 2024-01-31 to 2024-02-21."

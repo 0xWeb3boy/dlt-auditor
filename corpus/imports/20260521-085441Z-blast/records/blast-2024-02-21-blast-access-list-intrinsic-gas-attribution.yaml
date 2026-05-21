@@ -1,0 +1,68 @@
+id: "blast-2024-02-21-blast-access-list-intrinsic-gas-attribution"
+source_finding: "2024-02-21-blast-access-list-intrinsic-gas-attribution.md"
+project: "blast"
+date: "2024-02-21"
+language_tags:
+  - "go"
+  - "solidity"
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "intrinsic-gas-attribution-mismatch"
+subsystem: "gas-fee-attribution"
+architecture_tags:
+  - "rollup"
+  - "bridge"
+  - "evm"
+  - "native-yield"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "competition-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "fee-recipient-attribution"
+violated_invariant: "Access-list intrinsic gas paid to warm contract/storage accesses should be attributed to the contract or surface that benefits from the warmed access, not a global bucket."
+trust_boundary: "transaction intrinsic gas -> developer gas accounting"
+entrypoint_type: "EIP-2930 access list transaction"
+sensitive_sink: "GasTracker allocation and claimable gas recipient"
+
+attacker_capabilities:
+  - "submit transactions with access lists touching target contracts"
+exploit_preconditions:
+  - "access-list intrinsic gas is charged before warmed accesses execute"
+  - "allocation credits the global Blast address rather than target contract"
+blast_radius: "developer gas revenue and protocol fee bucket"
+
+impact_types:
+  - "fee-attribution-error"
+  - "fee-bypass"
+severity_guess: "medium"
+severity_rationale: "Accepted medium severity competition finding. The mechanism crosses transaction intrinsic gas -> developer gas accounting and can affect fee-attribution-error, fee-bypass."
+
+code_shape_summary: "Intrinsic access-list gas is allocated to a global Blast gas address; the later warmed contract receives lower opcode gas and no corresponding intrinsic allocation."
+search_motifs:
+  - "AccessListStorageKeyCost"
+  - "AccessListAddressCost"
+  - "IntrinsicGas"
+  - "BlastGasAddress"
+  - "warm storage attribution"
+negative_signals:
+  - "The same property is enforced earlier on every reachable path before state, gas, or value is committed."
+  - "The actor who can trigger the path already owns the affected role, funds, or address-lifecycle authority."
+  - "The behavior is explicitly documented and all downstream accounting prices it as an intended policy choice."
+  - "The path is test-only, deployment-local, or requires an operator-only misconfiguration with no protocol effect."
+patch_pattern: "Attribute access-list intrinsic costs to the warmed targets or make access-list costs non-claimable by design with explicit accounting."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/design-lab/benchmarks/blast/ground-truth/report.md"
+  - "M-14 Access lists attribute gas to Blast instead of the smart contracts that induce them (#641)"
+  - "report.md#M-14"
+  - "state_transition.go intrinsic gas"
+  - "GasTracker"
+notes:
+  - "Derived from the Blast competition findings report, not from a live production incident write-up."
+  - "Patch pattern is report/recommendation-derived unless a source reference names a concrete fix artifact."
+  - "Competition window: 2024-01-31 to 2024-02-21."

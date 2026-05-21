@@ -1,0 +1,21 @@
+id: "blast-2024-02-21-blast-socialized-gas-refunds-dev-fee-theft"
+source_record: "blast-2024-02-21-blast-socialized-gas-refunds-dev-fee-theft.yaml"
+project: "blast"
+
+expected_bug_family: "resource_accounting_and_limits"
+expected_bug_class: "global-refund-socialization"
+expected_missing_property: "refund-source-attribution"
+
+expected_impact_band: "fee-bypass,unauthorized-value-shift"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The same property is enforced earlier on every reachable path before state, gas, or value is committed."
+  - "The actor who can trigger the path already owns the affected role, funds, or address-lifecycle authority."
+  - "The behavior is explicitly documented and all downstream accounting prices it as an intended policy choice."
+notes:
+  - "Expected detector rationale should mention refund-source-attribution at the user-controlled EVM execution -> developer gas-fee distribution boundary."
+  - "Source report finding: H-02 Users can steal 20% of all gas fees back from developers due to imprecise refund mechanism (#1083)"

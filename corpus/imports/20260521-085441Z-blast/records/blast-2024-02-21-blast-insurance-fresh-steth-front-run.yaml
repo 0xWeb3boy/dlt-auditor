@@ -1,0 +1,71 @@
+id: "blast-2024-02-21-blast-insurance-fresh-steth-front-run"
+source_finding: "2024-02-21-blast-insurance-fresh-steth-front-run.md"
+project: "blast"
+date: "2024-02-21"
+language_tags:
+  - "go"
+  - "solidity"
+
+bug_family: "state_machine_and_lifecycle_consistency"
+bug_class: "loss-eligibility-snapshot-gap"
+subsystem: "yield-provider-insurance"
+architecture_tags:
+  - "rollup"
+  - "bridge"
+  - "evm"
+  - "native-yield"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "competition-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "loss-time-eligibility-binding"
+violated_invariant: "Insurance or recovery for an externally known provider loss should apply to holders exposed at loss time, not fresh entrants who deposit after observing the loss."
+trust_boundary: "external provider impairment -> bridge deposit and insurance accounting"
+entrypoint_type: "fresh stETH deposit before loss report/insurance repair"
+sensitive_sink: "ETH yield manager share minting and insurance repair distribution"
+
+attacker_capabilities:
+  - "observe or predict a Lido loss before Blast reports it"
+  - "deposit stETH while admission remains open"
+exploit_preconditions:
+  - "loss is externally knowable but not yet reflected in Blast share price"
+  - "insurance repair is socialized across current balances"
+blast_radius: "ETH yield manager holders and insurance pool"
+
+impact_types:
+  - "value-transfer-between-cohorts"
+  - "insurance-drain"
+  - "stale-trust-state"
+severity_guess: "medium"
+severity_rationale: "Accepted medium severity competition finding. The mechanism crosses external provider impairment -> bridge deposit and insurance accounting and can affect value-transfer-between-cohorts, insurance-drain."
+
+code_shape_summary: "Bridge deposits mint L2 ETH or provider principal at stale/par value, while the later insurance/report path repairs the aggregate pool rather than only pre-loss holders."
+search_motifs:
+  - "fresh stETH deposit"
+  - "known Lido slashing"
+  - "insuranceWithdrawalBuffer"
+  - "commitYieldReport(true)"
+  - "deposit admission not paused"
+negative_signals:
+  - "The same property is enforced earlier on every reachable path before state, gas, or value is committed."
+  - "The actor who can trigger the path already owns the affected role, funds, or address-lifecycle authority."
+  - "The behavior is explicitly documented and all downstream accounting prices it as an intended policy choice."
+  - "The path is test-only, deployment-local, or requires an operator-only misconfiguration with no protocol effect."
+patch_pattern: "Pause or discount fresh deposits during known provider-loss windows and bind insurance eligibility to pre-loss accounting snapshots."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/design-lab/benchmarks/blast/ground-truth/report.md"
+  - "M-16 The one time insurance will need to work, it won't (#545)"
+  - "report.md#M-16"
+  - "L1BlastBridge.sol"
+  - "YieldManager.sol"
+  - "LidoYieldProvider.sol"
+notes:
+  - "Derived from the Blast competition findings report, not from a live production incident write-up."
+  - "Patch pattern is report/recommendation-derived unless a source reference names a concrete fix artifact."
+  - "Competition window: 2024-01-31 to 2024-02-21."

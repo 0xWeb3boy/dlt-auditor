@@ -1,0 +1,70 @@
+id: "blast-2024-02-21-blast-protocol-fee-vault-discounted-withdrawal"
+source_finding: "2024-02-21-blast-protocol-fee-vault-discounted-withdrawal.md"
+project: "blast"
+date: "2024-02-21"
+language_tags:
+  - "go"
+  - "solidity"
+
+bug_family: "state_machine_and_lifecycle_consistency"
+bug_class: "fee-vault-discount-domain-mismatch"
+subsystem: "fee-vault-withdrawals"
+architecture_tags:
+  - "rollup"
+  - "bridge"
+  - "evm"
+  - "native-yield"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "competition-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "fee-bucket-discount-exemption"
+violated_invariant: "Protocol fee buckets collected for sequencer/base/L1 cost recovery should not silently share user yield-provider losses unless that policy is explicit."
+trust_boundary: "permissionless L2 fee-vault withdrawal -> L1 discounted ETH settlement"
+entrypoint_type: "FeeVault.withdraw during negative yield"
+sensitive_sink: "OptimismPortal discounted ETH withdrawal claim"
+
+attacker_capabilities:
+  - "call permissionless fee-vault withdrawal when threshold and negative-yield state exist"
+exploit_preconditions:
+  - "fee vault remote withdrawal goes through the generic discounted ETH path"
+  - "share price is below par at finalization"
+blast_radius: "protocol fee recipients and remaining ETH holders"
+
+impact_types:
+  - "fee-bypass"
+  - "protocol-revenue-loss"
+  - "accounting-invariant-break"
+severity_guess: "medium"
+severity_rationale: "Accepted medium severity competition finding. The mechanism crosses permissionless L2 fee-vault withdrawal -> L1 discounted ETH settlement and can affect fee-bypass, protocol-revenue-loss."
+
+code_shape_summary: "Fee vault balances are nominal protocol fees on L2 but are withdrawn through the same discounted user ETH queue used for yield losses."
+search_motifs:
+  - "FeeVault.withdraw"
+  - "permissionless withdrawal"
+  - "sharePrice < 1e27"
+  - "protocol fee bucket"
+  - "discountedValues"
+negative_signals:
+  - "The same property is enforced earlier on every reachable path before state, gas, or value is committed."
+  - "The actor who can trigger the path already owns the affected role, funds, or address-lifecycle authority."
+  - "The behavior is explicitly documented and all downstream accounting prices it as an intended policy choice."
+  - "The path is test-only, deployment-local, or requires an operator-only misconfiguration with no protocol effect."
+patch_pattern: "Route protocol fee vaults through nominal-value settlement or explicitly account/document their participation in negative-yield socialization."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/design-lab/benchmarks/blast/ground-truth/report.md"
+  - "M-05 Blast can be forced to withdraw protocol gas fees at a discount in negative yield event (#1005)"
+  - "report.md#M-05"
+  - "FeeVault.sol"
+  - "OptimismPortal.sol"
+  - "YieldManager.sol"
+notes:
+  - "Derived from the Blast competition findings report, not from a live production incident write-up."
+  - "Patch pattern is report/recommendation-derived unless a source reference names a concrete fix artifact."
+  - "Competition window: 2024-01-31 to 2024-02-21."

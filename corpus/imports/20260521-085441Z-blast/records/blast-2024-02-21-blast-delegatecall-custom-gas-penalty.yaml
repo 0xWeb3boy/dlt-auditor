@@ -1,0 +1,70 @@
+id: "blast-2024-02-21-blast-delegatecall-custom-gas-penalty"
+source_finding: "2024-02-21-blast-delegatecall-custom-gas-penalty.md"
+project: "blast"
+date: "2024-02-21"
+language_tags:
+  - "go"
+  - "solidity"
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "delegatecall-surcharge-identity-mismatch"
+subsystem: "execution-client-gas-accounting"
+architecture_tags:
+  - "rollup"
+  - "bridge"
+  - "evm"
+  - "native-yield"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "competition-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "execution-context-aware-metering"
+violated_invariant: "Custom first-use gas penalties should use the same identity for surcharge admission and fee allocation under delegatecall/callcode semantics."
+trust_boundary: "CALL-family opcode gas calculation -> GasTracker allocation"
+entrypoint_type: "DELEGATECALL or CALLCODE after frame threshold"
+sensitive_sink: "caller-context gas allocation and custom surcharge"
+
+attacker_capabilities:
+  - "execute deep proxy/library call patterns or induce victim-paid delegatecall loops"
+exploit_preconditions:
+  - "surcharge predicate checks target code address"
+  - "gas is charged to caller/storage context and target remains unallocated"
+blast_radius: "proxy/library patterns and sponsored transactions"
+
+impact_types:
+  - "fee-miscalculation"
+  - "denial-of-service"
+  - "compatibility-break"
+severity_guess: "medium"
+severity_rationale: "Accepted medium severity competition finding. The mechanism crosses CALL-family opcode gas calculation -> GasTracker allocation and can affect fee-miscalculation, denial-of-service."
+
+code_shape_summary: "The high-frame surcharge checks whether the target library address has allocation, but delegatecall/callcode execution and gas attribution use the caller context."
+search_motifs:
+  - "DELEGATECALL"
+  - "CALLCODE"
+  - "contract.Address()"
+  - "target addr predicate"
+  - "GetGasUsedByContract(target) == 0"
+negative_signals:
+  - "The same property is enforced earlier on every reachable path before state, gas, or value is committed."
+  - "The actor who can trigger the path already owns the affected role, funds, or address-lifecycle authority."
+  - "The behavior is explicitly documented and all downstream accounting prices it as an intended policy choice."
+  - "The path is test-only, deployment-local, or requires an operator-only misconfiguration with no protocol effect."
+patch_pattern: "For delegatecall/callcode, key the surcharge predicate to the allocation address or suppress target-first-use penalties that cannot create target allocation."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/design-lab/benchmarks/blast/ground-truth/report.md"
+  - "M-19 Custom gas penalty should not be applied to delegatecall (and deprecated callcode) (#48)"
+  - "report.md#M-19"
+  - "operations_acl.go"
+  - "evm.go DelegateCall"
+  - "contract.go UseGasNatively"
+notes:
+  - "Derived from the Blast competition findings report, not from a live production incident write-up."
+  - "Patch pattern is report/recommendation-derived unless a source reference names a concrete fix artifact."
+  - "Competition window: 2024-01-31 to 2024-02-21."

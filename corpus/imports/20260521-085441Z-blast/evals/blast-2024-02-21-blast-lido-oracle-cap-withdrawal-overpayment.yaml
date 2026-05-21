@@ -1,0 +1,21 @@
+id: "blast-2024-02-21-blast-lido-oracle-cap-withdrawal-overpayment"
+source_record: "blast-2024-02-21-blast-lido-oracle-cap-withdrawal-overpayment.yaml"
+project: "blast"
+
+expected_bug_family: "attestation_trust_and_freshness"
+expected_bug_class: "external-oracle-loss-lag"
+expected_missing_property: "loss-freshness-before-withdrawal"
+
+expected_impact_band: "insolvency-risk,value-transfer-between-cohorts"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The same property is enforced earlier on every reachable path before state, gas, or value is committed."
+  - "The actor who can trigger the path already owns the affected role, funds, or address-lifecycle authority."
+  - "The behavior is explicitly documented and all downstream accounting prices it as an intended policy choice."
+notes:
+  - "Expected detector rationale should mention loss-freshness-before-withdrawal at the Lido oracle/provider truth -> Blast withdrawal settlement boundary."
+  - "Source report finding: M-11 Insolvency due to Overpayment For Withdrawals in Slashing Events Exceeding 5% (#783)"

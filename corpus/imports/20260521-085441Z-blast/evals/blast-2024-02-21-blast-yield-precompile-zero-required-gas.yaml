@@ -1,0 +1,21 @@
+id: "blast-2024-02-21-blast-yield-precompile-zero-required-gas"
+source_record: "blast-2024-02-21-blast-yield-precompile-zero-required-gas.yaml"
+project: "blast"
+
+expected_bug_family: "resource_accounting_and_limits"
+expected_bug_class: "native-precompile-requiredgas-predicate"
+expected_missing_property: "native-work-metering"
+
+expected_impact_band: "denial-of-service,fee-bypass"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The same property is enforced earlier on every reachable path before state, gas, or value is committed."
+  - "The actor who can trigger the path already owns the affected role, funds, or address-lifecycle authority."
+  - "The behavior is explicitly documented and all downstream accounting prices it as an intended policy choice."
+notes:
+  - "Expected detector rationale should mention native-work-metering at the EVM call -> native precompile execution boundary."
+  - "Source report finding: H-05 DoS due to Yield Precompile Always Charging 0 Gas (#787)"

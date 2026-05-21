@@ -1,0 +1,21 @@
+id: "blast-2024-02-21-blast-delegatecall-custom-gas-penalty"
+source_record: "blast-2024-02-21-blast-delegatecall-custom-gas-penalty.yaml"
+project: "blast"
+
+expected_bug_family: "resource_accounting_and_limits"
+expected_bug_class: "delegatecall-surcharge-identity-mismatch"
+expected_missing_property: "execution-context-aware-metering"
+
+expected_impact_band: "fee-miscalculation,denial-of-service"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The same property is enforced earlier on every reachable path before state, gas, or value is committed."
+  - "The actor who can trigger the path already owns the affected role, funds, or address-lifecycle authority."
+  - "The behavior is explicitly documented and all downstream accounting prices it as an intended policy choice."
+notes:
+  - "Expected detector rationale should mention execution-context-aware-metering at the CALL-family opcode gas calculation -> GasTracker allocation boundary."
+  - "Source report finding: M-19 Custom gas penalty should not be applied to delegatecall (and deprecated callcode) (#48)"

@@ -1,0 +1,475 @@
+{
+  "audit_output_snapshot": "/testing/dlt-ai-audit-system/design-lab/runs/blast-learning-loop-10/round-10/audit-output-snapshot",
+  "audit_run": "/testing/dlt-ai-audit-system/design-lab/runs/blast-learning-loop-10/candidates/round-10-a/design/runs/lab-blast-round-10-a-round-10",
+  "benchmark": "blast",
+  "candidate_loop": "blast-learning-loop-10",
+  "candidate_name": "round-10-a",
+  "created_at_utc": "2026-05-21T06:11:02Z",
+  "design_name": "",
+  "design_source_type": "candidate",
+  "duplicate_groups": [
+    {
+      "candidate_ids": [
+        "F41-001"
+      ],
+      "canonical_known_id": "split:M-05/M-13",
+      "notes": "Single fee-vault dossier covers protocol-fee discounting and L1/DA fee recovery underpayment."
+    },
+    {
+      "candidate_ids": [
+        "F56-001",
+        "F56-002",
+        "F56-003"
+      ],
+      "canonical_known_id": "split:M-09/M-11",
+      "notes": "Lido delayed-loss, claimable-exit, and batch-cap variants cover stale provider-loss pricing."
+    },
+    {
+      "candidate_ids": [
+        "F48-002",
+        "F63-001",
+        "F63-002"
+      ],
+      "canonical_known_id": "M-18",
+      "notes": "Gas-refund finalizer and native-yield balance/share-count overhead jointly cover the broad native bookkeeping finding."
+    },
+    {
+      "candidate_ids": [
+        "F57-001",
+        "F57-002"
+      ],
+      "canonical_known_id": "M-16",
+      "notes": "F57-002 is treated as a related stale-loss entrant sibling rather than a distinct final-report false positive."
+    }
+  ],
+  "false_positive_count": 6,
+  "false_positives": [
+    {
+      "audit_candidate_id": "F27-001",
+      "notes": "",
+      "reason": "No benchmark match.",
+      "title": "Proof-time ETH withdrawal requests can outlive invalidated output roots"
+    },
+    {
+      "audit_candidate_id": "F32-003",
+      "notes": "",
+      "reason": "No benchmark match.",
+      "title": "Provider removal can drop nonzero provider principal or pending withdrawals from aggregate accounting"
+    },
+    {
+      "audit_candidate_id": "F25-001",
+      "notes": "",
+      "reason": "No benchmark match.",
+      "title": "Insurance proxies are configured into yield managers without being upgraded or initialized"
+    },
+    {
+      "audit_candidate_id": "F25-002",
+      "notes": "",
+      "reason": "No benchmark match.",
+      "title": "USDInsurance implementation is constructed with L1BlastBridgeProxy instead of USDYieldManagerProxy"
+    },
+    {
+      "audit_candidate_id": "F23-001",
+      "notes": "",
+      "reason": "No benchmark match.",
+      "title": "Cannon global preimage updates are sent to the fault-game contract instead of the preimage oracle"
+    },
+    {
+      "audit_candidate_id": "F24-001",
+      "notes": "",
+      "reason": "No benchmark match.",
+      "title": "Closing-frame pruning undercounts retained channel bytes and can bypass channel-bank memory pruning"
+    }
+  ],
+  "found_count": 28,
+  "found_findings": [
+    {
+      "evidence_files": [
+        "candidate-F59-001.md"
+      ],
+      "ground_truth_id": "H-01",
+      "matched_audit_candidate_ids": [
+        "F59-001"
+      ],
+      "notes": "Saved gas maturity survives full-balance claims and can attach to later gas.",
+      "severity": "High",
+      "status": "found",
+      "title": "etherSeconds can be accrued to allow riskless DOS of the node"
+    },
+    {
+      "evidence_files": [
+        "family-scan-29_gas_refund_penalty_and_attribution_parity.md"
+      ],
+      "ground_truth_id": "H-02",
+      "matched_audit_candidate_ids": [
+        "family-scan-29-refund-socialization"
+      ],
+      "notes": "The scan identifies global refund scaling/socialization reducing other contracts' claimable gas, though it was downgraded as codified behavior.",
+      "severity": "High",
+      "status": "found",
+      "title": "Users can steal gas fees back from developers due to imprecise refund mechanism"
+    },
+    {
+      "evidence_files": [
+        "candidate-F39-001.md"
+      ],
+      "ground_truth_id": "H-03",
+      "matched_audit_candidate_ids": [
+        "F39-001"
+      ],
+      "notes": "Direct ETH-yield deposits lack messenger retry/base-gas protection and can fail finalization.",
+      "severity": "High",
+      "status": "found",
+      "title": "minGasLimit miscalculated for stETH deposits"
+    },
+    {
+      "evidence_files": [
+        "candidate-F60-001.md"
+      ],
+      "ground_truth_id": "H-04",
+      "matched_audit_candidate_ids": [
+        "F60-001"
+      ],
+      "notes": "Implementation-local initialization and malicious provider delegatecall path is exact; validation downgraded current-fork bricking.",
+      "severity": "High",
+      "status": "found",
+      "title": "USD Yield Manager can be bricked by self destructing uninitialized implementation"
+    },
+    {
+      "evidence_files": [
+        "candidate-F26-001.md"
+      ],
+      "ground_truth_id": "H-05",
+      "matched_audit_candidate_ids": [
+        "F26-001"
+      ],
+      "notes": "Valid Blast native precompile selectors bypass intended RequiredGas.",
+      "severity": "High",
+      "status": "found",
+      "title": "DoS due to Yield Precompile Always Charging 0 Gas"
+    },
+    {
+      "evidence_files": [
+        "candidate-F38-001.md"
+      ],
+      "ground_truth_id": "H-06",
+      "matched_audit_candidate_ids": [
+        "F38-001"
+      ],
+      "notes": "WETHRebasing genesis omits initializer postconditions including initial price.",
+      "severity": "High",
+      "status": "found",
+      "title": "WETH will never rebase because initial share price/share count is zero"
+    },
+    {
+      "evidence_files": [
+        "candidate-F43-001.md"
+      ],
+      "ground_truth_id": "H-07",
+      "matched_audit_candidate_ids": [
+        "F43-001"
+      ],
+      "notes": "Discounted failed-relay sidecar writes can exceed inherited reserved gas and strand finalized withdrawals.",
+      "severity": "High",
+      "status": "found",
+      "title": "Withdrawals/messages can be lost due to incorrect RELAY_RESERVED_GAS"
+    },
+    {
+      "evidence_files": [
+        "candidate-F15-001.md"
+      ],
+      "ground_truth_id": "H-08",
+      "matched_audit_candidate_ids": [
+        "F15-001"
+      ],
+      "notes": "SubClaimableAmount omits prevFlags and rollback can restore YieldAutomatic.",
+      "severity": "High",
+      "status": "found",
+      "title": "Journal entry is missing flag parameter in SubClaimableAmount"
+    },
+    {
+      "evidence_files": [
+        "candidate-F55-001.md"
+      ],
+      "ground_truth_id": "M-01",
+      "matched_audit_candidate_ids": [
+        "F55-001"
+      ],
+      "notes": "Invalid/malformed precompile calls revert with zero native precompile gas.",
+      "severity": "Medium",
+      "status": "found",
+      "title": "Blast precompile reverts cost zero gas"
+    },
+    {
+      "evidence_files": [
+        "family-scan-37_code_identity_redeploy_proxy_upgrade.md"
+      ],
+      "ground_truth_id": "M-02",
+      "matched_audit_candidate_ids": [
+        "family-scan-37-address-keyed-config"
+      ],
+      "notes": "Output identifies address-keyed governor/gas/yield configuration outliving code identity across upgrade/redeploy lifecycles.",
+      "severity": "Medium",
+      "status": "found",
+      "title": "CREATE2 deployments can have governor role stolen"
+    },
+    {
+      "evidence_files": [
+        "candidate-F43-002.md"
+      ],
+      "ground_truth_id": "M-03",
+      "matched_audit_candidate_ids": [
+        "F43-002"
+      ],
+      "notes": "Positive nominal discounted messages can round to zero and fail before messenger failure state is recorded.",
+      "severity": "Medium",
+      "status": "found",
+      "title": "Withdrawals that include 1 wei can be bricked in negative rebase"
+    },
+    {
+      "evidence_files": [
+        "candidate-F44-004.md"
+      ],
+      "ground_truth_id": "M-04",
+      "matched_audit_candidate_ids": [
+        "F44-004"
+      ],
+      "notes": "Split/partial gas claims can preserve seconds and outperform one-shot claimAll.",
+      "severity": "Medium",
+      "status": "found",
+      "title": "claimAll function may not claim gas at optimal rate"
+    },
+    {
+      "evidence_files": [
+        "candidate-F41-001.md"
+      ],
+      "ground_truth_id": "M-05",
+      "matched_audit_candidate_ids": [
+        "F41-001"
+      ],
+      "notes": "Protocol fee vaults can withdraw through the discounted ETH queue during negative yield.",
+      "severity": "Medium",
+      "status": "found",
+      "title": "Protocol gas fees can be withdrawn at a discount in negative yield"
+    },
+    {
+      "evidence_files": [
+        "candidate-F50-001.md"
+      ],
+      "ground_truth_id": "M-06",
+      "matched_audit_candidate_ids": [
+        "F50-001"
+      ],
+      "notes": "Repeated high-frame precompile calls pay BlastGasParamStorageGas every time.",
+      "severity": "Medium",
+      "status": "found",
+      "title": "BlastGasParamStorageGas should not be paid every time for precompile calls"
+    },
+    {
+      "evidence_files": [
+        "candidate-F33-002.md"
+      ],
+      "ground_truth_id": "M-07",
+      "matched_audit_candidate_ids": [
+        "F33-002"
+      ],
+      "notes": "Access-list warmth does not suppress the Blast high-frame surcharge.",
+      "severity": "Medium",
+      "status": "found",
+      "title": "EIP-2930 access-list incompatibility with custom surcharge"
+    },
+    {
+      "evidence_files": [
+        "candidate-F29-002.md"
+      ],
+      "ground_truth_id": "M-08",
+      "matched_audit_candidate_ids": [
+        "F29-002"
+      ],
+      "notes": "No-code/EOA calls can repeatedly satisfy the first-use surcharge predicate.",
+      "severity": "Medium",
+      "status": "found",
+      "title": "Calls charge additional gas even if target address is an EOA"
+    },
+    {
+      "evidence_files": [
+        "candidate-F56-002.md",
+        "candidate-F56-003.md"
+      ],
+      "ground_truth_id": "M-09",
+      "matched_audit_candidate_ids": [
+        "F56-002",
+        "F56-003"
+      ],
+      "notes": "Already-claimable Lido exits and batch-cap tails can remain valued at par before finalization.",
+      "severity": "Medium",
+      "status": "found",
+      "title": "PendingBalance funds included in withdrawal sharePrice calculation"
+    },
+    {
+      "evidence_files": [
+        "family-scan-53_constructor_only_proxy_intent_and_upgrade_safety.md",
+        "rejected-candidates.md"
+      ],
+      "ground_truth_id": "M-10",
+      "matched_audit_candidate_ids": [
+        "C53-004"
+      ],
+      "notes": "Constructor-only Blast/Gas predeploy proxy-intent mismatch was identified and downgraded as upgrade-safety debt.",
+      "severity": "Medium",
+      "status": "found",
+      "title": "Non-upgradeable predeploys are deployed behind upgradeable proxies"
+    },
+    {
+      "evidence_files": [
+        "candidate-F56-001.md"
+      ],
+      "ground_truth_id": "M-11",
+      "matched_audit_candidate_ids": [
+        "F56-001"
+      ],
+      "notes": "Lido oracle-cap/delayed-loss window can let withdrawals finalize at par.",
+      "severity": "Medium",
+      "status": "found",
+      "title": "Overpayment for withdrawals in slashing events exceeding oracle cap"
+    },
+    {
+      "evidence_files": [
+        "candidate-F39-002.md"
+      ],
+      "ground_truth_id": "M-12",
+      "matched_audit_candidate_ids": [
+        "F39-002"
+      ],
+      "notes": "L1 portal value uses raw amount while finalizer calldata uses WAD-converted amount.",
+      "severity": "Medium",
+      "status": "found",
+      "title": "L1BlastBridge sends raw amount without converting to 18 decimals"
+    },
+    {
+      "evidence_files": [
+        "candidate-F41-001.md"
+      ],
+      "ground_truth_id": "M-13",
+      "matched_audit_candidate_ids": [
+        "F41-001"
+      ],
+      "notes": "L1/DA fee vault recovery can be underpaid by discounted remote withdrawals.",
+      "severity": "Medium",
+      "status": "found",
+      "title": "Undercharging L1 data availability fees during discounted withdrawals"
+    },
+    {
+      "evidence_files": [
+        "candidate-F33-001.md"
+      ],
+      "ground_truth_id": "M-14",
+      "matched_audit_candidate_ids": [
+        "F33-001"
+      ],
+      "notes": "Access-list intrinsic gas is allocated to the Blast/global bucket rather than warmed dapps.",
+      "severity": "Medium",
+      "status": "found",
+      "title": "Access lists attribute gas to Blast instead of smart contracts"
+    },
+    {
+      "evidence_files": [
+        "candidate-F40-001.md"
+      ],
+      "ground_truth_id": "M-15",
+      "matched_audit_candidate_ids": [
+        "F40-001"
+      ],
+      "notes": "GasTracker allocations survive reverted frames and can become claimable gas.",
+      "severity": "Medium",
+      "status": "found",
+      "title": "Gas allocation mechanics on reverted transactions"
+    },
+    {
+      "evidence_files": [
+        "candidate-F57-001.md"
+      ],
+      "ground_truth_id": "M-16",
+      "matched_audit_candidate_ids": [
+        "F57-001"
+      ],
+      "notes": "Fresh stETH deposits during known loss can share later insurance repair.",
+      "severity": "Medium",
+      "status": "found",
+      "title": "One-time insurance can be front-run by fresh stETH depositors"
+    },
+    {
+      "evidence_files": [
+        "candidate-F46-003.md",
+        "family-scan-46_lido_oracle_cap_and_maker_shutdown.md"
+      ],
+      "ground_truth_id": "M-17",
+      "matched_audit_candidate_ids": [
+        "F46-003"
+      ],
+      "notes": "Maker DSR liveness and lack of alternate recovery are identified around DSR_MANAGER join/exit paths.",
+      "severity": "Medium",
+      "status": "found",
+      "title": "All staked DAI can be lost if Maker initiates shutdown"
+    },
+    {
+      "evidence_files": [
+        "candidate-F48-002.md",
+        "candidate-F63-001.md",
+        "candidate-F63-002.md"
+      ],
+      "ground_truth_id": "M-18",
+      "matched_audit_candidate_ids": [
+        "F48-002",
+        "F63-001",
+        "F63-002"
+      ],
+      "notes": "Round 10 preserved both gas-refund finalizer overhead and native-yield balance/share-count overhead.",
+      "severity": "Medium",
+      "status": "found",
+      "title": "Undercompensated gas for native yield and native gas refund features"
+    },
+    {
+      "evidence_files": [
+        "candidate-F26-002.md"
+      ],
+      "ground_truth_id": "M-19",
+      "matched_audit_candidate_ids": [
+        "F26-002"
+      ],
+      "notes": "Delegatecall/callcode surcharge predicate checks target identity while charging caller context.",
+      "severity": "Medium",
+      "status": "found",
+      "title": "Custom gas penalty should not be applied to delegatecall/callcode"
+    },
+    {
+      "evidence_files": [
+        "candidate-F61-001.md"
+      ],
+      "ground_truth_id": "M-20",
+      "matched_audit_candidate_ids": [
+        "F61-001"
+      ],
+      "notes": "Nested reinitializer xDomainMsgSender reset double-delivery mechanism is identified, though validation marked current-code reachability invalid.",
+      "severity": "Medium",
+      "status": "found",
+      "title": "Anyone can front-run upgrades to execute a double withdrawal"
+    }
+  ],
+  "ground_truth_dir": "/testing/dlt-ai-audit-system/design-lab/benchmarks/blast/ground-truth",
+  "known_findings_total": 28,
+  "max_rounds": 10,
+  "missed_count": 0,
+  "missed_findings": [],
+  "notes": "Manual root-cause/mechanism equivalence scoring. Downgraded/rejected artifacts count only where they identify the exact reusable benchmark mechanism.",
+  "partial_count": 0,
+  "partial_findings": [],
+  "recorded_at_utc": "2026-05-21T08:24:23Z",
+  "round": 10,
+  "round_label": "round-10",
+  "schema_version": 1,
+  "score": 1.0,
+  "score_basis": "manual root-cause/mechanism equivalence",
+  "source_design_dir": "/testing/dlt-ai-audit-system/design-lab/runs/blast-learning-loop-10/candidates/round-10-a/design",
+  "trial_name": ""
+}

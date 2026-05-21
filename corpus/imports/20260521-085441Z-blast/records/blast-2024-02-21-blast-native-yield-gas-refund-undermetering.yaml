@@ -1,0 +1,72 @@
+id: "blast-2024-02-21-blast-native-yield-gas-refund-undermetering"
+source_finding: "2024-02-21-blast-native-yield-gas-refund-undermetering.md"
+project: "blast"
+date: "2024-02-21"
+language_tags:
+  - "go"
+  - "solidity"
+
+bug_family: "resource_accounting_and_limits"
+bug_class: "native-bookkeeping-undermetering"
+subsystem: "execution-client-native-accounting"
+architecture_tags:
+  - "rollup"
+  - "bridge"
+  - "evm"
+  - "native-yield"
+
+confidence_tier: "tier_a_confirmed"
+security_verdict: "confirmed"
+validated_as: "competition-finding"
+recommended_uses:
+  - "retrieval_exemplar"
+  - "eval_positive"
+  - "taxonomy_refinement"
+
+missing_property: "native-work-gas-budget"
+violated_invariant: "Gas costs for opcodes and transactions should cover the extra native bookkeeping added by yield and gas-refund features, including per-account and global predeploy storage effects."
+trust_boundary: "EVM transaction/opcode gas schedule -> Blast native StateDB side effects"
+entrypoint_type: "balance changes, selfdestruct, gas allocation finalization, claimable gas updates"
+sensitive_sink: "Shares and Gas predeploy storage plus StateDB journals"
+
+attacker_capabilities:
+  - "fill blocks with value transfers, selfdestructs, claimable contracts, or gas-heavy calls that trigger native bookkeeping"
+exploit_preconditions:
+  - "native bookkeeping runs outside normal EVM opcode charging"
+  - "custom surcharge only covers part of the added work"
+blast_radius: "execution-client block processing"
+
+impact_types:
+  - "denial-of-service"
+  - "resource-accounting"
+  - "fee-bypass"
+severity_guess: "medium"
+severity_rationale: "Accepted medium severity competition finding. The mechanism crosses EVM transaction/opcode gas schedule -> Blast native StateDB side effects and can affect denial-of-service, resource-accounting."
+
+code_shape_summary: "Native yield mutates share/fixed/remainder fields and global share counts during ordinary balance operations, while gas-refund finalization iterates allocations and writes gas-parameter storage after EVM execution."
+search_motifs:
+  - "SetBalance getSharePrice"
+  - "adjustShareCount"
+  - "BlastSharesAddress slot"
+  - "AllocateDevGas updateGasPredeploy"
+  - "opSelfdestruct native yield"
+  - "under-metered bookkeeping"
+negative_signals:
+  - "The same property is enforced earlier on every reachable path before state, gas, or value is committed."
+  - "The actor who can trigger the path already owns the affected role, funds, or address-lifecycle authority."
+  - "The behavior is explicitly documented and all downstream accounting prices it as an intended policy choice."
+  - "The path is test-only, deployment-local, or requires an operator-only misconfiguration with no protocol effect."
+patch_pattern: "Benchmark and explicitly charge native-yield balance/share-count work and gas-refund finalizer work, including intrinsic or opcode-level surcharges that are not refunded back to attackers."
+
+source_refs:
+  - "/testing/dlt-ai-audit-system/design-lab/benchmarks/blast/ground-truth/report.md"
+  - "M-18 Risk of DOS caused by under compensating gas for native yield and native gas refund features (#156)"
+  - "report.md#M-18"
+  - "state_object.go"
+  - "statedb.go"
+  - "gas_tracker.go"
+  - "Gas.sol"
+notes:
+  - "Derived from the Blast competition findings report, not from a live production incident write-up."
+  - "Patch pattern is report/recommendation-derived unless a source reference names a concrete fix artifact."
+  - "Competition window: 2024-01-31 to 2024-02-21."
