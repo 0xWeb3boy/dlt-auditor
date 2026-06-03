@@ -116,6 +116,32 @@ If you want to test multiple candidates in the same numbered round, give each on
   --trial-name candidate-b
 ```
 
+## Blind Suite Workflow
+
+Use this when you want to run several stable designs from `designs/` on the same target repo with the learning-loop blind execution settings, without scoring/refinement and without letting earlier design outputs affect later design outputs:
+
+```bash
+/testing/dlt-ai-audit-system/bin/design-lab run-blind-suite \
+  --repo /path/to/target/repo \
+  --suite-name target-blind-suite \
+  --design corpus-search \
+  --design monad-learning-loop-best \
+  --design fuel-core-learning-loop-best \
+  --parallel-jobs 8
+```
+
+The suite runs each design sequentially with service tier `standard`, reasoning `high` for discovery phases, reasoning `xhigh` for `canonicalize,validations,aggregate,final`, and the same resumable parallel runner used by blind rounds.
+
+Each design is copied into `design-lab/runs/<suite>/design-workspaces/<design>/design/` before it runs. The copy excludes old `runs/` output, and generated prompts add a blind-suite isolation addendum that forbids reading sibling suite outputs, stable `designs/*/runs/**`, benchmark ground truth, known findings, scorecards, misses, result records, leaderboards, refinement plans, audit-output snapshots, candidate result archives, and prior round folders.
+
+If Codex limits are exhausted mid-suite, resume without recreating completed items:
+
+```bash
+/testing/dlt-ai-audit-system/bin/design-lab run-blind-suite \
+  --suite-name target-blind-suite \
+  --resume
+```
+
 ## Resuming After Limits
 
 If Codex quota/rate limits are exhausted during `start-round --execute-audit`, the lab marks the round manifest as `limit_exhausted` and writes:

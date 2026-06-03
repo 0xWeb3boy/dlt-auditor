@@ -1,0 +1,21 @@
+id: "omni-cantina-m05-fake-attestation-root-retention"
+source_record: "omni-cantina-m05-fake-attestation-root-retention.yaml"
+project: "omni-network"
+
+expected_bug_family: "attestation_trust_and_freshness"
+expected_bug_class: "fake-attestation-root-retention"
+expected_missing_property: "attestation-root-admission-and-retention-bound"
+
+expected_impact_band: "availability,state-growth,consensus-lifecycle-dos"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The roots cannot pass VerifyVoteExtension without real external evidence."
+  - "The table stores only quorum-approved roots."
+  - "EndBlock processing uses bounded pagination/work queues."
+notes:
+  - "Expected detector rationale should mention attestation-root-admission-and-retention-bound at the attestation-keeper boundary."
+  - "Source report finding: Omni Cantina M-5 - Malicious validator can create too many fake attestation roots to halt the chain."

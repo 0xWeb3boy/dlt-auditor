@@ -25,6 +25,7 @@ REASONING_EFFORT_CHOICES = ("low", "medium", "high", "xhigh")
 DEFAULT_REASONING_EFFORT = "high"
 DEFAULT_DEEP_REASONING_EFFORT = "xhigh"
 DEFAULT_DEEP_PHASES = "canonicalize,validations,aggregate,final"
+RUNNER_PHASE_CHOICES = ("all", "mapper", "corpus", "scans", "canonicalize", "validations", "aggregate", "final")
 
 
 @dataclass(frozen=True)
@@ -140,6 +141,13 @@ def load_design_source(design: str) -> DesignSource:
     source = DesignSource("design", slugify(design), root.resolve())
     if not source.command.is_file():
         raise SystemExit(f"Design command not found: {source.command}")
+    return source
+
+
+def load_suite_design_source(design_root: Path, design: str) -> DesignSource:
+    source = DesignSource("design", slugify(design), design_root.resolve())
+    if not source.command.is_file():
+        raise SystemExit(f"Suite design command not found: {source.command}")
     return source
 
 
@@ -786,6 +794,465 @@ def command_resume_audit(args: argparse.Namespace) -> int:
     )
 
 
+def blind_suite_isolation_addendum(
+    *,
+    suite_dir: Path,
+    design_name: str,
+    original_design_dir: Path,
+    design_root: Path,
+    target: Path,
+    audit_run: Path,
+    corpus_root: Path,
+) -> str:
+    return f"""# Blind Suite Isolation Addendum
+
+This audit is one item in a blind multi-design suite.
+
+Allowed inputs for this item:
+- Target repository: `{target}`
+- Active copied design directory: `{design_root}`
+- Active audit run directory: `{audit_run}`
+- Shared corpus root: `{corpus_root}`
+- Suite status files that contain only orchestration state under: `{suite_dir}`
+
+Forbidden while producing this item's blind audit outputs:
+- Do not read, search, summarize, or use the original design directory: `{original_design_dir}`
+- Do not read any stable design run output under: `{DESIGNS_DIR / "*" / "runs"}`
+- Do not read any other suite item's copied design, run directory, findings, reports, logs, or agent outputs under: `{suite_dir}`
+- Do not read benchmark ground truth, known findings, scorecards, misses, result records, leaderboards, refinement plans, audit-output snapshots, candidate result archives, or prior round folders.
+
+The current copied design and active run directory are allowed even though they live under `design-lab/runs/`. All sibling suite workspaces and previous outputs are forbidden as evidence or examples. If you accidentally see forbidden material, do not use it; record the contamination risk in `verification-log.md` and continue only from target-code evidence.
+
+"""
+
+
+def add_blind_suite_isolation_to_prompts(
+    *,
+    suite_dir: Path,
+    design_name: str,
+    original_design_dir: Path,
+    design_root: Path,
+    target: Path,
+    audit_run: Path,
+    corpus_root: Path,
+) -> None:
+    addendum = blind_suite_isolation_addendum(
+        suite_dir=suite_dir,
+        design_name=design_name,
+        original_design_dir=original_design_dir,
+        design_root=design_root,
+        target=target,
+        audit_run=audit_run,
+        corpus_root=corpus_root,
+    )
+    prompt_dir = audit_run / "agent-prompts"
+    if not prompt_dir.is_dir():
+        return
+    for prompt_path in sorted(prompt_dir.glob("*.md")):
+        try:
+            existing = prompt_path.read_text(encoding="utf-8")
+        except OSError:
+            continue
+        if "Blind Suite Isolation Addendum" in existing:
+            continue
+        prompt_path.write_text(addendum + existing, encoding="utf-8")
+
+
+def suite_item_dir(suite_dir: Path, index: int, design_name: str) -> Path:
+    return suite_dir / "design-runs" / f"{index:02d}-{slugify(design_name)}"
+
+
+def suite_design_copy_dir(suite_dir: Path, design_name: str) -> Path:
+    return suite_dir / "design-workspaces" / slugify(design_name) / "design"
+
+
+def suite_item_summary(item_dir: Path) -> dict:
+    manifest_path = item_dir / "round-manifest.json"
+    if not manifest_path.is_file():
+        return {"item_dir": str(item_dir), "status": "not_started", "audit_status": "not_started"}
+    manifest = read_json(manifest_path)
+    return {
+        "design": manifest.get("design", ""),
+        "item_dir": str(item_dir),
+        "design_source_dir": manifest.get("original_design_dir", ""),
+        "design_copy_dir": manifest.get("source_design_dir", ""),
+        "audit_run": manifest.get("audit_run", ""),
+        "status": manifest.get("status", ""),
+        "audit_status": manifest.get("audit_status", ""),
+        "resume_command": f"bin/design-lab resume-audit --round-dir {item_dir}",
+    }
+
+
+def write_blind_suite_manifest(
+    suite_dir: Path,
+    *,
+    suite_name: str,
+    target: Path,
+    designs: list[str],
+    status: str,
+    settings: dict,
+    created_at_utc: str | None = None,
+    message: str = "",
+) -> dict:
+    previous = {}
+    manifest_path = suite_dir / "suite-manifest.json"
+    if manifest_path.is_file():
+        previous = read_json(manifest_path)
+    payload = {
+        "schema_version": 1,
+        "kind": "blind-suite",
+        "suite_name": suite_name,
+        "target_repo": str(target),
+        "designs": designs,
+        "status": status,
+        "message": message,
+        "settings": settings,
+        "items": [
+            suite_item_summary(suite_item_dir(suite_dir, index, design))
+            for index, design in enumerate(designs, start=1)
+        ],
+        "created_at_utc": created_at_utc or previous.get("created_at_utc") or utc_now(),
+        "updated_at_utc": utc_now(),
+    }
+    write_json(manifest_path, payload)
+    return payload
+
+
+def write_blind_suite_readme(suite_dir: Path, manifest: dict) -> None:
+    design_lines = "\n".join(f"- `{design}`" for design in manifest.get("designs", [])) or "- none"
+    item_lines = []
+    for item in manifest.get("items", []):
+        item_lines.append(
+            f"- `{item.get('design', '')}`: `{item.get('audit_status', '')}` at `{item.get('item_dir', '')}`"
+        )
+    items = "\n".join(item_lines) or "- none"
+    settings_lines = "\n".join(
+        f"- {key}: `{value}`" for key, value in sorted((manifest.get("settings") or {}).items())
+    )
+    (suite_dir / "README.md").write_text(
+        f"""# Blind Design Suite: {manifest.get("suite_name", suite_dir.name)}
+
+- Target repo: `{manifest.get("target_repo", "")}`
+- Status: `{manifest.get("status", "")}`
+- Updated UTC: {manifest.get("updated_at_utc", "")}
+
+## Designs
+
+{design_lines}
+
+## Settings
+
+{settings_lines}
+
+## Items
+
+{items}
+
+## Resume
+
+Resume the suite without recreating completed items:
+
+```bash
+bin/design-lab run-blind-suite --suite-name {suite_dir.name} --resume
+```
+
+Each design is copied into this suite with its old `runs/` directory excluded before execution. During an item run, workers may use only the target repository, the copied active design, the active audit run directory, and explicitly named corpus files; sibling suite outputs and stable `designs/*/runs/**` outputs are forbidden.
+""",
+        encoding="utf-8",
+    )
+
+
+def suite_settings_from_args(args: argparse.Namespace) -> dict:
+    return {
+        "parallel_jobs": args.parallel_jobs,
+        "model": args.model or "",
+        "service_tier": args.service_tier,
+        "reasoning_effort": args.reasoning_effort,
+        "deep_reasoning_effort": args.deep_reasoning_effort,
+        "deep_phases": args.deep_phases,
+        "timeout_seconds": args.timeout_seconds,
+        "skip_login_check": args.skip_login_check,
+        "previous_ref": args.previous_ref or "",
+        "current_ref": args.current_ref or "",
+    }
+
+
+def load_blind_suite_args(args: argparse.Namespace) -> tuple[str, Path, list[str], dict]:
+    if args.resume and not args.suite_name:
+        raise SystemExit("--suite-name is required with --resume")
+    if args.resume and args.force:
+        raise SystemExit("--resume and --force cannot be used together")
+    suite_slug = slugify(args.suite_name) if args.suite_name else ""
+    manifest_path = RUNS_DIR / suite_slug / "suite-manifest.json" if suite_slug else None
+    previous_manifest = read_json(manifest_path) if manifest_path and manifest_path.is_file() else {}
+    if args.resume and not previous_manifest:
+        raise SystemExit(f"Blind suite manifest not found: {manifest_path}")
+
+    target_value = args.repo or previous_manifest.get("target_repo")
+    if not target_value:
+        raise SystemExit("--repo is required for a new blind suite")
+    target = Path(str(target_value)).expanduser().resolve()
+    if not target.is_dir():
+        raise SystemExit(f"Target repo does not exist: {target}")
+
+    designs = [slugify(design) for design in (args.design or previous_manifest.get("designs") or [])]
+    if not designs:
+        raise SystemExit("--design is required for a new blind suite; repeat it once per design")
+    if len(set(designs)) != len(designs):
+        raise SystemExit("Blind suite design names must be unique")
+    if args.resume and args.design and designs != previous_manifest.get("designs"):
+        raise SystemExit("Resume must use the design list recorded in the existing suite manifest")
+
+    if not suite_slug:
+        suite_slug = f"{dt.datetime.now(dt.UTC):%Y%m%d-%H%M%SZ}-{slugify(target.name)}-blind-suite"
+
+    settings = previous_manifest.get("settings") if args.resume and previous_manifest else None
+    if not isinstance(settings, dict):
+        settings = suite_settings_from_args(args)
+    return suite_slug, target, designs, settings
+
+
+def scaffold_blind_suite_item(
+    *,
+    suite_dir: Path,
+    index: int,
+    design_name: str,
+    target: Path,
+    settings: dict,
+    force: bool,
+) -> tuple[Path, Path, Path]:
+    original_source = load_design_source(design_name)
+    item_dir = suite_item_dir(suite_dir, index, design_name)
+    design_copy = suite_design_copy_dir(suite_dir, design_name)
+    if item_dir.exists() and any(item_dir.iterdir()) and not force:
+        raise SystemExit(f"Suite item already exists: {item_dir}")
+    if item_dir.exists() and force:
+        shutil.rmtree(item_dir)
+    if design_copy.exists() and force:
+        shutil.rmtree(design_copy.parent)
+    if not design_copy.is_dir():
+        copy_design_tree(original_source.root, design_copy, False)
+
+    item_dir.mkdir(parents=True, exist_ok=True)
+    suite_source = load_suite_design_source(design_copy, design_name)
+    run_name = f"suite-{suite_dir.name}-{index:02d}-{slugify(design_name)}"
+    audit_run = scaffold_audit_run(
+        suite_source,
+        target,
+        run_name,
+        force,
+        str(settings.get("previous_ref") or "") or None,
+        str(settings.get("current_ref") or "") or None,
+        int(settings.get("parallel_jobs") or 8),
+    )
+    corpus_root = ROOT / "corpus" / "imports"
+    add_blind_suite_isolation_to_prompts(
+        suite_dir=suite_dir,
+        design_name=design_name,
+        original_design_dir=original_source.root,
+        design_root=design_copy,
+        target=target,
+        audit_run=audit_run,
+        corpus_root=corpus_root,
+    )
+    manifest = {
+        "schema_version": 1,
+        "kind": "blind-suite-item",
+        "suite_name": suite_dir.name,
+        "repo": str(target),
+        "design_source_type": "design",
+        "design": design_name,
+        "original_design_dir": str(original_source.root),
+        "source_design_dir": str(design_copy.resolve()),
+        "round": index,
+        "round_label": f"suite-{index:02d}-{design_name}",
+        "trial_name": "",
+        "audit_run": str(audit_run),
+        "audit_status": "not_started",
+        "audit_resume_supported": True,
+        "audit_runner": str(resumable_runner_for_source(design_copy)),
+        "audit_model": str(settings.get("model") or ""),
+        "audit_service_tier": str(settings.get("service_tier") or DEFAULT_SERVICE_TIER),
+        "audit_reasoning_effort": str(settings.get("reasoning_effort") or DEFAULT_REASONING_EFFORT),
+        "audit_deep_reasoning_effort": str(
+            settings.get("deep_reasoning_effort") or DEFAULT_DEEP_REASONING_EFFORT
+        ),
+        "audit_deep_phases": str(settings.get("deep_phases") or DEFAULT_DEEP_PHASES),
+        "audit_timeout_seconds": settings.get("timeout_seconds"),
+        "audit_skip_login_check": bool(settings.get("skip_login_check")),
+        "audit_last_returncode": None,
+        "blind_suite_isolation": {
+            "allowed_target_repo": str(target),
+            "allowed_design_copy": str(design_copy.resolve()),
+            "allowed_audit_run": str(audit_run),
+            "forbidden_original_design_dir": str(original_source.root),
+            "forbidden_stable_design_runs": str(DESIGNS_DIR / "*" / "runs"),
+            "forbidden_sibling_suite_outputs": str(suite_dir),
+        },
+        "created_at_utc": utc_now(),
+        "status": "scaffolded",
+    }
+    write_json(item_dir / "round-manifest.json", manifest)
+    (item_dir / "RUN.md").write_text(
+        f"""# Blind Suite Item: {design_name}
+
+- Suite: `{suite_dir}`
+- Target repo: `{target}`
+- Original design: `{original_source.root}`
+- Copied design: `{design_copy.resolve()}`
+- Active audit run: `{audit_run}`
+
+This item is isolated from prior suite results. Do not read sibling suite workspaces or stable `designs/*/runs/**` output while producing findings.
+
+Resume this item directly if needed:
+
+```bash
+bin/design-lab resume-audit --round-dir {item_dir}
+```
+""",
+        encoding="utf-8",
+    )
+    return item_dir, design_copy, audit_run
+
+
+def command_run_blind_suite(args: argparse.Namespace) -> int:
+    suite_slug, target, designs, settings = load_blind_suite_args(args)
+    suite_dir = RUNS_DIR / suite_slug
+    if suite_dir.exists() and not args.resume:
+        if not args.force:
+            print(f"Blind suite already exists: {suite_dir}", file=sys.stderr)
+            print("Use --resume to continue it or --force to replace it.", file=sys.stderr)
+            return 2
+        shutil.rmtree(suite_dir)
+    suite_dir.mkdir(parents=True, exist_ok=True)
+
+    created_at = None if args.resume else utc_now()
+    manifest = write_blind_suite_manifest(
+        suite_dir,
+        suite_name=suite_slug,
+        target=target,
+        designs=designs,
+        status="running",
+        settings=settings,
+        created_at_utc=created_at,
+    )
+    write_blind_suite_readme(suite_dir, manifest)
+
+    for index, design_name in enumerate(designs, start=1):
+        item_dir = suite_item_dir(suite_dir, index, design_name)
+        item_manifest_path = item_dir / "round-manifest.json"
+        if item_manifest_path.is_file():
+            item_manifest = read_json(item_manifest_path)
+            audit_status = item_manifest.get("audit_status")
+            if audit_status == "completed":
+                manifest = write_blind_suite_manifest(
+                    suite_dir,
+                    suite_name=suite_slug,
+                    target=target,
+                    designs=designs,
+                    status="running",
+                    settings=settings,
+                    message=f"Skipped completed design `{design_name}`.",
+                )
+                write_blind_suite_readme(suite_dir, manifest)
+                continue
+            if not args.resume and not args.force:
+                print(f"Suite item already exists: {item_dir}", file=sys.stderr)
+                return 2
+            audit_run = Path(str(item_manifest.get("audit_run", ""))).expanduser().resolve()
+            design_copy = Path(str(item_manifest.get("source_design_dir", ""))).expanduser().resolve()
+        else:
+            item_dir, design_copy, audit_run = scaffold_blind_suite_item(
+                suite_dir=suite_dir,
+                index=index,
+                design_name=design_name,
+                target=target,
+                settings=settings,
+                force=args.force,
+            )
+
+        if args.scaffold_only:
+            manifest = write_blind_suite_manifest(
+                suite_dir,
+                suite_name=suite_slug,
+                target=target,
+                designs=designs,
+                status="scaffolded",
+                settings=settings,
+                message="Suite scaffolded without execution.",
+            )
+            write_blind_suite_readme(suite_dir, manifest)
+            continue
+
+        resume_item = args.resume and item_manifest_path.is_file()
+        result = execute_audit_for_round(
+            item_dir,
+            design_copy,
+            audit_run,
+            parallel_jobs=int(settings.get("parallel_jobs") or 8),
+            resume=resume_item,
+            phase=args.phase,
+            model=str(settings.get("model") or "") or None,
+            service_tier=str(settings.get("service_tier") or DEFAULT_SERVICE_TIER),
+            reasoning_effort=str(settings.get("reasoning_effort") or DEFAULT_REASONING_EFFORT),
+            deep_reasoning_effort=str(settings.get("deep_reasoning_effort") or DEFAULT_DEEP_REASONING_EFFORT),
+            deep_phases=str(settings.get("deep_phases") or DEFAULT_DEEP_PHASES),
+            timeout_seconds=settings.get("timeout_seconds"),
+            skip_login_check=bool(settings.get("skip_login_check")),
+        )
+        item_manifest = read_json(item_manifest_path)
+        if item_manifest.get("audit_status") == "limit_exhausted":
+            manifest = write_blind_suite_manifest(
+                suite_dir,
+                suite_name=suite_slug,
+                target=target,
+                designs=designs,
+                status="limit_exhausted",
+                settings=settings,
+                message=f"Paused while running `{design_name}`. Resume with --resume.",
+            )
+            write_blind_suite_readme(suite_dir, manifest)
+            print(f"Blind suite paused because Codex limits appear exhausted: {suite_dir / 'README.md'}")
+            return 0
+        if result != 0 or item_manifest.get("audit_status") == "failed":
+            manifest = write_blind_suite_manifest(
+                suite_dir,
+                suite_name=suite_slug,
+                target=target,
+                designs=designs,
+                status="failed",
+                settings=settings,
+                message=f"Stopped after `{design_name}` failed.",
+            )
+            write_blind_suite_readme(suite_dir, manifest)
+            return result or int(item_manifest.get("audit_last_returncode") or 1)
+
+        manifest = write_blind_suite_manifest(
+            suite_dir,
+            suite_name=suite_slug,
+            target=target,
+            designs=designs,
+            status="running",
+            settings=settings,
+            message=f"Completed `{design_name}`.",
+        )
+        write_blind_suite_readme(suite_dir, manifest)
+
+    final_status = "scaffolded" if args.scaffold_only else "completed"
+    manifest = write_blind_suite_manifest(
+        suite_dir,
+        suite_name=suite_slug,
+        target=target,
+        designs=designs,
+        status=final_status,
+        settings=settings,
+        message="Blind suite completed." if not args.scaffold_only else "Blind suite scaffolded.",
+    )
+    write_blind_suite_readme(suite_dir, manifest)
+    print(suite_dir)
+    return 0
+
+
 def command_create_candidate(args: argparse.Namespace) -> int:
     loop_name = slugify(args.loop_name)
     name = slugify(args.candidate)
@@ -1169,14 +1636,41 @@ def build_parser() -> argparse.ArgumentParser:
     start.add_argument("--force", action="store_true")
     start.set_defaults(func=command_start_round)
 
+    suite = subparsers.add_parser(
+        "run-blind-suite",
+        help="Run multiple stable designs sequentially with blind audit settings and isolated workspaces.",
+    )
+    suite.add_argument("--repo", help="Target repository path. Required for a new suite.")
+    suite.add_argument(
+        "--design",
+        action="append",
+        help="Stable design folder name under designs/. Repeat once per design. Required for a new suite.",
+    )
+    suite.add_argument("--suite-name", help="Stable folder name under design-lab/runs/.")
+    suite.add_argument("--previous-ref")
+    suite.add_argument("--current-ref")
+    suite.add_argument("--parallel-jobs", type=int, default=8)
+    suite.add_argument("--model")
+    suite.add_argument("--service-tier", choices=SERVICE_TIER_CHOICES, default=DEFAULT_SERVICE_TIER)
+    suite.add_argument("--timeout-seconds", type=int)
+    suite.add_argument("--skip-login-check", action="store_true")
+    suite.add_argument("--reasoning-effort", choices=REASONING_EFFORT_CHOICES, default=DEFAULT_REASONING_EFFORT)
+    suite.add_argument(
+        "--deep-reasoning-effort",
+        choices=REASONING_EFFORT_CHOICES,
+        default=DEFAULT_DEEP_REASONING_EFFORT,
+    )
+    suite.add_argument("--deep-phases", default=DEFAULT_DEEP_PHASES)
+    suite.add_argument("--phase", choices=RUNNER_PHASE_CHOICES, default="all")
+    suite.add_argument("--resume", action="store_true", help="Continue an existing suite and skip completed designs.")
+    suite.add_argument("--scaffold-only", action="store_true", help="Create isolated design runs without launching Codex.")
+    suite.add_argument("--force", action="store_true", help="Replace an existing suite when not using --resume.")
+    suite.set_defaults(func=command_run_blind_suite)
+
     resume = subparsers.add_parser("resume-audit", help="Resume an interrupted round audit without recreating it.")
     resume.add_argument("--round-dir", required=True)
     resume.add_argument("--parallel-jobs", type=int, default=8)
-    resume.add_argument(
-        "--phase",
-        choices=("all", "mapper", "corpus", "scans", "canonicalize", "validations", "aggregate", "final"),
-        default="all",
-    )
+    resume.add_argument("--phase", choices=RUNNER_PHASE_CHOICES, default="all")
     resume.add_argument("--model")
     resume.add_argument("--service-tier", choices=SERVICE_TIER_CHOICES)
     resume.add_argument("--timeout-seconds", type=int)

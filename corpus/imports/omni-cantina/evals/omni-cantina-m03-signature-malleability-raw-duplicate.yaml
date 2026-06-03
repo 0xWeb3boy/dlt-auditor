@@ -1,0 +1,21 @@
+id: "omni-cantina-m03-signature-malleability-raw-duplicate"
+source_record: "omni-cantina-m03-signature-malleability-raw-duplicate.yaml"
+project: "omni-network"
+
+expected_bug_family: "signature_binding_and_signer_scope"
+expected_bug_class: "malleable-signature-raw-byte-duplicate"
+expected_missing_property: "canonical-signature-representation"
+
+expected_impact_band: "availability,attestation-liveness,proposal-finalization-failure"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The crypto wrapper enforces low-S canonical signatures."
+  - "The duplicate path compares semantic signer/message only."
+  - "Replayed prior votes are not accepted by ProcessProposal."
+notes:
+  - "Expected detector rationale should mention canonical-signature-representation at the attestation-vote-persistence boundary."
+  - "Source report finding: Omni Cantina M-3 - Malicious proposer can stop blocks finalization through signature malleability"

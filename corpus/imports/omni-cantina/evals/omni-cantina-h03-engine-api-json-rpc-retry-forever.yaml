@@ -1,0 +1,21 @@
+id: "omni-cantina-h03-engine-api-json-rpc-retry-forever"
+source_record: "omni-cantina-h03-engine-api-json-rpc-retry-forever.yaml"
+project: "omni-network"
+
+expected_bug_family: "state_machine_and_lifecycle_consistency"
+expected_bug_class: "deterministic-engine-api-error-retried-forever"
+expected_missing_property: "deterministic-error-classification"
+
+expected_impact_band: "availability,consensus-liveness,infinite-retry"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The malformed payload is rejected by local validation before RPC."
+  - "Engine API invalid-parameter errors return invalid status rather than error on the reviewed client."
+  - "The retry loop has a bounded timeout that leads to proposal rejection."
+notes:
+  - "Expected detector rationale should mention deterministic-error-classification at the engine-api-processproposal boundary."
+  - "Source report finding: Omni Cantina H-3 - Malicious proposer can halt the chain through payload that causes JSON RPC error"

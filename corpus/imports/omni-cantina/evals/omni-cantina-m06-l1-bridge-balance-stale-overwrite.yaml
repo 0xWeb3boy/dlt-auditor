@@ -1,0 +1,21 @@
+id: "omni-cantina-m06-l1-bridge-balance-stale-overwrite"
+source_record: "omni-cantina-m06-l1-bridge-balance-stale-overwrite.yaml"
+project: "omni-network"
+
+expected_bug_family: "state_machine_and_lifecycle_consistency"
+expected_bug_class: "stale-absolute-bridge-mirror-overwrite"
+expected_missing_property: "cross-direction-reserve-freshness"
+
+expected_impact_band: "fund-lock,bridge-settlement-failure,stale-accounting"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Global ordering serializes both bridge directions by reserve state."
+  - "Native uses l1BridgeBalance += amount rather than overwrite with stale absolute data."
+  - "Failed destination transfer restores the source-side native value."
+notes:
+  - "Expected detector rationale should mention cross-direction-reserve-freshness at the token-bridge-liquidity-mirror boundary."
+  - "Source report finding: Omni Cantina M-6 - Delays in updating the l1BridgeBalance can lead to user fund losses."

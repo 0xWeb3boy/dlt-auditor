@@ -1,0 +1,21 @@
+id: "omni-cantina-h04-malformed-consensus-pubkey-admission"
+source_record: "omni-cantina-h04-malformed-consensus-pubkey-admission.yaml"
+project: "omni-network"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "length-only-public-key-admission"
+expected_missing_property: "semantic-public-key-validation"
+
+expected_impact_band: "availability,validator-set-sync-failure,fund-lock"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "All reachable callers are forced through a CLI that validates keys and direct contract calls are impossible."
+  - "The native adapter rejects off-curve keys before Cosmos staking."
+  - "The error is handled without consensus callback failure."
+notes:
+  - "Expected detector rationale should mention semantic-public-key-validation at the staking-predeploy-valsync boundary."
+  - "Source report finding: Omni Cantina H-4 - Validator public key that is not on secp256k1 curve will halt the chain"

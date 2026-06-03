@@ -1,0 +1,21 @@
+id: "omni-cantina-h02-post-quorum-vote-extension-poisoning"
+source_record: "omni-cantina-h02-post-quorum-vote-extension-poisoning.yaml"
+project: "omni-network"
+
+expected_bug_family: "attestation_trust_and_freshness"
+expected_bug_class: "post-quorum-unverified-vote-extension-commit-poisoning"
+expected_missing_property: "commit-info-vote-extension-revalidation"
+
+expected_impact_band: "availability,consensus-liveness,bft-violation"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The app revalidates and drops invalid commit-info extensions before proposal construction."
+  - "The consensus layer version guarantees no unverified extension can enter commit info."
+  - "Invalid extensions can only affect the malicious validator itself."
+notes:
+  - "Expected detector rationale should mention commit-info-vote-extension-revalidation at the vote-extension-prepareproposal boundary."
+  - "Source report finding: Omni Cantina H-2 - Omni chain halt via post-quorum votes poisoning"

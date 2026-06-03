@@ -96,6 +96,38 @@ designs/corpus-search/bin/dlt-ai-audit-system /path/to/target-codebase \
   --force
 ```
 
+### Run Multiple Designs With Blind Settings
+
+Use `run-blind-suite` when you want to compare several stable designs from `designs/` on the same target repo without letting earlier run outputs influence later designs:
+
+```bash
+cd /testing/dlt-ai-audit-system
+
+bin/design-lab run-blind-suite \
+  --repo /path/to/target-codebase \
+  --suite-name my-blind-suite \
+  --design corpus-search \
+  --design monad-learning-loop-best \
+  --design fuel-core-learning-loop-best \
+  --parallel-jobs 8
+```
+
+The suite runs designs one after another with the learning-loop blind defaults: service tier `standard`, discovery reasoning `high`, deep reasoning `xhigh`, and deep phases `canonicalize,validations,aggregate,final`.
+
+For isolation, each selected design is copied into:
+
+```text
+design-lab/runs/<suite-name>/design-workspaces/<design>/design/
+```
+
+The copy excludes old `runs/` output. During each item, generated prompts forbid reading sibling suite workspaces, stable `designs/*/runs/**` output, benchmark ground truth, known findings, scorecards, result records, miss analyses, leaderboards, refinement plans, audit snapshots, and prior round folders.
+
+If Codex limits pause the suite, resume it without recreating completed items:
+
+```bash
+bin/design-lab run-blind-suite --suite-name my-blind-suite --resume
+```
+
 ## Search The Corpus Directly
 
 ```bash

@@ -1,0 +1,21 @@
+id: "omni-cantina-m04-empty-transaction-proposal-bloat"
+source_record: "omni-cantina-m04-empty-transaction-proposal-bloat.yaml"
+project: "omni-network"
+
+expected_bug_family: "resource_accounting_and_limits"
+expected_bug_class: "unbounded-empty-proposal-transaction-cardinality"
+expected_missing_property: "proposal-transaction-cardinality-bound"
+
+expected_impact_band: "availability,resource-exhaustion,storage-bloat"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The consensus layer already enforces a small transaction count."
+  - "Empty transactions fail decoding or are rejected by ante processing on this path."
+  - "The application genuinely supports multiple independent generated transactions."
+notes:
+  - "Expected detector rationale should mention proposal-transaction-cardinality-bound at the process-proposal-router boundary."
+  - "Source report finding: Omni Cantina M-4 - Malicious proposer can include empty transactions in a valid proposal"

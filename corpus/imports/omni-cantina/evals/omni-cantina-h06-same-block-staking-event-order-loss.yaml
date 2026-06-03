@@ -1,0 +1,21 @@
+id: "omni-cantina-h06-same-block-staking-event-order-loss"
+source_record: "omni-cantina-h06-same-block-staking-event-order-loss.yaml"
+project: "omni-network"
+
+expected_bug_family: "state_machine_and_lifecycle_consistency"
+expected_bug_class: "source-log-order-erased-dependent-event-loss"
+expected_missing_property: "source-event-order-preservation"
+
+expected_impact_band: "fund-loss,staking-accounting-loss,cross-runtime-ordering"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The source contract forbids same-block create/delegate or refunds value."
+  - "Original log index is included in the sorted key."
+  - "Failed delegate delivery blocks head advancement or retries."
+notes:
+  - "Expected detector rationale should mention source-event-order-preservation at the evm-to-native-staking-events boundary."
+  - "Source report finding: Omni Cantina H-6 - Validator deposit will be lost if delegation happens in the same block as validator creation"

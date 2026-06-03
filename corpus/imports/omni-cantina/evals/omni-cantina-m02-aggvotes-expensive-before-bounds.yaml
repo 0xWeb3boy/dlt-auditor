@@ -1,0 +1,21 @@
+id: "omni-cantina-m02-aggvotes-expensive-before-bounds"
+source_record: "omni-cantina-m02-aggvotes-expensive-before-bounds.yaml"
+project: "omni-network"
+
+expected_bug_family: "resource_accounting_and_limits"
+expected_bug_class: "expensive-signature-recovery-before-cheap-reject"
+expected_missing_property: "cheap-rejection-before-expensive-crypto"
+
+expected_impact_band: "availability,resource-exhaustion,consensus-liveness"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The expensive operation is bounded by a small count before it runs."
+  - "Membership is rejected before per-signature recovery."
+  - "The data is trusted or locally generated only."
+notes:
+  - "Expected detector rationale should mention cheap-rejection-before-expensive-crypto at the process-proposal-attestation-votes boundary."
+  - "Source report finding: Omni Cantina M-2 - An incorrect order of checks in verifyAggVotes may lead to liveness issues"

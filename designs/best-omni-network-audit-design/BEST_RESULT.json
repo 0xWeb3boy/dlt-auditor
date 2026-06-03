@@ -1,0 +1,204 @@
+{
+  "audit_output_snapshot": "/testing/dlt-ai-audit-system/design-lab/runs/omni-network-learning-loop/round-05/audit-output-snapshot",
+  "audit_run": "/testing/dlt-ai-audit-system/design-lab/runs/omni-network-learning-loop/candidates/round-05-a/design/runs/lab-omni-network-round-05-a-round-05",
+  "benchmark": "omni-network",
+  "candidate_loop": "omni-network-learning-loop",
+  "candidate_name": "round-05-a",
+  "created_at_utc": "2026-05-31T19:11:40Z",
+  "design_name": "",
+  "design_source_type": "candidate",
+  "duplicate_groups": [
+    {
+      "canonical": "CAND-003",
+      "members": [
+        "CPS-01",
+        "F27-01",
+        "staking event-order variants"
+      ],
+      "notes": "Same sorted EVM-log dependent-event ordering root cause."
+    },
+    {
+      "canonical": "CAND-013",
+      "members": [
+        "VES-01",
+        "FSC30-02",
+        "F33-01"
+      ],
+      "notes": "Same retained fake/conflicting attestation-root growth root cause."
+    },
+    {
+      "canonical": "CAND-012",
+      "members": [
+        "SIG-03",
+        "VES-02",
+        "FS29-01"
+      ],
+      "notes": "Same signature-canonicalization and raw-byte duplicate persistence root cause."
+    }
+  ],
+  "false_positive_count": 1,
+  "false_positives": [
+    {
+      "candidate_id": "CAND-001",
+      "file": "candidate-CAND-001.md",
+      "reason": "Independent portal validator-set-id/signature-binding issue, not equivalent to a known benchmark finding.",
+      "title": "Validator-set id is detached from the signed attestation root used by xsubmit"
+    }
+  ],
+  "found_count": 9,
+  "found_findings": [
+    {
+      "id": "M-1",
+      "matches": [
+        {
+          "candidate_id": "CAND-011",
+          "file": "candidate-CAND-011.md"
+        }
+      ],
+      "notes": "Matched optional local proposer-prediction errors escaping through FinalizeBlock after deterministic app finalization.",
+      "title": "FinalizeBlock is non-deterministic; will lead to consensus failures"
+    },
+    {
+      "id": "H-1",
+      "matches": [
+        {
+          "candidate_id": "CAND-009",
+          "file": "candidate-CAND-009.md"
+        }
+      ],
+      "notes": "Matched Cancun/blob payloads proposed without the versioned-hash side argument required by Engine API import.",
+      "title": "Blob transactions can halt the chain"
+    },
+    {
+      "id": "M-2",
+      "matches": [
+        {
+          "candidate_id": "CAND-014",
+          "file": "candidate-CAND-014.md"
+        }
+      ],
+      "notes": "Matched verifyAggVotes doing expensive signature recovery before cheap membership/window/count rejection.",
+      "title": "An incorrect order of checks in verifyAggVotes may lead to liveness issues"
+    },
+    {
+      "id": "M-3",
+      "matches": [
+        {
+          "candidate_id": "CAND-012",
+          "file": "candidate-CAND-012.md"
+        }
+      ],
+      "notes": "Matched byte-different valid signature encodings causing raw-byte duplicate/finalization failure for the same semantic vote.",
+      "title": "Malicious proposer can stop blocks finalization through signature malleability"
+    },
+    {
+      "id": "H-4",
+      "matches": [
+        {
+          "candidate_id": "CAND-004",
+          "file": "candidate-CAND-004.md"
+        }
+      ],
+      "notes": "Matched length-valid malformed consensus pubkeys admitted before downstream secp256k1 decompression.",
+      "title": "Validator public key that is not on secp256k1 curve will halt the chain"
+    },
+    {
+      "id": "M-5",
+      "matches": [
+        {
+          "candidate_id": "CAND-013",
+          "file": "candidate-CAND-013.md"
+        }
+      ],
+      "notes": "Matched fake/conflicting attestation roots creating retained pending rows and lifecycle scan overhead.",
+      "title": "Malicious validator can create too many fake attestation roots to halt the chain."
+    },
+    {
+      "id": "H-5",
+      "matches": [
+        {
+          "candidate_id": "CAND-005",
+          "file": "candidate-CAND-005.md"
+        }
+      ],
+      "notes": "Matched missing consensus-key proof-of-possession allowing delayed pubkey identity squatting and victim validator onboarding griefing.",
+      "title": "A malicious validator can permanently DOS one new validator, leading to huge $Omni loss."
+    },
+    {
+      "id": "H-6",
+      "matches": [
+        {
+          "candidate_id": "CAND-003",
+          "file": "candidate-CAND-003.md"
+        }
+      ],
+      "notes": "Matched sorted EVM staking events delivering Delegate before same-block CreateValidator and losing paid delegation.",
+      "title": "Validator deposit will be lost if delegation happens in the same block as validator creation"
+    },
+    {
+      "id": "M-6",
+      "matches": [
+        {
+          "candidate_id": "CAND-006",
+          "file": "candidate-CAND-006.md"
+        }
+      ],
+      "notes": "Matched delayed absolute L1 balance snapshots overwriting newer Native-side bridge decrements.",
+      "title": "Delays in updating the l1BridgeBalance can lead to user fund losses."
+    }
+  ],
+  "ground_truth_dir": "/testing/dlt-ai-audit-system/design-lab/benchmarks/omni-network/ground-truth",
+  "known_findings_total": 12,
+  "max_rounds": 7,
+  "missed_count": 0,
+  "missed_findings": [],
+  "notes": "Round 05 converted most prior partials/misses and scored 0.875 using found + 0.5 * partial over 12 findings. Remaining partials are H-2, H-3, and M-4.",
+  "partial_count": 3,
+  "partial_findings": [
+    {
+      "id": "H-2",
+      "matches": [
+        {
+          "candidate_id": "CAND-002",
+          "file": "candidate-CAND-002.md"
+        },
+        {
+          "candidate_id": "CAND-013",
+          "file": "candidate-CAND-013.md"
+        }
+      ],
+      "notes": "Found weak proposal handling for vote aggregates and proposer-supplied attestation state, but not the exact post-quorum poisoned-vote loop.",
+      "title": "Omni chain halt via post-quorum votes poisoning"
+    },
+    {
+      "id": "H-3",
+      "matches": [
+        {
+          "candidate_id": "CAND-010",
+          "file": "candidate-CAND-010.md"
+        }
+      ],
+      "notes": "Found retry-all Engine API error handling, but the final report downgraded it because a concrete supported-client deterministic JSON-RPC-error trigger was not validated.",
+      "title": "Malicious proposer can halt the chain through payload that causes JSON RPC error"
+    },
+    {
+      "id": "M-4",
+      "matches": [
+        {
+          "candidate_id": "CAND-002",
+          "file": "candidate-CAND-002.md"
+        }
+      ],
+      "notes": "Found accepted empty/partial system proposals after height 1, but not the exact many-empty-transaction proposal resource issue.",
+      "title": "Malicious proposer can include empty transactions in a valid proposal"
+    }
+  ],
+  "recorded_at_utc": "2026-05-31T20:33:25Z",
+  "round": 5,
+  "round_label": "round-05",
+  "schema_version": 1,
+  "score": 0.875,
+  "score_basis": "manual root-cause/mechanism equivalence",
+  "source_design_dir": "/testing/dlt-ai-audit-system/design-lab/runs/omni-network-learning-loop/candidates/round-05-a/design",
+  "trial_name": ""
+}

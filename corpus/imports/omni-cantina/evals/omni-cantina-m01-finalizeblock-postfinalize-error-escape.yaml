@@ -1,0 +1,21 @@
+id: "omni-cantina-m01-finalizeblock-postfinalize-error-escape"
+source_record: "omni-cantina-m01-finalizeblock-postfinalize-error-escape.yaml"
+project: "omni-network"
+
+expected_bug_family: "state_machine_and_lifecycle_consistency"
+expected_bug_class: "optional-finalization-helper-error-escape"
+expected_missing_property: "deterministic-finalization-callback-isolation"
+
+expected_impact_band: "availability,consensus-liveness,node-halt"
+expected_severity_band: "medium"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The helper is disabled or cmtAPI is nil on every deployed path."
+  - "The error is swallowed before the consensus callback return."
+  - "The code runs outside committed block application."
+notes:
+  - "Expected detector rationale should mention deterministic-finalization-callback-isolation at the abci-finalizeblock boundary."
+  - "Source report finding: Omni Cantina M-1 - FinalizeBlock is non-deterministic; will lead to consensus failures"

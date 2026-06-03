@@ -1,0 +1,21 @@
+id: "omni-cantina-h05-consensus-key-squatting-no-pop"
+source_record: "omni-cantina-h05-consensus-key-squatting-no-pop.yaml"
+project: "omni-network"
+
+expected_bug_family: "staking_registry_and_accountability"
+expected_bug_class: "missing-consensus-key-proof-of-possession"
+expected_missing_property: "proof-of-possession-before-key-reservation"
+
+expected_impact_band: "availability,validator-onboarding-dos,fund-lock,identity-squatting"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "Operational off-chain checks are not enough unless enforced on-chain."
+  - "The attacker cannot reach createValidator under current allowlist and no future permissionless path exists."
+  - "The victim can recover or retry funds automatically."
+notes:
+  - "Expected detector rationale should mention proof-of-possession-before-key-reservation at the staking-predeploy-validator-registration boundary."
+  - "Source report finding: Omni Cantina H-5 - A malicious validator can permanently DOS one new validator, leading to huge $Omni loss."

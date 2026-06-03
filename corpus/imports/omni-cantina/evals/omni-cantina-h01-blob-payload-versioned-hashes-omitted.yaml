@@ -1,0 +1,21 @@
+id: "omni-cantina-h01-blob-payload-versioned-hashes-omitted"
+source_record: "omni-cantina-h01-blob-payload-versioned-hashes-omitted.yaml"
+project: "omni-network"
+
+expected_bug_family: "input_validation_and_invariant_enforcement"
+expected_bug_class: "fork-payload-sidecar-equivalence-omission"
+expected_missing_property: "fork-specific-payload-side-argument-equivalence"
+
+expected_impact_band: "availability,consensus-liveness,payload-rejection"
+expected_severity_band: "high"
+
+should_be_detected: true
+should_be_flagged_as_security: true
+
+false_positive_cautions:
+  - "The deployment disables Cancun or filters blob transactions at all ingress paths."
+  - "Versioned hashes are reconstructed before NewPayloadV3."
+  - "The blob sidecar is committed and validated by consensus."
+notes:
+  - "Expected detector rationale should mention fork-specific-payload-side-argument-equivalence at the engine-api-payload-import boundary."
+  - "Source report finding: Omni Cantina H-1 - Blob transactions can halt the chain"
