@@ -1,83 +1,85 @@
-# DLT AI Audit System
+# DLT Auditor
 
-This repository now contains two runnable audit-system designs side by side.
+Runtime-only audit orchestration for trained, specialized DLT audit designs.
 
-## Layout
+This repo intentionally keeps the pieces needed to run existing designs:
 
-- `designs/current/`
-  The existing max-audit workflow. It maps a repo, runs generic family prompts, validates candidates, and produces a final report.
+- `designs/` - runnable audit prompt packs.
+- `corpus/` - shared historical vulnerability corpus used by corpus-aware designs.
+- `bin/` - thin wrappers for scaffolding and executing audit runs.
+- `runs/` - ignored output directory for blind suites.
 
-- `designs/corpus-search/`
-  A corpus-search-driven variant. It keeps the current workflow, then adds a corpus pattern search phase that retrieves similar historical vulnerability patterns and turns their motifs into target-code searches.
+## How It Works
 
-- `corpus/`
-  Shared vulnerability corpus data used by both designs. It stays at the repo root so the two designs do not duplicate imported findings.
+DLT Auditor runs trained, specialized prompt-pack designs against target repositories.
 
-## Run The Current Design
+The main idea is that there is no single audit pipeline that tries to fit every project. Instead, the auditor has multiple prompt-pack designs, and each one is tuned toward a different project family, competition style, or vulnerability class. For a new target, you choose the design or designs that seem most relevant, then run them independently.
 
-```bash
-/testing/dlt-ai-audit-system/bin/dlt-ai-audit-current /path/to/blockchain-repo
-```
+![Prompt-pack coverage map](docs/prompt-pack-coverage-map.jpg)
 
-The old command still points to the current design:
+The diagram above is the mental model. A project can contain many different security vulnerabilities, and each prompt pack covers a different part of that space. Running more than one design can broaden coverage, but each design still runs in isolation so its output does not influence the others.
 
-```bash
-/testing/dlt-ai-audit-system/bin/dlt-ai-audit-system /path/to/blockchain-repo
-```
+The designs are produced by starting with a default audit design and training it into a specialized prompt pack against a specific audit competition or target class. The AI runs the design, compares the output with confirmed findings, studies what it missed, and refines the prompts. That loop repeats until the prompt pack can identify all or almost all of the confirmed findings. The resulting prompt pack is what this repo runs.
 
-## Run The Corpus-Search Design
+The auditor also uses a dedicated corpus of DLT security fixes. It was built by scanning multiple DLT project GitHub histories and extracting security-relevant fixes, including public fixes, silent fixes, internally identified fixes, and fixes whose security relevance was not disclosed in the original project history. Corpus matches are used as search patterns and hypotheses for the current target. They are not evidence by themselves.
 
-```bash
-/testing/dlt-ai-audit-system/bin/dlt-ai-audit-corpus-search /path/to/blockchain-repo
-```
+Each design lives under `designs/<name>/` and contains:
 
-This creates a run under `designs/corpus-search/runs/` with the normal audit artifacts plus:
+- `00_protocol_mapper.md` - map the target protocol and repository structure.
+- `01_base_hunter.md` - hunt for issue families.
+- `02_validation_and_impact.md` - validate reachability, attacker control, impact, and severity.
+- `05_corpus_pattern_search.md` - retrieve historical corpus patterns as hypotheses.
+- `prompts/` - focused family scan prompts.
+- `bin/dlt-ai-audit-system` - scaffold a concrete audit run.
+- `bin/run-parallel-codex` - execute the generated prompts with Codex or Claude workers.
 
-- `corpus-match-index.md`
-- `corpus-pattern-candidates.md`
-- `corpus-retrieval/`
-- `agent-prompts/05-corpus-pattern-search.md`
+The normal blind-suite flow is:
 
-To execute the generated corpus-search run with multiple Codex workers:
+1. Select one or more designs with `--design`.
+2. Copy each selected design into `runs/<suite-name>/design-workspaces/<design>/design/`.
+3. Scaffold an audit run inside that copied design.
+4. Inject blind-isolation instructions into every generated prompt.
+5. Execute the phases in order: `mapper`, `corpus`, `scans`, `canonicalize`, `validations`, `aggregate`, `final`.
+6. Store per-design results under the suite directory so runs can be resumed without mixing outputs.
 
-```bash
-/testing/dlt-ai-audit-system/bin/run-corpus-search-parallel \
-  /testing/dlt-ai-audit-system/designs/corpus-search/runs/<run-name> \
-  --jobs 8
-```
+The phases are:
 
-The parallel runner keeps the mapper and corpus-search phases serial, then runs independent family scans concurrently. Use `--jobs 1` to disable parallelism.
-By default it uses `gpt-5.5` on Codex service tier `standard`, with reasoning `high` for discovery phases and `xhigh` for canonicalization, validation, aggregation, and final review. Override with `--model`, `--service-tier fast`, `--reasoning-effort`, `--deep-reasoning-effort`, or `--deep-phases` when needed.
+- `mapper` - runs `00-protocol-mapper.md`; fills `repo-context.md`, seeds `feature-coverage.md`, and records concrete files, functions, state machines, trust boundaries, tests, and high-risk surfaces.
+- `corpus` - runs `05-corpus-pattern-search.md`; searches `corpus/imports/`, records useful and rejected matches in `corpus-match-index.md`, and may create `corpus-pattern-candidates.md`.
+- `scans` - runs every focused `scan-*.md` prompt, usually in parallel; each scan inspects one issue family and writes `family-scan-*.md` plus any candidate dossiers it finds.
+- `canonicalize` - runs `80-canonicalize-candidates.md`; deduplicates candidates across scans, assigns stable candidate IDs, updates `candidate-index.md`, and prepares candidates for validation.
+- `validations` - runs validation prompts for candidate dossiers, usually in parallel; each validation tries to disprove the candidate first, then records reachability, attacker control, existing checks, impact, severity, and confidence.
+- `aggregate` - runs `95-aggregate-validated-findings.md`; merges surviving validated candidates into the final report set and updates candidate status files.
+- `final` - runs `99-final-coverage-pass.md`; checks for uncovered protocol surfaces, weak evidence, unresolved placeholders, and finalizes the coverage/report artifacts.
 
-### Run Corpus-Search With Learning-Loop Blind Settings
+Blind isolation means a worker may use only the target repository, its copied active design, its active run directory, and explicitly named corpus files. It must not read sibling suite outputs, stable `designs/*/runs/**` outputs, previous audit outputs, answer keys, or any other material not explicitly allowed by the generated prompt.
 
-Use this when you want to run the `corpus-search` design on a codebase with the same execution settings as a learning-loop blind audit, but without the learning loop, scoring, refinement, candidates, or promotion:
+The default worker is Codex. Codex execution uses service tier `standard`, discovery reasoning `high`, deep reasoning `xhigh`, and deep phases `canonicalize,validations,aggregate,final`.
 
-Copy this prompt when you want Codex to do it for you:
+Claude Code is also supported with `--agent claude`. Claude uses its own CLI defaults; the Codex service-tier and reasoning flags are not passed to Claude.
 
-```text
-Run the `corpus-search` design on this codebase using the same execution settings as the learning-loop blind audit, but do not run the learning loop, scoring, refinement, candidates, or promotion.
-
-Scaffold the audit run, then execute it with the design's parallel runner:
-- jobs: 8
-- service tier: standard
-- discovery reasoning: high
-- deep reasoning: xhigh
-- deep phases: canonicalize,validations,aggregate,final
-```
-
-Or run it directly:
+## List Designs
 
 ```bash
-cd /testing/dlt-ai-audit-system
+bin/run-blind-suite --list-designs
+```
 
-designs/corpus-search/bin/dlt-ai-audit-system /path/to/target-codebase \
+## Run One Design
+
+Scaffold a run for a single design:
+
+```bash
+bin/run-design fuel-core-attackathon /path/to/target-repo \
   --run-name my-audit-run \
   --parallel-jobs 8 \
   --force
+```
 
-designs/corpus-search/bin/run-parallel-codex \
-  designs/corpus-search/runs/my-audit-run \
+Then execute the generated run with that design's parallel runner:
+
+```bash
+designs/fuel-core-attackathon/bin/run-parallel-codex \
+  designs/fuel-core-attackathon/runs/my-audit-run \
   --jobs 8 \
   --service-tier standard \
   --reasoning-effort high \
@@ -85,130 +87,73 @@ designs/corpus-search/bin/run-parallel-codex \
   --deep-phases canonicalize,validations,aggregate,final
 ```
 
-For a diff-aware audit, add refs to the scaffold command:
+To execute that run with Claude Code instead:
 
 ```bash
-designs/corpus-search/bin/dlt-ai-audit-system /path/to/target-codebase \
-  --run-name my-audit-run \
-  --previous-ref <old-ref> \
-  --current-ref HEAD \
-  --parallel-jobs 8 \
-  --force
+designs/fuel-core-attackathon/bin/run-parallel-codex \
+  designs/fuel-core-attackathon/runs/my-audit-run \
+  --agent claude \
+  --jobs 8 \
+  --claude-add-dir /path/to/target-repo
 ```
 
-### Run Multiple Designs With Blind Settings
+## Run A Blind Suite
 
-Use `run-blind-suite` when you want to compare several stable designs from `designs/` on the same target repo without letting earlier run outputs influence later designs:
+Use this when you want to run multiple trained, specialized designs against the same target without letting one design's output influence another:
 
 ```bash
-cd /testing/dlt-ai-audit-system
-
-bin/design-lab run-blind-suite \
-  --repo /path/to/target-codebase \
+bin/run-blind-suite \
+  --repo /path/to/target-repo \
   --suite-name my-blind-suite \
-  --design corpus-search \
-  --design monad-learning-loop-best \
-  --design fuel-core-learning-loop-best \
+  --design monad-c4 \
+  --design fuel-core-attackathon \
   --parallel-jobs 8
 ```
 
-The suite runs designs one after another with the learning-loop blind defaults: service tier `standard`, discovery reasoning `high`, deep reasoning `xhigh`, and deep phases `canonicalize,validations,aggregate,final`.
+The suite copies each selected design into `runs/<suite-name>/design-workspaces/<design>/design/`, excludes design run output, scaffolds an audit run, injects blind-isolation instructions, and executes the design. With the default Codex worker, it uses:
 
-For isolation, each selected design is copied into:
+- service tier: `standard`
+- discovery reasoning: `high`
+- deep reasoning: `xhigh`
+- deep phases: `canonicalize,validations,aggregate,final`
 
-```text
-design-lab/runs/<suite-name>/design-workspaces/<design>/design/
-```
-
-The copy excludes old `runs/` output. During each item, generated prompts forbid reading sibling suite workspaces, stable `designs/*/runs/**` output, benchmark ground truth, known findings, scorecards, result records, miss analyses, leaderboards, refinement plans, audit snapshots, and prior round folders.
-
-If Codex limits pause the suite, resume it without recreating completed items:
+To run the same suite with Claude Code:
 
 ```bash
-bin/design-lab run-blind-suite --suite-name my-blind-suite --resume
+bin/run-blind-suite \
+  --repo /path/to/target-repo \
+  --suite-name my-blind-suite \
+  --design monad-c4 \
+  --design fuel-core-attackathon \
+  --agent claude \
+  --parallel-jobs 8
 ```
 
-## Search The Corpus Directly
+The suite automatically passes the target repo and copied design workspace to Claude with `--claude-add-dir`.
+
+To scaffold without launching workers:
 
 ```bash
-/testing/dlt-ai-audit-system/bin/search-corpus \
+bin/run-blind-suite \
+  --repo /path/to/target-repo \
+  --suite-name my-blind-suite \
+  --design fuel-core-attackathon \
+  --scaffold-only
+```
+
+If worker limits pause a suite, resume it without recreating completed items:
+
+```bash
+bin/run-blind-suite --suite-name my-blind-suite --resume
+```
+
+## Search The Corpus
+
+```bash
+bin/search-corpus \
   --query "transaction decoder unbounded list resource accounting" \
   --family resource_accounting_and_limits \
   --top-k 10
 ```
 
-Corpus matches are hypothesis generators only. A real finding still needs target-code reachability, attacker capability, a missing property, and concrete impact.
-
-## Corpus Ingestion
-
-The corpus ingestion command still works from the root wrapper:
-
-```bash
-/testing/dlt-ai-audit-system/bin/prepare-corpus-from-repo /path/to/repo
-```
-
-## Design Lab
-
-Use `design-lab/` to evaluate and improve designs against previous competitions while keeping ground truth separate from blind audit runs:
-
-```bash
-/testing/dlt-ai-audit-system/bin/design-lab init-benchmark \
-  --name contest-name \
-  --repo /path/to/competition/repo \
-  --findings /path/to/known/findings
-
-/testing/dlt-ai-audit-system/bin/design-lab start-round \
-  --benchmark contest-name \
-  --design corpus-search \
-  --round 1
-```
-
-The lab creates scoring and refinement prompts for each round. Promote a reviewed refinement into `designs/` with:
-
-```bash
-/testing/dlt-ai-audit-system/bin/design-lab create-candidate \
-  --loop-name contest-name-corpus-loop \
-  --candidate round-02-a \
-  --source-design corpus-search
-
-/testing/dlt-ai-audit-system/bin/design-lab start-round \
-  --benchmark contest-name \
-  --candidate round-02-a \
-  --loop-name contest-name-corpus-loop \
-  --round 2
-
-/testing/dlt-ai-audit-system/bin/design-lab promote-best \
-  --loop-name contest-name-corpus-loop \
-  --new-design eval-trained-contest-name-v1
-```
-
-Experimental prompt packs and exact found/partial/missed result records stay under `design-lab/runs/<loop>/`. Only the best scored candidate/source should be copied into `designs/`.
-
-Blind audit runs are not allowed to read benchmark ground truth or previous learning-loop results. Generated audit prompts now explicitly forbid using `design-lab/benchmarks/**`, benchmark `ground-truth/**`, and prior `design-lab/runs/**` scoring/refinement artifacts while producing blind findings.
-
-If Codex limits are exhausted during a learning-loop audit, do not recreate the round. Resume it after limits refill:
-
-```bash
-/testing/dlt-ai-audit-system/bin/design-lab resume-audit \
-  --round-dir /testing/dlt-ai-audit-system/design-lab/runs/<run>/round-XX \
-  --parallel-jobs 8
-```
-
-Learning-loop audit execution uses the same default speed/reasoning split: service tier `standard`, `high` for mapper/corpus/scans, and `xhigh` for canonicalize/validations/aggregate/final. Add `--service-tier`, `--reasoning-effort`, `--deep-reasoning-effort`, or `--deep-phases` to `start-round --execute-audit` or `resume-audit` to change it.
-
-To get a ready-to-paste prompt for the whole learning loop:
-
-```bash
-/testing/dlt-ai-audit-system/bin/learning-loop-prompt \
-  --repo /path/to/competition/repo \
-  --findings /path/to/known/findings.md \
-  --benchmark contest-name
-```
-
-The canonical reusable prompt lives at `design-lab/prompts/run-learning-loop.md`. In a future Codex session, you can say:
-
-```text
-run learning loop from dlt-ai-audit-system on this codebase
-```
-
-and provide the known findings path.
+Corpus matches are hypothesis generators only. A finding still needs target-code reachability, attacker capability, a missing property, and concrete impact.

@@ -1,7 +1,5 @@
 __pycache__/
 *.pyc
-runs/
+runs/*
 !runs/.gitkeep
 designs/*/runs/
-design-lab/benchmarks/
-design-lab/runs/

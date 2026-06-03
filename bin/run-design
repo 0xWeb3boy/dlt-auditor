@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ $# -lt 1 ]]; then
+  echo "usage: bin/run-design <design-name> [target-repo] [design options...]" >&2
+  echo "try:   bin/run-blind-suite --list-designs" >&2
+  exit 2
+fi
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+DESIGN="$1"
+shift
+COMMAND="$ROOT_DIR/designs/$DESIGN/bin/dlt-ai-audit-system"
+
+if [[ ! -x "$COMMAND" ]]; then
+  echo "design is not runnable: $ROOT_DIR/designs/$DESIGN" >&2
+  exit 2
+fi
+
+exec "$COMMAND" "$@"
