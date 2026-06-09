@@ -1,4 +1,4 @@
-# DLT Auditor V1
+# DLT Auditor v1
 
 Runtime-only audit orchestration for trained, specialized DLT audit designs.
 
