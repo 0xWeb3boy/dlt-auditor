@@ -1,0 +1,4 @@
+interface:
+  display_name: "DLT Auditor"
+  short_description: "Run blind DLT audit designs safely"
+  default_prompt: "Use $dlt-auditor optimal to choose up to five fitting design packs and run a blind audit suite against a target repository."

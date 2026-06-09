@@ -58,6 +58,44 @@ The default worker is Codex. Codex execution uses service tier `standard`, disco
 
 Claude Code is also supported with `--agent claude`. Claude uses its own CLI defaults; the Codex service-tier and reasoning flags are not passed to Claude.
 
+## Use As A Codex Skill
+
+This repo is also a Codex skill. The root `SKILL.md` and `agents/openai.yaml` let Codex load the DLT Auditor operating rules, choose prompt packs, and run the existing commands in `bin/`.
+
+Install or link this repo as the `dlt-auditor` skill, for example:
+
+```bash
+ln -s /path/to/dlt-auditor ~/.codex/skills/dlt-auditor
+```
+
+Then invoke it from Codex prompts with one of three tiers:
+
+```text
+Use $dlt-auditor max on /path/to/target-repo with suite name target-max-01.
+```
+
+`max` runs every available prompt pack under `designs/`.
+
+```text
+Use $dlt-auditor optimal on /path/to/target-repo with suite name target-optimal-01.
+```
+
+`optimal` inspects the target repository and available design packs, chooses the best-fitting packs, up to 5 total, and runs one blind suite with those packs.
+
+```text
+Use $dlt-auditor custom on /path/to/target-repo with suite name target-custom-01 using design packs monad-c4 and fuel-core-attackathon.
+```
+
+`custom` runs exactly the prompt packs named by the user, after validating that each pack exists under `designs/`.
+
+For Claude Code, include that in the prompt:
+
+```text
+Use $dlt-auditor optimal on /path/to/target-repo with suite name target-claude-01 using Claude Code.
+```
+
+These tiers are skill behavior, not shell subcommands. Codex interprets `$dlt-auditor optimal`, selects or validates the design packs, then runs `bin/run-blind-suite` with repeated `--design <name>` flags. The same blind-isolation rules still apply.
+
 ## List Designs
 
 ```bash
