@@ -1,0 +1,54 @@
+name: bootstrap-autonomous-dlt-auditor
+
+on:
+  push:
+    branches:
+      - agent/autonomous-dlt-auditor-v2
+    paths:
+      - bootstrap/READY
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bootstrap-autonomous-dlt-auditor
+  cancel-in-progress: false
+
+jobs:
+  unpack-and-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Reconstruct validated source archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat bootstrap/chunk-* > /tmp/dlt-auditor.b64
+          test "$(sha256sum /tmp/dlt-auditor.b64 | awk '{print $1}')" = "d32c4db629a3c1d559c8d32e1dd02729f278a3278db6e3f7f185ab1db90941b6"
+          base64 --decode /tmp/dlt-auditor.b64 > /tmp/dlt-auditor.tar.gz
+          test "$(sha256sum /tmp/dlt-auditor.tar.gz | awk '{print $1}')" = "dbc482b87fe7d17eb67c532e441bf4fb60b9e10e2d5a89deb52a859657a17629"
+          tar -xzf /tmp/dlt-auditor.tar.gz -C .
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate generated repository
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PYTHONPATH="$PWD/src"
+          python scripts/verify_assets.py
+          python -m pytest -q
+          python scripts/build_knowledge_base.py --output /tmp/dlt_knowledge.sqlite3
+          python scripts/verify_knowledge_base.py /tmp/dlt_knowledge.sqlite3
+          python -m dlt_auditor scan tests/fixtures/vulnerable_chain --provider none --output-root /tmp/runs --run-id bootstrap-static
+      - name: Commit autonomous auditor implementation
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "OpenAI Agent"
+          git config user.email "noreply@openai.com"
+          git add -A
+          git commit -s -m "feat: add autonomous evidence-gated DLT auditor"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
